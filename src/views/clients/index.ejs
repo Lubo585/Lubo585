@@ -1,0 +1,10 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Klienti (odberatelia)</h1><a href="/clients/new" class="btn">+ Nový klient</a></div>
+<div class="card">
+<% if (!clients.length) { %><p class="muted">Zatiaľ žiadni klienti. Klient je stavebná firma, ktorej prenajímate pracovníkov; každý klient má jednu alebo viac stavieb so sadzbou za hodinu.</p><% } else { %>
+<table><tr><th>Názov</th><th>IČO</th><th>Kontakt</th><th class="num">Stavby</th><th class="num">Splatnosť</th><th class="num">Zádržné</th><th class="num">Skonto</th><th class="num">Otvorené pohľadávky</th><th></th></tr>
+<% for (const c of clients) { %>
+<tr><td><a href="/clients/<%= c.id %>"><%= c.name %></a> <% if (!c.active) { %><span class="badge muted">neaktívny</span><% } %></td><td><%= c.ico %></td><td class="small"><%= c.contact_person %><br><%= c.email %></td><td class="num"><%= c.sites_count %></td><td class="num"><%= c.due_days %> d</td><td class="num"><%= c.retention_percent ? c.retention_percent + ' % / ' + c.retention_months + ' m' : '–' %></td><td class="num"><%= c.skonto_percent ? c.skonto_percent + ' % / ' + c.skonto_days + ' d' : '–' %></td><td class="num"><%= U.money(c.open_amount) %> <% if (c.overdue_count) { %><span class="badge danger"><%= c.overdue_count %> po splatnosti</span><% } %></td><td class="right"><a href="/clients/<%= c.id %>/edit" class="btn sm secondary">Upraviť</a></td></tr>
+<% } %></table><% } %>
+</div>
+<%- include('../partials/footer') %>

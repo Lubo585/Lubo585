@@ -1,0 +1,27 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Banka – párovanie platieb</h1><div class="actions"><form class="inline" method="post" action="/bank/rematch"><button class="btn secondary">Spárovať automaticky znova</button></form><form class="inline" method="post" action="/bank/check-mail"><button class="btn secondary" <%= imapEnabled ? '' : 'disabled title="Zapnite v Nastaveniach → Bankový e-mail"' %>>Skontrolovať e-mail teraz</button></form></div></div>
+<div class="grid grid-2">
+  <form method="post" action="/bank/upload" enctype="multipart/form-data" class="card">
+    <h2>Nahrať výpis ručne</h2>
+    <div class="row" style="align-items:flex-end"><div class="field"><input type="file" name="files" multiple accept=".xml,.csv,.txt,.tsv" required></div><div class="field" style="flex:0"><button class="btn">Importovať</button></div></div>
+    <div class="help">Podporované formáty: SEPA XML camt.053 / camt.054 (všetky slovenské banky) a CSV export z internetbankingu. Duplicitné transakcie sa preskočia.</div>
+  </form>
+  <div class="card">
+    <h2>Automatický import z e-mailu</h2>
+    <% if (imapEnabled) { %><p>Zapnutý. Posledná kontrola: <b><%= imapLast ? imapLast.replace('T', ' ').slice(0, 19) : 'zatiaľ nebola' %></b><% if (imapErr) { %><br><span class="badge danger">Chyba: <%= imapErr %></span><% } %></p><% } else { %><p class="muted">Vypnutý. Nastavte e-mailovú schránku, do ktorej banka posiela výpisy, v <a href="/settings?tab=bank">Nastavenia → Bankový e-mail</a>. Aplikácia bude schránku pravidelne kontrolovať, výpisy z príloh importovať a platby automaticky párovať s faktúrami podľa variabilného symbolu a sumy.</p><% } %>
+    <% if (imports.length) { %><details><summary>Posledné importy</summary><table class="compact mt"><% for (const i of imports) { %><tr><td class="small nowrap"><%= i.received_at %></td><td><span class="badge"><%= i.source %></span> <%= i.filename || '' %> <span class="muted small"><%= i.email_subject || '' %></span></td><td class="num small"><%= i.error ? '<span class="badge danger">chyba</span> ' + i.error : i.transactions_count + ' tx / ' + i.new_count + ' nových' %></td></tr><% } %></table></details><% } %>
+  </div>
+</div>
+<div class="tabs">
+  <% for (const [k, l] of [['unmatched','Nespárované prijaté'],['matched','Spárované'],['debit','Odchádzajúce'],['ignored','Ignorované'],['all','Všetky']]) { %><a href="/bank?filter=<%= k %>" class="<%= f===k?'active':'' %>"><%= l %> <span class="badge"><%= counts[k] %></span></a><% } %>
+</div>
+<div class="card">
+<% if (!txs.length) { %><p class="muted">Žiadne transakcie.</p><% } else { %>
+<table><tr><th>Dátum</th><th>Protistrana</th><th>VS</th><th>Správa</th><th class="num">Suma</th><th>Faktúra</th><th></th></tr>
+<% for (const t of txs) { %>
+<tr><td class="nowrap"><%= U.fmtDate(t.date) %></td><td><%= t.counterparty_name || '–' %><br><span class="small muted"><%= t.counterparty_iban || '' %></span></td><td><%= t.variable_symbol || '–' %></td><td class="small"><%= t.message || '' %></td><td class="num <%= t.amount < 0 ? 'danger' : '' %>"><b><%= U.money(t.amount) %></b></td>
+<td><% if (t.matched_invoice_id) { %><a href="/invoices/<%= t.matched_invoice_id %>"><%= t.invoice_number %></a> <span class="badge <%= t.match_status === 'auto' ? 'ok' : 'info' %>"><%= t.match_status === 'auto' ? 'auto' : 'ručne' %></span><% } else if (t.match_status === 'ignored') { %><span class="badge muted"><%= t.match_note || 'ignorované' %></span><% } else { %><span class="badge warn">nespárované</span><% } %></td>
+<td class="right nowrap"><a href="/bank/<%= t.id %>" class="btn sm secondary"><%= t.amount > 0 && t.match_status === 'unmatched' ? 'Spárovať' : 'Detail' %></a></td></tr>
+<% } %></table><% } %>
+</div>
+<%- include('../partials/footer') %>

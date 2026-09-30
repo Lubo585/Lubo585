@@ -1,0 +1,38 @@
+<%- include('../partials/header') %>
+<% const locked = t.status === 'invoiced'; const st = { draft: ['warn', 'Rozpracovaný'], approved: ['info', 'Schválený'], invoiced: ['ok', 'Vyfakturovaný'] }[t.status]; %>
+<div class="topbar"><div><h1>Hodinový lístok T<%= wk.week %>/<%= wk.year %> <span class="badge <%= st[0] %>"><%= st[1] %></span></h1><div class="muted"><%= t.client_name %> – <b><%= t.site_name %></b> · <%= U.fmtDate(t.week_start) %> – <%= U.fmtDate(U.addDays(t.week_start, 6)) %> · sadzba stavby <%= U.money(t.site_rate) %>/h</div></div>
+<div class="actions no-print"><a href="/timesheets" class="btn secondary">← Zoznam</a><button class="btn secondary" type="button" onclick="window.print()">Tlačiť</button><% if (t.status === 'approved') { %><a href="/invoices/from-timesheets?client_id=<%= t.client_id %>&site_id=<%= t.site_id %>" class="btn">Fakturovať</a><% } %></div></div>
+<form method="post" action="/timesheets/<%= t.id %>/save" class="card">
+  <table class="ts-grid compact">
+    <tr><th class="name">Pracovník</th><% days.forEach((d, i) => { %><th class="num <%= i >= 5 ? 'weekend' : '' %>"><%= U.DAY_NAMES[i] %><br><span class="muted"><%= d.slice(8,10) %>.<%= d.slice(5,7) %>.</span></th><% }) %><th class="num">Spolu</th><th class="rate">Sadzba €/h</th><th>Poznámka</th><th class="no-print"></th></tr>
+    <% let total = 0, totalCost = 0, totalBill = 0; for (const r of t.rows) { const h = r.d1+r.d2+r.d3+r.d4+r.d5+r.d6+r.d7; total += h; totalCost += h * r.hourly_cost; const rate = r.rate_override ?? r.worker_rate ?? t.site_rate; totalBill += h * rate; const ro = locked || r.invoice_id; %>
+    <tr data-row>
+      <td class="name"><b><%= r.last_name %> <%= r.first_name %></b><br><span class="muted small"><%= r.position %></span></td>
+      <% for (let i = 1; i <= 7; i++) { %><td class="<%= i >= 6 ? 'weekend' : '' %>"><input type="number" step="0.5" min="0" max="24" name="rows[r<%= r.id %>][d<%= i %>]" value="<%= r['d'+i] || '' %>" placeholder="0" <%= ro ? 'readonly' : '' %> oninput="recalc()"></td><% } %>
+      <td class="num"><b data-sum><%= U.hours(h) %></b></td>
+      <td class="rate"><input type="number" step="0.01" name="rows[r<%= r.id %>][rate_override]" value="<%= r.rate_override ?? '' %>" placeholder="<%= r.worker_rate ?? t.site_rate %>" <%= ro ? 'readonly' : '' %>></td>
+      <td><input type="text" name="rows[r<%= r.id %>][note]" value="<%= r.note || '' %>" <%= ro ? 'readonly' : '' %>></td>
+      <td class="no-print"><% if (!ro) { %><button class="btn sm danger" formaction="/timesheets/<%= t.id %>/rows/<%= r.id %>/delete" formnovalidate onclick="return confirm('Odstrániť pracovníka z lístka?')">×</button><% } else if (r.invoice_id) { %><a href="/invoices/<%= r.invoice_id %>" class="badge ok">FA</a><% } %></td>
+    </tr>
+    <% } %>
+    <tr class="total"><td>Spolu</td><% for (let i = 1; i <= 7; i++) { %><td class="num" data-col="<%= i %>"><%= U.hours(t.rows.reduce((s, r) => s + r['d'+i], 0)) %></td><% } %><td class="num" data-total><%= U.hours(total) %></td><td colspan="3" class="small muted">nákl. <%= U.money(totalCost) %> · fakturovateľné <%= U.money(totalBill) %></td></tr>
+  </table>
+  <% if (!t.rows.length) { %><p class="muted">Lístok zatiaľ nemá žiadnych pracovníkov – pridajte ich nižšie.</p><% } %>
+  <div class="field mt"><label>Poznámka k lístku (podpis vedúceho stavby, dohody a pod.)</label><input type="text" name="note" value="<%= t.note || '' %>" <%= locked ? 'readonly' : '' %>></div>
+  <div class="actions no-print">
+    <% if (!locked) { %>
+      <button class="btn secondary" type="submit" name="action" value="save">Uložiť</button>
+      <% if (t.status === 'draft') { %><button class="btn ok" type="submit" name="action" value="approve" onclick="return confirm('Schváliť lístok? Schválené hodiny sa dajú fakturovať.')">Uložiť a schváliť</button><% } else { %><button class="btn secondary" type="submit" name="action" value="reopen">Vrátiť na rozpracovaný</button><% } %>
+    <% } else { %><span class="muted">Lístok je vyfakturovaný a nedá sa upravovať.</span><% } %>
+  </div>
+</form>
+<% if (!locked && workers.length) { %>
+<form method="post" action="/timesheets/<%= t.id %>/rows/add" class="card no-print">
+  <h3>Pridať pracovníkov</h3>
+  <div class="row" style="align-items:flex-end"><div class="field"><select name="worker_id" multiple size="6"><% for (const w of workers) { %><option value="<%= w.id %>"><%= w.last_name %> <%= w.first_name %> (<%= w.position %>)</option><% } %></select><div class="help">Podržte Ctrl pre výber viacerých.</div></div><div class="field" style="flex:0"><button class="btn" type="submit">Pridať</button></div></div>
+</form>
+<% } %>
+<script>
+function recalc(){const rows=document.querySelectorAll('tr[data-row]');const cols=[0,0,0,0,0,0,0];let tot=0;rows.forEach(r=>{let s=0;r.querySelectorAll('input[type=number]').forEach((inp,i)=>{if(i<7){const v=parseFloat(inp.value)||0;s+=v;cols[i]+=v;}});r.querySelector('[data-sum]').textContent=s.toLocaleString('sk-SK');tot+=s;});cols.forEach((c,i)=>{const el=document.querySelector('[data-col="'+(i+1)+'"]');if(el)el.textContent=c.toLocaleString('sk-SK');});const t=document.querySelector('[data-total]');if(t)t.textContent=tot.toLocaleString('sk-SK');}
+</script>
+<%- include('../partials/footer') %>

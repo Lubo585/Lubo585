@@ -1,0 +1,44 @@
+<%- include('../partials/header') %>
+<% const st = INV.invoiceStatusLabel(inv); const rem = INV.remaining(inv); const retRem = INV.retentionRemaining(inv); %>
+<div class="topbar"><div><h1>Faktúra <%= inv.number %> <span class="badge <%= st.cls %>"><%= st.text %></span></h1><div class="muted"><%= inv.client_name %><%= inv.site_name ? ' · ' + inv.site_name : '' %><%= inv.period_from ? ' · obdobie ' + U.fmtDate(inv.period_from) + ' – ' + U.fmtDate(inv.period_to) : '' %></div></div>
+<div class="actions"><a href="/invoices" class="btn secondary">← Zoznam</a><a href="/invoices/<%= inv.id %>/print" target="_blank" class="btn secondary">Tlač / PDF</a><% if (inv.status !== 'cancelled') { %><a href="/invoices/<%= inv.id %>/edit" class="btn secondary">Upraviť</a><form class="inline" method="post" action="/invoices/<%= inv.id %>/status" onsubmit="return confirm('Stornovať faktúru? Hodinové lístky sa uvoľnia na opätovnú fakturáciu.')"><input type="hidden" name="status" value="cancelled"><button class="btn danger">Stornovať</button></form><% } else { %><form class="inline" method="post" action="/invoices/<%= inv.id %>/status"><input type="hidden" name="status" value="issued"><button class="btn secondary">Obnoviť</button></form><form class="inline" method="post" action="/invoices/<%= inv.id %>/delete" onsubmit="return confirm('Definitívne odstrániť faktúru?')"><button class="btn danger">Odstrániť</button></form><% } %></div></div>
+<div class="grid grid-4">
+  <div class="kpi"><div class="label">Spolu s DPH</div><div class="value"><%= U.money(inv.total) %></div><div class="sub">základ <%= U.money(inv.subtotal) %> + DPH <%= U.money(inv.vat_amount) %><%= inv.reverse_charge ? ' (prenesenie DP)' : '' %></div></div>
+  <div class="kpi"><div class="label">K úhrade</div><div class="value"><%= U.money(inv.amount_due) %></div><div class="sub"><%= inv.fees_total ? 'poplatky ' + U.money(inv.fees_total) + ' · ' : '' %><%= inv.retention_amount ? 'zádržné − ' + U.money(inv.retention_amount) : 'bez zádržného' %></div></div>
+  <div class="kpi <%= rem > 0 && INV.isOverdue(inv) ? 'danger' : (rem > 0 ? 'warn' : 'ok') %>"><div class="label">Zostáva uhradiť</div><div class="value"><%= U.money(rem) %></div><div class="sub">uhradené <%= U.money(inv.paid_amount) %> · splatnosť <%= U.fmtDate(inv.due_date) %><%= inv.skonto_applied ? ' · uplatnené skonto ' + U.money(inv.skonto_amount) : '' %></div></div>
+  <div class="kpi <%= INV.retentionOverdue(inv) ? 'danger' : '' %>"><div class="label">Zádržné</div><div class="value"><%= inv.retention_amount ? U.money(retRem) : '–' %></div><div class="sub"><% if (inv.retention_amount) { %><%= inv.retention_percent %> % · splatné <%= inv.retention_due_date ? U.fmtDate(inv.retention_due_date) : 'neurčené' %> · vyplatené <%= U.money(inv.retention_paid) %><% } else { %>nie je<% } %></div></div>
+</div>
+<div class="grid grid-2 mt">
+  <div class="card">
+    <h2>Položky</h2>
+    <table class="compact"><tr><th>Popis</th><th class="num">Množstvo</th><th class="num">Cena/MJ</th><th class="num">Spolu</th></tr>
+    <% for (const it of inv.items) { %><tr><td><%= it.description %></td><td class="num"><%= U.hours(it.quantity) %> <%= it.unit %></td><td class="num"><%= U.money(it.unit_price) %></td><td class="num"><%= U.money(it.total) %></td></tr><% } %>
+    <% for (const f of inv.fees) { %><tr><td><i><%= f.name %></i> <span class="badge muted">poplatok</span></td><td></td><td></td><td class="num"><%= U.money(f.amount) %></td></tr><% } %>
+    </table>
+    <% if (inv.skonto_percent) { %><p class="small muted mt">Skonto <%= inv.skonto_percent %> % pri úhrade do <%= U.fmtDate(U.addDays(inv.issue_date, inv.skonto_days)) %>: suma k úhrade so skontom <b><%= U.money(inv.amount_due - inv.skonto_amount) %></b>.</p><% } %>
+    <% if (inv.timesheets.length) { %><p class="small muted">Hodinové lístky: <% for (const t of inv.timesheets) { const wk = U.isoWeek(t.week_start); %><a href="/timesheets/<%= t.id %>">T<%= wk.week %> <%= t.site_name %></a>, <% } %></p><% } %>
+    <% if (inv.note) { %><p class="small"><%= inv.note %></p><% } %>
+  </div>
+  <div class="card">
+    <h2>Úhrady</h2>
+    <% if (!inv.payments.length) { %><p class="muted">Zatiaľ žiadne úhrady.</p><% } else { %>
+    <table class="compact"><tr><th>Dátum</th><th>Typ</th><th>Zdroj</th><th class="num">Suma</th><th></th></tr>
+    <% for (const p of inv.payments) { %><tr><td><%= U.fmtDate(p.date) %></td><td><%= { payment: 'úhrada', retention: 'zádržné', skonto: 'skonto' }[p.type] %></td><td class="small"><%= p.bank_transaction_id ? 'banka' : 'ručne' %><%= p.counterparty_name ? ' – ' + p.counterparty_name : '' %> <% if (p.bank_transaction_id) { %><a href="/bank/<%= p.bank_transaction_id %>">#<%= p.bank_transaction_id %></a><% } %></td><td class="num"><%= U.money(p.amount) %></td><td class="right"><% if (!p.bank_transaction_id) { %><form class="inline" method="post" action="/invoices/<%= inv.id %>/payments/<%= p.id %>/delete" onsubmit="return confirm('Odstrániť úhradu?')"><button class="btn sm danger">×</button></form><% } %></td></tr><% } %></table><% } %>
+    <% if (inv.status !== 'cancelled') { %>
+    <details class="mt"><summary>+ Zaznamenať úhradu ručne</summary>
+    <form method="post" action="/invoices/<%= inv.id %>/payments/add" class="row mt" style="align-items:flex-end">
+      <div class="field"><label>Dátum</label><input type="date" name="date" value="<%= U.today() %>"></div><div class="field"><label>Suma</label><input type="number" step="0.01" name="amount" value="<%= rem > 0 ? rem : retRem %>"></div>
+      <div class="field"><label>Typ</label><select name="type"><option value="payment">úhrada faktúry</option><option value="retention" <%= rem <= 0 && retRem > 0 ? 'selected' : '' %>>vyplatenie zádržného</option></select></div>
+      <div class="field"><label>Poznámka</label><input type="text" name="note" value="Hotovosť / ručne"></div><div class="field" style="flex:0"><button class="btn">Uložiť</button></div>
+    </form></details><% } %>
+  </div>
+</div>
+<div class="card">
+  <h2>Upomienky</h2>
+  <% if (!inv.reminders.length) { %><p class="muted">Zatiaľ neboli odoslané žiadne upomienky.<%= settings.reminder_enabled === '1' ? ' Automatické upomienky sú zapnuté (po ' + settings.reminder_days + ' dňoch po splatnosti).' : ' Automatické upomienky sú vypnuté (Nastavenia → Upomienky).' %></p><% } else { %>
+  <table class="compact"><tr><th>Odoslaná</th><th>Stupeň</th><th>Komu</th><th>Predmet</th><th>Stav</th></tr><% for (const r of inv.reminders) { %><tr><td><%= r.sent_at %></td><td><%= r.level %>.</td><td><%= r.to_email %></td><td><%= r.subject %></td><td><span class="badge <%= r.status === 'failed' ? 'danger' : 'ok' %>"><%= r.status === 'failed' ? 'zlyhala: ' + r.error : (r.status === 'manual' ? 'ručne' : 'automaticky') %></span></td></tr><% } %></table><% } %>
+  <% if (INV.isOverdue(inv)) { %>
+  <form method="post" action="/invoices/<%= inv.id %>/reminder" class="row mt" style="align-items:flex-end;max-width:500px"><div class="field"><label>Stupeň upomienky</label><select name="level" id="rl"><% levels.forEach((d, i) => { %><option value="<%= i + 1 %>"><%= i + 1 %>. upomienka (<%= d %>+ dní)</option><% }) %></select></div><div class="field" style="flex:0"><a href="#" class="btn secondary" onclick="window.open('/invoices/<%= inv.id %>/reminder-preview?level='+rl.value,'_blank');return false;">Náhľad</a></div><div class="field" style="flex:0"><button class="btn" onclick="return confirm('Odoslať upomienku na <%= inv.client_email || '(klient nemá e-mail)' %>?')">Odoslať teraz</button></div></form>
+  <% } %>
+</div>
+<%- include('../partials/footer') %>

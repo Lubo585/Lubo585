@@ -1,0 +1,16 @@
+<%- include('../partials/header') %>
+<h1><%= title %></h1>
+<form method="post" action="/workers/save" class="card" style="max-width:720px">
+  <input type="hidden" name="id" value="<%= w.id || '' %>">
+  <div class="row"><div class="field"><label>Meno *</label><input type="text" name="first_name" value="<%= w.first_name || '' %>" required></div><div class="field"><label>Priezvisko *</label><input type="text" name="last_name" value="<%= w.last_name || '' %>" required></div></div>
+  <div class="row"><div class="field"><label>Národnosť</label><input type="text" name="nationality" value="<%= w.nationality || '' %>" placeholder="napr. Ukrajina"></div><div class="field"><label>Pozícia / profesia</label><input type="text" name="position" value="<%= w.position || '' %>" placeholder="murár, tesár, pomocný pracovník…"></div></div>
+  <div class="row"><div class="field"><label>Telefón</label><input type="text" name="phone" value="<%= w.phone || '' %>"></div><div class="field"><label>E-mail</label><input type="email" name="email" value="<%= w.email || '' %>"></div></div>
+  <div class="row">
+    <div class="field"><label>Nákladová sadzba € / hod *</label><input type="number" step="0.01" name="hourly_cost" value="<%= w.hourly_cost ?? 0 %>" required><div class="help">Koľko vás pracovník stojí za hodinu (mzda + odvody + réžia). Používa sa na výpočet zisku.</div></div>
+    <div class="field"><label>Fakturačná sadzba € / hod (voliteľné)</label><input type="number" step="0.01" name="hourly_rate" value="<%= w.hourly_rate ?? '' %>"><div class="help">Ak je vyplnená, prebíja sadzbu stavby pri fakturácii.</div></div>
+  </div>
+  <div class="field"><label>Poznámka</label><textarea name="note"><%= w.note || '' %></textarea></div>
+  <div class="field"><label class="check"><input type="checkbox" name="active" <%= w.active ? 'checked' : '' %>> Aktívny</label></div>
+  <div class="actions"><button class="btn" type="submit">Uložiť</button><a href="/workers" class="btn secondary">Zrušiť</a></div>
+</form>
+<%- include('../partials/footer') %>

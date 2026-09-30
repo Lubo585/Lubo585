@@ -1,0 +1,19 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Náklady na chod firmy</h1><a href="/expenses/new" class="btn">+ Nový náklad</a></div>
+<div class="grid grid-3">
+  <div class="kpi"><div class="label">Náklady za <%= month %> (bez DPH)</div><div class="value"><%= U.money(sumNet) %></div><div class="sub">s DPH <%= U.money(sumTotal) %></div></div>
+  <div class="card mb0"><h3>Podľa kategórie</h3><% if (!byCat.length) { %><span class="muted">–</span><% } %><% for (const c of byCat) { %><div class="small" style="display:flex;justify-content:space-between"><a href="/expenses?month=<%= month %>&category=<%= encodeURIComponent(c.category) %>"><%= c.category %></a><b><%= U.money(c.net) %></b></div><div class="bar" style="margin:2px 0 6px"><div style="width:<%= sumNet ? (c.net/sumNet*100).toFixed(0) : 0 %>%"></div></div><% } %></div>
+  <div class="card mb0"><h3>Opakujúce sa náklady</h3>
+  <% if (!recurringCandidates.length) { %><p class="muted small">Všetky opakujúce sa náklady sú pre tento mesiac zaevidované.</p><% } else { %>
+  <form method="post" action="/expenses/copy-recurring"><input type="hidden" name="month" value="<%= month %>">
+  <% for (const r of recurringCandidates) { %><label class="check"><input type="checkbox" name="ids" value="<%= r.id %>" checked> <%= r.description || r.category %> – <%= U.money(r.amount_net) %></label><% } %>
+  <button class="btn sm mt" type="submit">Skopírovať do <%= month %></button></form><% } %></div>
+</div>
+<div class="card mt">
+  <form method="get" class="row" style="align-items:flex-end;margin-bottom:12px"><div class="field"><label>Mesiac</label><input type="month" name="month" value="<%= month %>"></div><div class="field"><label>Kategória</label><select name="category"><option value="">všetky</option><% for (const c of categories) { %><option <%= cat===c?'selected':'' %>><%= c %></option><% } %></select></div><div class="field" style="flex:0"><button class="btn secondary">Zobraziť</button></div></form>
+  <% if (!expenses.length) { %><p class="muted">Žiadne náklady v tomto mesiaci.</p><% } else { %>
+  <table><tr><th>Dátum</th><th>Kategória</th><th>Popis</th><th>Dodávateľ</th><th>Priradenie</th><th class="num">Bez DPH</th><th class="num">S DPH</th><th></th></tr>
+  <% for (const e of expenses) { %><tr><td class="nowrap"><%= U.fmtDate(e.date) %></td><td><%= e.category %> <% if (e.recurring) { %><span class="badge muted" title="opakujúci sa">↻</span><% } %></td><td><a href="/expenses/<%= e.id %>/edit"><%= e.description || '–' %></a> <% if (!e.paid) { %><span class="badge warn">neuhradené</span><% } %></td><td><%= e.supplier %></td><td class="small muted"><%= e.last_name ? e.last_name + ' ' + e.first_name : '' %> <%= e.site_name || '' %></td><td class="num"><%= U.money(e.amount_net) %></td><td class="num"><%= U.money(e.amount_total) %></td><td class="right nowrap"><a href="/expenses/<%= e.id %>/edit" class="btn sm secondary">Upraviť</a> <form class="inline" method="post" action="/expenses/<%= e.id %>/delete" onsubmit="return confirm('Odstrániť náklad?')"><button class="btn sm danger">×</button></form></td></tr><% } %>
+  <tr class="total"><td colspan="5">Spolu</td><td class="num"><%= U.money(sumNet) %></td><td class="num"><%= U.money(sumTotal) %></td><td></td></tr></table><% } %>
+</div>
+<%- include('../partials/footer') %>

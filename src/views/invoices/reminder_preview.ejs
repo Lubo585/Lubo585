@@ -1,0 +1,5 @@
+<%- include('../partials/header') %>
+<h1>Náhľad upomienky č. <%= level %> – faktúra <%= inv.number %></h1>
+<div class="card"><p><b>Komu:</b> <%= r.to || '(klient nemá e-mail)' %><br><b>Predmet:</b> <%= r.subject %></p><pre class="mail"><%= r.body %></pre>
+<form method="post" action="/invoices/<%= inv.id %>/reminder"><input type="hidden" name="level" value="<%= level %>"><button class="btn" <%= r.to ? '' : 'disabled' %>>Odoslať</button> <a href="/invoices/<%= inv.id %>" class="btn secondary">Späť</a></form></div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,35 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1><%= c.name %></h1><div class="actions"><a href="/invoices/from-timesheets?client_id=<%= c.id %>" class="btn secondary">Fakturovať hodiny</a><a href="/clients/<%= c.id %>/edit" class="btn">Upraviť klienta</a></div></div>
+<div class="grid grid-2">
+  <div class="card">
+    <h2>Údaje</h2>
+    <table class="compact"><tr><td class="muted">IČO / DIČ / IČ DPH</td><td><%= c.ico || '–' %> / <%= c.dic || '–' %> / <%= c.ic_dph || '–' %></td></tr><tr><td class="muted">Adresa</td><td><%= c.address || '–' %></td></tr><tr><td class="muted">Kontakt</td><td><%= c.contact_person || '' %> <%= c.email || '' %> <%= c.phone || '' %></td></tr>
+    <tr><td class="muted">Splatnosť</td><td><%= c.due_days %> dní</td></tr><tr><td class="muted">Zádržné</td><td><%= c.retention_percent ? c.retention_percent + ' %, splatné po ' + c.retention_months + ' mesiacoch' : 'nie' %></td></tr><tr><td class="muted">Skonto</td><td><%= c.skonto_percent ? c.skonto_percent + ' % pri úhrade do ' + c.skonto_days + ' dní' : 'nie' %></td></tr><tr><td class="muted">DPH</td><td><%= c.reverse_charge ? 'prenesenie daňovej povinnosti' : 'štandardne' %></td></tr></table>
+    <% if (c.note) { %><p class="small muted"><%= c.note %></p><% } %>
+  </div>
+  <div class="card">
+    <h2>Stavby / zákazky</h2>
+    <% if (!sites.length) { %><p class="muted">Zatiaľ žiadne stavby.</p><% } else { %>
+    <table class="compact"><tr><th>Názov</th><th>Adresa</th><th class="num">Sadzba €/h</th><th></th></tr>
+    <% for (const s of sites) { %>
+    <tr><td><%= s.name %> <% if (!s.active) { %><span class="badge muted">neaktívna</span><% } %></td><td class="small"><%= s.address %></td><td class="num"><%= U.money(s.hourly_rate) %></td>
+    <td class="right nowrap"><button class="btn sm secondary" type="button" onclick='editSite(<%- JSON.stringify(s).replace(/</g, "\\u003c") %>)'>Upraviť</button> <form class="inline" method="post" action="/clients/<%= c.id %>/sites/<%= s.id %>/delete" onsubmit="return confirm('Odstrániť stavbu?')"><button class="btn sm danger">×</button></form></td></tr>
+    <% } %></table><% } %>
+    <details class="mt" id="site-form"><summary>+ Pridať stavbu</summary>
+    <form method="post" action="/clients/<%= c.id %>/sites/save" class="mt">
+      <input type="hidden" name="site_id" id="site_id" value="">
+      <div class="row"><div class="field"><label>Názov stavby *</label><input type="text" name="name" id="site_name" required></div><div class="field"><label>Sadzba € / hod *</label><input type="number" step="0.01" name="hourly_rate" id="site_rate" value="<%= settings.default_hourly_rate %>" required></div></div>
+      <div class="row"><div class="field"><label>Adresa stavby</label><input type="text" name="address" id="site_address"></div><div class="field"><label>Sadzba nadčas € / hod</label><input type="number" step="0.01" name="overtime_rate" id="site_ot"></div></div>
+      <div class="field"><label>Poznámka</label><input type="text" name="note" id="site_note"></div>
+      <div class="field"><label class="check"><input type="checkbox" name="active" id="site_active" checked> Aktívna</label></div>
+      <button class="btn" type="submit">Uložiť stavbu</button>
+    </form></details>
+    <script>function editSite(s){const d=document.getElementById('site-form');d.open=true;site_id.value=s.id;site_name.value=s.name;site_rate.value=s.hourly_rate;site_address.value=s.address||'';site_ot.value=s.overtime_rate||'';site_note.value=s.note||'';site_active.checked=!!s.active;site_name.focus();}</script>
+  </div>
+</div>
+<div class="card"><h2>Faktúry</h2>
+<% if (!invoices.length) { %><p class="muted">Zatiaľ žiadne faktúry.</p><% } else { %>
+<table class="compact"><tr><th>Číslo</th><th>Vystavená</th><th>Splatnosť</th><th class="num">Spolu</th><th class="num">Zádržné</th><th class="num">Zostáva</th><th>Stav</th></tr>
+<% for (const i of invoices) { const st = INV.invoiceStatusLabel(i); %><tr><td><a href="/invoices/<%= i.id %>"><%= i.number %></a></td><td><%= U.fmtDate(i.issue_date) %></td><td><%= U.fmtDate(i.due_date) %></td><td class="num"><%= U.money(i.total) %></td><td class="num"><%= i.retention_amount ? U.money(INV.retentionRemaining(i)) : '–' %></td><td class="num"><%= U.money(INV.remaining(i)) %></td><td><span class="badge <%= st.cls %>"><%= st.text %></span></td></tr><% } %></table><% } %>
+</div>
+<%- include('../partials/footer') %>

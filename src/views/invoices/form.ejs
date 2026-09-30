@@ -1,0 +1,55 @@
+<%- include('../partials/header') %>
+<h1><%= title %></h1>
+<form method="post" action="/invoices/save" class="card">
+  <input type="hidden" name="id" value="<%= inv.id || '' %>">
+  <div class="row">
+    <div class="field"><label>Číslo faktúry</label><input type="text" name="number" value="<%= inv.number || '' %>"></div>
+    <div class="field"><label>Variabilný symbol</label><input type="text" name="variable_symbol" value="<%= inv.variable_symbol || '' %>" placeholder="podľa čísla faktúry"></div>
+    <div class="field" style="flex:2"><label>Klient *</label><select name="client_id" id="client_id" required onchange="clientChanged()"><option value="">– vyberte –</option><% for (const c of clients) { %><option value="<%= c.id %>" data-c='<%- JSON.stringify({ due: c.due_days, ret: c.retention_percent, retm: c.retention_months, sk: c.skonto_percent, skd: c.skonto_days, rc: c.reverse_charge }) %>' <%= inv.client_id==c.id?'selected':'' %>><%= c.name %></option><% } %></select></div>
+    <div class="field"><label>Stavba</label><select name="site_id" id="site_id"><option value="">–</option><% for (const s of sites) { %><option value="<%= s.id %>" data-client="<%= s.client_id %>" <%= inv.site_id==s.id?'selected':'' %>><%= s.name %></option><% } %></select></div>
+  </div>
+  <div class="row">
+    <div class="field"><label>Dátum vystavenia *</label><input type="date" name="issue_date" id="issue_date" value="<%= inv.issue_date %>" required></div>
+    <div class="field"><label>Dátum dodania</label><input type="date" name="delivery_date" value="<%= inv.delivery_date || '' %>"></div>
+    <div class="field"><label>Splatnosť *</label><input type="date" name="due_date" id="due_date" value="<%= inv.due_date %>" required></div>
+    <div class="field"><label>Obdobie od</label><input type="date" name="period_from" value="<%= inv.period_from || '' %>"></div>
+    <div class="field"><label>Obdobie do</label><input type="date" name="period_to" value="<%= inv.period_to || '' %>"></div>
+  </div>
+  <h2 class="mt">Položky</h2>
+  <table class="compact" id="items"><tr><th style="width:50%">Popis</th><th class="num">Množstvo</th><th>MJ</th><th class="num">Cena / MJ</th><th class="num">Spolu</th><th></th></tr>
+  <% (inv.items.length ? inv.items : [{}]).forEach((it, i) => { %>
+  <tr><td><input type="text" name="items[<%= i %>][description]" value="<%= it.description || '' %>"></td><td><input type="number" step="0.01" name="items[<%= i %>][quantity]" value="<%= it.quantity ?? 1 %>" oninput="calc()"></td><td><input type="text" name="items[<%= i %>][unit]" value="<%= it.unit || 'hod' %>"></td><td><input type="number" step="0.01" name="items[<%= i %>][unit_price]" value="<%= it.unit_price ?? '' %>" oninput="calc()"></td><td class="num" data-line></td><td><button type="button" class="btn sm danger" onclick="this.closest('tr').remove();calc()">×</button></td></tr>
+  <% }) %></table>
+  <button type="button" class="btn sm secondary mt" onclick="addItem()">+ Položka</button>
+  <div class="grid grid-2 mt">
+    <div>
+      <h2>Iné poplatky a zrážky</h2>
+      <table class="compact" id="fees"><tr><th>Názov</th><th class="num">Suma (záporná = zrážka)</th><th></th></tr>
+      <% inv.fees.forEach((f, i) => { %><tr><td><input type="text" name="fees[<%= i %>][name]" value="<%= f.name %>"></td><td><input type="number" step="0.01" name="fees[<%= i %>][amount]" value="<%= f.amount %>" oninput="calc()"></td><td><button type="button" class="btn sm danger" onclick="this.closest('tr').remove();calc()">×</button></td></tr><% }) %></table>
+      <button type="button" class="btn sm secondary mt" onclick="addFee()">+ Poplatok / zrážka</button>
+      <div class="help">Napr. poplatok za ubytovanie preúčtovaný klientovi, zmluvná pokuta, zrážka za OOPP, dobropis… Pripočíta sa k sume k úhrade (bez DPH).</div>
+    </div>
+    <div>
+      <h2>DPH, zádržné, skonto</h2>
+      <div class="row"><div class="field"><label>Sadzba DPH %</label><input type="number" step="0.01" name="vat_rate" id="vat_rate" value="<%= inv.vat_rate ?? 23 %>" oninput="calc()"></div><div class="field"><label>&nbsp;</label><label class="check"><input type="checkbox" name="reverse_charge" id="reverse_charge" <%= inv.reverse_charge ? 'checked' : '' %> onchange="calc()"> Prenesenie daňovej povinnosti</label></div></div>
+      <div class="row"><div class="field"><label>Zádržné %</label><input type="number" step="0.01" name="retention_percent" id="retention_percent" value="<%= inv.retention_percent ?? 0 %>" oninput="calc()"></div><div class="field"><label>Zádržné splatné dňa</label><input type="date" name="retention_due_date" id="retention_due_date" value="<%= inv.retention_due_date || '' %>"></div></div>
+      <div class="row"><div class="field"><label>Skonto %</label><input type="number" step="0.01" name="skonto_percent" id="skonto_percent" value="<%= inv.skonto_percent ?? 0 %>" oninput="calc()"></div><div class="field"><label>Skonto do (dní od vystavenia)</label><input type="number" name="skonto_days" id="skonto_days" value="<%= inv.skonto_days ?? 0 %>"></div></div>
+      <table class="compact"><tr><td>Základ</td><td class="num" id="s_sub">0</td></tr><tr><td>DPH</td><td class="num" id="s_vat">0</td></tr><tr><td><b>Spolu s DPH</b></td><td class="num" id="s_tot"><b>0</b></td></tr><tr><td>Poplatky / zrážky</td><td class="num" id="s_fee">0</td></tr><tr><td>Zádržné (−)</td><td class="num" id="s_ret">0</td></tr><tr class="total"><td>K úhrade</td><td class="num" id="s_due">0</td></tr><tr><td class="muted">Pri skonte</td><td class="num muted" id="s_sk">–</td></tr></table>
+    </div>
+  </div>
+  <div class="field mt"><label>Poznámka na faktúre</label><textarea name="note"><%= inv.note || '' %></textarea></div>
+  <div class="actions"><button class="btn" type="submit">Uložiť faktúru</button><a href="<%= inv.id ? '/invoices/' + inv.id : '/invoices' %>" class="btn secondary">Zrušiť</a></div>
+</form>
+<script>
+let n=<%= inv.items.length || 1 %>, nf=<%= inv.fees.length %>;
+const fmt=v=>v.toLocaleString('sk-SK',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+function addItem(){const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" name="items[${n}][description]"></td><td><input type="number" step="0.01" name="items[${n}][quantity]" value="1" oninput="calc()"></td><td><input type="text" name="items[${n}][unit]" value="hod"></td><td><input type="number" step="0.01" name="items[${n}][unit_price]" oninput="calc()"></td><td class="num" data-line></td><td><button type="button" class="btn sm danger" onclick="this.closest('tr').remove();calc()">×</button></td>`;items.appendChild(tr);n++;}
+function addFee(){const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" name="fees[${nf}][name]"></td><td><input type="number" step="0.01" name="fees[${nf}][amount]" oninput="calc()"></td><td><button type="button" class="btn sm danger" onclick="this.closest('tr').remove();calc()">×</button></td>`;fees.appendChild(tr);nf++;}
+function calc(){let sub=0;items.querySelectorAll('tr').forEach(tr=>{const q=tr.querySelector('[name*=quantity]'),p=tr.querySelector('[name*=unit_price]');if(!q)return;const l=(parseFloat(q.value)||0)*(parseFloat(p.value)||0);sub+=l;tr.querySelector('[data-line]').textContent=fmt(l);});
+const rc=reverse_charge.checked;const vat=rc?0:sub*(parseFloat(vat_rate.value)||0)/100;const tot=sub+vat;let fee=0;fees.querySelectorAll('[name*=amount]').forEach(i=>fee+=parseFloat(i.value)||0);const ret=tot*(parseFloat(retention_percent.value)||0)/100;const due=tot+fee-ret;const sk=parseFloat(skonto_percent.value)||0;
+s_sub.textContent=fmt(sub);s_vat.textContent=fmt(vat);s_tot.innerHTML='<b>'+fmt(tot)+'</b>';s_fee.textContent=fmt(fee);s_ret.textContent='− '+fmt(ret);s_due.textContent=fmt(due);s_sk.textContent=sk?fmt(due*(1-sk/100)):'–';}
+function clientChanged(){const o=client_id.selectedOptions[0];[...site_id.options].forEach(s=>{if(s.value)s.hidden=o.value&&s.dataset.client!==o.value;});if(!o||!o.dataset.c)return;const c=JSON.parse(o.dataset.c);
+<% if (!inv.id) { %>const d=new Date(issue_date.value);d.setDate(d.getDate()+(c.due||14));due_date.value=d.toISOString().slice(0,10);retention_percent.value=c.ret||0;if(c.retm){const r=new Date(issue_date.value);r.setMonth(r.getMonth()+c.retm);retention_due_date.value=r.toISOString().slice(0,10);}skonto_percent.value=c.sk||0;skonto_days.value=c.skd||0;reverse_charge.checked=!!c.rc;<% } %>calc();}
+clientChanged();calc();
+</script>
+<%- include('../partials/footer') %>

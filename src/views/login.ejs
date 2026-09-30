@@ -1,0 +1,12 @@
+<%- include('partials/header') %>
+<div class="login-box card">
+  <h1>Prihlásenie</h1>
+  <% if (error) { %><div class="flash err"><%= error %></div><% } %>
+  <form method="post" action="/login">
+    <input type="hidden" name="next" value="<%= next %>">
+    <div class="field"><label>Používateľské meno</label><input type="text" name="username" required autofocus></div>
+    <div class="field"><label>Heslo</label><input type="password" name="password" required></div>
+    <button class="btn" type="submit">Prihlásiť sa</button>
+  </form>
+</div>
+<%- include('partials/footer') %>

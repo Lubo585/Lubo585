@@ -1,0 +1,28 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Zisk a prehľady</h1><form method="get" class="row" style="align-items:flex-end"><div class="field"><label>Od</label><input type="date" name="from" value="<%= from %>"></div><div class="field"><label>Do</label><input type="date" name="to" value="<%= to %>"></div><div class="field" style="flex:0"><button class="btn secondary">Zobraziť</button></div></form></div>
+<div class="grid grid-4">
+  <div class="kpi"><div class="label">Tržby (fakturované bez DPH)</div><div class="value"><%= U.money(rev.net) %></div><div class="sub"><%= rev.count %> faktúr</div></div>
+  <div class="kpi"><div class="label">Prevádzkové náklady</div><div class="value"><%= U.money(exp.net) %></div><div class="sub">bez DPH</div></div>
+  <div class="kpi"><div class="label">Mzdové náklady z hodín</div><div class="value"><%= U.money(lab.cost) %></div><div class="sub"><%= U.hours(lab.hours) %> hod <%= laborEffective === 0 && lab.cost > 0 ? '· nepočíta sa, mzdy sú v nákladoch' : '' %></div></div>
+  <div class="kpi <%= profit >= 0 ? 'ok' : 'danger' %>"><div class="label">Zisk za obdobie</div><div class="value"><%= U.money(profit) %></div><div class="sub">marža <%= rev.net ? (profit / rev.net * 100).toFixed(1) : 0 %> %</div></div>
+</div>
+<p class="help">Zisk = fakturované tržby bez DPH − prevádzkové náklady bez DPH − mzdové náklady vypočítané z odpracovaných hodín × nákladová sadzba pracovníka. Ak zadávate skutočné mzdy a odvody do nákladov v kategórii „Mzdy a odvody“, výpočet z hodín sa pre daný mesiac nepoužije (aby sa nepočítalo dvakrát).</p>
+<div class="card mt"><h2>Mesačný prehľad</h2>
+<table class="compact"><tr><th>Mesiac</th><th class="num">Tržby</th><th class="num">Faktúry</th><th class="num">Hodiny</th><th class="num">Mzdy z hodín</th><th class="num">Náklady</th><th class="num">Zisk</th><th style="width:25%"></th></tr>
+<% const mx = Math.max(1, ...monthly.map(m => Math.abs(m.profit))); for (const m of monthly) { %><tr><td><%= m.label %></td><td class="num"><%= U.money(m.revenue) %></td><td class="num"><%= m.invoices %></td><td class="num"><%= U.hours(m.hours) %></td><td class="num"><%= U.money(m.labor) %><%= m.laborEffective === 0 && m.labor > 0 ? '*' : '' %></td><td class="num"><%= U.money(m.expenses) %></td><td class="num" style="color:<%= m.profit >= 0 ? 'var(--ok)' : 'var(--danger)' %>"><b><%= U.money(m.profit) %></b></td><td><div class="bar"><div style="width:<%= (Math.abs(m.profit)/mx*100).toFixed(0) %>%;background:<%= m.profit >= 0 ? 'var(--ok)' : 'var(--danger)' %>"></div></div></td></tr><% } %></table>
+<div class="help">* mzdy zadané v nákladoch, výpočet z hodín sa nepoužil</div></div>
+<div class="grid grid-2">
+  <div class="card"><h2>Ziskovosť podľa stavieb (<%= U.fmtDate(from) %> – <%= U.fmtDate(to) %>)</h2>
+  <table class="compact"><tr><th>Stavba</th><th class="num">Hodiny</th><th class="num">Fakturovateľné</th><th class="num">Mzdy</th><th class="num">Náklady</th><th class="num">Marža</th></tr>
+  <% for (const s of sites) { if (!s.hours && !s.expenses) continue; %><tr><td><%= s.name %><br><span class="small muted"><%= s.client_name %></span></td><td class="num"><%= U.hours(s.hours) %></td><td class="num"><%= U.money(s.billable) %></td><td class="num"><%= U.money(s.labor) %></td><td class="num"><%= U.money(s.expenses) %></td><td class="num" style="color:<%= s.margin >= 0 ? 'var(--ok)' : 'var(--danger)' %>"><b><%= U.money(s.margin) %></b> <span class="small muted"><%= s.billable ? (s.margin / s.billable * 100).toFixed(0) + ' %' : '' %></span></td></tr><% } %></table></div>
+  <div class="card"><h2>Pracovníci</h2>
+  <table class="compact"><tr><th>Pracovník</th><th class="num">Hodiny</th><th class="num">Fakturovateľné</th><th class="num">Mzda</th><th class="num">Náklady</th><th class="num">Marža</th></tr>
+  <% for (const w of workers) { if (!w.hours) continue; %><tr><td><%= w.last_name %> <%= w.first_name %><br><span class="small muted"><%= w.position %></span></td><td class="num"><%= U.hours(w.hours) %></td><td class="num"><%= U.money(w.billable) %></td><td class="num"><%= U.money(w.labor) %></td><td class="num"><%= U.money(w.expenses) %></td><td class="num" style="color:<%= w.margin >= 0 ? 'var(--ok)' : 'var(--danger)' %>"><b><%= U.money(w.margin) %></b></td></tr><% } %></table></div>
+</div>
+<div class="card"><h2>Pohľadávky podľa klientov (aktuálny stav)</h2>
+<% if (!receivables.length) { %><p class="muted">Žiadne otvorené pohľadávky.</p><% } else { %>
+<table class="compact"><tr><th>Klient</th><th class="num">Neuhradené</th><th class="num">Z toho po splatnosti</th><th class="num">Otvorené zádržné</th></tr>
+<% for (const r of receivables) { %><tr><td><%= r.name %></td><td class="num"><%= U.money(r.open) %></td><td class="num" style="color:<%= r.overdue > 0 ? 'var(--danger)' : 'inherit' %>"><%= U.money(r.overdue) %></td><td class="num"><%= U.money(r.retention) %></td></tr><% } %></table><% } %></div>
+<div class="card"><h2>Náklady podľa kategórií</h2>
+<% if (!exp.byCategory.length) { %><p class="muted">Žiadne náklady.</p><% } else { %><table class="compact"><tr><th>Kategória</th><th class="num">Počet</th><th class="num">Bez DPH</th><th class="num">S DPH</th></tr><% for (const c of exp.byCategory) { %><tr><td><%= c.category %></td><td class="num"><%= c.cnt %></td><td class="num"><%= U.money(c.net) %></td><td class="num"><%= U.money(c.total) %></td></tr><% } %></table><% } %></div>
+<%- include('../partials/footer') %>

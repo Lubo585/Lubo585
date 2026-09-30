@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= title %> – <%= settings.company_name %></title>
+<link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<div class="layout">
+<% if (user) { %>
+<nav class="sidebar">
+  <div class="brand"><%= settings.company_name %><small>Firemná aplikácia</small></div>
+  <% const nav = [['/', 'Prehľad'], ['/timesheets', 'Hodinové lístky'], ['/workers', 'Pracovníci'], ['/clients', 'Klienti a stavby'], ['/invoices', 'Faktúry'], ['/bank', 'Banka a platby'], ['/expenses', 'Náklady'], ['/reports', 'Zisk a prehľady'], ['/settings', 'Nastavenia']]; %>
+  <% for (const [href, label] of nav) { const active = href === '/' ? path === '/' : path.startsWith(href); %>
+    <a href="<%= href %>" class="<%= active ? 'active' : '' %>"><%= label %></a>
+  <% } %>
+  <div class="user"><%= user.name || user.username %><br><form method="post" action="/logout"><button type="submit">Odhlásiť sa</button></form></div>
+</nav>
+<% } %>
+<main class="main">
+<% if (flash) { %><div class="flash <%= flash.type %>"><%= flash.text %></div><% } %>

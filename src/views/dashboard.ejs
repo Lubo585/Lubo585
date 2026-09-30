@@ -1,0 +1,58 @@
+<%- include('partials/header') %>
+<div class="topbar"><h1>Prehľad</h1><span class="muted"><%= U.fmtDate(from) %> – <%= U.fmtDate(to) %></span></div>
+<div class="grid grid-4">
+  <div class="kpi"><div class="label">Fakturované tento mesiac (bez DPH)</div><div class="value"><%= U.money(rev.net) %></div><div class="sub"><%= rev.count %> faktúr</div></div>
+  <div class="kpi"><div class="label">Náklady tento mesiac</div><div class="value"><%= U.money(exp.net + laborEffective) %></div><div class="sub">prevádzka <%= U.money(exp.net) %><%= laborEffective ? ' + mzdy z hodín ' + U.money(laborEffective) : '' %></div></div>
+  <div class="kpi <%= profit >= 0 ? 'ok' : 'danger' %>"><div class="label">Zisk tento mesiac</div><div class="value"><%= U.money(profit) %></div><div class="sub"><%= U.hours(lab.hours) %> odpracovaných hodín</div></div>
+  <div class="kpi <%= overdueSum > 0 ? 'danger' : '' %>"><div class="label">Po splatnosti</div><div class="value"><%= U.money(overdueSum) %></div><div class="sub"><%= overdue.length %> faktúr · pohľadávky spolu <%= U.money(receivables) %></div></div>
+</div>
+<div class="grid grid-2 mt">
+  <div class="card">
+    <h2>Zisk za posledných 6 mesiacov</h2>
+    <% const mx = Math.max(1, ...monthly.map(m => Math.max(m.revenue, m.expenses + m.laborEffective, Math.abs(m.profit)))); %>
+    <div class="chart">
+      <% for (const m of monthly) { %>
+        <div class="col" title="Tržby <%= U.money(m.revenue) %>, náklady <%= U.money(m.expenses + m.laborEffective) %>, zisk <%= U.money(m.profit) %>">
+          <div class="bars"><div class="b rev" style="height:<%= (m.revenue/mx*100).toFixed(1) %>%"></div><div class="b cost" style="height:<%= ((m.expenses+m.laborEffective)/mx*100).toFixed(1) %>%"></div><div class="b profit <%= m.profit < 0 ? 'neg' : '' %>" style="height:<%= (Math.abs(m.profit)/mx*100).toFixed(1) %>%"></div></div>
+          <div><%= m.month.slice(5) %>/<%= m.month.slice(2,4) %></div>
+        </div>
+      <% } %>
+    </div>
+    <div class="legend small muted mt"><span style="background:#3b82f6"></span>Tržby &nbsp; <span style="background:#f59e0b"></span>Náklady &nbsp; <span style="background:#16a34a"></span>Zisk &nbsp; <a href="/reports">Podrobný prehľad →</a></div>
+  </div>
+  <div class="card">
+    <h2>Tento týždeň</h2>
+    <p><b><%= U.hours(weekHours.hours) %> hod</b> zapísaných pre <b><%= weekHours.workers %></b> pracovníkov · <b><%= U.hours(uninvoiced) %> hod</b> schválených a ešte nevyfakturovaných <% if (uninvoiced > 0) { %>· <a href="/invoices/from-timesheets">fakturovať →</a><% } %></p>
+    <h3>Neschválené hodinové lístky</h3>
+    <% if (!draftSheets.length) { %><p class="muted">Žiadne.</p><% } else { %>
+    <table class="compact"><% for (const t of draftSheets) { const wk = U.isoWeek(t.week_start); %><tr><td><a href="/timesheets/<%= t.id %>">T<%= wk.week %> (<%= U.fmtDate(t.week_start) %>)</a></td><td><%= t.client_name %> – <%= t.site_name %></td></tr><% } %></table>
+    <% } %>
+  </div>
+</div>
+<div class="grid grid-2">
+  <div class="card">
+    <h2>Faktúry po splatnosti</h2>
+    <% if (!overdue.length) { %><p class="muted">Žiadne faktúry po splatnosti.</p><% } else { %>
+    <table class="compact"><tr><th>Číslo</th><th>Klient</th><th>Splatnosť</th><th class="num">Zostáva</th><th></th></tr>
+    <% for (const i of overdue) { %><tr><td><a href="/invoices/<%= i.id %>"><%= i.number %></a></td><td><%= i.client_name %></td><td><%= U.fmtDate(i.due_date) %></td><td class="num"><%= U.money(INV.remaining(i)) %></td><td><span class="badge danger"><%= INV.daysOverdue(i) %> d</span></td></tr><% } %></table>
+    <% } %>
+    <% if (dueSoon.length) { %><h3 class="mt">Splatné do 7 dní</h3>
+    <table class="compact"><% for (const i of dueSoon) { %><tr><td><a href="/invoices/<%= i.id %>"><%= i.number %></a></td><td><%= i.client_name %></td><td><%= U.fmtDate(i.due_date) %></td><td class="num"><%= U.money(INV.remaining(i)) %></td></tr><% } %></table><% } %>
+  </div>
+  <div class="card">
+    <h2>Nespárované prijaté platby <% if (unmatchedCount) { %><span class="badge warn"><%= unmatchedCount %></span><% } %></h2>
+    <% if (!unmatched.length) { %><p class="muted">Všetky prijaté platby sú spárované.</p><% } else { %>
+    <table class="compact"><% for (const t of unmatched) { %><tr><td><%= U.fmtDate(t.date) %></td><td><%= t.counterparty_name || '–' %></td><td>VS <%= t.variable_symbol || '–' %></td><td class="num"><%= U.money(t.amount) %></td><td><a href="/bank/<%= t.id %>" class="btn sm secondary">Spárovať</a></td></tr><% } %></table>
+    <% } %>
+    <h3 class="mt">Zádržné na vyplatenie</h3>
+    <% if (!retention.length) { %><p class="muted">Žiadne otvorené zádržné.</p><% } else { %>
+    <table class="compact"><tr><th>Faktúra</th><th>Klient</th><th>Splatné</th><th class="num">Suma</th></tr>
+    <% for (const i of retention) { %><tr><td><a href="/invoices/<%= i.id %>"><%= i.number %></a></td><td><%= i.client_name %></td><td><%= i.retention_due_date ? U.fmtDate(i.retention_due_date) : '–' %> <% if (INV.retentionOverdue(i)) { %><span class="badge danger">po lehote</span><% } %></td><td class="num"><%= U.money(INV.retentionRemaining(i)) %></td></tr><% } %></table>
+    <% } %>
+  </div>
+</div>
+<div class="card"><h2>Posledná aktivita</h2>
+<% if (!activity.length) { %><p class="muted">Zatiaľ žiadna aktivita. Začnite pridaním <a href="/clients/new">klienta</a> a <a href="/workers/new">pracovníkov</a>.</p><% } else { %>
+<table class="compact"><% for (const a of activity) { %><tr><td class="nowrap muted small"><%= a.created_at %></td><td><span class="badge"><%= a.type %></span></td><td><%= a.message %></td></tr><% } %></table><% } %>
+</div>
+<%- include('partials/footer') %>

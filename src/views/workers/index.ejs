@@ -1,0 +1,11 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Pracovníci</h1><div class="actions"><a href="/workers?all=<%= showAll ? '0' : '1' %>" class="btn secondary"><%= showAll ? 'Iba aktívni' : 'Zobraziť aj neaktívnych' %></a><a href="/workers/new" class="btn">+ Nový pracovník</a></div></div>
+<div class="card">
+<% if (!workers.length) { %><p class="muted">Zatiaľ žiadni pracovníci.</p><% } else { %>
+<table><tr><th>Meno</th><th>Národnosť</th><th>Pozícia</th><th>Kontakt</th><th class="num">Nákladová sadzba</th><th class="num">Fakturačná sadzba</th><th class="num">Hodiny tento mesiac</th><th></th></tr>
+<% for (const w of workers) { %>
+<tr><td><a href="/workers/<%= w.id %>/edit"><%= w.last_name %> <%= w.first_name %></a> <% if (!w.active) { %><span class="badge muted">neaktívny</span><% } %></td><td><%= w.nationality %></td><td><%= w.position %></td><td class="small"><%= w.phone %><% if (w.email) { %><br><%= w.email %><% } %></td><td class="num"><%= U.money(w.hourly_cost) %>/h</td><td class="num"><%- w.hourly_rate ? U.money(w.hourly_rate) + '/h' : '<span class="muted">podľa stavby</span>' %></td><td class="num"><%= U.hours(w.hours_month) %></td>
+<td class="right nowrap"><a href="/workers/<%= w.id %>/edit" class="btn sm secondary">Upraviť</a> <form class="inline" method="post" action="/workers/<%= w.id %>/delete" onsubmit="return confirm('Odstrániť pracovníka?')"><button class="btn sm danger">Odstrániť</button></form></td></tr>
+<% } %></table><% } %>
+</div>
+<%- include('../partials/footer') %>

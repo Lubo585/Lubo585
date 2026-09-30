@@ -1,0 +1,68 @@
+<%- include('../partials/header') %>
+<h1>Nastavenia</h1>
+<div class="tabs"><% for (const [k, l] of [['company','Firma'],['invoicing','Fakturácia'],['reminders','Upomienky'],['email','Odosielanie e-mailov (SMTP)'],['bank','Bankový e-mail (IMAP)'],['account','Účet a používatelia'],['log','Denník']]) { %><a href="/settings?tab=<%= k %>" class="<%= tab===k?'active':'' %>"><%= l %></a><% } %></div>
+
+<% if (tab === 'company') { %>
+<form method="post" action="/settings/save" class="card" style="max-width:800px"><input type="hidden" name="tab" value="company">
+  <div class="field"><label>Názov firmy</label><input type="text" name="company_name" value="<%= s.company_name %>"></div>
+  <div class="field"><label>Adresa (sídlo)</label><input type="text" name="company_address" value="<%= s.company_address %>"></div>
+  <div class="row"><div class="field"><label>IČO</label><input type="text" name="company_ico" value="<%= s.company_ico %>"></div><div class="field"><label>DIČ</label><input type="text" name="company_dic" value="<%= s.company_dic %>"></div><div class="field"><label>IČ DPH</label><input type="text" name="company_ic_dph" value="<%= s.company_ic_dph %>"></div></div>
+  <div class="row"><div class="field"><label>IBAN</label><input type="text" name="company_iban" value="<%= s.company_iban %>"></div><div class="field"><label>BIC / SWIFT</label><input type="text" name="company_bic" value="<%= s.company_bic %>"></div></div>
+  <div class="row"><div class="field"><label>E-mail</label><input type="text" name="company_email" value="<%= s.company_email %>"></div><div class="field"><label>Telefón</label><input type="text" name="company_phone" value="<%= s.company_phone %>"></div></div>
+  <div class="field"><label>Zápis v registri (text na faktúre)</label><input type="text" name="company_register" value="<%= s.company_register %>" placeholder="Zapísaná v OR OS Bratislava I, oddiel Sro, vložka č. 12345/B"></div>
+  <button class="btn">Uložiť</button></form>
+
+<% } else if (tab === 'invoicing') { %>
+<form method="post" action="/settings/save" class="card" style="max-width:800px"><input type="hidden" name="tab" value="invoicing">
+  <div class="row"><div class="field"><label>Predpona čísla faktúry</label><input type="text" name="invoice_prefix" value="<%= s.invoice_prefix %>" placeholder="napr. FA"></div><div class="field"><label>Formát číslovania</label><input type="text" name="invoice_number_format" value="<%= s.invoice_number_format %>"><div class="help">{YYYY} rok, {YY} dvojciferný rok, {NNNN} poradové číslo v roku. Variabilný symbol = číslice z čísla faktúry.</div></div></div>
+  <div class="row"><div class="field"><label>Predvolená sadzba DPH %</label><input type="number" step="0.01" name="default_vat_rate" value="<%= s.default_vat_rate %>"></div><div class="field"><label>Predvolená splatnosť (dní)</label><input type="number" name="default_due_days" value="<%= s.default_due_days %>"></div><div class="field"><label>Predvolená sadzba za hodinu €</label><input type="number" step="0.01" name="default_hourly_rate" value="<%= s.default_hourly_rate %>"></div></div>
+  <div class="field"><label>Tolerancia pri párovaní súm (€)</label><input type="number" step="0.01" name="match_amount_tolerance" value="<%= s.match_amount_tolerance %>"><div class="help">Rozdiel medzi prijatou sumou a sumou faktúry, ktorý sa ešte považuje za úplnú úhradu.</div></div>
+  <button class="btn">Uložiť</button></form>
+
+<% } else if (tab === 'reminders') { %>
+<div class="grid grid-2">
+<form method="post" action="/settings/save" class="card"><input type="hidden" name="tab" value="reminders"><input type="hidden" name="_form_reminder_enabled" value="1">
+  <div class="field"><label class="check"><input type="checkbox" name="reminder_enabled" <%= s.reminder_enabled === '1' ? 'checked' : '' %>> Odosielať upomienky automaticky (denne o 8:00)</label></div>
+  <div class="field"><label>Dni po splatnosti pre 1., 2., 3. … upomienku</label><input type="text" name="reminder_days" value="<%= s.reminder_days %>"><div class="help">Čiarkou oddelené, napr. 3,14,30. Každý stupeň sa odošle iba raz.</div></div>
+  <div class="field"><label>Kópia (CC) na</label><input type="text" name="reminder_cc" value="<%= s.reminder_cc %>" placeholder="vas@email.sk"></div>
+  <div class="field"><label>Predmet</label><input type="text" name="reminder_subject" value="<%= s.reminder_subject %>"></div>
+  <div class="field"><label>Text upomienky</label><textarea name="reminder_body" style="min-height:260px"><%= s.reminder_body %></textarea><div class="help">Premenné: {LEVEL} {NUMBER} {VS} {ISSUE_DATE} {DUE_DATE} {AMOUNT} {REMAINING} {DAYS_OVERDUE} {IBAN} {COMPANY} {CLIENT}</div></div>
+  <button class="btn">Uložiť</button></form>
+<div class="card"><h2>Upomienky na odoslanie dnes</h2>
+  <% if (!due.length) { %><p class="muted">Žiadne faktúry nečakajú na upomienku.</p><% } else { %><table class="compact"><tr><th>Faktúra</th><th>Po splatnosti</th><th>Stupeň</th><th class="num">Zostáva</th></tr><% for (const d of due) { %><tr><td><a href="/invoices/<%= d.invoice.id %>"><%= d.invoice.number %></a></td><td><%= INV.daysOverdue(d.invoice) %> dní</td><td><%= d.level %>.</td><td class="num"><%= U.money(INV.remaining(d.invoice)) %></td></tr><% } %></table>
+  <form method="post" action="/settings/run-reminders" class="mt"><button class="btn" onclick="return confirm('Odoslať všetky čakajúce upomienky teraz?')">Odoslať teraz</button></form><% } %>
+  <p class="help mt">Pre odosielanie musí byť nastavený SMTP server a klient musí mať vyplnený e-mail.</p></div>
+</div>
+
+<% } else if (tab === 'email') { %>
+<form method="post" action="/settings/save" class="card" style="max-width:800px"><input type="hidden" name="tab" value="email"><input type="hidden" name="_form_smtp_secure" value="1">
+  <div class="row"><div class="field" style="flex:2"><label>SMTP server</label><input type="text" name="smtp_host" value="<%= s.smtp_host %>" placeholder="smtp.gmail.com"></div><div class="field"><label>Port</label><input type="number" name="smtp_port" value="<%= s.smtp_port %>"></div><div class="field"><label>&nbsp;</label><label class="check"><input type="checkbox" name="smtp_secure" <%= s.smtp_secure === '1' ? 'checked' : '' %>> SSL (port 465)</label></div></div>
+  <div class="row"><div class="field"><label>Používateľ</label><input type="text" name="smtp_user" value="<%= s.smtp_user %>"></div><div class="field"><label>Heslo <%= s.smtp_pass ? '(uložené, ponechajte prázdne pre zachovanie)' : '' %></label><input type="password" name="smtp_pass" value="" autocomplete="new-password"></div></div>
+  <div class="field"><label>Odosielateľ (From)</label><input type="text" name="smtp_from" value="<%= s.smtp_from %>" placeholder="Agentúra s.r.o. <fakturacia@firma.sk>"></div>
+  <div class="help">Pre Gmail použite „heslo aplikácie“ (Google účet → Zabezpečenie → Heslá aplikácií), server smtp.gmail.com, port 587.</div>
+  <button class="btn mt">Uložiť</button></form>
+<form method="post" action="/settings/test-smtp" class="card row" style="max-width:800px;align-items:flex-end"><div class="field"><label>Testovací e-mail poslať na</label><input type="email" name="to" placeholder="vas@email.sk"></div><div class="field" style="flex:0"><button class="btn secondary">Otestovať SMTP</button></div></form>
+
+<% } else if (tab === 'bank') { %>
+<form method="post" action="/settings/save" class="card" style="max-width:800px"><input type="hidden" name="tab" value="bank"><input type="hidden" name="_form_imap_enabled" value="1"><input type="hidden" name="_form_imap_secure" value="1">
+  <p class="help">Vytvorte si samostatnú e-mailovú schránku (napr. <b>vypisy@vasafirma.sk</b>) a v internetbankingu nastavte zasielanie výpisov na túto adresu vo formáte <b>XML (camt.053)</b> alebo CSV. Aplikácia bude schránku pravidelne kontrolovať, neprečítané e-maily s prílohami importovať a prijaté platby párovať s faktúrami.</p>
+  <div class="field"><label class="check"><input type="checkbox" name="imap_enabled" <%= s.imap_enabled === '1' ? 'checked' : '' %>> Automaticky sťahovať výpisy z e-mailu</label></div>
+  <div class="row"><div class="field" style="flex:2"><label>IMAP server</label><input type="text" name="imap_host" value="<%= s.imap_host %>" placeholder="imap.gmail.com"></div><div class="field"><label>Port</label><input type="number" name="imap_port" value="<%= s.imap_port %>"></div><div class="field"><label>&nbsp;</label><label class="check"><input type="checkbox" name="imap_secure" <%= s.imap_secure !== '0' ? 'checked' : '' %>> SSL/TLS</label></div></div>
+  <div class="row"><div class="field"><label>Používateľ (e-mail)</label><input type="text" name="imap_user" value="<%= s.imap_user %>"></div><div class="field"><label>Heslo <%= s.imap_pass ? '(uložené)' : '' %></label><input type="password" name="imap_pass" value="" autocomplete="new-password"></div></div>
+  <div class="row"><div class="field"><label>Priečinok</label><input type="text" name="imap_folder" value="<%= s.imap_folder %>"></div><div class="field"><label>Iba e-maily od (filter odosielateľa)</label><input type="text" name="imap_from_filter" value="<%= s.imap_from_filter %>" placeholder="@tatrabanka.sk"></div><div class="field"><label>Interval kontroly (minúty)</label><input type="number" name="imap_interval_minutes" value="<%= s.imap_interval_minutes %>"></div></div>
+  <% if (s.imap_last_check) { %><p class="small muted">Posledná kontrola: <%= s.imap_last_check.replace('T',' ').slice(0,19) %> <%= s.imap_last_error ? '– chyba: ' + s.imap_last_error : '– OK' %></p><% } %>
+  <button class="btn">Uložiť</button></form>
+<form method="post" action="/settings/test-imap" class="card" style="max-width:800px"><button class="btn secondary">Otestovať IMAP pripojenie</button> <a href="/bank" class="btn secondary">Prejsť na Banka a platby</a></form>
+
+<% } else if (tab === 'account') { %>
+<div class="grid grid-2">
+<form method="post" action="/settings/password" class="card"><h2>Zmena hesla (<%= user.username %>)</h2>
+  <div class="field"><label>Pôvodné heslo</label><input type="password" name="old_password" required></div><div class="field"><label>Nové heslo</label><input type="password" name="new_password" required minlength="6"></div><div class="field"><label>Nové heslo znova</label><input type="password" name="new_password2" required></div><button class="btn">Zmeniť heslo</button></form>
+<form method="post" action="/settings/users/add" class="card"><h2>Pridať používateľa</h2>
+  <div class="field"><label>Prihlasovacie meno</label><input type="text" name="username" required></div><div class="field"><label>Meno</label><input type="text" name="name"></div><div class="field"><label>Heslo</label><input type="password" name="password" required minlength="6"></div><button class="btn">Pridať</button></form>
+</div>
+
+<% } else if (tab === 'log') { %>
+<div class="card"><table class="compact"><% for (const l of logs) { %><tr><td class="nowrap muted small"><%= l.created_at %></td><td><span class="badge"><%= l.type %></span></td><td><%= l.message %></td></tr><% } %></table><% if (!logs.length) { %><p class="muted">Denník je prázdny.</p><% } %></div>
+<% } %>
+<%- include('../partials/footer') %>

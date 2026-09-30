@@ -1,0 +1,15 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Faktúry</h1><div class="actions"><a href="/invoices/from-timesheets" class="btn">Fakturovať odpracované hodiny</a><a href="/invoices/new" class="btn secondary">+ Ručná faktúra</a></div></div>
+<div class="tabs">
+  <% for (const [k, l] of [['open','Neuhradené'],['overdue','Po splatnosti'],['retention','Otvorené zádržné'],['paid','Uhradené'],['all','Všetky']]) { %><a href="/invoices?filter=<%= k %>" class="<%= f===k?'active':'' %>"><%= l %></a><% } %>
+</div>
+<div class="card">
+  <form method="get" class="row" style="align-items:flex-end;margin-bottom:12px"><input type="hidden" name="filter" value="<%= f %>"><div class="field"><label>Hľadať (číslo, klient)</label><input type="text" name="q" value="<%= q %>"></div><div class="field"><label>Klient</label><select name="client"><option value="">všetci</option><% for (const c of clients) { %><option value="<%= c.id %>" <%= client==c.id?'selected':'' %>><%= c.name %></option><% } %></select></div><div class="field" style="flex:0"><button class="btn secondary">Filtrovať</button></div></form>
+  <% if (!invoices.length) { %><p class="muted">Žiadne faktúry.</p><% } else { %>
+  <table><tr><th>Číslo</th><th>Klient</th><th>Vystavená</th><th>Splatnosť</th><th class="num">Spolu s DPH</th><th class="num">Zádržné</th><th class="num">K úhrade</th><th class="num">Uhradené</th><th class="num">Zostáva</th><th>Stav</th><th>Upom.</th></tr>
+  <% for (const i of invoices) { const st = INV.invoiceStatusLabel(i); %>
+  <tr><td><a href="/invoices/<%= i.id %>"><b><%= i.number %></b></a></td><td><%= i.client_name %></td><td><%= U.fmtDate(i.issue_date) %></td><td class="<%= INV.isOverdue(i) ? 'danger' : '' %>"><%= U.fmtDate(i.due_date) %></td><td class="num"><%= U.money(i.total) %></td><td class="num"><% if (i.retention_amount) { %><%= U.money(INV.retentionRemaining(i)) %> <span class="muted small">/ <%= U.money(i.retention_amount) %></span><% } else { %>–<% } %></td><td class="num"><%= U.money(i.amount_due) %></td><td class="num"><%= U.money(i.paid_amount) %></td><td class="num"><b><%= U.money(INV.remaining(i)) %></b></td><td><span class="badge <%= st.cls %>"><%= st.text %></span></td><td><%= i.reminder_level ? '<span class="badge warn">' + i.reminder_level + '.</span>' : '' %></td></tr>
+  <% } %>
+  <tr class="total"><td colspan="4">Spolu (<%= invoices.length %>)</td><td class="num"><%= U.money(sums.total) %></td><td class="num"><%= U.money(sums.retention) %></td><td colspan="2"></td><td class="num"><%= U.money(sums.remaining) %></td><td colspan="2"></td></tr></table><% } %>
+</div>
+<%- include('../partials/footer') %>
