@@ -1,6 +1,6 @@
-# Firemná aplikácia pre personálnu agentúru v stavebníctve
+# Firemná aplikácia – SX Workforce s.r.o.
 
-Webová aplikácia pre agentúru, ktorá prenajíma (zahraničných) pracovníkov stavebným firmám. Pokrýva:
+Webová aplikácia pre personálnu agentúru v stavebníctve (SX Workforce s.r.o., IČO 55087019), ktorá prenajíma (zahraničných) pracovníkov stavebným firmám. Pokrýva:
 
 - **Hodinové lístky** – týždenný lístok pre každú stavbu, riadky = pracovníci, hodiny Po–Ne, schvaľovanie, tlač, predvyplnenie pracovníkov z minulého týždňa.
 - **Pracovníci** – národnosť, profesia, nákladová sadzba (mzda + odvody) a voliteľná fakturačná sadzba.
@@ -35,7 +35,7 @@ docker run -d -p 3000:3000 -v $(pwd)/data:/app/data -e SESSION_SECRET=nahodny-re
 
 ## Prvé kroky
 
-1. **Nastavenia → Firma**: názov, IČO, DIČ, IČ DPH, IBAN (tlačí sa na faktúru a používa v upomienkach).
+1. **Nastavenia → Firma**: názov, sídlo, IČO, DIČ a IČ DPH sú predvyplnené podľa verejných registrov; doplňte **IBAN**, e-mail, telefón a zápis v obchodnom registri (tlačia sa na faktúru a používajú v upomienkach).
 2. **Nastavenia → Fakturácia**: formát číslovania, DPH, splatnosť.
 3. **Pracovníci**: pridajte pracovníkov s nákladovou sadzbou.
 4. **Klienti a stavby**: pridajte klienta (splatnosť, zádržné %, skonto %, e-mail) a jeho stavby so sadzbou €/hod.

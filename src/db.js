@@ -261,11 +261,11 @@ function transaction(fn) {
 
 // ---------- nastavenia ----------
 const DEFAULT_SETTINGS = {
-  company_name: 'Moja agentúra s.r.o.',
-  company_address: 'Ulica 1, 811 01 Bratislava',
-  company_ico: '',
-  company_dic: '',
-  company_ic_dph: '',
+  company_name: 'SX Workforce s.r.o.',
+  company_address: 'Doležalova 15C, 821 04 Bratislava - mestská časť Ružinov',
+  company_ico: '55087019',
+  company_dic: '2121883632',
+  company_ic_dph: 'SK2121883632',
   company_iban: '',
   company_bic: '',
   company_email: '',
