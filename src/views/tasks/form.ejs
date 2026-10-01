@@ -1,0 +1,21 @@
+<%- include('../partials/header') %>
+<h1><%= title %></h1>
+<form method="post" action="/tasks/save" class="card" style="max-width:820px">
+  <input type="hidden" name="id" value="<%= t.id || '' %>">
+  <div class="field"><label>Čo treba urobiť *</label><input type="text" name="title" value="<%= t.title || '' %>" required autofocus placeholder="napr. Zabezpečiť ubytovanie pre 4 pracovníkov od 15.10."></div>
+  <div class="field"><label>Podrobnosti</label><textarea name="description" style="min-height:100px"><%= t.description || '' %></textarea></div>
+  <div class="row">
+    <div class="field"><label>Rieši (komu je úloha zadaná) *</label><select name="assigned_to" required><% for (const u of users) { %><option value="<%= u.id %>" <%= t.assigned_to==u.id?'selected':'' %>><%= u.name || u.username %></option><% } %></select><div class="help">Zadávateľ = prihlásený používateľ (<%= user.name || user.username %>). Ďalších používateľov pridáte v Nastavenia → Účet.</div></div>
+    <div class="field"><label>Termín</label><input type="date" name="due_date" value="<%= t.due_date || '' %>"></div>
+    <div class="field"><label>Priorita</label><select name="priority"><% for (const [k, v] of Object.entries(PRIORITIES)) { %><option value="<%= k %>" <%= (t.priority||'normal')===k?'selected':'' %>><%= v[0] %></option><% } %></select></div>
+  </div>
+  <h3 class="mt">Týka sa (voliteľné)</h3>
+  <div class="row">
+    <div class="field"><label>Klient</label><select name="client_id" id="client_id" onchange="filterSites()"><option value="">–</option><% for (const c of clients) { %><option value="<%= c.id %>" <%= t.client_id==c.id?'selected':'' %>><%= c.name %></option><% } %></select></div>
+    <div class="field"><label>Zákazka</label><select name="site_id" id="site_id"><option value="">–</option><% for (const s of sites) { %><option value="<%= s.id %>" data-client="<%= s.client_id %>" <%= t.site_id==s.id?'selected':'' %>><%= s.name %></option><% } %></select></div>
+    <div class="field"><label>Pracovník</label><select name="worker_id"><option value="">–</option><% for (const w of workers) { %><option value="<%= w.id %>" <%= t.worker_id==w.id?'selected':'' %>><%= w.last_name %> <%= w.first_name %></option><% } %></select></div>
+  </div>
+  <div class="actions mt"><button class="btn" type="submit">Uložiť úlohu</button><a href="<%= t.id ? '/tasks/' + t.id : '/tasks' %>" class="btn secondary">Zrušiť</a></div>
+</form>
+<script>function filterSites(){const c=client_id.value;[...site_id.options].forEach(o=>{if(o.value)o.hidden=c&&o.dataset.client!==c;});}filterSites();</script>
+<%- include('../partials/footer') %>

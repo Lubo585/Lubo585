@@ -1,15 +1,36 @@
 <%- include('../partials/header') %>
-<div class="topbar"><h1>Faktúry</h1><div class="actions"><a href="/invoices/from-timesheets" class="btn">Fakturovať odpracované hodiny</a><a href="/invoices/new" class="btn secondary">+ Ručná faktúra</a></div></div>
-<div class="tabs">
-  <% for (const [k, l] of [['open','Neuhradené'],['overdue','Po splatnosti'],['retention','Otvorené zádržné'],['paid','Uhradené'],['all','Všetky']]) { %><a href="/invoices?filter=<%= k %>" class="<%= f===k?'active':'' %>"><%= l %></a><% } %>
+<div class="topbar"><h1>Fakturácia</h1><div class="actions"><a href="/invoices/from-timesheets" class="btn">Fakturovať odpracované hodiny</a><a href="/invoices/new" class="btn secondary">+ Ručná faktúra</a></div></div>
+<div class="grid grid-4">
+  <div class="kpi <%= kpi.openSum > 0 ? 'warn' : 'ok' %>"><div class="label">Neuhradené faktúry</div><div class="value"><%= U.money(kpi.openSum) %></div><div class="sub"><%= kpi.openCount %> faktúr</div></div>
+  <div class="kpi <%= kpi.overdueSum > 0 ? 'danger' : 'ok' %>"><div class="label">Po splatnosti</div><div class="value"><%= U.money(kpi.overdueSum) %></div><div class="sub"><%= kpi.overdueCount %> faktúr</div></div>
+  <div class="kpi"><div class="label">Zádržné u klientov</div><div class="value"><%= U.money(kpi.retentionSum) %></div><div class="sub"><%= kpi.retentionCount %> faktúr · splatné do 30 dní <b><%= U.money(kpi.retentionSoon) %></b></div></div>
+  <div class="kpi <%= kpi.retentionOverdue > 0 ? 'danger' : '' %>"><div class="label">Zádržné po lehote</div><div class="value"><%= U.money(kpi.retentionOverdue) %></div><div class="sub">klient mal už uvoľniť</div></div>
+</div>
+<div class="tabs mt">
+  <% for (const [k, l] of [['all','Všetky faktúry'],['open','Neuhradené'],['overdue','Po splatnosti'],['retention','Otvorené zádržné'],['paid','Uhradené']]) { %><a href="/invoices?filter=<%= k %>" class="<%= f===k?'active':'' %>"><%= l %></a><% } %>
 </div>
 <div class="card">
-  <form method="get" class="row" style="align-items:flex-end;margin-bottom:12px"><input type="hidden" name="filter" value="<%= f %>"><div class="field"><label>Hľadať (číslo, klient)</label><input type="text" name="q" value="<%= q %>"></div><div class="field"><label>Klient</label><select name="client"><option value="">všetci</option><% for (const c of clients) { %><option value="<%= c.id %>" <%= client==c.id?'selected':'' %>><%= c.name %></option><% } %></select></div><div class="field" style="flex:0"><button class="btn secondary">Filtrovať</button></div></form>
+  <form method="get" class="row" style="align-items:flex-end;margin-bottom:12px"><input type="hidden" name="filter" value="<%= f %>"><div class="field" style="max-width:260px"><label>Hľadať (číslo, klient)</label><input type="text" name="q" value="<%= q %>"></div><div class="field" style="max-width:260px"><label>Klient</label><select name="client"><option value="">všetci</option><% for (const c of clients) { %><option value="<%= c.id %>" <%= client==c.id?'selected':'' %>><%= c.name %></option><% } %></select></div><div class="field" style="flex:0"><button class="btn secondary">Filtrovať</button></div></form>
   <% if (!invoices.length) { %><p class="muted">Žiadne faktúry.</p><% } else { %>
-  <table><tr><th>Číslo</th><th>Klient</th><th>Vystavená</th><th>Splatnosť</th><th class="num">Spolu s DPH</th><th class="num">Zádržné</th><th class="num">K úhrade</th><th class="num">Uhradené</th><th class="num">Zostáva</th><th>Stav</th><th>Upom.</th></tr>
-  <% for (const i of invoices) { const st = INV.invoiceStatusLabel(i); %>
-  <tr><td><a href="/invoices/<%= i.id %>"><b><%= i.number %></b></a></td><td><%= i.client_name %></td><td><%= U.fmtDate(i.issue_date) %></td><td class="<%= INV.isOverdue(i) ? 'danger' : '' %>"><%= U.fmtDate(i.due_date) %></td><td class="num"><%= U.money(i.total) %></td><td class="num"><% if (i.retention_amount) { %><%= U.money(INV.retentionRemaining(i)) %> <span class="muted small">/ <%= U.money(i.retention_amount) %></span><% } else { %>–<% } %></td><td class="num"><%= U.money(i.amount_due) %></td><td class="num"><%= U.money(i.paid_amount) %></td><td class="num"><b><%= U.money(INV.remaining(i)) %></b></td><td><span class="badge <%= st.cls %>"><%= st.text %></span></td><td><%= i.reminder_level ? '<span class="badge warn">' + i.reminder_level + '.</span>' : '' %></td></tr>
-  <% } %>
-  <tr class="total"><td colspan="4">Spolu (<%= invoices.length %>)</td><td class="num"><%= U.money(sums.total) %></td><td class="num"><%= U.money(sums.retention) %></td><td colspan="2"></td><td class="num"><%= U.money(sums.remaining) %></td><td colspan="2"></td></tr></table><% } %>
+  <table class="inv-list"><tr><th>Číslo</th><th>Klient</th><th>Vystavená</th><th>Splatnosť</th><th class="num">Suma s DPH</th><th class="num">K úhrade</th><th>Úhrada</th><th>Zádržné</th><th>Upom.</th></tr>
+  <% const today = U.today(); for (const i of invoices) {
+       const rem = INV.remaining(i); const retRem = INV.retentionRemaining(i); const overdue = INV.isOverdue(i);
+       let pay; if (i.status === 'cancelled') pay = ['muted', 'Stornovaná', '']; else if (i.status === 'paid') pay = ['ok', 'UHRADENÁ', (i.paid_date ? U.fmtDate(i.paid_date) : '') + (i.skonto_applied ? ' · skonto ' + U.money(i.skonto_amount) : '')];
+       else if (overdue) pay = ['danger', 'PO SPLATNOSTI ' + INV.daysOverdue(i) + ' d', 'zostáva ' + U.money(rem)];
+       else if (i.status === 'partial') pay = ['warn', 'ČIASTOČNE', 'zostáva ' + U.money(rem)]; else pay = ['warn', 'NEUHRADENÁ', 'zostáva ' + U.money(rem)];
+       let ret = null; if (i.retention_amount > 0) { if (retRem <= 0) ret = ['ok', 'vyplatené ' + U.money(i.retention_amount), '']; else if (i.retention_due_date && i.retention_due_date < today) ret = ['danger', U.money(retRem), 'po lehote od ' + U.fmtDate(i.retention_due_date)]; else if (i.retention_due_date && i.retention_due_date <= U.addDays(today, 30)) ret = ['warn', U.money(retRem), 'splatné ' + U.fmtDate(i.retention_due_date)]; else ret = ['info', U.money(retRem), i.retention_due_date ? 'splatné ' + U.fmtDate(i.retention_due_date) : 'termín neurčený']; }
+       const border = pay[0] === 'ok' ? 'var(--ok)' : pay[0] === 'danger' ? 'var(--danger)' : pay[0] === 'warn' ? '#f59e0b' : '#d1d5db'; %>
+  <tr style="border-left:4px solid <%= border %>">
+    <td><a href="/invoices/<%= i.id %>"><b><%= i.number %></b></a><% if (i.site_name) { %><br><span class="small muted"><%= i.site_name %></span><% } %></td>
+    <td><%= i.client_name %></td>
+    <td class="nowrap"><%= U.fmtDate(i.issue_date) %></td>
+    <td class="nowrap" style="<%= overdue ? 'color:var(--danger);font-weight:700' : '' %>"><%= U.fmtDate(i.due_date) %></td>
+    <td class="num"><%= U.money(i.total) %></td>
+    <td class="num"><b><%= U.money(i.amount_due) %></b></td>
+    <td><span class="badge <%= pay[0] %>" style="font-size:12px;padding:4px 10px"><%= pay[1] %></span><% if (pay[2]) { %><br><span class="small muted"><%= pay[2] %></span><% } %></td>
+    <td><% if (ret) { %><span class="badge <%= ret[0] %>" style="font-size:12px;padding:4px 10px"><%= ret[1] %></span><% if (ret[2]) { %><br><span class="small <%= ret[0] === 'danger' ? '' : 'muted' %>" style="<%= ret[0] === 'danger' ? 'color:var(--danger);font-weight:600' : '' %>"><%= ret[2] %></span><% } %><% } else { %><span class="muted">–</span><% } %></td>
+    <td><%- i.reminder_level ? '<span class="badge warn">' + i.reminder_level + '. upom.</span>' : '' %></td>
+  </tr><% } %>
+  <tr class="total"><td colspan="4">Spolu (<%= invoices.length %>)</td><td class="num"><%= U.money(sums.total) %></td><td></td><td>zostáva <%= U.money(sums.remaining) %></td><td>zádržné <%= U.money(sums.retention) %></td><td></td></tr></table><% } %>
 </div>
 <%- include('../partials/footer') %>

@@ -2,10 +2,12 @@
 
 Webová aplikácia pre personálnu agentúru v stavebníctve (SX Workforce s.r.o., IČO 55087019), ktorá prenajíma (zahraničných) pracovníkov stavebným firmám. Pokrýva:
 
+- **Úlohy** – kto komu čo zadal, stav (nová / rozpracovaná / čaká sa / hotová), priorita, termín, komentáre a história zmien; filtre „pridelené mne“ a „zadané mnou“.
+- **Zákazky** – zoznam stavieb klientov so stavom voľná / rozpracovaná / ukončená, termíny, potrebný vs. skutočný počet pracovníkov, nevyfakturované hodiny, otvorené úlohy.
 - **Hodinové lístky** – týždenný lístok pre každú stavbu, riadky = pracovníci, hodiny Po–Ne, schvaľovanie, tlač, predvyplnenie pracovníkov z minulého týždňa.
 - **Pracovníci** – národnosť, profesia, nákladová sadzba (mzda + odvody) a voliteľná fakturačná sadzba.
 - **Klienti a stavby** – odberatelia s IČO/DIČ, splatnosťou, zádržným, skontom a prenesením daňovej povinnosti; stavby so sadzbou €/hod.
-- **Fakturácia** – vystavenie faktúry jedným klikom zo schválených hodinových lístkov (zoskupené podľa pracovníka a stavby), ručné faktúry, iné poplatky a zrážky, DPH 23 % / prenesenie daňovej povinnosti, tlač do PDF cez prehliadač.
+- **Fakturácia** – prehľadný zoznam faktúr zaradom s dátumom vystavenia a splatnosti, stavom úhrady (uhradená / neuhradená / po splatnosti) a zvýrazneným zádržným s termínom jeho splatnosti; vystavenie faktúry jedným klikom zo schválených hodinových lístkov (zoskupené podľa pracovníka a stavby), ručné faktúry, iné poplatky a zrážky, DPH 23 % / prenesenie daňovej povinnosti, tlač do PDF cez prehliadač.
 - **Skonto a zádržné** – automatický výpočet, sledovanie splatnosti zádržného, automatické uznanie skonta pri úhrade v lehote.
 - **Sledovanie splatnosti a upomienky** – prehľad faktúr po splatnosti, automatické upomienky (1., 2., 3. stupeň) e-mailom každý deň o 8:00, ručné odoslanie s náhľadom.
 - **Banka** – e-mailová schránka, do ktorej banka posiela výpisy (camt.053 XML alebo CSV); aplikácia ich pravidelne sťahuje cez IMAP, importuje a **automaticky páruje úhrady s vystavenými faktúrami** (podľa variabilného symbolu, sumy, sumy so skontom, zádržného a názvu klienta). Ručné nahratie výpisu, ručné párovanie, ignorovanie, vytvorenie nákladu z odchádzajúcej platby.

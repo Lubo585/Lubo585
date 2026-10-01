@@ -1,0 +1,20 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Zákazky</h1><a href="/orders/new" class="btn">+ Nová zákazka</a></div>
+<div class="tabs">
+  <% for (const [k, l, n] of [['current','Voľné a rozpracované', counts.open + counts.active],['open','Voľné', counts.open],['active','Rozpracované', counts.active],['finished','Ukončené', counts.finished],['all','Všetky', null]]) { %><a href="/orders?filter=<%= k %>" class="<%= f===k?'active':'' %>"><%= l %> <% if (n !== null) { %><span class="badge"><%= n %></span><% } %></a><% } %>
+</div>
+<div class="card">
+  <form method="get" class="row" style="align-items:flex-end;margin-bottom:12px"><input type="hidden" name="filter" value="<%= f %>"><div class="field" style="max-width:300px"><label>Klient</label><select name="client" onchange="this.form.submit()"><option value="">všetci</option><% for (const c of clients) { %><option value="<%= c.id %>" <%= client==c.id?'selected':'' %>><%= c.name %></option><% } %></select></div></form>
+  <% if (!orders.length) { %><p class="muted">Žiadne zákazky. Zákazka = stavba alebo projekt klienta, na ktorý posielate pracovníkov. <b>Voľná</b> = dohodnutá, ešte bez pracovníkov; <b>Rozpracovaná</b> = pracovníci na nej pracujú.</p><% } else { %>
+  <table><tr><th>Zákazka</th><th>Klient</th><th>Stav</th><th>Termín</th><th class="num">Pracovníci<br><span class="muted">teraz / potrebných</span></th><th class="num">Sadzba €/h</th><th class="num">Hodiny spolu</th><th class="num">Nevyfakturované</th><th>Úlohy</th><th></th></tr>
+  <% for (const o of orders) { const st = STATUSES[o.status] || STATUSES.open; const short = o.workers_needed > o.workers_now && o.status !== 'finished'; %>
+  <tr style="border-left:3px solid <%= o.status === 'active' ? 'var(--warn)' : (o.status === 'open' ? 'var(--info)' : 'transparent') %>">
+    <td><a href="/orders/<%= o.id %>"><b><%= o.name %></b></a><br><span class="small muted"><%= o.address || '' %></span></td><td><%= o.client_name %></td><td><span class="badge <%= st[1] %>"><%= st[0] %></span></td>
+    <td class="small nowrap"><%= o.start_date ? U.fmtDate(o.start_date) : '?' %> – <%= o.end_date ? U.fmtDate(o.end_date) : '?' %></td>
+    <td class="num"><b style="<%= short ? 'color:var(--danger)' : '' %>"><%= o.workers_now %></b> / <%= o.workers_needed || '–' %><%- short ? ' <span class="badge danger">chýba ' + (o.workers_needed - o.workers_now) + '</span>' : '' %></td>
+    <td class="num"><%= U.money(o.hourly_rate) %></td><td class="num"><%= U.hours(o.hours_total) %></td><td class="num"><%- o.hours_uninvoiced ? '<b>' + U.hours(o.hours_uninvoiced) + '</b>' : '–' %></td>
+    <td><%- o.open_tasks ? '<span class="badge warn">' + o.open_tasks + '</span>' : '' %></td>
+    <td class="right nowrap"><a href="/orders/<%= o.id %>/edit" class="btn sm secondary">Upraviť</a></td>
+  </tr><% } %></table><% } %>
+</div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,21 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Úlohy</h1><a href="/tasks/new" class="btn">+ Nová úloha</a></div>
+<div class="tabs">
+  <% for (const [k, l] of [['open','Otvorené'],['mine','Pridelené mne'],['byme','Zadané mnou'],['done','Hotové'],['all','Všetky']]) { %><a href="/tasks?filter=<%= k %>" class="<%= f===k?'active':'' %>"><%= l %> <% if (counts[k] !== undefined) { %><span class="badge"><%= counts[k] %></span><% } %></a><% } %>
+  <% if (counts.overdue) { %><span class="badge danger" style="align-self:center;margin-left:auto"><%= counts.overdue %> po termíne</span><% } %>
+</div>
+<div class="card">
+  <form method="get" class="row" style="align-items:flex-end;margin-bottom:12px"><input type="hidden" name="filter" value="<%= f %>"><div class="field" style="max-width:260px"><label>Riešiteľ</label><select name="user" onchange="this.form.submit()"><option value="">všetci</option><% for (const u of users) { %><option value="<%= u.id %>" <%= user_filter==u.id?'selected':'' %>><%= u.name || u.username %></option><% } %></select></div></form>
+  <% if (!tasks.length) { %><p class="muted">Žiadne úlohy.</p><% } else { %>
+  <table><tr><th>Úloha</th><th>Stav</th><th>Priorita</th><th>Zadal</th><th>Rieši</th><th>Termín</th><th>Týka sa</th><th></th></tr>
+  <% for (const t of tasks) { const st = STATUSES[t.status]; const pr = PRIORITIES[t.priority] || PRIORITIES.normal; const late = t.due_date && t.due_date < U.today() && !['done','cancelled'].includes(t.status); %>
+  <tr style="border-left:3px solid <%= late ? 'var(--danger)' : (t.status === 'done' ? 'var(--ok)' : 'transparent') %>">
+    <td><a href="/tasks/<%= t.id %>"><b><%= t.title %></b></a><% if (t.comments) { %> <span class="badge muted" title="komentáre">💬 <%= t.comments %></span><% } %><% if (t.description) { %><br><span class="small muted"><%= t.description.length > 90 ? t.description.slice(0, 90) + '…' : t.description %></span><% } %></td>
+    <td><span class="badge <%= st[1] %>"><%= st[0] %></span></td><td><span class="badge <%= pr[1] %>"><%= pr[0] %></span></td>
+    <td><%= t.by_name || t.by_user || '–' %></td><td><b><%= t.to_name || t.to_user || '–' %></b></td>
+    <td class="nowrap <%= late ? 'danger' : '' %>" style="<%= late ? 'color:var(--danger);font-weight:600' : '' %>"><%= t.due_date ? U.fmtDate(t.due_date) : '–' %><%= late ? ' !' : '' %></td>
+    <td class="small muted"><%= [t.client_name, t.site_name, t.w_last ? t.w_last + ' ' + t.w_first : null].filter(Boolean).join(' · ') %></td>
+    <td class="right nowrap"><% if (!['done','cancelled'].includes(t.status)) { %><form class="inline" method="post" action="/tasks/<%= t.id %>/status"><input type="hidden" name="status" value="done"><button class="btn sm ok" title="Označiť ako hotovú">✓</button></form><% } %> <a href="/tasks/<%= t.id %>/edit" class="btn sm secondary">Upraviť</a></td>
+  </tr><% } %></table><% } %>
+</div>
+<%- include('../partials/footer') %>

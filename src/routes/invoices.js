@@ -5,7 +5,7 @@ const INV = require('../services/invoices');
 const reminders = require('../services/reminders');
 
 router.get('/', (req, res) => {
-  const f = req.query.filter || 'open';
+  const f = req.query.filter || 'all';
   const today = U.today();
   let where = '1=1';
   if (f === 'open') where = "i.status IN ('issued','partial')";
@@ -15,12 +15,21 @@ router.get('/', (req, res) => {
   const params = [];
   if (req.query.client) { where += ' AND i.client_id = ?'; params.push(req.query.client); }
   if (req.query.q) { where += ' AND (i.number LIKE ? OR c.name LIKE ?)'; params.push('%' + req.query.q + '%', '%' + req.query.q + '%'); }
-  const invoices = all(`SELECT i.*, c.name AS client_name, (SELECT MAX(level) FROM reminders r WHERE r.invoice_id=i.id AND r.status != 'failed') AS reminder_level
-    FROM invoices i JOIN clients c ON c.id=i.client_id WHERE ${where} ORDER BY i.issue_date DESC, i.id DESC LIMIT 300`, params);
+  const invoices = all(`SELECT i.*, c.name AS client_name, st.name AS site_name, (SELECT MAX(level) FROM reminders r WHERE r.invoice_id=i.id AND r.status != 'failed') AS reminder_level
+    FROM invoices i JOIN clients c ON c.id=i.client_id LEFT JOIN sites st ON st.id=i.site_id WHERE ${where} ORDER BY i.number ${f === 'all' || f === 'paid' ? 'DESC' : 'ASC'}, i.id DESC LIMIT 500`, params);
   const clients = all('SELECT id, name FROM clients ORDER BY name');
   const sums = { total: 0, remaining: 0, retention: 0 };
   for (const i of invoices) { sums.total += i.total; sums.remaining += INV.remaining(i); sums.retention += INV.retentionRemaining(i); }
-  res.render('invoices/index', { title: 'Faktúry', invoices, clients, f, sums, q: req.query.q || '', client: req.query.client || '' });
+  // súhrn nad zoznamom (nezávislý od filtra)
+  const allOpen = all("SELECT * FROM invoices WHERE status IN ('issued','partial')");
+  const kpi = { openCount: allOpen.length, openSum: 0, overdueCount: 0, overdueSum: 0, retentionSum: 0, retentionCount: 0, retentionSoon: 0, retentionOverdue: 0 };
+  for (const i of allOpen) { const r = INV.remaining(i); kpi.openSum += r; if (INV.isOverdue(i)) { kpi.overdueCount++; kpi.overdueSum += r; } }
+  for (const i of all("SELECT * FROM invoices WHERE status != 'cancelled' AND retention_amount > retention_paid + 0.005")) {
+    const r = INV.retentionRemaining(i); kpi.retentionSum += r; kpi.retentionCount++;
+    if (i.retention_due_date && i.retention_due_date < today) kpi.retentionOverdue += r;
+    else if (i.retention_due_date && i.retention_due_date <= U.addDays(today, 30)) kpi.retentionSoon += r;
+  }
+  res.render('invoices/index', { title: 'Fakturácia', invoices, clients, f, sums, kpi, q: req.query.q || '', client: req.query.client || '' });
 });
 
 // ---- nová faktúra z hodinových lístkov ----

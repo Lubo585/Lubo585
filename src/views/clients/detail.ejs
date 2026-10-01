@@ -8,23 +8,13 @@
     <% if (c.note) { %><p class="small muted"><%= c.note %></p><% } %>
   </div>
   <div class="card">
-    <h2>Stavby / zákazky</h2>
-    <% if (!sites.length) { %><p class="muted">Zatiaľ žiadne stavby.</p><% } else { %>
-    <table class="compact"><tr><th>Názov</th><th>Adresa</th><th class="num">Sadzba €/h</th><th></th></tr>
-    <% for (const s of sites) { %>
-    <tr><td><%= s.name %> <% if (!s.active) { %><span class="badge muted">neaktívna</span><% } %></td><td class="small"><%= s.address %></td><td class="num"><%= U.money(s.hourly_rate) %></td>
-    <td class="right nowrap"><button class="btn sm secondary" type="button" onclick='editSite(<%- JSON.stringify(s).replace(/</g, "\\u003c") %>)'>Upraviť</button> <form class="inline" method="post" action="/clients/<%= c.id %>/sites/<%= s.id %>/delete" onsubmit="return confirm('Odstrániť stavbu?')"><button class="btn sm danger">×</button></form></td></tr>
+    <h2>Zákazky / stavby</h2>
+    <% if (!sites.length) { %><p class="muted">Zatiaľ žiadne zákazky.</p><% } else { %>
+    <table class="compact"><tr><th>Názov</th><th>Stav</th><th class="num">Sadzba €/h</th><th></th></tr>
+    <% const OS = { open: ['Voľná','info'], active: ['Rozpracovaná','warn'], finished: ['Ukončená','muted'] }; for (const s of sites) { const st = OS[s.status] || OS.open; %>
+    <tr><td><a href="/orders/<%= s.id %>"><%= s.name %></a><br><span class="small muted"><%= s.address || '' %></span></td><td><span class="badge <%= st[1] %>"><%= st[0] %></span></td><td class="num"><%= U.money(s.hourly_rate) %></td><td class="right"><a href="/orders/<%= s.id %>/edit" class="btn sm secondary">Upraviť</a></td></tr>
     <% } %></table><% } %>
-    <details class="mt" id="site-form"><summary>+ Pridať stavbu</summary>
-    <form method="post" action="/clients/<%= c.id %>/sites/save" class="mt">
-      <input type="hidden" name="site_id" id="site_id" value="">
-      <div class="row"><div class="field"><label>Názov stavby *</label><input type="text" name="name" id="site_name" required></div><div class="field"><label>Sadzba € / hod *</label><input type="number" step="0.01" name="hourly_rate" id="site_rate" value="<%= settings.default_hourly_rate %>" required></div></div>
-      <div class="row"><div class="field"><label>Adresa stavby</label><input type="text" name="address" id="site_address"></div><div class="field"><label>Sadzba nadčas € / hod</label><input type="number" step="0.01" name="overtime_rate" id="site_ot"></div></div>
-      <div class="field"><label>Poznámka</label><input type="text" name="note" id="site_note"></div>
-      <div class="field"><label class="check"><input type="checkbox" name="active" id="site_active" checked> Aktívna</label></div>
-      <button class="btn" type="submit">Uložiť stavbu</button>
-    </form></details>
-    <script>function editSite(s){const d=document.getElementById('site-form');d.open=true;site_id.value=s.id;site_name.value=s.name;site_rate.value=s.hourly_rate;site_address.value=s.address||'';site_ot.value=s.overtime_rate||'';site_note.value=s.note||'';site_active.checked=!!s.active;site_name.focus();}</script>
+    <a href="/orders/new?client_id=<%= c.id %>" class="btn sm mt">+ Nová zákazka</a>
   </div>
 </div>
 <div class="card"><h2>Faktúry</h2>

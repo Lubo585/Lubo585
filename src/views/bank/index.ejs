@@ -9,7 +9,7 @@
   <div class="card">
     <h2>Automatický import z e-mailu</h2>
     <% if (imapEnabled) { %><p>Zapnutý. Posledná kontrola: <b><%= imapLast ? imapLast.replace('T', ' ').slice(0, 19) : 'zatiaľ nebola' %></b><% if (imapErr) { %><br><span class="badge danger">Chyba: <%= imapErr %></span><% } %></p><% } else { %><p class="muted">Vypnutý. Nastavte e-mailovú schránku, do ktorej banka posiela výpisy, v <a href="/settings?tab=bank">Nastavenia → Bankový e-mail</a>. Aplikácia bude schránku pravidelne kontrolovať, výpisy z príloh importovať a platby automaticky párovať s faktúrami podľa variabilného symbolu a sumy.</p><% } %>
-    <% if (imports.length) { %><details><summary>Posledné importy</summary><table class="compact mt"><% for (const i of imports) { %><tr><td class="small nowrap"><%= i.received_at %></td><td><span class="badge"><%= i.source %></span> <%= i.filename || '' %> <span class="muted small"><%= i.email_subject || '' %></span></td><td class="num small"><%= i.error ? '<span class="badge danger">chyba</span> ' + i.error : i.transactions_count + ' tx / ' + i.new_count + ' nových' %></td></tr><% } %></table></details><% } %>
+    <% if (imports.length) { %><details><summary>Posledné importy</summary><table class="compact mt"><% for (const i of imports) { %><tr><td class="small nowrap"><%= i.received_at %></td><td><span class="badge"><%= i.source %></span> <%= i.filename || '' %> <span class="muted small"><%= i.email_subject || '' %></span></td><td class="num small"><% if (i.error) { %><span class="badge danger">chyba</span> <%= i.error %><% } else { %><%= i.transactions_count %> tx / <%= i.new_count %> nových<% } %></td></tr><% } %></table></details><% } %>
   </div>
 </div>
 <div class="tabs">

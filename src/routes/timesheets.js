@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
       (SELECT COUNT(*) FROM timesheet_rows r WHERE r.timesheet_id=t.id) AS workers,
       (SELECT COALESCE(SUM(r.d1+r.d2+r.d3+r.d4+r.d5+r.d6+r.d7),0) FROM timesheet_rows r WHERE r.timesheet_id=t.id) AS hours
     FROM timesheets t JOIN sites s ON s.id=t.site_id JOIN clients c ON c.id=s.client_id WHERE ${where} ORDER BY t.week_start DESC, c.name, s.name LIMIT 200`, params);
-  const sites = all('SELECT s.id, s.name, c.name AS client_name FROM sites s JOIN clients c ON c.id=s.client_id WHERE s.active=1 ORDER BY c.name, s.name');
+  const sites = all("SELECT s.id, s.name, c.name AS client_name FROM sites s JOIN clients c ON c.id=s.client_id WHERE s.status != 'finished' ORDER BY c.name, s.name");
   res.render('timesheets/index', { title: 'Hodinové lístky', sheets, sites, week, status, thisWeek: U.weekStart() });
 });
 router.post('/new', (req, res) => {

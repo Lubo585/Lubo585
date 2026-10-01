@@ -40,6 +40,8 @@ app.use((req, res, next) => { if (!req.session.user) return res.redirect('/login
 app.use(require('./src/routes/dashboard'));
 app.use('/workers', require('./src/routes/workers'));
 app.use('/clients', require('./src/routes/clients'));
+app.use('/orders', require('./src/routes/orders'));
+app.use('/tasks', require('./src/routes/tasks'));
 app.use('/timesheets', require('./src/routes/timesheets'));
 app.use('/expenses', require('./src/routes/expenses'));
 app.use('/invoices', require('./src/routes/invoices'));

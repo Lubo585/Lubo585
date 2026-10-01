@@ -219,6 +219,32 @@ CREATE TABLE IF NOT EXISTS reminders (
   sent_at TEXT DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS tasks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  description TEXT,
+  status TEXT DEFAULT 'new',       -- new | progress | waiting | done | cancelled
+  priority TEXT DEFAULT 'normal',  -- low | normal | high
+  assigned_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  assigned_to INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  client_id INTEGER REFERENCES clients(id) ON DELETE SET NULL,
+  site_id INTEGER REFERENCES sites(id) ON DELETE SET NULL,
+  worker_id INTEGER REFERENCES workers(id) ON DELETE SET NULL,
+  due_date TEXT,
+  done_at TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS task_comments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  task_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  type TEXT DEFAULT 'comment',     -- comment | status | assign
+  text TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS activity_log (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   type TEXT NOT NULL,
@@ -234,6 +260,20 @@ CREATE INDEX IF NOT EXISTS idx_timesheets_week ON timesheets(week_start);
 `;
 
 db.exec(SCHEMA);
+
+// ---------- migrácie (doplnenie stĺpcov do existujúcich databáz) ----------
+function addColumn(table, column, def) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name);
+  if (!cols.includes(column)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${def}`);
+}
+addColumn('sites', 'status', "TEXT DEFAULT 'open'");          // open (voľná) | active (rozpracovaná) | finished (ukončená)
+addColumn('sites', 'start_date', 'TEXT');
+addColumn('sites', 'end_date', 'TEXT');
+addColumn('sites', 'workers_needed', 'INTEGER DEFAULT 0');
+addColumn('sites', 'description', 'TEXT');
+addColumn('sites', 'contact_person', 'TEXT');
+addColumn('sites', 'contact_phone', 'TEXT');
+db.exec("CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)");
 
 // ---------- pomocné funkcie ----------
 // undefined sa nedá naviazať ako parameter, prevedie sa na NULL
