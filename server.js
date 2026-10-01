@@ -48,6 +48,7 @@ app.use('/invoices', require('./src/routes/invoices'));
 app.use('/bank', require('./src/routes/bank'));
 app.use('/reports', require('./src/routes/reports'));
 app.use('/settings', require('./src/routes/settings'));
+app.use('/assistant', require('./src/routes/assistant'));
 
 app.use((req, res) => res.status(404).render('error', { title: 'Nenájdené', message: 'Stránka neexistuje.' }));
 app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars

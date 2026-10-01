@@ -11,7 +11,7 @@
 <% if (user) { %>
 <nav class="sidebar">
   <div class="brand"><%= settings.company_name %><small>Firemná aplikácia</small></div>
-  <% const nav = [['/', 'Prehľad'], ['/tasks', 'Úlohy'], ['/orders', 'Zákazky'], ['/timesheets', 'Hodinové lístky'], ['/workers', 'Pracovníci'], ['/clients', 'Klienti'], ['/invoices', 'Fakturácia'], ['/bank', 'Banka a platby'], ['/expenses', 'Náklady'], ['/reports', 'Zisk a prehľady'], ['/settings', 'Nastavenia']]; %>
+  <% const nav = [['/', 'Prehľad'], ['/tasks', 'Úlohy'], ['/orders', 'Zákazky'], ['/timesheets', 'Hodinové lístky'], ['/workers', 'Pracovníci'], ['/clients', 'Klienti'], ['/invoices', 'Fakturácia'], ['/bank', 'Banka a platby'], ['/expenses', 'Náklady'], ['/reports', 'Zisk a prehľady'], ['/assistant', 'AI asistent'], ['/settings', 'Nastavenia']]; %>
   <% for (const [href, label] of nav) { const active = href === '/' ? path === '/' : path.startsWith(href); %>
     <a href="<%= href %>" class="<%= active ? 'active' : '' %>"><%= label %></a>
   <% } %>

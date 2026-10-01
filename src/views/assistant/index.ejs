@@ -1,0 +1,19 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>AI asistent</h1><div class="actions"><button class="btn secondary" type="button" onclick="aiReset()">Nový rozhovor</button><a href="/settings?tab=ai" class="btn secondary">Nastavenia</a></div></div>
+<% if (!configured) { %><div class="flash warn">AI asistent nie je nastavený. Zadajte API kľúč v <a href="/settings?tab=ai">Nastavenia → AI asistent</a>.</div><% } %>
+<div class="card" style="max-width:900px">
+  <p class="muted">Neviete, kde niečo nájsť? Spýtajte sa. Asistent nájde faktúry, zákazky, hodinové lístky, pracovníkov, úlohy a platby a poradí vám, ako aplikáciu používať. Dáta nemení.</p>
+  <div class="ai-suggest">
+    <% for (const q of ['Ktoré faktúry sú po splatnosti?', 'Koľko zádržného nám klienti dlžia a dokedy je splatné?', 'Ako vystavím faktúru z hodinových lístkov?', 'Čo máme tento týždeň zapísané v hodinových lístkoch?', 'Aké zákazky sú rozpracované a kde chýbajú pracovníci?', 'Aký je zisk tento mesiac?', 'Ako nastavím automatické párovanie výpisov z banky?']) { %><button type="button" class="btn sm secondary" onclick="aiAsk(this.textContent)"><%= q %></button><% } %>
+  </div>
+  <div id="ai-log" class="ai-log">
+    <% for (const m of history) { %><div class="ai-msg <%= m.role %>"><div class="ai-bubble" data-md="<%= m.role === 'assistant' ? m.text : '' %>"><%= m.role === 'user' ? m.text : '' %></div></div><% } %>
+  </div>
+  <form onsubmit="aiAsk(document.getElementById('ai-q').value); return false;" class="row mt" style="align-items:flex-end">
+    <div class="field" style="flex:4"><input type="text" id="ai-q" placeholder="Napíšte otázku…" autocomplete="off" autofocus></div>
+    <div class="field" style="flex:0"><button class="btn" id="ai-send">Odoslať</button></div>
+  </form>
+</div>
+<script src="/static/js/assistant.js"></script>
+<script>document.querySelectorAll('[data-md]').forEach(el => { if (el.dataset.md) el.innerHTML = aiMd(el.dataset.md); });</script>
+<%- include('../partials/footer') %>

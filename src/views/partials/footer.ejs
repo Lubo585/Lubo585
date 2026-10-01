@@ -1,4 +1,13 @@
 </main>
 </div>
+<% if (user && path !== '/assistant') { %>
+<button type="button" class="ai-fab" onclick="aiToggle()" title="AI asistent">✦ Spýtať sa</button>
+<div id="ai-panel">
+  <div class="ai-head"><div>AI asistent<small>Neviete, kde niečo nájsť? Spýtajte sa.</small></div><div><a href="/assistant" class="small">Celá stránka</a> &nbsp; <button type="button" class="btn sm secondary" onclick="aiToggle()">×</button></div></div>
+  <div id="ai-log-f" class="ai-log"><div class="ai-msg assistant"><div class="ai-bubble">Dobrý deň! Nájdem faktúry, zákazky, hodinové lístky, pracovníkov či úlohy a poradím, ako aplikáciu používať. Napríklad: <i>„Ktoré faktúry sú po splatnosti?“</i> alebo <i>„Ako schválim hodinový lístok?“</i></div></div></div>
+  <form onsubmit="aiAsk(document.getElementById('ai-q-f').value, 'ai-log-f', 'ai-q-f', 'ai-send-f'); return false;"><input type="text" id="ai-q-f" placeholder="Napíšte otázku…" autocomplete="off"><button class="btn" id="ai-send-f">›</button></form>
+</div>
+<script src="/static/js/assistant.js"></script>
+<% } %>
 </body>
 </html>

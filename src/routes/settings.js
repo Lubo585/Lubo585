@@ -3,6 +3,7 @@ const { get, run, getSettings, setSetting, hashPassword, verifyPassword, DEFAULT
 const mailer = require('../services/mailer');
 const imap = require('../services/imap');
 const reminders = require('../services/reminders');
+const assistant = require('../services/assistant');
 
 router.get('/', (req, res) => {
   const tab = req.query.tab || 'company';
@@ -14,7 +15,7 @@ router.post('/save', (req, res) => {
   const tab = req.body.tab || 'company';
   for (const key of Object.keys(DEFAULT_SETTINGS)) {
     if (key in req.body) {
-      if ((key === 'smtp_pass' || key === 'imap_pass') && req.body[key] === '') continue; // ponechať heslo
+      if ((key === 'smtp_pass' || key === 'imap_pass' || key === 'ai_api_key') && req.body[key] === '') continue; // ponechať heslo
       setSetting(key, String(req.body[key]));
     }
   }
@@ -52,6 +53,12 @@ router.post('/run-reminders', async (req, res) => {
   } catch (e) { req.flash('err', e.message); }
   res.redirect('/settings?tab=reminders');
 });
+router.post('/test-ai', async (req, res) => {
+  try { const t = await assistant.testConnection(); req.flash('ok', 'AI asistent funguje. Odpoveď: ' + t.slice(0, 80)); }
+  catch (e) { req.flash('err', 'AI chyba: ' + assistant.describeError(e)); }
+  res.redirect('/settings?tab=ai');
+});
+router.post('/clear-ai-key', (req, res) => { setSetting('ai_api_key', ''); req.flash('ok', 'API kľúč odstránený.'); res.redirect('/settings?tab=ai'); });
 router.post('/users/add', (req, res) => {
   if (!req.body.username || (req.body.password || '').length < 6) req.flash('err', 'Zadajte meno a heslo (min. 6 znakov).');
   else if (get('SELECT id FROM users WHERE username = ?', [req.body.username])) req.flash('err', 'Používateľ už existuje.');

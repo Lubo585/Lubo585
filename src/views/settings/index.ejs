@@ -1,6 +1,6 @@
 <%- include('../partials/header') %>
 <h1>Nastavenia</h1>
-<div class="tabs"><% for (const [k, l] of [['company','Firma'],['invoicing','Fakturácia'],['reminders','Upomienky'],['email','Odosielanie e-mailov (SMTP)'],['bank','Bankový e-mail (IMAP)'],['account','Účet a používatelia'],['log','Denník']]) { %><a href="/settings?tab=<%= k %>" class="<%= tab===k?'active':'' %>"><%= l %></a><% } %></div>
+<div class="tabs"><% for (const [k, l] of [['company','Firma'],['invoicing','Fakturácia'],['reminders','Upomienky'],['email','Odosielanie e-mailov (SMTP)'],['bank','Bankový e-mail (IMAP)'],['ai','AI asistent'],['account','Účet a používatelia'],['log','Denník']]) { %><a href="/settings?tab=<%= k %>" class="<%= tab===k?'active':'' %>"><%= l %></a><% } %></div>
 
 <% if (tab === 'company') { %>
 <form method="post" action="/settings/save" class="card" style="max-width:800px"><input type="hidden" name="tab" value="company">
@@ -53,6 +53,15 @@
   <% if (s.imap_last_check) { %><p class="small muted">Posledná kontrola: <%= s.imap_last_check.replace('T',' ').slice(0,19) %> <%= s.imap_last_error ? '– chyba: ' + s.imap_last_error : '– OK' %></p><% } %>
   <button class="btn">Uložiť</button></form>
 <form method="post" action="/settings/test-imap" class="card" style="max-width:800px"><button class="btn secondary">Otestovať IMAP pripojenie</button> <a href="/bank" class="btn secondary">Prejsť na Banka a platby</a></form>
+
+<% } else if (tab === 'ai') { %>
+<form method="post" action="/settings/save" class="card" style="max-width:800px"><input type="hidden" name="tab" value="ai">
+  <p class="help">AI asistent vyhľadáva faktúry, zákazky, hodinové lístky, pracovníkov, úlohy a platby a radí, ako aplikáciu používať. Používa Claude API od spoločnosti Anthropic. API kľúč získate na <b>console.anthropic.com</b> (API Keys). Do AI služby sa posielajú iba údaje, ktoré asistent potrebuje na odpoveď (výsledky vyhľadávania), nie celá databáza. Asistent dáta nemení.</p>
+  <div class="field"><label>API kľúč <%= s.ai_api_key ? '(uložený, ponechajte prázdne pre zachovanie)' : (process.env.ANTHROPIC_API_KEY ? '(použije sa premenná prostredia ANTHROPIC_API_KEY)' : '') %></label><input type="password" name="ai_api_key" value="" autocomplete="new-password" placeholder="sk-ant-..."></div>
+  <div class="field"><label>Model</label><input type="text" name="ai_model" value="<%= s.ai_model %>"><div class="help">Predvolený <code>claude-opus-5-5</code>. Lacnejšia alternatíva: <code>claude-sonnet-5-5</code>.</div></div>
+  <button class="btn">Uložiť</button></form>
+<div class="row" style="max-width:800px"><form method="post" action="/settings/test-ai" class="card"><button class="btn secondary">Otestovať pripojenie</button> <a href="/assistant" class="btn secondary">Otvoriť asistenta</a></form>
+<% if (s.ai_api_key) { %><form method="post" action="/settings/clear-ai-key" class="card" onsubmit="return confirm('Odstrániť uložený API kľúč?')"><button class="btn danger">Odstrániť API kľúč</button></form><% } %></div>
 
 <% } else if (tab === 'account') { %>
 <div class="grid grid-2">

@@ -339,6 +339,8 @@ const DEFAULT_SETTINGS = {
   imap_last_check: '',
   imap_last_error: '',
   match_amount_tolerance: '0.02',
+  ai_api_key: '',
+  ai_model: 'claude-opus-5-5',
 };
 
 function getSetting(key) {

@@ -101,3 +101,18 @@ test('upomienky: výber stupňa podľa dní po splatnosti', () => {
   assert.match(r.body, /UP1/);
   assert.equal(r.to, 'k@k.sk');
 });
+
+test('AI asistent: nástroje vyhľadávajú v databáze bez volania API', () => {
+  const A = require('../src/services/assistant');
+  const inv = A.runTool('search_invoices', { status: 'all', limit: 5 });
+  assert.ok(Array.isArray(inv) && inv.length >= 1);
+  assert.ok(inv[0].odkaz.startsWith('/invoices/'));
+  assert.ok('zadrzne_zostava' in inv[0]);
+  const ov = A.runTool('get_overview', {});
+  assert.equal(typeof ov.zisk, 'number');
+  assert.ok(Array.isArray(A.runTool('search_orders', { status: 'all' })));
+  assert.ok(Array.isArray(A.runTool('search_timesheets', { query: 'x' })));
+  assert.deepEqual(A.runTool('search_clients', { query: 'neexistuje-xyz' }), []);
+  assert.ok(A.runTool('nope', {}).error);
+  assert.equal(A.TOOLS.length, 8);
+});
