@@ -12,6 +12,7 @@ Webová aplikácia pre personálnu agentúru v stavebníctve (SX Workforce s.r.o
 - **Sledovanie splatnosti a upomienky** – prehľad faktúr po splatnosti, automatické upomienky (1., 2., 3. stupeň) e-mailom každý deň o 8:00, ručné odoslanie s náhľadom.
 - **Banka** – e-mailová schránka, do ktorej banka posiela výpisy (camt.053 XML alebo CSV); aplikácia ich pravidelne sťahuje cez IMAP, importuje a **automaticky páruje úhrady s vystavenými faktúrami** (podľa variabilného symbolu, sumy, sumy so skontom, zádržného a názvu klienta). Ručné nahratie výpisu, ručné párovanie, ignorovanie, vytvorenie nákladu z odchádzajúcej platby.
 - **Náklady na chod firmy** – kategórie (ubytovanie, doprava, mzdy, poistenie…), DPH, opakujúce sa mesačné náklady, priradenie k pracovníkovi alebo stavbe.
+- **AI asistent** – chat na každej stránke (tlačidlo „Spýtať sa“) aj samostatná stránka: nájde faktúry, zákazky, hodinové lístky, pracovníkov, úlohy a platby a poradí, ako aplikáciu používať. Používa Claude API (Anthropic); dáta nemení.
 - **Zisk a prehľady** – mesačný zisk (tržby − náklady − mzdy z hodín), ziskovosť podľa stavieb a pracovníkov, pohľadávky podľa klientov.
 
 ## Spustenie
@@ -67,6 +68,12 @@ Aplikácia každých N minút stiahne neprečítané e-maily, prílohy `.xml`/`.
 
 **Nastavenia → Odosielanie e-mailov (SMTP)** – nastavte SMTP server (Gmail: `smtp.gmail.com`, 587, heslo aplikácie) a otestujte.
 **Nastavenia → Upomienky** – dni po splatnosti pre jednotlivé stupne (predvolene `3,14,30`), predmet a text so zástupnými premennými, zapnite automatické odosielanie. Každý stupeň sa pre faktúru odošle iba raz; história je pri faktúre. Klient musí mať vyplnený e-mail.
+
+## AI asistent
+
+**Nastavenia → AI asistent**: vložte API kľúč z <https://console.anthropic.com> (alebo nastavte premennú prostredia `ANTHROPIC_API_KEY`) a otestujte pripojenie. Predvolený model je `claude-opus-5-5`, lacnejšia alternatíva `claude-sonnet-5-5`.
+
+Asistent odpovedá po slovensky a na otázky o dátach používa nástroje, ktoré vyhľadávajú priamo v databáze aplikácie (faktúry, zákazky, hodinové lístky, klienti, pracovníci, úlohy, bankové transakcie, prehľad firmy). Do AI služby sa posielajú iba výsledky týchto vyhľadávaní potrebné na odpoveď, nie celá databáza. Asistent nič nemení, iba vyhľadáva a radí; odpovede obsahujú odkazy priamo na záznamy. História rozhovoru je v prihlásenej relácii (tlačidlo „Nový rozhovor“ ju vymaže).
 
 ## Výpočet zisku
 
