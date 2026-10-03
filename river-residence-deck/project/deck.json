@@ -3,7 +3,7 @@
   "createdOnFiles": {"v": 1, "at": "2026-10-03T16:30:00Z"},
   "lists": "css",
   "title": "River Residence Investor Deck",
-  "order": ["cover", "glance", "proposition", "how", "residence", "income", "map", "site", "zoning", "masterplan", "architecture", "amenities", "views", "castle", "tatras", "pieniny", "spa", "river", "town", "timeline", "team", "next"],
+  "order": ["cover", "glance", "proposition", "how", "residence", "income", "map", "site", "zoning", "masterplan", "architecture", "amenities", "views", "seasons", "castle", "tatras", "pieniny", "spa", "river", "town", "timeline", "team", "next"],
   "sections": {
     "intro": {"description": "The project in one view", "start": "cover"},
     "offer": {"description": "The investment proposition: residence pathway and monthly rental income", "start": "proposition"},
