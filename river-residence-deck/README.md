@@ -4,10 +4,10 @@ English investor presentation for the River Residence development at Levočská 
 
 - Published deck: https://claude.ai/artifact/2HgUk9hP5Jho5BUbziUUY9
 - `project/deck.json` – slide order, sections and typefaces
-- `project/slides/*.html` – one file per slide (22 slides)
+- `project/slides/*.html` – one file per slide (24 slides)
 - `images/` – visualisations and plans cropped from the Harajčík Architekti study (03/2025), plus `photo-*.jpg` location photographs from Wikimedia Commons (cropped to the slide frames)
 
-Pricing and rent model on the income slide: 3-room apartments only, about 70 m² at €3,000 per m² including VAT (€210,000); expected gross rent about €700 a month at full occupancy; the management fund (BHE Real Estate s.r.o.) keeps 30% of the net rental profit and the investor receives 70%. Remaining bracketed values such as `[__%]` are placeholders for occupancy, dates and portfolio figures.
+Pricing and rent model on the income slide: 3-room apartments only, about 70 m² at €3,000 per m² including VAT (€210,000); expected gross rent about €700 a month at full occupancy; the management fund (BHE Real Estate s.r.o.) keeps 30% of the net rental profit and the investor receives 70%. The total-return slide adds value growth: base case 3% a year (Slovak house prices rose about 7.8% a year on average in 2015–2024 per the Eurostat house price index, with a fall in 2023), shown next to 2% and 5% scenarios over ten years. Remaining bracketed values such as `[__%]` are placeholders for occupancy, dates and portfolio figures.
 Location photographs (Wikimedia Commons, keep the credit lines on the slides):
 
 | File | Slide | Source | Author | Licence |

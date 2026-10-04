@@ -1,20 +1,72 @@
 {
   "v": 4,
-  "createdOnFiles": {"v": 1, "at": "2026-10-03T16:30:00Z"},
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-03T16:30:00Z"
+  },
   "lists": "css",
   "title": "River Residence Investor Deck",
-  "order": ["cover", "glance", "proposition", "how", "residence", "income", "map", "site", "zoning", "masterplan", "architecture", "amenities", "views", "seasons", "castle", "tatras", "pieniny", "spa", "river", "town", "timeline", "team", "next"],
+  "order": [
+    "cover",
+    "glance",
+    "proposition",
+    "how",
+    "residence",
+    "income",
+    "return",
+    "map",
+    "site",
+    "zoning",
+    "masterplan",
+    "architecture",
+    "amenities",
+    "views",
+    "seasons",
+    "castle",
+    "tatras",
+    "pieniny",
+    "spa",
+    "river",
+    "town",
+    "timeline",
+    "team",
+    "next"
+  ],
   "sections": {
-    "intro": {"description": "The project in one view", "start": "cover"},
-    "offer": {"description": "The investment proposition: residence pathway and monthly rental income", "start": "proposition"},
-    "place": {"description": "Location, site and zoning", "start": "map"},
-    "design": {"description": "Architecture, functions and amenities", "start": "masterplan"},
-    "living": {"description": "Views and lifestyle around the site", "start": "views"},
-    "close": {"description": "Timeline, team and next steps", "start": "timeline"}
+    "intro": {
+      "description": "The project in one view",
+      "start": "cover"
+    },
+    "offer": {
+      "description": "The investment proposition: residence pathway and monthly rental income",
+      "start": "proposition"
+    },
+    "place": {
+      "description": "Location, site and zoning",
+      "start": "map"
+    },
+    "design": {
+      "description": "Architecture, functions and amenities",
+      "start": "masterplan"
+    },
+    "living": {
+      "description": "Views and lifestyle around the site",
+      "start": "views"
+    },
+    "close": {
+      "description": "Timeline, team and next steps",
+      "start": "timeline"
+    }
   },
   "faces": {
-    "cormorant-garamond": {"family": "Cormorant Garamond", "href": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400..700;1,400..700&display=swap"},
-    "dm-sans": {"family": "DM Sans", "href": "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300..700&display=swap"}
+    "cormorant-garamond": {
+      "family": "Cormorant Garamond",
+      "href": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400..700;1,400..700&display=swap"
+    },
+    "dm-sans": {
+      "family": "DM Sans",
+      "href": "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300..700&display=swap"
+    }
   },
   "designSystems": []
 }
