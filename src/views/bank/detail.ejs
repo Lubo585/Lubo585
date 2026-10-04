@@ -17,7 +17,7 @@
     <h2>Navrhované faktúry</h2>
     <% if (!candidates.length) { %><p class="muted">Žiadny vhodný kandidát (nezhoduje sa VS, suma ani názov klienta).</p><% } else { %>
     <table class="compact"><tr><th>Faktúra</th><th>Klient</th><th class="num">Zostáva</th><th>Zhoda</th><th></th></tr>
-    <% for (const c of candidates) { %><tr><td><a href="/invoices/<%= c.invoice.id %>"><%= c.invoice.number %></a></td><td><%= c.invoice.client_name %></td><td class="num"><%= c.kind === 'retention' ? U.money(c.retentionRemaining) + ' <span class="small muted">zádržné</span>' : U.money(c.remaining) %></td><td><span class="badge <%= c.score >= 80 ? 'ok' : (c.score >= 50 ? 'warn' : 'muted') %>"><%= c.score %></span> <span class="small muted"><%= c.reasons.join(', ') %></span></td>
+    <% for (const c of candidates) { %><tr><td><a href="/invoices/<%= c.invoice.id %>"><%= c.invoice.number %></a></td><td><%= c.invoice.client_name %></td><td class="num"><% if (c.kind === 'retention') { %><%= U.money(c.retentionRemaining) %> <span class="small muted">zádržné</span><% } else { %><%= U.money(c.remaining) %><% } %></td><td><span class="badge <%= c.score >= 80 ? 'ok' : (c.score >= 50 ? 'warn' : 'muted') %>"><%= c.score %></span> <span class="small muted"><%= c.reasons.join(', ') %></span></td>
     <td class="right"><% if (tx.match_status === 'unmatched') { %><form method="post" action="/bank/<%= tx.id %>/match"><input type="hidden" name="invoice_id" value="<%= c.invoice.id %>"><input type="hidden" name="kind" value="<%= c.kind %>"><button class="btn sm">Spárovať<%= c.kind === 'retention' ? ' (zádržné)' : '' %></button></form><% } %></td></tr><% } %></table><% } %>
     <% if (tx.match_status === 'unmatched') { %>
     <h3 class="mt">Spárovať ručne s inou faktúrou</h3>

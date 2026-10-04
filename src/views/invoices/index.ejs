@@ -22,7 +22,7 @@
        const border = pay[0] === 'ok' ? 'var(--ok)' : pay[0] === 'danger' ? 'var(--danger)' : pay[0] === 'warn' ? '#f59e0b' : '#d1d5db'; %>
   <tr style="border-left:4px solid <%= border %>">
     <td><a href="/invoices/<%= i.id %>"><b><%= i.number %></b></a><% if (i.site_name) { %><br><span class="small muted"><%= i.site_name %></span><% } %></td>
-    <td><%= i.client_name %><%= i.language === 'de' ? ' <span class="badge muted">DE</span>' : '' %><%= i.sent_at ? ' <span class="badge ok" title="odoslaná e-mailom">✉</span>' : '' %></td>
+    <td><%= i.client_name %><% if (i.language === 'de') { %> <span class="badge muted">DE</span><% } %><% if (i.sent_at) { %> <span class="badge ok" title="odoslaná e-mailom">✉</span><% } %></td>
     <td class="nowrap"><%= U.fmtDate(i.issue_date) %></td>
     <td class="nowrap" style="<%= overdue ? 'color:var(--danger);font-weight:700' : '' %>"><%= U.fmtDate(i.due_date) %></td>
     <td class="num"><%= U.money(i.total) %></td>
