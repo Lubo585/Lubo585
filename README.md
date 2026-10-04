@@ -46,7 +46,7 @@ npm install
 cp .env.example .env     # SESSION_SECRET, ADMIN_PASSWORD
 npm start
 ```
-<http://localhost:3000>, prihlásenie `admin` / heslo z `.env` (predvolene `admin`). Testy: `npm test`.
+<http://localhost:3000>, prihlásenie `admin` / heslo z `.env` (predvolene `admin`). Ukážkové dáta: `npm run demo`. Testy: `npm test`. Jednoduchý návod pre nových používateľov: [AKO_ZACAT.md](AKO_ZACAT.md).
 
 **Nasadenie na internet (HTTPS, Docker, aktualizácie, zálohy):** pozri [DEPLOY.md](DEPLOY.md).
 **Mobilná aplikácia pre App Store a Google Play:** pozri [mobile/README.md](mobile/README.md). Web funguje aj ako PWA (na telefóne „Pridať na plochu“).
