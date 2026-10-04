@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sk"><head><meta charset="utf-8"><title>Faktúra <%= inv.number %></title>
+<html lang="<%= lang %>"><head><meta charset="utf-8"><title><%= L.invoice %> <%= inv.number %></title>
 <style>
 body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color:#111; margin:0; padding:32px; max-width:800px; }
 h1 { font-size:22px; margin:0 0 4px; } .muted { color:#666; } .row { display:flex; gap:32px; } .row > div { flex:1; }
@@ -9,32 +9,34 @@ table { width:100%; border-collapse:collapse; margin-top:12px; } th, td { paddin
 .note { margin-top:16px; font-size:11px; } .stamp { margin-top:40px; display:flex; justify-content:space-between; font-size:11px; color:#666; }
 @media print { body { padding:0; } .noprint { display:none; } }
 </style></head><body>
-<div class="noprint" style="margin-bottom:16px"><button onclick="window.print()">Tlačiť / uložiť ako PDF</button> <a href="/invoices/<%= inv.id %>">← Späť</a></div>
-<div class="row"><div><h1>FAKTÚRA <%= inv.number %></h1><div class="muted">Variabilný symbol: <b><%= inv.variable_symbol || inv.number %></b></div></div>
+<div class="noprint" style="margin-bottom:16px"><button onclick="window.print()">Tlačiť</button> <a href="/invoices/<%= inv.id %>/pdf?lang=<%= lang %>">PDF</a> · <a href="?lang=sk">SK</a> / <a href="?lang=de">DE</a> · <a href="/invoices/<%= inv.id %>">← Späť</a></div>
+<div class="row"><div><h1><%= L.invoice %> <%= inv.number %></h1><div class="muted"><%= L.vs %>: <b><%= inv.variable_symbol || inv.number %></b></div></div>
 <div style="text-align:right"><b><%= settings.company_name %></b><br><span class="muted"><%= settings.company_address %></span></div></div>
 <div class="row" style="margin-top:16px">
-  <div class="box"><h3>Dodávateľ</h3><b><%= settings.company_name %></b><br><%= settings.company_address %><br>IČO: <%= settings.company_ico %> &nbsp; DIČ: <%= settings.company_dic %><% if (settings.company_ic_dph) { %><br>IČ DPH: <%= settings.company_ic_dph %><% } %><% if (settings.company_register) { %><br><span class="muted"><%= settings.company_register %></span><% } %><% if (settings.company_email || settings.company_phone) { %><br><%= settings.company_email %> <%= settings.company_phone %><% } %></div>
-  <div class="box"><h3>Odberateľ</h3><b><%= inv.client_name %></b><br><%= inv.client_address || '' %><br>IČO: <%= inv.client_ico || '' %> &nbsp; DIČ: <%= inv.client_dic || '' %><% if (inv.client_ic_dph) { %><br>IČ DPH: <%= inv.client_ic_dph %><% } %></div>
+  <div class="box"><h3><%= L.supplier %></h3><b><%= settings.company_name %></b><br><%= settings.company_address %><br><%= L.ico %>: <%= settings.company_ico %> &nbsp; <%= L.dic %>: <%= settings.company_dic %><% if (settings.company_ic_dph) { %><br><%= L.vatid %>: <%= settings.company_ic_dph %><% } %><% if (settings.company_register) { %><br><span class="muted"><%= settings.company_register %></span><% } %><% if (lang === 'de' && settings.aug_permit_number) { %><br><span class="muted"><%= L.aug %> <%= settings.aug_permit_number %></span><% } %><% if (settings.company_email || settings.company_phone) { %><br><%= settings.company_email %> <%= settings.company_phone %><% } %></div>
+  <div class="box"><h3><%= L.customer %></h3><b><%= inv.client_name %></b><br><%= inv.client_address || '' %><br><%= L.ico %>: <%= inv.client_ico || '' %> &nbsp; <%= L.dic %>: <%= inv.client_dic || '' %><% if (inv.client_ic_dph) { %><br><%= L.vatid %>: <%= inv.client_ic_dph %><% } %><% if (inv.client_register) { %><br><span class="muted"><%= inv.client_register %></span><% } %></div>
 </div>
 <div class="row">
-  <div class="box"><h3>Dátumy</h3>Dátum vystavenia: <b><%= U.fmtDate(inv.issue_date) %></b><br>Dátum dodania: <%= U.fmtDate(inv.delivery_date || inv.issue_date) %><br>Dátum splatnosti: <b><%= U.fmtDate(inv.due_date) %></b><% if (inv.period_from) { %><br>Fakturačné obdobie: <%= U.fmtDate(inv.period_from) %> – <%= U.fmtDate(inv.period_to) %><% } %><% if (inv.site_name) { %><br>Stavba: <%= inv.site_name %><% } %></div>
-  <div class="box"><h3>Platba</h3>IBAN: <b><%= settings.company_iban %></b><% if (settings.company_bic) { %><br>BIC/SWIFT: <%= settings.company_bic %><% } %><br>Variabilný symbol: <b><%= inv.variable_symbol || inv.number %></b><br>Forma úhrady: bankový prevod</div>
+  <div class="box"><h3><%= L.dates %></h3><%= L.issue %>: <b><%= U.fmtDate(inv.issue_date) %></b><br><%= L.delivery %>: <%= U.fmtDate(inv.delivery_date || inv.issue_date) %><br><%= L.due %>: <b><%= U.fmtDate(inv.due_date) %></b><% if (inv.period_from) { %><br><%= L.period %>: <%= U.fmtDate(inv.period_from) %> – <%= U.fmtDate(inv.period_to) %><% } %><% if (inv.site_name) { %><br><%= L.site %>: <%= inv.site_name %><% } %></div>
+  <div class="box"><h3><%= L.payment %></h3><%= L.iban %>: <b><%= settings.company_iban %></b><% if (settings.company_bic) { %><br><%= L.bic %>: <%= settings.company_bic %><% } %><br><%= L.reference %>: <b><%= inv.variable_symbol || inv.number %></b><br><%= L.method %>: <%= L.transfer %></div>
 </div>
-<table><tr><th>Popis</th><th class="num">Množstvo</th><th>MJ</th><th class="num">Cena / MJ</th><th class="num">Spolu</th></tr>
+<table><tr><th><%= L.desc %></th><th class="num"><%= L.qty %></th><th><%= L.unit %></th><th class="num"><%= L.price %></th><th class="num"><%= L.total %></th></tr>
 <% for (const it of inv.items) { %><tr><td><%= it.description %></td><td class="num"><%= U.hours(it.quantity) %></td><td><%= it.unit %></td><td class="num"><%= U.money(it.unit_price) %></td><td class="num"><%= U.money(it.total) %></td></tr><% } %></table>
 <table class="totals" style="width:50%;margin-left:auto">
-<tr><td>Základ dane</td><td class="num"><%= U.money(inv.subtotal) %></td></tr>
-<% if (inv.reverse_charge) { %><tr><td>DPH</td><td class="num">prenesenie daňovej povinnosti</td></tr><% } else { %><tr><td>DPH <%= inv.vat_rate %> %</td><td class="num"><%= U.money(inv.vat_amount) %></td></tr><% } %>
-<tr><td><b>Spolu s DPH</b></td><td class="num"><b><%= U.money(inv.total) %></b></td></tr>
+<tr><td><%= L.net %></td><td class="num"><%= U.money(inv.subtotal) %></td></tr>
+<% if (inv.vat_mode === 'standard') { %><tr><td><%= L.vat %> <%= inv.vat_rate %> %</td><td class="num"><%= U.money(inv.vat_amount) %></td></tr><% } else { %><tr><td><%= L.vat %></td><td class="num"><%= inv.vat_mode === 'exempt' ? '–' : 'Reverse charge' %></td></tr><% } %>
+<tr><td><b><%= L.gross %></b></td><td class="num"><b><%= U.money(inv.total) %></b></td></tr>
 <% for (const f of inv.fees) { %><tr><td><%= f.name %></td><td class="num"><%= U.money(f.amount) %></td></tr><% } %>
-<% if (inv.retention_amount) { %><tr><td>Zádržné <%= inv.retention_percent %> %<%= inv.retention_due_date ? ' (splatné ' + U.fmtDate(inv.retention_due_date) + ')' : '' %></td><td class="num">− <%= U.money(inv.retention_amount) %></td></tr><% } %>
-<tr class="grand"><td>K úhrade</td><td class="num"><%= U.money(inv.amount_due) %></td></tr>
+<% if (inv.retention_amount) { %><tr><td><%= L.retention %> <%= inv.retention_percent %> %<%= inv.retention_due_date ? ' (' + L.retention_due + ' ' + U.fmtDate(inv.retention_due_date) + ')' : '' %></td><td class="num">− <%= U.money(inv.retention_amount) %></td></tr><% } %>
+<% if (inv.withholding_amount) { %><tr><td><%= L.withholding %></td><td class="num">− <%= U.money(inv.withholding_amount) %></td></tr><% } %>
+<tr class="grand"><td><%= L.due_amount %></td><td class="num"><%= U.money(inv.amount_due) %></td></tr>
 </table>
 <div class="note">
-<% if (inv.reverse_charge) { %><p><b>Prenesenie daňovej povinnosti</b> – daň odvedie príjemca plnenia podľa § 69 ods. 12 zákona č. 222/2004 Z. z. o DPH.</p><% } %>
-<% if (inv.skonto_percent) { %><p>Pri úhrade do <b><%= U.fmtDate(U.addDays(inv.issue_date, inv.skonto_days)) %></b> poskytujeme skonto <b><%= inv.skonto_percent %> %</b>: suma k úhrade so skontom <b><%= U.money(inv.amount_due - inv.skonto_amount) %></b>.</p><% } %>
-<% if (inv.retention_amount) { %><p>Zádržné vo výške <%= U.money(inv.retention_amount) %> bude uvoľnené <%= inv.retention_due_date ? 'dňa ' + U.fmtDate(inv.retention_due_date) : 'podľa zmluvy' %>.</p><% } %>
+<% if (inv.vat_mode === 'eu_reverse') { %><p><b><%= L.rc_eu %></b></p><% } %><% if (inv.vat_mode === 'domestic_reverse') { %><p><b><%= L.rc_domestic %></b></p><% } %><% if (inv.vat_mode === 'exempt') { %><p><%= L.exempt %></p><% } %>
+<% if (inv.skonto_percent) { %><p><%= L.skonto(U.fmtDate(U.addDays(inv.issue_date, inv.skonto_days)), inv.skonto_percent, U.money(inv.amount_due - inv.skonto_amount)) %></p><% } %>
+<% if (inv.retention_amount) { %><p><%= L.retention_note(U.money(inv.retention_amount), inv.retention_due_date ? U.fmtDate(inv.retention_due_date) : '–') %></p><% } %>
+<% if (inv.client_payment_note) { %><p><%= inv.client_payment_note %></p><% } %>
 <% if (inv.note) { %><p><%= inv.note %></p><% } %>
 </div>
-<div class="stamp"><div>Vystavil: <%= user ? (user.name || user.username) : '' %></div><div>Pečiatka a podpis: ______________________</div></div>
+<div class="stamp"><div><%= L.issued_by %>: <%= user ? (user.name || user.username) : '' %></div><div><%= L.stamp %>: ______________________</div></div>
 </body></html>

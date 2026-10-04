@@ -9,12 +9,14 @@ function fill(tpl, vars) { return String(tpl || '').replace(/\{(\w+)\}/g, (m, k)
 function buildReminder(inv, level) {
   const s = getSettings();
   const client = get('SELECT * FROM clients WHERE id = ?', [inv.client_id]);
+  const de = client && client.language === 'de';
+  const interest = INV.lateInterest(inv); const fee = de && level >= 1 ? Number(s.reminder_fee_de) || 0 : 0;
   const vars = {
     LEVEL: level, NUMBER: inv.number, VS: inv.variable_symbol || inv.number, ISSUE_DATE: U.fmtDate(inv.issue_date), DUE_DATE: U.fmtDate(inv.due_date),
-    AMOUNT: U.money(inv.amount_due, ''), REMAINING: U.money(INV.remaining(inv), ''), DAYS_OVERDUE: INV.daysOverdue(inv),
+    AMOUNT: U.money(inv.amount_due, ''), REMAINING: U.money(INV.remaining(inv), ''), DAYS_OVERDUE: INV.daysOverdue(inv), INTEREST: U.money(interest, ''), FEE: U.money(fee, ''),
     IBAN: s.company_iban, COMPANY: s.company_name, CLIENT: client ? client.name : '',
   };
-  return { to: client ? client.email : '', subject: fill(s.reminder_subject, vars), body: fill(s.reminder_body, vars), client };
+  return { to: client ? (client.invoice_email || client.email) : '', subject: fill(de ? s.reminder_subject_de : s.reminder_subject, vars), body: fill(de ? s.reminder_body_de : s.reminder_body, vars), client, interest, fee, lang: de ? 'de' : 'sk' };
 }
 
 // Faktúry, ktorým dnes prislúcha upomienka daného stupňa
@@ -44,8 +46,10 @@ async function sendReminder(invoiceId, level, manual = false) {
     throw new Error(`Klient faktúry ${inv.number} nemá e-mailovú adresu.`);
   }
   try {
-    await sendMail({ to: r.to, cc: s.reminder_cc || undefined, subject: r.subject, text: r.body });
-    run('INSERT INTO reminders(invoice_id, level, to_email, subject, body, status) VALUES (?,?,?,?,?,?)', [invoiceId, level, r.to, r.subject, r.body, manual ? 'manual' : 'sent']);
+    const attachments = [];
+    try { const PDF = require('./pdf'); const full = require('../routes/invoices').loadInvoice ? require('../routes/invoices').loadInvoice(invoiceId) : null; if (full) attachments.push({ filename: `${r.lang === 'de' ? 'Rechnung' : 'Faktura'}-${inv.number}.pdf`, content: await PDF.invoicePdf(full), contentType: 'application/pdf' }); } catch (e) { /* bez prílohy */ }
+    await sendMail({ to: r.to, cc: s.reminder_cc || undefined, subject: r.subject, text: r.body, attachments });
+    run('INSERT INTO reminders(invoice_id, level, to_email, subject, body, status, interest_amount, fee_amount) VALUES (?,?,?,?,?,?,?,?)', [invoiceId, level, r.to, r.subject, r.body, manual ? 'manual' : 'sent', r.interest, r.fee]);
     log('reminder', `Odoslaná upomienka č. ${level} pre faktúru ${inv.number} na ${r.to}`);
     return true;
   } catch (e) {

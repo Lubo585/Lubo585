@@ -1,0 +1,12 @@
+<%# použitie: include('../partials/attachments', { entityType: 'invoice', entityId: inv.id, back: '/invoices/1' }) %>
+<% const atts = attachmentsFor(entityType, entityId); %>
+<div class="attachments">
+  <h3>Prílohy <% if (atts.length) { %><span class="badge"><%= atts.length %></span><% } %></h3>
+  <% if (!atts.length) { %><p class="muted small">Žiadne prílohy.</p><% } else { %>
+  <table class="compact"><% for (const a of atts) { %><tr><td><a href="/attachments/<%= a.id %>" target="_blank"><%= a.filename %></a> <% if (a.kind && a.kind !== 'file') { %><span class="badge muted"><%= a.kind %></span><% } %><% if (a.note) { %><br><span class="small muted"><%= a.note %></span><% } %></td><td class="small muted nowrap"><%= (a.size / 1024).toFixed(0) %> kB · <%= a.created_at.slice(0, 10) %> · <%= a.user_name || '' %></td><td class="right"><a href="/attachments/<%= a.id %>?dl=1" class="btn sm secondary">↓</a> <% if (user.role !== 'worker') { %><form class="inline" method="post" action="/attachments/<%= a.id %>/delete" onsubmit="return confirm('Odstrániť prílohu?')"><input type="hidden" name="back" value="<%= back %>"><button class="btn sm danger">×</button></form><% } %></td></tr><% } %></table><% } %>
+  <% if (user.role !== 'worker') { %>
+  <form method="post" action="/attachments/upload" enctype="multipart/form-data" class="row mt" style="align-items:flex-end">
+    <input type="hidden" name="entity_type" value="<%= entityType %>"><input type="hidden" name="entity_id" value="<%= entityId %>"><input type="hidden" name="back" value="<%= back %>">
+    <div class="field" style="flex:2"><input type="file" name="files" multiple></div><div class="field" style="flex:2"><input type="text" name="note" placeholder="poznámka (voliteľné)"></div><div class="field" style="flex:0"><button class="btn sm secondary">Nahrať</button></div>
+  </form><% } %>
+</div>

@@ -1,0 +1,62 @@
+<%- include('../partials/header') %>
+<div class="topbar"><div><h1><%= w.last_name %> <%= w.first_name %> <% if (!w.active) { %><span class="badge muted">neaktívny</span><% } %></h1><div class="muted"><%= w.position || '' %><%= w.lohngruppe ? ' · ' + w.lohngruppe : '' %> · <%= w.nationality || '' %><%= w.eu_citizen ? ' (EÚ)' : '' %> · <%= w.phone || '' %> <%= w.email || '' %><%= w.birth_date ? ' · nar. ' + U.fmtDate(w.birth_date) : '' %></div></div>
+<div class="actions"><a href="/workers" class="btn secondary">← Zoznam</a><a href="/tasks/new?worker_id=<%= w.id %>" class="btn secondary">+ Úloha</a><a href="/settlements/new?worker_id=<%= w.id %>" class="btn secondary">Vyúčtovanie</a><a href="/workers/<%= w.id %>/edit" class="btn">Upraviť</a></div></div>
+<div class="grid grid-4">
+  <div class="kpi"><div class="label">Hodiny tento rok</div><div class="value"><%= U.hours(stats.hours_year) %></div><div class="sub">celkovo <%= U.hours(stats.hours_total) %></div></div>
+  <div class="kpi"><div class="label">Sadzby</div><div class="value" style="font-size:16px">náklad <%= U.money(w.hourly_cost) %>/h</div><div class="sub">mzda <%= w.wage_rate ? U.money(w.wage_rate) + '/h' : '–' %> · fakturácia <%= w.hourly_rate ? U.money(w.hourly_rate) + '/h' : 'podľa zákazky' %></div></div>
+  <div class="kpi <%= docs.some(d => d.days_left !== null && d.days_left < 0) ? 'danger' : (docs.some(d => d.days_left !== null && d.days_left < 60) ? 'warn' : 'ok') %>"><div class="label">Doklady</div><div class="value" style="font-size:16px"><%= docs.filter(d => d.days_left !== null && d.days_left < 0).length %> expirovaných · <%= docs.filter(d => d.days_left !== null && d.days_left >= 0 && d.days_left < 60).length %> expiruje</div><div class="sub"><%= docs.length %> dokladov</div></div>
+  <div class="kpi <%= stats.balance < 0 ? 'warn' : '' %>"><div class="label">Nevyúčtované zálohy/zrážky</div><div class="value"><%= U.money(stats.balance) %></div><div class="sub">záporné = pracovník dostal zálohy</div></div>
+</div>
+<div class="grid grid-2 mt">
+  <div class="card" id="docs">
+    <h2>Doklady a povolenia</h2>
+    <% if (!docs.length) { %><p class="muted">Žiadne doklady. Pre vyslanie do DE je potrebný aspoň <b>A1</b> a <b>pas</b><%= w.eu_citizen ? '' : ', pre občanov tretích krajín aj povolenie na pobyt v SR a vízum Vander Elst' %>.</p><% } else { %>
+    <table class="compact"><tr><th>Doklad</th><th>Číslo</th><th>Platnosť</th><th></th></tr>
+    <% for (const d of docs) { const cls = d.days_left === null ? 'muted' : d.days_left < 0 ? 'danger' : d.days_left < 60 ? 'warn' : 'ok'; %><tr><td><b><%= d.type_label %></b><% if (d.issued_by) { %><br><span class="small muted"><%= d.issued_by %></span><% } %><% if (d.note) { %><br><span class="small muted"><%= d.note %></span><% } %></td><td><%= d.number || '' %></td><td><span class="badge <%= cls %>"><%= d.valid_to ? U.fmtDate(d.valid_to) + (d.days_left < 0 ? ' expirované' : ' (' + d.days_left + ' d)') : 'bez obmedzenia' %></span><% if (d.valid_from) { %><br><span class="small muted">od <%= U.fmtDate(d.valid_from) %></span><% } %></td>
+    <td class="right nowrap"><button type="button" class="btn sm secondary" onclick='editDoc(<%- JSON.stringify(d).replace(/</g, "\\u003c") %>)'>Upraviť</button> <form class="inline" method="post" action="/workers/<%= w.id %>/documents/<%= d.id %>/delete" onsubmit="return confirm('Odstrániť doklad?')"><button class="btn sm danger">×</button></form></td></tr><% } %></table><% } %>
+    <details class="mt" id="doc-form"><summary>+ Pridať doklad</summary>
+    <form method="post" action="/workers/<%= w.id %>/documents/save" class="mt"><input type="hidden" name="doc_id" id="doc_id">
+      <div class="row"><div class="field" style="flex:2"><label>Typ</label><select name="type" id="doc_type"><% for (const [k, v] of Object.entries(DOC_TYPES)) { %><option value="<%= k %>"><%= v %></option><% } %></select></div><div class="field"><label>Číslo</label><input type="text" name="number" id="doc_number"></div></div>
+      <div class="row"><div class="field"><label>Vydal</label><input type="text" name="issued_by" id="doc_issued"></div><div class="field"><label>Platné od</label><input type="date" name="valid_from" id="doc_from"></div><div class="field"><label>Platné do</label><input type="date" name="valid_to" id="doc_to"></div></div>
+      <div class="field"><label>Poznámka</label><input type="text" name="note" id="doc_note"></div><button class="btn sm">Uložiť doklad</button></form></details>
+    <div class="mt"><%- include('../partials/attachments', { entityType: 'worker', entityId: w.id, back: '/workers/' + w.id + '#docs' }) %></div>
+  </div>
+  <div>
+    <div class="card" id="postings">
+      <h2>Vyslania do DE (hlásenia)</h2>
+      <p class="help">Vyslanie pracovníka treba pred začiatkom ohlásiť na Meldeportal-Mindestlohn (Zoll). Zaznamenajte dátum hlásenia a referenciu.</p>
+      <% if (!postings.length) { %><p class="muted">Žiadne záznamy.</p><% } else { %><table class="compact"><tr><th>Zákazka / klient</th><th>Obdobie</th><th>Ohlásené</th><th></th></tr><% for (const p of postings) { %><tr><td><%= p.site_name || p.client_name || '–' %></td><td class="small"><%= p.date_from ? U.fmtDate(p.date_from) : '?' %> – <%= p.date_to ? U.fmtDate(p.date_to) : '?' %></td><td><% if (p.notified_at) { %><span class="badge ok"><%= U.fmtDate(p.notified_at) %></span> <span class="small muted"><%= p.portal_ref || '' %></span><% } else { %><span class="badge danger">neohlásené</span><% } %></td><td class="right nowrap"><button type="button" class="btn sm secondary" onclick='editPosting(<%- JSON.stringify(p).replace(/</g, "\\u003c") %>)'>Upraviť</button> <form class="inline" method="post" action="/workers/<%= w.id %>/postings/<%= p.id %>/delete" onsubmit="return confirm('Odstrániť?')"><button class="btn sm danger">×</button></form></td></tr><% } %></table><% } %>
+      <details class="mt" id="posting-form"><summary>+ Pridať vyslanie / hlásenie</summary>
+      <form method="post" action="/workers/<%= w.id %>/postings/save" class="mt"><input type="hidden" name="posting_id" id="p_id">
+        <div class="row"><div class="field" style="flex:2"><label>Zákazka</label><select name="site_id" id="p_site"><option value="">–</option><% for (const s of sites) { %><option value="<%= s.id %>"><%= s.client_name %> – <%= s.name %></option><% } %></select></div><div class="field"><label>Od</label><input type="date" name="date_from" id="p_from"></div><div class="field"><label>Do</label><input type="date" name="date_to" id="p_to"></div></div>
+        <div class="row"><div class="field"><label>Ohlásené dňa</label><input type="date" name="notified_at" id="p_notified"></div><div class="field"><label>Referencia / číslo hlásenia</label><input type="text" name="portal_ref" id="p_ref"></div><div class="field"><label>Poznámka</label><input type="text" name="note" id="p_note"></div></div>
+        <button class="btn sm">Uložiť</button></form></details>
+    </div>
+    <div class="card">
+      <h2>AÜG – dĺžka nasadenia u klienta</h2>
+      <% if (!aug.length) { %><p class="muted">Zatiaľ žiadne nasadenie.</p><% } else { %><table class="compact"><tr><th>Klient</th><th>Od</th><th class="num">Mesiace</th><th>Stav</th></tr><% for (const a of aug) { %><tr><td><%= a.client %> <%= a.active ? '' : '<span class="badge muted">ukončené</span>' %></td><td><%= U.fmtDate(a.start) %></td><td class="num"><b><%= a.months %></b></td><td><span class="badge <%= a.level %>"><%= a.text %></span></td></tr><% } %></table><% } %>
+      <p class="help">Max. 18 mesiacov u jedného klienta, po 9 mesiacoch Equal Pay. Prerušenie dlhšie ako 3 mesiace počítanie nuluje.</p>
+    </div>
+  </div>
+</div>
+<div class="grid grid-2">
+  <div class="card" id="money">
+    <h2>Zálohy, zrážky, bonusy</h2>
+    <form method="post" action="/workers/<%= w.id %>/transactions/add" class="row" style="align-items:flex-end"><div class="field"><label>Dátum</label><input type="date" name="date" value="<%= U.today() %>"></div><div class="field"><label>Typ</label><select name="type"><option value="advance">záloha vyplatená</option><option value="deduction">zrážka (ubytovanie, pokuta…)</option><option value="bonus">bonus / doplatok</option></select></div><div class="field"><label>Suma €</label><input type="number" step="0.01" name="amount" required></div><div class="field" style="flex:2"><label>Popis</label><input type="text" name="description"></div><div class="field" style="flex:0"><button class="btn sm">Pridať</button></div></form>
+    <% if (transactions.length) { %><table class="compact mt"><% for (const t of transactions) { %><tr><td><%= U.fmtDate(t.date) %></td><td><span class="badge <%= t.type === 'bonus' ? 'ok' : (t.type === 'advance' ? 'warn' : 'muted') %>"><%= { advance: 'záloha', deduction: 'zrážka', bonus: 'bonus' }[t.type] %></span> <%= t.description || '' %></td><td class="num"><%= U.money(t.amount) %></td><td><% if (t.settlement_id) { %><a href="/settlements/<%= t.settlement_id %>" class="small">vyúčtované</a><% } else { %><form class="inline" method="post" action="/workers/<%= w.id %>/transactions/<%= t.id %>/delete"><button class="btn sm danger">×</button></form><% } %></td></tr><% } %></table><% } %>
+    <h3 class="mt">Mesačné vyúčtovania</h3>
+    <% if (!settlements.length) { %><p class="muted small">Žiadne. <a href="/settlements/new?worker_id=<%= w.id %>">Vytvoriť →</a></p><% } else { %><table class="compact"><% for (const s of settlements) { %><tr><td><a href="/settlements/<%= s.id %>"><%= s.month %></a></td><td class="num"><%= U.hours(s.hours) %> h</td><td class="num"><b><%= U.money(s.total_due) %></b></td><td><span class="badge <%= s.status === 'paid' ? 'ok' : (s.status === 'approved' ? 'info' : 'warn') %>"><%= { draft: 'koncept', approved: 'schválené', paid: 'vyplatené' }[s.status] %></span></td></tr><% } %></table><% } %>
+  </div>
+  <div class="card">
+    <h2>Plán a hodinové lístky</h2>
+    <% if (assignments.length) { %><h3>Plánované nasadenia</h3><table class="compact"><% for (const a of assignments.slice(0, 8)) { const t = ASSIGNMENT_TYPES[a.type] || ASSIGNMENT_TYPES.work; %><tr><td><span class="badge" style="background:<%= t[1] %>;color:#fff"><%= t[0] %></span></td><td><%= a.site_name || '' %></td><td class="small nowrap"><%= U.fmtDate(a.date_from) %> – <%= U.fmtDate(a.date_to) %></td></tr><% } %></table><% } %>
+    <% if (stays.length) { %><h3 class="mt">Ubytovanie</h3><table class="compact"><% for (const s of stays) { %><tr><td><a href="/lodging/<%= s.lodging_id %>"><%= s.lodging_name %></a> <span class="small muted"><%= s.city || '' %></span></td><td class="small nowrap"><%= U.fmtDate(s.date_from) %> – <%= s.date_to ? U.fmtDate(s.date_to) : 'trvá' %></td><td class="small muted"><%= { company: 'hradí firma', worker: 'zráža sa', client: 'preúčtuje sa' }[s.charge_to] %></td></tr><% } %></table><% } %>
+    <h3 class="mt">Posledné hodinové lístky</h3>
+    <% if (!sheets.length) { %><p class="muted small">Žiadne.</p><% } else { %><table class="compact"><% for (const s of sheets.slice(0, 12)) { const wk = U.isoWeek(s.week_start); %><tr><td><a href="/timesheets/<%= s.id %>">T<%= wk.week %>/<%= wk.year %></a></td><td><%= s.site_name %></td><td class="num"><%= U.hours(s.hours) %> h</td><td><span class="badge <%= { draft: 'warn', approved: 'info', invoiced: 'ok' }[s.status] %>"><%= { draft: 'rozprac.', approved: 'schválený', invoiced: 'vyfakt.' }[s.status] %></span></td></tr><% } %></table><% } %>
+  </div>
+</div>
+<script>
+function editDoc(d){const f=document.getElementById('doc-form');f.open=true;doc_id.value=d.id;doc_type.value=d.type;doc_number.value=d.number||'';doc_issued.value=d.issued_by||'';doc_from.value=d.valid_from||'';doc_to.value=d.valid_to||'';doc_note.value=d.note||'';f.scrollIntoView();}
+function editPosting(p){const f=document.getElementById('posting-form');f.open=true;p_id.value=p.id;p_site.value=p.site_id||'';p_from.value=p.date_from||'';p_to.value=p.date_to||'';p_notified.value=p.notified_at||'';p_ref.value=p.portal_ref||'';p_note.value=p.note||'';f.scrollIntoView();}
+</script>
+<%- include('../partials/footer') %>

@@ -56,6 +56,16 @@
     <% } %>
   </div>
 </div>
+<div class="card"><h2>Compliance – vyslanie do DE <a href="/compliance" class="small">(všetko →)</a></h2>
+  <% const cAlerts = compliance.permits.length + compliance.expiring.length + compliance.missing + compliance.postings + compliance.aug.length; if (!cAlerts) { %><p class="muted">Žiadne upozornenia: povolenia platia, doklady pracovníkov sú v poriadku, vyslania ohlásené.</p><% } else { %>
+  <div class="grid grid-2">
+    <div><% for (const p of compliance.permits) { %><div><span class="badge <%= p.status === 'missing' ? 'muted' : p.status %>"><%= p.text %></span> <%= p.label %></div><% } %>
+      <% if (compliance.missing) { %><div class="mt"><span class="badge danger"><%= compliance.missing %></span> chýbajúce povinné doklady (A1, pas, povolenia)</div><% } %>
+      <% if (compliance.postings) { %><div class="mt"><span class="badge danger"><%= compliance.postings %></span> neohlásené vyslania (Meldeportal)</div><% } %>
+      <% for (const a of compliance.aug) { %><div class="mt"><span class="badge <%= a.level %>"><%= a.months %> mes.</span> <a href="/workers/<%= a.worker_id %>"><%= a.name %></a> u <%= a.client %>: <%= a.text %></div><% } %></div>
+    <div><% if (compliance.expiring.length) { %><table class="compact"><% for (const d of compliance.expiring) { %><tr><td><a href="/workers/<%= d.worker_id %>#docs"><%= d.last_name %> <%= d.first_name %></a></td><td><%= d.type_label %></td><td><span class="badge <%= d.expired ? 'danger' : 'warn' %>"><%= U.fmtDate(d.valid_to) %></span></td></tr><% } %></table><% } %></div>
+  </div><% } %>
+</div>
 <div class="card"><h2>Posledná aktivita</h2>
 <% if (!activity.length) { %><p class="muted">Zatiaľ žiadna aktivita. Začnite pridaním <a href="/clients/new">klienta</a> a <a href="/workers/new">pracovníkov</a>.</p><% } else { %>
 <table class="compact"><% for (const a of activity) { %><tr><td class="nowrap muted small"><%= a.created_at %></td><td><span class="badge"><%= a.type %></span></td><td><%= a.message %></td></tr><% } %></table><% } %>

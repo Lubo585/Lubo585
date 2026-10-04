@@ -1,5 +1,5 @@
 <%- include('../partials/header') %>
-<div class="topbar"><h1>Fakturácia</h1><div class="actions"><a href="/invoices/from-timesheets" class="btn">Fakturovať odpracované hodiny</a><a href="/invoices/new" class="btn secondary">+ Ručná faktúra</a></div></div>
+<div class="topbar"><h1>Fakturácia</h1><div class="actions"><a href="/invoices/from-timesheets" class="btn">Fakturovať odpracované hodiny</a><a href="/invoices/new" class="btn secondary">+ Ručná faktúra</a><a href="/invoices/ec-sales" class="btn secondary">Súhrnný výkaz DPH</a><a href="/finance/export" class="btn secondary">Export</a></div></div>
 <div class="grid grid-4">
   <div class="kpi <%= kpi.openSum > 0 ? 'warn' : 'ok' %>"><div class="label">Neuhradené faktúry</div><div class="value"><%= U.money(kpi.openSum) %></div><div class="sub"><%= kpi.openCount %> faktúr</div></div>
   <div class="kpi <%= kpi.overdueSum > 0 ? 'danger' : 'ok' %>"><div class="label">Po splatnosti</div><div class="value"><%= U.money(kpi.overdueSum) %></div><div class="sub"><%= kpi.overdueCount %> faktúr</div></div>
@@ -22,7 +22,7 @@
        const border = pay[0] === 'ok' ? 'var(--ok)' : pay[0] === 'danger' ? 'var(--danger)' : pay[0] === 'warn' ? '#f59e0b' : '#d1d5db'; %>
   <tr style="border-left:4px solid <%= border %>">
     <td><a href="/invoices/<%= i.id %>"><b><%= i.number %></b></a><% if (i.site_name) { %><br><span class="small muted"><%= i.site_name %></span><% } %></td>
-    <td><%= i.client_name %></td>
+    <td><%= i.client_name %><%= i.language === 'de' ? ' <span class="badge muted">DE</span>' : '' %><%= i.sent_at ? ' <span class="badge ok" title="odoslaná e-mailom">✉</span>' : '' %></td>
     <td class="nowrap"><%= U.fmtDate(i.issue_date) %></td>
     <td class="nowrap" style="<%= overdue ? 'color:var(--danger);font-weight:700' : '' %>"><%= U.fmtDate(i.due_date) %></td>
     <td class="num"><%= U.money(i.total) %></td>

@@ -1,0 +1,15 @@
+{
+  "appId": "sk.sxworkforce.app",
+  "appName": "SX Workforce",
+  "webDir": "www",
+  "server": {
+    "url": "https://app.vasafirma.sk",
+    "cleartext": false
+  },
+  "ios": { "contentInset": "automatic", "backgroundColor": "#1d4ed8" },
+  "android": { "backgroundColor": "#1d4ed8", "allowMixedContent": false },
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 800, "backgroundColor": "#1d4ed8", "showSpinner": false },
+    "StatusBar": { "style": "DARK", "backgroundColor": "#1d4ed8" }
+  }
+}

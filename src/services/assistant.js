@@ -182,6 +182,14 @@ Sekcie aplikácie a ich adresy:
 - /bank  Banka a platby: import výpisov (camt.053 XML alebo CSV) ručne alebo automaticky z e-mailu (IMAP), automatické párovanie podľa VS a sumy, ručné párovanie, ignorovanie, náklad z odchádzajúcej platby.
 - /expenses  Náklady: kategórie, DPH, opakujúce sa mesačné náklady.
 - /reports  Zisk a prehľady: mesačný zisk = tržby bez DPH − náklady − mzdy z hodín; ziskovosť podľa zákaziek a pracovníkov.
+- /planning  Plánovanie nasadení: kalendár kto-kde-kedy (nasadenie, doma, dovolenka, PN), obsadenosť zákaziek.
+- /compliance  Compliance DE: povolenie AÜG a Freistellungsbescheinigung firmy, expirujúce doklady pracovníkov (A1, pas, povolenia), neohlásené vyslania (Meldeportal), AÜG limity 9/18 mesiacov u klienta, SOKA-BAU hodiny. Doklady sa zadávajú v detaile pracovníka (/workers/ID, záložka Doklady).
+- /quotes  Cenové ponuky: PDF pre klienta, prevod na faktúru.
+- /settlements  Vyúčtovanie pracovníkov: mesačne hodiny × mzda + diéty − zálohy − zrážky, výplatná páska SK/UA/DE. Zálohy a zrážky sa zadávajú v detaile pracovníka.
+- /lodging  Ubytovanie: ubytovne, kto kde býva, náklady, zrážky pracovníkom. /vehicles Vozidlá a kniha jázd.
+- /finance  Financie: cash-flow výhľad, skutočná ziskovosť vrátane diét a ubytovania, exporty CSV pre účtovníctvo; /invoices/ec-sales súhrnný výkaz DPH.
+- Faktúra: PDF (tlačidlo PDF), odoslanie e-mailom s PDF, XRechnung XML pre nemeckých klientov; jazyk a režim DPH podľa klienta (prenesenie DPH v EÚ pre DE klientov). Hodinový lístok má nemecký Stundenzettel na tlač a podpis na obrazovke.
+- Roly používateľov a pozvánky: /settings?tab=account. Zálohy a verzia: /settings?tab=backup.
 - /settings  Nastavenia: záložky Firma, Fakturácia (číslovanie, DPH), Upomienky (dni po splatnosti, text, automatické odosielanie o 8:00), Odosielanie e-mailov (SMTP), Bankový e-mail (IMAP), Účet a používatelia, AI asistent, Denník.
 
 Pojmy: skonto = zľava za úhradu v lehote (uzná sa automaticky pri úhrade v lehote). Zádržné = časť faktúry, ktorú klient zadrží a vyplatí neskôr (sleduje sa jeho splatnosť). Upomienky sa posielajú po X dňoch po splatnosti (predvolene 3, 14, 30), každý stupeň raz.

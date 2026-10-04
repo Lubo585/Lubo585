@@ -16,8 +16,8 @@
   </form>
   <% if (!sheets.length) { %><p class="muted">Žiadne hodinové lístky.</p><% } else { %>
   <table><tr><th>Týždeň</th><th>Klient</th><th>Stavba</th><th class="num">Pracovníci</th><th class="num">Hodiny</th><th>Stav</th><th></th></tr>
-  <% for (const t of sheets) { const wk = U.isoWeek(t.week_start); const st = { draft: ['warn', 'Rozpracovaný'], approved: ['info', 'Schválený'], invoiced: ['ok', 'Vyfakturovaný'] }[t.status]; %>
-  <tr><td><a href="/timesheets/<%= t.id %>">T<%= wk.week %>/<%= wk.year %></a> <span class="muted small"><%= U.fmtDate(t.week_start) %> – <%= U.fmtDate(U.addDays(t.week_start, 6)) %></span></td><td><%= t.client_name %></td><td><%= t.site_name %></td><td class="num"><%= t.workers %></td><td class="num"><%= U.hours(t.hours) %></td><td><span class="badge <%= st[0] %>"><%= st[1] %></span></td>
+  <% for (const t of sheets) { const wk = U.isoWeek(t.week_start); const st = STATUS[t.status]; %>
+  <tr><td><a href="/timesheets/<%= t.id %>">T<%= wk.week %>/<%= wk.year %></a> <span class="muted small"><%= U.fmtDate(t.week_start) %> – <%= U.fmtDate(U.addDays(t.week_start, 6)) %></span></td><td><%= t.client_name %></td><td><%= t.site_name %></td><td class="num"><%= t.workers %></td><td class="num"><%= U.hours(t.hours) %></td><td><span class="badge <%= st[0] %>"><%= st[1] %></span><%= t.signed_at ? ' <span class="badge ok" title="podpísaný">✓</span>' : '' %></td>
   <td class="right nowrap"><a href="/timesheets/<%= t.id %>" class="btn sm secondary">Otvoriť</a> <% if (t.status !== 'invoiced') { %><form class="inline" method="post" action="/timesheets/<%= t.id %>/delete" onsubmit="return confirm('Odstrániť hodinový lístok?')"><button class="btn sm danger">×</button></form><% } %></td></tr>
   <% } %></table><% } %>
 </div>

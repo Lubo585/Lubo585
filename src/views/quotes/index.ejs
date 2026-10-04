@@ -1,0 +1,6 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Cenové ponuky</h1><a href="/quotes/new" class="btn">+ Nová ponuka</a></div>
+<div class="card"><% if (!quotes.length) { %><p class="muted">Zatiaľ žiadne ponuky. Ponuku pošlete klientovi ako PDF a po prijatí ju jedným klikom zmeníte na faktúru.</p><% } else { %>
+<table><tr><th>Číslo</th><th>Klient</th><th>Dátum</th><th>Platnosť</th><th class="num">Suma bez DPH</th><th>Stav</th><th></th></tr>
+<% for (const q of quotes) { const st = STATUSES[q.status] || STATUSES.draft; %><tr><td><a href="/quotes/<%= q.id %>"><b><%= q.number %></b></a> <span class="badge muted"><%= q.language.toUpperCase() %></span></td><td><%= q.client_name %></td><td><%= U.fmtDate(q.date) %></td><td style="<%= q.valid_until && q.valid_until < U.today() && q.status === 'sent' ? 'color:var(--danger)' : '' %>"><%= q.valid_until ? U.fmtDate(q.valid_until) : '–' %></td><td class="num"><%= U.money(q.subtotal) %></td><td><span class="badge <%= st[0] %>"><%= st[1] %></span></td><td class="right"><a href="/quotes/<%= q.id %>" class="btn sm secondary">Otvoriť</a></td></tr><% } %></table><% } %></div>
+<%- include('../partials/footer') %>

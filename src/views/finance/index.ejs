@@ -1,0 +1,21 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Financie</h1><a href="/finance/export" class="btn secondary">Export pre účtovníctvo</a></div>
+<div class="grid grid-4">
+  <div class="kpi"><div class="label">Pohľadávky</div><div class="value"><%= U.money(receivables) %></div><div class="sub">z toho po splatnosti <%= U.money(overdueIn) %></div></div>
+  <div class="kpi"><div class="label">Zádržné u klientov</div><div class="value"><%= U.money(retentionSum) %></div></div>
+  <div class="kpi"><div class="label">Vyplatené mzdy (vyúčtovania)</div><div class="value"><%= U.money(wagesPaid) %></div><div class="sub"><%= U.fmtDate(from) %> – <%= U.fmtDate(to) %></div></div>
+  <div class="kpi"><div class="label">Diéty</div><div class="value"><%= U.money(perDiem) %></div></div>
+</div>
+<div class="card mt"><h2>Cash-flow výhľad na 8 týždňov</h2>
+  <p class="help">Príjmy = faktúry podľa splatnosti a zádržné podľa termínu uvoľnenia. Výdavky = nevyplatené vyúčtovania pracovníkov (predpoklad výplaty do 10. dňa po mesiaci) a opakujúce sa náklady. Po splatnosti dnes: <b><%= U.money(overdueIn) %></b> (nie je vo výhľade).</p>
+  <table class="compact"><tr><th>Týždeň</th><th class="num">Príjmy</th><th class="num">Mzdy</th><th class="num">Náklady</th><th class="num">Saldo</th><th class="num">Kumulatívne</th></tr>
+  <% for (const w of weeks) { %><tr><td><%= U.fmtDate(w.from) %> – <%= U.fmtDate(w.to) %></td><td class="num" style="color:var(--ok)"><%= U.money(w.incoming) %></td><td class="num"><%= U.money(w.wages) %></td><td class="num"><%= U.money(w.expenses) %></td><td class="num" style="color:<%= w.incoming - w.outgoing >= 0 ? 'var(--ok)' : 'var(--danger)' %>"><%= U.money(w.incoming - w.outgoing) %></td><td class="num"><b style="color:<%= w.cum >= 0 ? 'inherit' : 'var(--danger)' %>"><%= U.money(w.cum) %></b></td></tr><% } %></table>
+</div>
+<div class="card"><div class="topbar"><h2>Skutočná ziskovosť <%= U.fmtDate(from) %> – <%= U.fmtDate(to) %></h2><form method="get" class="row" style="align-items:flex-end"><div class="field"><input type="date" name="from" value="<%= from %>"></div><div class="field"><input type="date" name="to" value="<%= to %>"></div><div class="field" style="flex:0"><button class="btn secondary">Zobraziť</button></div></form></div>
+  <table class="compact"><tr><td>Fakturované (bez DPH)</td><td class="num"><b><%= U.money(rev.net) %></b></td></tr><tr><td>Mzdy z hodín (nákladová sadzba × hodiny)</td><td class="num">− <%= U.money(lab.cost) %></td></tr><tr><td>Diéty (z vyúčtovaní)</td><td class="num">− <%= U.money(perDiem) %></td></tr><tr><td>Ubytovanie (pobyty hradené firmou / zrážané)</td><td class="num">− <%= U.money(lodging) %></td></tr><tr><td>Doprava (kniha jázd, <%= U.hours(trips.km) %> km)</td><td class="num">− <%= U.money(trips.c) %></td></tr><tr><td>Ostatné prevádzkové náklady (bez DPH)</td><td class="num">− <%= U.money(exp.net) %></td></tr><tr class="total"><td>Orientačný zisk</td><td class="num"><%= U.money(rev.net - lab.cost - perDiem - lodging - exp.net) %></td></tr></table>
+  <p class="help">Pozor na dvojité započítanie: ak mzdy a dopravu zadávate aj do Nákladov, počítajú sa v „ostatných nákladoch“. Vyplácanie vyúčtovaní môže automaticky zapisovať náklad do kategórie Mzdy.</p>
+  <h3 class="mt">Podľa pracovníkov</h3>
+  <table class="compact"><tr><th>Pracovník</th><th class="num">Hodiny</th><th class="num">Fakturovateľné</th><th class="num">Mzda (náklad)</th><th class="num">Diéty</th><th class="num">Náklady</th><th class="num">Vyplatené</th><th class="num">Marža</th></tr>
+  <% for (const w of byWorker) { if (!w.hours) continue; %><tr><td><a href="/workers/<%= w.id %>"><%= w.last_name %> <%= w.first_name %></a></td><td class="num"><%= U.hours(w.hours) %></td><td class="num"><%= U.money(w.billable) %></td><td class="num"><%= U.money(w.labor) %></td><td class="num"><%= U.money(w.perdiem) %></td><td class="num"><%= U.money(w.expenses) %></td><td class="num"><%= U.money(w.settled) %></td><td class="num" style="color:<%= w.margin2 >= 0 ? 'var(--ok)' : 'var(--danger)' %>"><b><%= U.money(w.margin2) %></b></td></tr><% } %></table>
+</div>
+<%- include('../partials/footer') %>

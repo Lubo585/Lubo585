@@ -1,0 +1,13 @@
+<%- include('../partials/header') %>
+<% const st = STATUSES[q.status] || STATUSES.draft; %>
+<div class="topbar"><div><h1>Ponuka <%= q.number %> <span class="badge <%= st[0] %>"><%= st[1] %></span></h1><div class="muted"><%= q.client_name %><%= q.site_name ? ' · ' + q.site_name : '' %> · <%= U.fmtDate(q.date) %><%= q.valid_until ? ' · platí do ' + U.fmtDate(q.valid_until) : '' %> · <%= q.language.toUpperCase() %></div></div>
+<div class="actions"><a href="/quotes" class="btn secondary">← Zoznam</a><a href="/quotes/<%= q.id %>/pdf" target="_blank" class="btn secondary">PDF</a><a href="/quotes/<%= q.id %>/edit" class="btn secondary">Upraviť</a><% if (q.status !== 'invoiced') { %><form class="inline" method="post" action="/quotes/<%= q.id %>/to-invoice" onsubmit="return confirm('Vytvoriť faktúru z tejto ponuky?')"><button class="btn">Vytvoriť faktúru</button></form><% } %><form class="inline" method="post" action="/quotes/<%= q.id %>/delete" onsubmit="return confirm('Odstrániť ponuku?')"><button class="btn danger">Odstrániť</button></form></div></div>
+<div class="grid grid-2">
+  <div class="card"><h2>Položky</h2><table class="compact"><tr><th>Popis</th><th class="num">Množstvo</th><th class="num">Cena</th><th class="num">Spolu</th></tr><% for (const it of q.items) { %><tr><td><%= it.description %></td><td class="num"><%= U.hours(it.quantity) %> <%= it.unit %></td><td class="num"><%= U.money(it.unit_price) %></td><td class="num"><%= U.money(it.total) %></td></tr><% } %><tr class="total"><td colspan="3">Spolu bez DPH</td><td class="num"><%= U.money(q.subtotal) %></td></tr></table><% if (q.note) { %><p class="small mt"><%= q.note %></p><% } %></div>
+  <div class="card"><h2>Stav a odoslanie</h2>
+    <form method="post" action="/quotes/<%= q.id %>/status" class="row" style="align-items:flex-end"><div class="field"><label>Stav</label><select name="status"><% for (const [k, v] of Object.entries(STATUSES)) { %><option value="<%= k %>" <%= q.status===k?'selected':'' %>><%= v[1] %></option><% } %></select></div><div class="field" style="flex:0"><button class="btn sm secondary">Uložiť</button></div></form>
+    <form method="post" action="/quotes/<%= q.id %>/send" class="mt"><div class="field"><label>Odoslať PDF na e-mail</label><input type="email" name="to" value="<%= q.client_invoice_email || q.client_email || '' %>" required></div><button class="btn sm">Odoslať ponuku</button></form>
+    <div class="mt"><%- include('../partials/attachments', { entityType: 'quote', entityId: q.id, back: '/quotes/' + q.id }) %></div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

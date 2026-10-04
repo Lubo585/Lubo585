@@ -1,5 +1,6 @@
 const router = require('express').Router();
-const { get, run, getSettings, setSetting, hashPassword, verifyPassword, DEFAULT_SETTINGS, all, log } = require('../db');
+const { get, run, getSettings, setSetting, hashPassword, verifyPassword, DEFAULT_SETTINGS, all, log, ROLES, backupDatabase, SCHEMA_VERSION } = require('../db');
+const crypto = require('crypto');
 const mailer = require('../services/mailer');
 const imap = require('../services/imap');
 const reminders = require('../services/reminders');
@@ -9,7 +10,12 @@ router.get('/', (req, res) => {
   const tab = req.query.tab || 'company';
   const due = tab === 'reminders' ? reminders.dueReminders() : [];
   const logs = tab === 'log' ? all('SELECT * FROM activity_log ORDER BY id DESC LIMIT 200') : [];
-  res.render('settings/index', { title: 'Nastavenia', s: getSettings(), tab, due, logs });
+  const users = tab === 'account' ? all('SELECT u.*, w.first_name, w.last_name FROM users u LEFT JOIN workers w ON w.id = u.worker_id ORDER BY u.active DESC, u.role, u.username') : [];
+  const invites = tab === 'account' ? all("SELECT * FROM invites WHERE used_at IS NULL AND (expires_at IS NULL OR expires_at > datetime('now')) ORDER BY id DESC") : [];
+  const workers = tab === 'account' ? all('SELECT id, first_name, last_name FROM workers WHERE active = 1 ORDER BY last_name') : [];
+  const backups = tab === 'backup' ? (() => { try { const fs = require('fs'); const dir = require('path').join(require('path').dirname(require('../db').DB_PATH), 'backups'); return fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith('.db')).sort().reverse().map((f) => ({ name: f, size: fs.statSync(require('path').join(dir, f)).size })) : []; } catch (e) { return []; } })() : [];
+  const baseUrl = getSettings().app_url || (req.protocol + '://' + req.get('host'));
+  res.render('settings/index', { title: 'Nastavenia', s: getSettings(), tab, due, logs, users, invites, workers, backups, baseUrl, schemaVersion: SCHEMA_VERSION });
 });
 router.post('/save', (req, res) => {
   const tab = req.body.tab || 'company';
@@ -60,9 +66,40 @@ router.post('/test-ai', async (req, res) => {
 });
 router.post('/clear-ai-key', (req, res) => { setSetting('ai_api_key', ''); req.flash('ok', 'API kľúč odstránený.'); res.redirect('/settings?tab=ai'); });
 router.post('/users/add', (req, res) => {
-  if (!req.body.username || (req.body.password || '').length < 6) req.flash('err', 'Zadajte meno a heslo (min. 6 znakov).');
-  else if (get('SELECT id FROM users WHERE username = ?', [req.body.username])) req.flash('err', 'Používateľ už existuje.');
-  else { run('INSERT INTO users(username, password_hash, name, role) VALUES (?,?,?,?)', [req.body.username.trim(), hashPassword(req.body.password), req.body.name || '', 'user']); req.flash('ok', 'Používateľ pridaný.'); log('user', `Pridaný používateľ ${req.body.username}`); }
+  const role = ROLES[req.body.role] ? req.body.role : 'office';
+  if (!req.body.username || (req.body.password || '').length < 8) req.flash('err', 'Zadajte meno a heslo (min. 8 znakov).');
+  else if (get('SELECT id FROM users WHERE username = ?', [req.body.username.trim().toLowerCase()])) req.flash('err', 'Používateľ už existuje.');
+  else { run('INSERT INTO users(username, password_hash, name, role, email, worker_id) VALUES (?,?,?,?,?,?)', [req.body.username.trim().toLowerCase(), hashPassword(req.body.password), req.body.name || '', role, (req.body.email || '').trim().toLowerCase() || null, req.body.worker_id || null]); req.flash('ok', 'Používateľ pridaný.'); log('user', `Pridaný používateľ ${req.body.username} (${ROLES[role]})`); }
   res.redirect('/settings?tab=account');
+});
+router.post('/users/:id/update', (req, res) => {
+  const u = get('SELECT * FROM users WHERE id = ?', [req.params.id]);
+  if (!u) return res.redirect('/settings?tab=account');
+  const a = req.body.action;
+  if (a === 'deactivate' && u.id !== req.session.user.id) run('UPDATE users SET active = 0 WHERE id = ?', [u.id]);
+  else if (a === 'activate') run('UPDATE users SET active = 1 WHERE id = ?', [u.id]);
+  else if (a === 'role' && ROLES[req.body.role] && u.id !== req.session.user.id) run('UPDATE users SET role = ?, worker_id = ? WHERE id = ?', [req.body.role, req.body.role === 'worker' ? (req.body.worker_id || null) : null, u.id]);
+  else if (a === 'password' && (req.body.password || '').length >= 8) run('UPDATE users SET password_hash = ? WHERE id = ?', [hashPassword(req.body.password), u.id]);
+  else if (a === 'delete' && u.id !== req.session.user.id) run('DELETE FROM users WHERE id = ?', [u.id]);
+  log('user', `Používateľ ${u.username}: ${a}`);
+  req.flash('ok', 'Používateľ upravený.');
+  res.redirect('/settings?tab=account');
+});
+router.post('/invites/add', (req, res) => {
+  const role = ROLES[req.body.role] ? req.body.role : 'office';
+  const token = crypto.randomBytes(18).toString('hex');
+  run("INSERT INTO invites(token, role, email, name, worker_id, created_by, expires_at) VALUES (?,?,?,?,?,?,datetime('now', '+14 days'))", [token, role, (req.body.email || '').trim().toLowerCase() || null, (req.body.name || '').trim() || null, role === 'worker' ? (req.body.worker_id || null) : null, req.session.user.id]);
+  log('user', `Vytvorená pozvánka (${ROLES[role]}) pre ${req.body.name || req.body.email || '–'}`);
+  req.flash('ok', 'Pozvánka vytvorená, odkaz pošlite dotyčnej osobe (platí 14 dní).');
+  res.redirect('/settings?tab=account');
+});
+router.post('/invites/:id/delete', (req, res) => { run('DELETE FROM invites WHERE id = ?', [req.params.id]); res.redirect('/settings?tab=account'); });
+router.post('/backup-now', (req, res) => { const b = backupDatabase('manual'); req.flash(b ? 'ok' : 'err', b ? 'Záloha vytvorená: ' + require('path').basename(b) : 'Záloha zlyhala.'); res.redirect('/settings?tab=backup'); });
+router.get('/backup/download', (req, res) => {
+  const fs = require('fs'); const path = require('path'); const { DB_PATH } = require('../db');
+  const dir = path.join(path.dirname(DB_PATH), 'backups'); const name = String(req.query.name || '').replace(/[^a-zA-Z0-9._-]/g, '');
+  const file = name ? path.join(dir, name) : null;
+  if (file && fs.existsSync(file)) return res.download(file);
+  const b = backupDatabase('download'); if (!b) return res.status(500).send('Záloha zlyhala'); res.download(b);
 });
 module.exports = router;

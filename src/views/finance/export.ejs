@@ -1,0 +1,16 @@
+<%- include('../partials/header') %>
+<h1>Export pre účtovníctvo</h1>
+<div class="card" style="max-width:700px">
+  <form method="get" class="row" style="align-items:flex-end"><div class="field"><label>Od</label><input type="date" name="from" value="<%= from %>"></div><div class="field"><label>Do</label><input type="date" name="to" value="<%= to %>"></div><div class="field" style="flex:0"><button class="btn secondary">Nastaviť obdobie</button></div></form>
+  <p class="help">Súbory CSV (oddeľovač bodkočiarka, kódovanie UTF-8) sa otvoria v Exceli a dajú sa importovať do účtovného softvéru.</p>
+  <table class="compact">
+    <tr><td><b>Vydané faktúry</b><br><span class="small muted">číslo, klient, IČ DPH, dátumy, režim DPH, základ, DPH, zádržné, Bauabzugsteuer, stav</span></td><td class="right"><a href="/finance/export/invoices.csv?from=<%= from %>&to=<%= to %>" class="btn sm">Stiahnuť</a></td></tr>
+    <tr><td><b>Úhrady</b><br><span class="small muted">dátum, faktúra, suma, typ (úhrada / zádržné), zdroj</span></td><td class="right"><a href="/finance/export/payments.csv?from=<%= from %>&to=<%= to %>" class="btn sm">Stiahnuť</a></td></tr>
+    <tr><td><b>Náklady</b><br><span class="small muted">dátum, kategória, dodávateľ, základ, DPH, spolu</span></td><td class="right"><a href="/finance/export/expenses.csv?from=<%= from %>&to=<%= to %>" class="btn sm">Stiahnuť</a></td></tr>
+    <tr><td><b>Vyúčtovania pracovníkov</b><br><span class="small muted">mesiac, hodiny, mzda, diéty, zálohy, zrážky, k výplate, IBAN</span></td><td class="right"><a href="/finance/export/settlements.csv?from=<%= from %>&to=<%= to %>" class="btn sm">Stiahnuť</a></td></tr>
+    <tr><td><b>Odpracované hodiny</b><br><span class="small muted">po týždňoch a pracovníkoch, s číslom faktúry</span></td><td class="right"><a href="/finance/export/hours.csv?from=<%= from %>&to=<%= to %>" class="btn sm">Stiahnuť</a></td></tr>
+    <tr><td><b>Súhrnný výkaz DPH</b><br><span class="small muted">prenesenie DPH v EÚ po štvrťrokoch</span></td><td class="right"><a href="/invoices/ec-sales" class="btn sm secondary">Otvoriť</a></td></tr>
+    <tr><td><b>SOKA-BAU hlásenie</b><br><span class="small muted">hodiny na stavbách s povinnosťou Urlaubskasse</span></td><td class="right"><a href="/compliance" class="btn sm secondary">Otvoriť</a></td></tr>
+  </table>
+</div>
+<%- include('../partials/footer') %>

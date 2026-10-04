@@ -1,12 +1,38 @@
 <%- include('partials/header') %>
 <div class="login-box card">
-  <h1>Prihlásenie</h1>
+  <div style="text-align:center;margin-bottom:12px"><b style="font-size:18px"><%= settings.company_name %></b><br><span class="muted small">Firemná aplikácia</span></div>
+  <% if (typeof info !== 'undefined' && info) { %><div class="flash ok"><%= info %></div><% } %>
   <% if (error) { %><div class="flash err"><%= error %></div><% } %>
+  <% if (mode === 'login') { %>
+  <h1>Prihlásenie</h1>
   <form method="post" action="/login">
     <input type="hidden" name="next" value="<%= next %>">
-    <div class="field"><label>Používateľské meno</label><input type="text" name="username" required autofocus></div>
-    <div class="field"><label>Heslo</label><input type="password" name="password" required></div>
-    <button class="btn" type="submit">Prihlásiť sa</button>
+    <div class="field"><label>Používateľské meno alebo e-mail</label><input type="text" name="username" required autofocus autocomplete="username"></div>
+    <div class="field"><label>Heslo</label><input type="password" name="password" required autocomplete="current-password"></div>
+    <button class="btn" type="submit" style="width:100%">Prihlásiť sa</button>
   </form>
+  <p class="small mt" style="text-align:center"><a href="/forgot">Zabudnuté heslo?</a></p>
+  <% } else if (mode === 'register') { %>
+  <h1>Vytvorenie účtu</h1>
+  <p class="small muted">Boli ste pozvaný ako <b><%= ROLES[inv.role] || inv.role %></b>. Zvoľte si prihlasovacie meno a heslo.</p>
+  <form method="post" action="/register/<%= inv.token %>">
+    <div class="field"><label>Vaše meno</label><input type="text" name="name" value="<%= inv.name || '' %>" required></div>
+    <div class="field"><label>E-mail</label><input type="email" name="email" value="<%= inv.email || '' %>"></div>
+    <div class="field"><label>Prihlasovacie meno</label><input type="text" name="username" required autocomplete="username" pattern="[a-zA-Z0-9._-]{3,40}"></div>
+    <div class="field"><label>Heslo (min. 8 znakov)</label><input type="password" name="password" required minlength="8" autocomplete="new-password"></div>
+    <div class="field"><label>Heslo znova</label><input type="password" name="password2" required minlength="8" autocomplete="new-password"></div>
+    <button class="btn" type="submit" style="width:100%">Vytvoriť účet</button>
+  </form>
+  <% } else if (mode === 'forgot') { %>
+  <h1>Obnova hesla</h1>
+  <% if (sent) { %><p>Ak e-mail existuje v systéme, poslali sme naň odkaz na nastavenie nového hesla.</p><a href="/login" class="btn secondary">Späť na prihlásenie</a><% } else { %>
+  <form method="post" action="/forgot"><div class="field"><label>E-mail účtu</label><input type="email" name="email" required autofocus></div><button class="btn" type="submit" style="width:100%">Poslať odkaz</button></form>
+  <p class="small mt" style="text-align:center"><a href="/login">Späť na prihlásenie</a></p><% } %>
+  <% } else if (mode === 'reset') { %>
+  <h1>Nové heslo</h1>
+  <form method="post" action="/reset/<%= token %>"><div class="field"><label>Nové heslo (min. 8 znakov)</label><input type="password" name="password" required minlength="8" autocomplete="new-password"></div><div class="field"><label>Heslo znova</label><input type="password" name="password2" required minlength="8"></div><button class="btn" type="submit" style="width:100%">Uložiť heslo</button></form>
+  <% } else { %>
+  <a href="/login" class="btn secondary">Späť na prihlásenie</a>
+  <% } %>
 </div>
 <%- include('partials/footer') %>

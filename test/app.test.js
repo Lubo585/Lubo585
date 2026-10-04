@@ -116,3 +116,42 @@ test('AI asistent: nástroje vyhľadávajú v databáze bez volania API', () => 
   assert.ok(A.runTool('nope', {}).error);
   assert.equal(A.TOOLS.length, 8);
 });
+
+test('compliance a vyúčtovanie: AÜG, expirácie, MT940', () => {
+  const C = require('../src/services/compliance');
+  const S = require('../src/services/settlements');
+  const P = require('../src/services/bankparser');
+  run("INSERT INTO workers(first_name, last_name, hourly_cost, wage_rate, per_diem) VALUES ('Test', 'AUG', 10, 8, 1)");
+  const wid = get('SELECT id FROM workers ORDER BY id DESC LIMIT 1').id;
+  run("INSERT INTO clients(name) VALUES ('DE Bau GmbH')"); const cid = get('SELECT id FROM clients ORDER BY id DESC LIMIT 1').id;
+  run("INSERT INTO sites(client_id, name, hourly_rate, country) VALUES (?, 'Halle', 20, 'DE')", [cid]); const sid = get('SELECT id FROM sites ORDER BY id DESC LIMIT 1').id;
+  // 10 mesiacov týždenných lístkov -> Equal Pay upozornenie
+  for (let k = 0; k < 44; k++) { const ws = U.weekStart(U.addDays(U.today(), -7 * (43 - k))); run("INSERT INTO timesheets(site_id, week_start, status) VALUES (?,?,'approved')", [sid, ws]); const tid = get('SELECT id FROM timesheets ORDER BY id DESC LIMIT 1').id; run('INSERT INTO timesheet_rows(timesheet_id, worker_id, d1, d2, d3, d4, d5) VALUES (?,?,8,8,8,8,8)', [tid, wid]); }
+  const aug = C.augStatus().find((a) => a.worker_id === wid);
+  assert.ok(aug && aug.months >= 9 && aug.months < 12, 'months ' + (aug && aug.months));
+  assert.equal(aug.level, 'warn');
+  run("INSERT INTO worker_documents(worker_id, type, valid_to) VALUES (?, 'a1', ?)", [wid, U.addDays(U.today(), 10)]);
+  assert.ok(C.expiringDocuments(30).some((d) => d.worker_id === wid && d.days_left === 10));
+  assert.ok(C.missingDocuments().some((m) => m.worker_id === wid && m.type === 'passport'));
+  // vyúčtovanie za minulý mesiac
+  const month = U.addMonths(U.monthStart(), -1).slice(0, 7);
+  run("INSERT INTO worker_transactions(worker_id, date, type, amount) VALUES (?, ?, 'advance', 100)", [wid, month + '-10']);
+  const id = S.create(wid, month, { per_diem_rate: 45 });
+  const st = get('SELECT * FROM settlements WHERE id = ?', [id]);
+  assert.ok(st.hours > 0); assert.equal(st.advances_total, 100); assert.equal(st.total_due, U.round2(st.wage_total + st.per_diem_total - 100));
+  assert.throws(() => S.create(wid, month), /už existuje/);
+  // MT940
+  const mt = ':20:STMT\n:25:SK1234\n:28C:1\n:60F:C260901EUR1000,00\n:61:2609150915C1500,00NTRFNONREF//REF1\n:86:?20/VS/20260003?21uhrada?32DE Bau GmbH?38DE89370400440532013000\n:62F:C260915EUR2500,00\n';
+  const tx = P.parseMt940(mt);
+  assert.equal(tx.length, 1); assert.equal(tx[0].amount, 1500); assert.equal(tx[0].variable_symbol, '20260003'); assert.equal(tx[0].counterparty_name, 'DE Bau GmbH'); assert.equal(tx[0].date, '2026-09-15');
+  assert.equal(P.parseStatement(Buffer.from(mt), 'vypis.sta').format, 'mt940');
+});
+
+test('PDF a XRechnung sa vygenerujú', async () => {
+  const PDF = require('../src/services/pdf'); const XR = require('../src/services/xrechnung');
+  const inv = { number: 'T1', variable_symbol: 'T1', language: 'de', issue_date: '2026-10-01', due_date: '2026-10-15', subtotal: 100, vat_amount: 0, total: 100, fees_total: 0, retention_amount: 5, retention_percent: 5, retention_due_date: '2027-04-01', withholding_amount: 0, amount_due: 95, skonto_percent: 0, skonto_amount: 0, vat_mode: 'eu_reverse', vat_rate: 0, client_name: 'DE Bau GmbH', client_address: 'Str. 1, München', client_ic_dph: 'DE123', items: [{ description: 'Maurer – Halle (KW40)', quantity: 5, unit: 'Std.', unit_price: 20, total: 100 }], fees: [] };
+  const buf = await PDF.invoicePdf(inv);
+  assert.ok(buf.length > 2000 && buf.slice(0, 4).toString() === '%PDF');
+  const xml = XR.invoiceXml(inv);
+  assert.match(xml, /<cbc:ID>T1<\/cbc:ID>/); assert.match(xml, /xrechnung_3\.0/); assert.match(xml, /<cbc:ID>AE<\/cbc:ID>/);
+});

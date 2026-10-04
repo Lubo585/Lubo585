@@ -36,10 +36,10 @@ router.get('/:id/edit', (req, res) => {
 router.post('/save', (req, res) => {
   const b = req.body;
   const status = STATUSES[b.status] ? b.status : 'open';
-  const vals = [b.client_id, b.name.trim(), b.address || '', U.num(b.hourly_rate), b.overtime_rate ? U.num(b.overtime_rate) : null, status === 'finished' ? 0 : 1, b.note || '', status, b.start_date || null, b.end_date || null, parseInt(b.workers_needed, 10) || 0, b.description || '', b.contact_person || '', b.contact_phone || ''];
+  const vals = [b.client_id, b.name.trim(), b.address || '', U.num(b.hourly_rate), b.overtime_rate ? U.num(b.overtime_rate) : null, status === 'finished' ? 0 : 1, b.note || '', status, b.start_date || null, b.end_date || null, parseInt(b.workers_needed, 10) || 0, b.description || '', b.contact_person || '', b.contact_phone || '', b.soka_bau ? 1 : 0, (b.country || 'DE').toUpperCase().slice(0, 2), b.profession || '', U.num(b.hours_per_day, 8) || 8];
   let id = b.id;
-  if (id) { run('UPDATE sites SET client_id=?, name=?, address=?, hourly_rate=?, overtime_rate=?, active=?, note=?, status=?, start_date=?, end_date=?, workers_needed=?, description=?, contact_person=?, contact_phone=? WHERE id=?', [...vals, id]); req.flash('ok', 'Zákazka uložená.'); }
-  else { const r = run('INSERT INTO sites(client_id, name, address, hourly_rate, overtime_rate, active, note, status, start_date, end_date, workers_needed, description, contact_person, contact_phone) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)', vals); id = r.lastInsertRowid; log('order', `Nová zákazka „${b.name.trim()}“`); req.flash('ok', 'Zákazka pridaná.'); }
+  if (id) { run('UPDATE sites SET client_id=?, name=?, address=?, hourly_rate=?, overtime_rate=?, active=?, note=?, status=?, start_date=?, end_date=?, workers_needed=?, description=?, contact_person=?, contact_phone=?, soka_bau=?, country=?, profession=?, hours_per_day=? WHERE id=?', [...vals, id]); req.flash('ok', 'Zákazka uložená.'); }
+  else { const r = run('INSERT INTO sites(client_id, name, address, hourly_rate, overtime_rate, active, note, status, start_date, end_date, workers_needed, description, contact_person, contact_phone, soka_bau, country, profession, hours_per_day) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', vals); id = r.lastInsertRowid; log('order', `Nová zákazka „${b.name.trim()}“`); req.flash('ok', 'Zákazka pridaná.'); }
   res.redirect('/orders/' + id);
 });
 router.get('/:id', (req, res) => {

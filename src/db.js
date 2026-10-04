@@ -257,23 +257,91 @@ CREATE INDEX IF NOT EXISTS idx_invoices_status ON invoices(status);
 CREATE INDEX IF NOT EXISTS idx_tx_vs ON bank_transactions(variable_symbol);
 CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);
 CREATE INDEX IF NOT EXISTS idx_timesheets_week ON timesheets(week_start);
+CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 `;
 
 db.exec(SCHEMA);
 
-// ---------- migrácie (doplnenie stĺpcov do existujúcich databáz) ----------
+// ---------- migrácie ----------
+// Každá nová verzia aplikácie môže pridať tabuľky a stĺpce. Migrácie sú idempotentné
+// (CREATE TABLE IF NOT EXISTS, ADD COLUMN len ak chýba), takže existujúce dáta ostanú
+// zachované. Pred aplikovaním novej verzie sa databáza automaticky zálohuje do data/backups.
 function addColumn(table, column, def) {
   const cols = db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name);
   if (!cols.includes(column)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${def}`);
 }
-addColumn('sites', 'status', "TEXT DEFAULT 'open'");          // open (voľná) | active (rozpracovaná) | finished (ukončená)
-addColumn('sites', 'start_date', 'TEXT');
-addColumn('sites', 'end_date', 'TEXT');
-addColumn('sites', 'workers_needed', 'INTEGER DEFAULT 0');
-addColumn('sites', 'description', 'TEXT');
-addColumn('sites', 'contact_person', 'TEXT');
-addColumn('sites', 'contact_phone', 'TEXT');
-db.exec("CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)");
+const MIGRATIONS = [
+  { version: 2, name: 'zákazky: stav, termíny, kontakty', up: () => {
+    addColumn('sites', 'status', "TEXT DEFAULT 'open'"); addColumn('sites', 'start_date', 'TEXT'); addColumn('sites', 'end_date', 'TEXT');
+    addColumn('sites', 'workers_needed', 'INTEGER DEFAULT 0'); addColumn('sites', 'description', 'TEXT'); addColumn('sites', 'contact_person', 'TEXT'); addColumn('sites', 'contact_phone', 'TEXT');
+  } },
+  { version: 3, name: 'používatelia: roly, pozvánky, sessions, prílohy', up: () => {
+    addColumn('users', 'email', 'TEXT'); addColumn('users', 'worker_id', 'INTEGER'); addColumn('users', 'active', 'INTEGER DEFAULT 1'); addColumn('users', 'last_login', 'TEXT');
+    db.exec(`CREATE TABLE IF NOT EXISTS sessions (sid TEXT PRIMARY KEY, data TEXT NOT NULL, expires INTEGER NOT NULL);
+      CREATE TABLE IF NOT EXISTS invites (id INTEGER PRIMARY KEY AUTOINCREMENT, token TEXT UNIQUE NOT NULL, role TEXT NOT NULL, email TEXT, name TEXT, worker_id INTEGER, created_by INTEGER, expires_at TEXT, used_at TEXT, created_at TEXT DEFAULT (datetime('now')));
+      CREATE TABLE IF NOT EXISTS password_resets (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, token TEXT UNIQUE NOT NULL, expires_at TEXT, used_at TEXT);
+      CREATE TABLE IF NOT EXISTS attachments (id INTEGER PRIMARY KEY AUTOINCREMENT, entity_type TEXT NOT NULL, entity_id INTEGER NOT NULL, kind TEXT DEFAULT 'file', filename TEXT NOT NULL, stored_name TEXT NOT NULL, mime TEXT, size INTEGER, uploaded_by INTEGER, note TEXT, created_at TEXT DEFAULT (datetime('now')));
+      CREATE INDEX IF NOT EXISTS idx_att_entity ON attachments(entity_type, entity_id);`);
+  } },
+  { version: 4, name: 'pracovníci: doklady, vyslanie, AÜG, mzdové údaje', up: () => {
+    for (const [c, d] of [['birth_date', 'TEXT'], ['address', 'TEXT'], ['id_number', 'TEXT'], ['iban', 'TEXT'], ['wage_rate', 'REAL'], ['lohngruppe', 'TEXT'], ['german_level', 'TEXT'], ['emergency_contact', 'TEXT'], ['sizes', 'TEXT'], ['per_diem', 'INTEGER DEFAULT 1'], ['lodging_deduction', 'REAL DEFAULT 0'], ['eu_citizen', 'INTEGER DEFAULT 0'], ['hired_at', 'TEXT'], ['contract_type', 'TEXT']]) addColumn('workers', c, d);
+    db.exec(`CREATE TABLE IF NOT EXISTS worker_documents (id INTEGER PRIMARY KEY AUTOINCREMENT, worker_id INTEGER NOT NULL REFERENCES workers(id) ON DELETE CASCADE, type TEXT NOT NULL, number TEXT, issued_by TEXT, valid_from TEXT, valid_to TEXT, note TEXT, attachment_id INTEGER, created_at TEXT DEFAULT (datetime('now')));
+      CREATE TABLE IF NOT EXISTS postings (id INTEGER PRIMARY KEY AUTOINCREMENT, worker_id INTEGER NOT NULL REFERENCES workers(id) ON DELETE CASCADE, site_id INTEGER REFERENCES sites(id) ON DELETE SET NULL, client_id INTEGER REFERENCES clients(id) ON DELETE SET NULL, date_from TEXT, date_to TEXT, notified_at TEXT, portal_ref TEXT, a1_document_id INTEGER, note TEXT, created_at TEXT DEFAULT (datetime('now')));
+      CREATE TABLE IF NOT EXISTS assignments (id INTEGER PRIMARY KEY AUTOINCREMENT, worker_id INTEGER NOT NULL REFERENCES workers(id) ON DELETE CASCADE, site_id INTEGER REFERENCES sites(id) ON DELETE SET NULL, type TEXT DEFAULT 'work', date_from TEXT NOT NULL, date_to TEXT NOT NULL, note TEXT, created_at TEXT DEFAULT (datetime('now')));
+      CREATE INDEX IF NOT EXISTS idx_assign_dates ON assignments(date_from, date_to);`);
+  } },
+  { version: 5, name: 'klienti: krajina, DPH režim, SOKA, Bauabzugsteuer, cenníky, zmluvy', up: () => {
+    for (const [c, d] of [['country', "TEXT DEFAULT 'SK'"], ['vat_mode', "TEXT DEFAULT 'standard'"], ['register', 'TEXT'], ['language', "TEXT DEFAULT 'sk'"], ['soka_bau', 'INTEGER DEFAULT 0'], ['bauabzugsteuer', 'INTEGER DEFAULT 0'], ['invoice_email', 'TEXT'], ['payment_note', 'TEXT'], ['aug_customer_number', 'TEXT']]) addColumn('clients', c, d);
+    db.exec(`CREATE TABLE IF NOT EXISTS client_rates (id INTEGER PRIMARY KEY AUTOINCREMENT, client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE, profession TEXT NOT NULL, rate REAL NOT NULL DEFAULT 0, overtime_pct REAL DEFAULT 25, saturday_pct REAL DEFAULT 25, sunday_pct REAL DEFAULT 50, night_pct REAL DEFAULT 25, valid_from TEXT, note TEXT);
+      CREATE TABLE IF NOT EXISTS contracts (id INTEGER PRIMARY KEY AUTOINCREMENT, client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE, type TEXT DEFAULT 'AUG', number TEXT, signed_at TEXT, valid_from TEXT, valid_to TEXT, note TEXT, created_at TEXT DEFAULT (datetime('now')));`);
+    addColumn('sites', 'soka_bau', 'INTEGER DEFAULT 0'); addColumn('sites', 'country', "TEXT DEFAULT 'DE'"); addColumn('sites', 'profession', 'TEXT'); addColumn('sites', 'hours_per_day', 'REAL DEFAULT 8');
+  } },
+  { version: 6, name: 'hodinové lístky: časy, prestávky, nočné, podpis', up: () => {
+    for (let i = 1; i <= 7; i++) { addColumn('timesheet_rows', `s${i}`, 'TEXT'); addColumn('timesheet_rows', `e${i}`, 'TEXT'); addColumn('timesheet_rows', `b${i}`, 'INTEGER DEFAULT 0'); }
+    addColumn('timesheet_rows', 'night_hours', 'REAL DEFAULT 0'); addColumn('timesheet_rows', 'profession', 'TEXT');
+    addColumn('timesheets', 'signed_by', 'TEXT'); addColumn('timesheets', 'signed_at', 'TEXT'); addColumn('timesheets', 'signature_attachment_id', 'INTEGER'); addColumn('timesheets', 'number', 'TEXT');
+  } },
+  { version: 7, name: 'faktúry: jazyk, EÚ prenesenie, zrážková daň, ponuky, XRechnung', up: () => {
+    for (const [c, d] of [['language', "TEXT DEFAULT 'sk'"], ['vat_mode', "TEXT DEFAULT 'standard'"], ['withholding_pct', 'REAL DEFAULT 0'], ['withholding_amount', 'REAL DEFAULT 0'], ['sent_at', 'TEXT'], ['sent_to', 'TEXT'], ['quote_id', 'INTEGER'], ['pdf_attachment_id', 'INTEGER']]) addColumn('invoices', c, d);
+    db.exec(`CREATE TABLE IF NOT EXISTS quotes (id INTEGER PRIMARY KEY AUTOINCREMENT, number TEXT UNIQUE NOT NULL, client_id INTEGER NOT NULL REFERENCES clients(id), site_id INTEGER, date TEXT NOT NULL, valid_until TEXT, status TEXT DEFAULT 'draft', subtotal REAL DEFAULT 0, note TEXT, language TEXT DEFAULT 'sk', created_at TEXT DEFAULT (datetime('now')));
+      CREATE TABLE IF NOT EXISTS quote_items (id INTEGER PRIMARY KEY AUTOINCREMENT, quote_id INTEGER NOT NULL REFERENCES quotes(id) ON DELETE CASCADE, description TEXT NOT NULL, quantity REAL DEFAULT 1, unit TEXT DEFAULT 'hod', unit_price REAL DEFAULT 0, total REAL DEFAULT 0, sort_order INTEGER DEFAULT 0);`);
+    addColumn('reminders', 'interest_amount', 'REAL DEFAULT 0'); addColumn('reminders', 'fee_amount', 'REAL DEFAULT 0');
+  } },
+  { version: 8, name: 'ubytovanie, vozidlá, vyúčtovanie pracovníkov', up: () => {
+    db.exec(`CREATE TABLE IF NOT EXISTS lodgings (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, address TEXT, city TEXT, country TEXT DEFAULT 'DE', capacity INTEGER DEFAULT 0, price_per_night REAL DEFAULT 0, monthly_cost REAL DEFAULT 0, landlord TEXT, contact TEXT, active INTEGER DEFAULT 1, note TEXT, created_at TEXT DEFAULT (datetime('now')));
+      CREATE TABLE IF NOT EXISTS lodging_stays (id INTEGER PRIMARY KEY AUTOINCREMENT, lodging_id INTEGER NOT NULL REFERENCES lodgings(id) ON DELETE CASCADE, worker_id INTEGER NOT NULL REFERENCES workers(id) ON DELETE CASCADE, date_from TEXT NOT NULL, date_to TEXT, price_per_night REAL DEFAULT 0, charge_to TEXT DEFAULT 'company', note TEXT);
+      CREATE TABLE IF NOT EXISTS vehicles (id INTEGER PRIMARY KEY AUTOINCREMENT, plate TEXT NOT NULL, name TEXT, seats INTEGER DEFAULT 5, active INTEGER DEFAULT 1, inspection_until TEXT, insurance_until TEXT, note TEXT);
+      CREATE TABLE IF NOT EXISTS trips (id INTEGER PRIMARY KEY AUTOINCREMENT, vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE SET NULL, driver_worker_id INTEGER REFERENCES workers(id) ON DELETE SET NULL, driver_name TEXT, date TEXT NOT NULL, date_to TEXT, route_from TEXT, route_to TEXT, km REAL DEFAULT 0, purpose TEXT, site_id INTEGER REFERENCES sites(id) ON DELETE SET NULL, cost REAL DEFAULT 0, passengers TEXT, note TEXT);
+      CREATE TABLE IF NOT EXISTS worker_transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, worker_id INTEGER NOT NULL REFERENCES workers(id) ON DELETE CASCADE, date TEXT NOT NULL, type TEXT NOT NULL, description TEXT, amount REAL NOT NULL DEFAULT 0, settlement_id INTEGER, created_by INTEGER, created_at TEXT DEFAULT (datetime('now')));
+      CREATE TABLE IF NOT EXISTS settlements (id INTEGER PRIMARY KEY AUTOINCREMENT, worker_id INTEGER NOT NULL REFERENCES workers(id) ON DELETE CASCADE, month TEXT NOT NULL, hours REAL DEFAULT 0, overtime_hours REAL DEFAULT 0, wage_rate REAL DEFAULT 0, wage_total REAL DEFAULT 0, per_diem_days INTEGER DEFAULT 0, per_diem_rate REAL DEFAULT 0, per_diem_total REAL DEFAULT 0, advances_total REAL DEFAULT 0, deductions_total REAL DEFAULT 0, bonus_total REAL DEFAULT 0, total_due REAL DEFAULT 0, status TEXT DEFAULT 'draft', paid_at TEXT, note TEXT, created_at TEXT DEFAULT (datetime('now')), UNIQUE(worker_id, month));`);
+  } },
+];
+const SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;
+function backupDatabase(label) {
+  try {
+    const dir = path.join(path.dirname(DB_PATH), 'backups');
+    fs.mkdirSync(dir, { recursive: true });
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const target = path.join(dir, `app-${label}-${stamp}.db`);
+    db.exec(`VACUUM INTO '${target.replace(/'/g, "''")}'`);
+    // ponechaj posledných 30 záloh
+    const files = fs.readdirSync(dir).filter((f) => f.endsWith('.db')).sort();
+    while (files.length > 30) fs.unlinkSync(path.join(dir, files.shift()));
+    return target;
+  } catch (e) { console.error('Záloha databázy zlyhala:', e.message); return null; }
+}
+(function migrate() {
+  const current = db.prepare('PRAGMA user_version').get().user_version || 0;
+  const pending = MIGRATIONS.filter((m) => m.version > current);
+  if (!pending.length) return;
+  const hasData = db.prepare('SELECT COUNT(*) AS n FROM users').get().n > 0;
+  if (hasData) { const b = backupDatabase('before-v' + SCHEMA_VERSION); if (b) console.log('Záloha databázy pred aktualizáciou:', b); }
+  for (const m of pending) {
+    db.exec('BEGIN');
+    try { m.up(); db.exec(`PRAGMA user_version = ${m.version}`); db.exec('COMMIT'); console.log(`Migrácia v${m.version}: ${m.name}`); }
+    catch (e) { db.exec('ROLLBACK'); console.error(`Migrácia v${m.version} zlyhala:`, e.message); throw e; }
+  }
+})();
 
 // ---------- pomocné funkcie ----------
 // undefined sa nedá naviazať ako parameter, prevedie sa na NULL
@@ -341,6 +409,23 @@ const DEFAULT_SETTINGS = {
   match_amount_tolerance: '0.02',
   ai_api_key: '',
   ai_model: 'claude-opus-5-5',
+  company_country: 'SK',
+  app_url: '',                    // verejná adresa aplikácie (pre odkazy v e-mailoch), napr. https://app.firma.sk
+  aug_permit_number: '',          // povolenie na prenájom zamestnancov (AÜG Erlaubnis / ADZ povolenie)
+  aug_permit_valid_until: '',
+  freistellung_number: '',        // Freistellungsbescheinigung §48b EStG (oslobodenie od Bauabzugsteuer)
+  freistellung_valid_until: '',
+  soka_number: '',                // číslo u SOKA-BAU
+  per_diem_rate_de: '45',         // zahraničné stravné pre Nemecko €/deň
+  standard_hours_per_day: '8',
+  doc_alert_days: '60',
+  allow_registration: '0',        // registrácia iba cez pozvánku
+  backup_enabled: '1',
+  default_language_documents: 'sk',
+  default_interest_rate: '12.27', // úrok z omeškania B2B (§288 BGB: 9 b. nad základnou sadzbou; SK: 8 b.)
+  reminder_fee_de: '40',          // paušálna náhrada §288 ods. 5 BGB
+  reminder_subject_de: 'Mahnung Nr. {LEVEL} – Rechnung {NUMBER} überfällig',
+  reminder_body_de: 'Sehr geehrte Damen und Herren,\n\nleider konnten wir bis heute keinen Zahlungseingang für die Rechnung Nr. {NUMBER} vom {ISSUE_DATE}, fällig am {DUE_DATE}, über {AMOUNT} EUR feststellen. Die Rechnung ist seit {DAYS_OVERDUE} Tagen überfällig.\n\nOffener Betrag: {REMAINING} EUR\nVerzugszinsen bis heute: {INTEREST} EUR\nPauschale gem. § 288 Abs. 5 BGB: {FEE} EUR\nVerwendungszweck: {VS}\nIBAN: {IBAN}\n\nBitte überweisen Sie den Betrag innerhalb von 7 Tagen. Sollte die Zahlung bereits erfolgt sein, betrachten Sie dieses Schreiben als gegenstandslos.\n\nMit freundlichen Grüßen\n{COMPANY}',
 };
 
 function getSetting(key) {
@@ -376,8 +461,11 @@ if (!get('SELECT id FROM users LIMIT 1')) {
   console.log('Vytvorený prvý používateľ: admin / ' + pw + ' (zmeňte heslo v Nastaveniach)');
 }
 
+// kontrola, či prihlásený používateľ má danú rolu
+const ROLES = { admin: 'Administrátor', office: 'Kancelária', dispatcher: 'Dispečer', accountant: 'Účtovníctvo', worker: 'Pracovník' };
+
 function log(type, message) {
   run('INSERT INTO activity_log(type, message) VALUES (?, ?)', [type, message]);
 }
 
-module.exports = { db, all, get, run, transaction, getSetting, getSettings, setSetting, hashPassword, verifyPassword, log, DEFAULT_SETTINGS };
+module.exports = { db, all, get, run, transaction, getSetting, getSettings, setSetting, hashPassword, verifyPassword, log, DEFAULT_SETTINGS, ROLES, backupDatabase, SCHEMA_VERSION, DB_PATH };

@@ -5,17 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><%= title %> – <%= settings.company_name %></title>
 <link rel="stylesheet" href="/static/css/app.css">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#1d4ed8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="<%= settings.company_name %>">
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+<link rel="icon" href="/static/icons/icon-192.png">
 </head>
 <body>
 <div class="layout">
 <% if (user) { %>
 <nav class="sidebar">
   <div class="brand"><%= settings.company_name %><small>Firemná aplikácia</small></div>
-  <% const nav = [['/', 'Prehľad'], ['/tasks', 'Úlohy'], ['/orders', 'Zákazky'], ['/timesheets', 'Hodinové lístky'], ['/workers', 'Pracovníci'], ['/clients', 'Klienti'], ['/invoices', 'Fakturácia'], ['/bank', 'Banka a platby'], ['/expenses', 'Náklady'], ['/reports', 'Zisk a prehľady'], ['/assistant', 'AI asistent'], ['/settings', 'Nastavenia']]; %>
+  <% const nav = user.role === 'worker' ? [['/portal', 'Môj portál']] : [['/', 'Prehľad'], ['/tasks', 'Úlohy'], ['/orders', 'Zákazky'], ['/planning', 'Plánovanie'], ['/timesheets', 'Hodinové lístky'], ['/workers', 'Pracovníci'], ['/compliance', 'Compliance DE'], ['/clients', 'Klienti'], ['/quotes', 'Ponuky'], ['/invoices', 'Fakturácia'], ['/bank', 'Banka a platby'], ['/settlements', 'Vyúčtovanie'], ['/lodging', 'Ubytovanie'], ['/vehicles', 'Vozidlá'], ['/expenses', 'Náklady'], ['/reports', 'Zisk a prehľady'], ['/finance', 'Financie'], ['/assistant', 'AI asistent'], ['/settings', 'Nastavenia']].filter(([h]) => allowed(h)); %>
   <% for (const [href, label] of nav) { const active = href === '/' ? path === '/' : path.startsWith(href); %>
     <a href="<%= href %>" class="<%= active ? 'active' : '' %>"><%= label %></a>
   <% } %>
-  <div class="user"><%= user.name || user.username %><br><form method="post" action="/logout"><button type="submit">Odhlásiť sa</button></form></div>
+  <div class="user"><%= user.name || user.username %> <span class="badge muted"><%= ROLES[user.role] || user.role %></span><br><form method="post" action="/logout"><button type="submit">Odhlásiť sa</button></form></div>
 </nav>
 <% } %>
 <main class="main">

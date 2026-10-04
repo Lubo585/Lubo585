@@ -3,6 +3,7 @@ const { all, get } = require('../db');
 const U = require('../utils');
 const INV = require('../services/invoices');
 const R = require('../services/reports');
+const C = require('../services/compliance');
 
 router.get('/', (req, res) => {
   const today = U.today();
@@ -23,8 +24,9 @@ router.get('/', (req, res) => {
   const myTasks = all(`SELECT t.*, u.name AS by_name, u.username AS by_user FROM tasks t LEFT JOIN users u ON u.id=t.assigned_by WHERE t.status IN ('new','progress','waiting') AND t.assigned_to = ? ORDER BY COALESCE(t.due_date,'9999'), t.id DESC LIMIT 8`, [req.session.user.id]);
   const openTasks = get("SELECT COUNT(*) AS n FROM tasks WHERE status IN ('new','progress','waiting')").n;
   const orders = { open: get("SELECT COUNT(*) AS n FROM sites WHERE status='open'").n, active: get("SELECT COUNT(*) AS n FROM sites WHERE status='active'").n };
+  const compliance = { expiring: C.expiringDocuments().slice(0, 6), missing: C.missingDocuments().length, postings: C.postingsMissing().length, aug: C.augStatus().filter((a) => a.active && a.level !== 'ok').slice(0, 5), permits: C.companyPermits().filter((p) => p.status !== 'ok') };
   const activity = all('SELECT * FROM activity_log ORDER BY id DESC LIMIT 12');
   const monthly = R.monthly(6);
-  res.render('dashboard', { title: 'Prehľad', rev, exp, lab, laborEffective, profit: U.round2(rev.net - exp.net - laborEffective), overdue, dueSoon, retention, unmatched, unmatchedCount, draftSheets, uninvoiced, weekHours, receivables, overdueSum, activity, monthly, from, to, myTasks, openTasks, orders });
+  res.render('dashboard', { title: 'Prehľad', rev, exp, lab, laborEffective, profit: U.round2(rev.net - exp.net - laborEffective), overdue, dueSoon, retention, unmatched, unmatchedCount, draftSheets, uninvoiced, weekHours, receivables, overdueSum, activity, monthly, from, to, myTasks, openTasks, orders, compliance });
 });
 module.exports = router;

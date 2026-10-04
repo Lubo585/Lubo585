@@ -1,0 +1,25 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Plánovanie nasadení</h1><div class="actions"><a href="/planning?month=<%= prev %>" class="btn secondary">‹</a><b><%= U.MONTH_NAMES[parseInt(month.slice(5), 10) - 1] %> <%= month.slice(0, 4) %></b><a href="/planning?month=<%= next %>" class="btn secondary">›</a></div></div>
+<div class="grid grid-3">
+  <form method="post" action="/planning/save" class="card" style="grid-column:span 2">
+    <h2>Naplánovať</h2>
+    <div class="row" style="align-items:flex-end">
+      <div class="field" style="flex:2"><label>Pracovníci (Ctrl pre viacerých)</label><select name="worker_id" multiple size="5" required><% for (const w of workers) { %><option value="<%= w.id %>"><%= w.last_name %> <%= w.first_name %> (<%= w.position %>)</option><% } %></select></div>
+      <div class="field"><label>Typ</label><select name="type" onchange="pl_site.hidden = this.value !== 'work'"><% for (const [k, v] of Object.entries(ASSIGNMENT_TYPES)) { %><option value="<%= k %>"><%= v[0] %></option><% } %></select>
+        <label class="mt">Zákazka</label><select name="site_id" id="pl_site"><option value="">–</option><% for (const s of sites) { %><option value="<%= s.id %>"><%= s.client_name %> – <%= s.name %></option><% } %></select></div>
+      <div class="field"><label>Od</label><input type="date" name="date_from" value="<%= month + '-01' %>" required><label class="mt">Do</label><input type="date" name="date_to" value="<%= U.monthEnd(month + '-01') %>" required></div>
+      <div class="field"><label>Poznámka</label><input type="text" name="note"><button class="btn mt" style="width:100%">Uložiť plán</button></div>
+    </div>
+  </form>
+  <div class="card"><h2>Dnes</h2>
+    <table class="compact"><% for (const o of occupancy) { %><tr><td><a href="/orders/<%= o.id %>"><%= o.name %></a><br><span class="small muted"><%= o.client_name %></span></td><td class="num"><b style="<%= o.workers_needed > o.planned ? 'color:var(--danger)' : '' %>"><%= o.planned %></b> / <%= o.workers_needed || '–' %></td></tr><% } %></table>
+    <h3 class="mt">Bez plánu dnes (<%= free.length %>)</h3><p class="small"><%= free.map(w => w.last_name + ' ' + w.first_name).join(', ') || '–' %></p>
+  </div>
+</div>
+<div class="card" style="overflow-x:auto">
+  <table class="compact plan"><tr><th style="min-width:160px">Pracovník</th><% for (const d of days) { const dow = (U.parseDate(d).getDay() + 6) % 7; %><th class="num <%= dow >= 5 ? 'weekend' : '' %>" style="padding:4px 2px;min-width:22px;font-size:10px;<%= d === today ? 'background:#dbeafe' : '' %>"><%= d.slice(8) %></th><% } %></tr>
+  <% for (const w of workers) { const as = byWorker.get(w.id) || []; %><tr><td><a href="/workers/<%= w.id %>"><%= w.last_name %> <%= w.first_name %></a><br><span class="small muted"><%= w.position %></span></td>
+    <% for (const d of days) { const a = as.find(x => x.date_from <= d && x.date_to >= d); const t = a ? (ASSIGNMENT_TYPES[a.type] || ASSIGNMENT_TYPES.work) : null; %><td style="padding:2px;text-align:center;<%= a ? 'background:' + t[1] + ';color:#fff' : '' %>" title="<%= a ? (t[0] + (a.site_name ? ': ' + a.site_name : '') + ' ' + U.fmtDate(a.date_from) + '–' + U.fmtDate(a.date_to) + (a.note ? ' · ' + a.note : '')) : '' %>"><% if (a && a.date_from === d || (a && d === days[0])) { %><form method="post" action="/planning/<%= a.id %>/delete" class="inline" onsubmit="return confirm('Zrušiť tento plán?')"><input type="hidden" name="back" value="/planning?month=<%= month %>"><button style="background:none;border:0;color:#fff;cursor:pointer;font-size:10px;padding:0" title="zrušiť">×</button></form><% } else if (a) { %><span style="font-size:9px"><%= a.site_name ? a.site_name.slice(0, 2) : '' %></span><% } %></td><% } %></tr><% } %></table>
+  <div class="legend small muted mt"><% for (const [k, v] of Object.entries(ASSIGNMENT_TYPES)) { %><span style="background:<%= v[1] %>"></span><%= v[0] %> &nbsp; <% } %></div>
+</div>
+<%- include('../partials/footer') %>

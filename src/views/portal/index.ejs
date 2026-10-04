@@ -1,0 +1,26 @@
+<%- include('../partials/header') %>
+<div class="topbar"><div><h1>Dobrý deň, <%= w.first_name %>!</h1><div class="muted"><%= w.position || '' %> · <%= settings.company_name %></div></div><form method="post" action="/logout"><button class="btn secondary">Odhlásiť sa</button></form></div>
+<div class="grid grid-3">
+  <div class="kpi"><div class="label">Hodiny tento mesiac</div><div class="value"><%= U.hours(monthHours) %></div></div>
+  <div class="kpi <%= balance < 0 ? 'warn' : '' %>"><div class="label">Nevyúčtované zálohy / zrážky</div><div class="value"><%= U.money(balance) %></div></div>
+  <div class="kpi <%= docs.some(d => d.days_left !== null && d.days_left < 30) ? 'danger' : 'ok' %>"><div class="label">Doklady</div><div class="value" style="font-size:16px"><%= docs.some(d => d.days_left !== null && d.days_left < 30) ? 'Čoskoro expiruje!' : 'V poriadku' %></div></div>
+</div>
+<div class="grid grid-2 mt">
+  <div class="card"><h2>Moje hodiny (posledné týždne)</h2>
+    <% if (!sheets.length) { %><p class="muted">Zatiaľ žiadne hodiny.</p><% } else { %><table class="compact"><tr><th>Týždeň</th><th>Stavba</th><% for (const d of U.DAY_NAMES) { %><th class="num"><%= d %></th><% } %><th class="num">Spolu</th><th></th></tr><% for (const s of sheets) { const wk = U.isoWeek(s.week_start); %><tr><td>T<%= wk.week %> <span class="small muted"><%= U.fmtDate(s.week_start) %></span></td><td><%= s.site_name %></td><% for (let i = 1; i <= 7; i++) { %><td class="num"><%= s['d'+i] || '' %></td><% } %><td class="num"><b><%= U.hours(s.hours) %></b></td><td><span class="badge <%= { draft: 'warn', approved: 'info', invoiced: 'ok' }[s.status] %>"><%= { draft: 'rozpracovaný', approved: 'potvrdený', invoiced: 'potvrdený' }[s.status] %></span></td></tr><% } %></table><% } %>
+    <p class="help">Ak hodiny nesedia, kontaktujte kanceláriu.</p>
+  </div>
+  <div>
+    <div class="card"><h2>Vyúčtovania</h2>
+      <% if (!settlements.length) { %><p class="muted">Zatiaľ žiadne.</p><% } else { %><table class="compact"><% for (const s of settlements) { %><tr><td><%= s.month %></td><td class="num"><%= U.hours(s.hours) %> h</td><td class="num"><b><%= U.money(s.total_due) %></b></td><td><span class="badge <%= s.status === 'paid' ? 'ok' : 'warn' %>"><%= s.status === 'paid' ? 'vyplatené ' + U.fmtDate(s.paid_at) : 'pripravuje sa' %></span></td><td><a href="/settlements/<%= s.id %>/print?lang=sk" target="_blank" class="btn sm secondary" onclick="return false" hidden></a></td></tr><% } %></table><% } %>
+    </div>
+    <div class="card"><h2>Moje doklady</h2>
+      <% if (!docs.length) { %><p class="muted">Žiadne doklady.</p><% } else { %><table class="compact"><% for (const d of docs) { const cls = d.days_left === null ? 'muted' : d.days_left < 0 ? 'danger' : d.days_left < 60 ? 'warn' : 'ok'; %><tr><td><%= d.type_label %></td><td><span class="badge <%= cls %>"><%= d.valid_to ? U.fmtDate(d.valid_to) : 'bez obmedzenia' %></span></td></tr><% } %></table><% } %>
+    </div>
+    <div class="card"><h2>Plán</h2>
+      <% if (!plan.length) { %><p class="muted">Žiadny plán.</p><% } else { %><table class="compact"><% for (const a of plan) { const t = ASSIGNMENT_TYPES[a.type] || ASSIGNMENT_TYPES.work; %><tr><td><span class="badge" style="background:<%= t[1] %>;color:#fff"><%= t[0] %></span></td><td><%= a.site_name || '' %><%= a.address ? '<br><span class="small muted">' + a.address + '</span>' : '' %></td><td class="small nowrap"><%= U.fmtDate(a.date_from) %> – <%= U.fmtDate(a.date_to) %></td></tr><% } %></table><% } %>
+      <% if (tasks.length) { %><h3 class="mt">Úlohy pre mňa</h3><ul class="small"><% for (const t of tasks) { %><li><%= t.title %><%= t.due_date ? ' (do ' + U.fmtDate(t.due_date) + ')' : '' %></li><% } %></ul><% } %>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

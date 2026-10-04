@@ -1,0 +1,11 @@
+<%- include('../partials/header') %>
+<h1><%= title %></h1>
+<form method="post" action="/lodging/save" class="card" style="max-width:760px"><input type="hidden" name="id" value="<%= l.id || '' %>">
+  <div class="row"><div class="field" style="flex:2"><label>Názov *</label><input type="text" name="name" value="<%= l.name || '' %>" required placeholder="Ubytovňa Pension Schmidt"></div><div class="field"><label>Kapacita (lôžka)</label><input type="number" name="capacity" value="<%= l.capacity ?? 4 %>"></div></div>
+  <div class="row"><div class="field" style="flex:2"><label>Adresa</label><input type="text" name="address" value="<%= l.address || '' %>"></div><div class="field"><label>Mesto</label><input type="text" name="city" value="<%= l.city || '' %>"></div><div class="field"><label>Krajina</label><input type="text" name="country" value="<%= l.country || 'DE' %>" maxlength="2"></div></div>
+  <div class="row"><div class="field"><label>Cena za noc a osobu €</label><input type="number" step="0.01" name="price_per_night" value="<%= l.price_per_night ?? '' %>"></div><div class="field"><label>Fixný mesačný nájom € (ak je prenajatá celá)</label><input type="number" step="0.01" name="monthly_cost" value="<%= l.monthly_cost ?? '' %>"></div></div>
+  <div class="row"><div class="field"><label>Prenajímateľ</label><input type="text" name="landlord" value="<%= l.landlord || '' %>"></div><div class="field"><label>Kontakt</label><input type="text" name="contact" value="<%= l.contact || '' %>"></div></div>
+  <div class="field"><label>Poznámka (kľúče, pravidlá, parkovanie…)</label><textarea name="note"><%= l.note || '' %></textarea></div>
+  <div class="field"><label class="check"><input type="checkbox" name="active" <%= l.active ? 'checked' : '' %>> Aktívna</label></div>
+  <div class="actions"><button class="btn">Uložiť</button><a href="/lodging" class="btn secondary">Zrušiť</a></div></form>
+<%- include('../partials/footer') %>

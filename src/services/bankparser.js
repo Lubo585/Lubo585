@@ -27,9 +27,9 @@ function extractSymbols(text) {
   const out = { vs: null, ss: null, ks: null };
   if (!text) return out;
   const t = String(text);
-  let m = t.match(/\/?VS\s*[:=]?\s*(\d{1,10})/i); if (m) out.vs = m[1];
-  m = t.match(/\/?SS\s*[:=]?\s*(\d{1,10})/i); if (m) out.ss = m[1];
-  m = t.match(/\/?KS\s*[:=]?\s*(\d{1,4})/i); if (m) out.ks = m[1];
+  let m = t.match(/\/?VS\s*[:=\/]?\s*(\d{1,10})/i); if (m) out.vs = m[1];
+  m = t.match(/\/?SS\s*[:=\/]?\s*(\d{1,10})/i); if (m) out.ss = m[1];
+  m = t.match(/\/?KS\s*[:=\/]?\s*(\d{1,4})/i); if (m) out.ks = m[1];
   return out;
 }
 function txHash(t) {
@@ -179,13 +179,29 @@ function parseCsv(text) {
   return out;
 }
 
+// ---- MT940 (SWIFT) ----
+function parseMt940(text) {
+  const out = []; const lines = text.split(/\r?\n/);
+  let cur = null; let info = '';
+  const flush = () => { if (!cur) return; const sym = extractSymbols(info); const nameMatch = info.match(/\?32([^?]*)/); const ibanMatch = info.match(/\?38([^?]*)/) || info.match(/([A-Z]{2}\d{2}[A-Z0-9]{11,30})/); const msg = (info.match(/\?2[0-9]([^?]*)/g) || []).map((m) => m.slice(3)).join(' ').trim(); out.push(finalize({ ...cur, counterparty_name: nameMatch ? nameMatch[1].trim() : null, counterparty_iban: ibanMatch ? ibanMatch[1].trim() : null, variable_symbol: sym.vs, specific_symbol: sym.ss, constant_symbol: sym.ks, message: msg || info.replace(/\?\d\d/g, ' ').trim() })); cur = null; info = ''; };
+  for (const raw of lines) {
+    const line = raw.trim(); if (!line) continue;
+    if (line.startsWith(':61:')) { flush(); const m = line.slice(4).match(/^(\d{6})(\d{4})?([CD])R?([A-Z])?([\d,]+)/); if (!m) continue; const y = '20' + m[1].slice(0, 2); cur = { date: `${y}-${m[1].slice(2, 4)}-${m[1].slice(4, 6)}`, amount: (m[3] === 'D' ? -1 : 1) * parseAmount(m[5]), currency: 'EUR', bank_reference: line.slice(4).split('//')[1] || null }; }
+    else if (line.startsWith(':86:')) info += line.slice(4) + ' ';
+    else if (cur && !line.startsWith(':')) info += line + ' ';
+    else if (line.startsWith(':60') || line.startsWith(':62')) flush();
+  }
+  flush(); return out;
+}
+
 // Automatická detekcia formátu
 function parseStatement(buffer, filename = '') {
   const text = Buffer.isBuffer(buffer) ? buffer.toString('utf8') : String(buffer);
   const head = text.slice(0, 500);
   if (/<\?xml|<Document/i.test(head) || /\.xml$/i.test(filename)) return { format: 'camt', transactions: parseCamt(text) };
+  if (/^:20:|\n:61:/m.test(text) || /\.(sta|mt940|940)$/i.test(filename)) return { format: 'mt940', transactions: parseMt940(text) };
   if (/\.(csv|txt|tsv)$/i.test(filename) || /[;,\t]/.test(head)) return { format: 'csv', transactions: parseCsv(text) };
   throw new Error('Neznámy formát výpisu (podporované: camt.053/054 XML, CSV)');
 }
 
-module.exports = { parseStatement, parseCamt, parseCsv, extractSymbols, normalizeDate, parseAmount };
+module.exports = { parseStatement, parseCamt, parseCsv, parseMt940, extractSymbols, normalizeDate, parseAmount };

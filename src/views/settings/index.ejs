@@ -1,6 +1,6 @@
 <%- include('../partials/header') %>
 <h1>Nastavenia</h1>
-<div class="tabs"><% for (const [k, l] of [['company','Firma'],['invoicing','Fakturácia'],['reminders','Upomienky'],['email','Odosielanie e-mailov (SMTP)'],['bank','Bankový e-mail (IMAP)'],['ai','AI asistent'],['account','Účet a používatelia'],['log','Denník']]) { %><a href="/settings?tab=<%= k %>" class="<%= tab===k?'active':'' %>"><%= l %></a><% } %></div>
+<div class="tabs"><% for (const [k, l] of [['company','Firma'],['germany','Nemecko / compliance'],['invoicing','Fakturácia'],['reminders','Upomienky'],['email','Odosielanie e-mailov (SMTP)'],['bank','Bankový e-mail (IMAP)'],['ai','AI asistent'],['account','Používatelia a prístupy'],['backup','Zálohy a verzia'],['log','Denník']]) { %><a href="/settings?tab=<%= k %>" class="<%= tab===k?'active':'' %>"><%= l %></a><% } %></div>
 
 <% if (tab === 'company') { %>
 <form method="post" action="/settings/save" class="card" style="max-width:800px"><input type="hidden" name="tab" value="company">
@@ -10,6 +10,7 @@
   <div class="row"><div class="field"><label>IBAN</label><input type="text" name="company_iban" value="<%= s.company_iban %>"></div><div class="field"><label>BIC / SWIFT</label><input type="text" name="company_bic" value="<%= s.company_bic %>"></div></div>
   <div class="row"><div class="field"><label>E-mail</label><input type="text" name="company_email" value="<%= s.company_email %>"></div><div class="field"><label>Telefón</label><input type="text" name="company_phone" value="<%= s.company_phone %>"></div></div>
   <div class="field"><label>Zápis v registri (text na faktúre)</label><input type="text" name="company_register" value="<%= s.company_register %>" placeholder="Zapísaná v OR OS Bratislava I, oddiel Sro, vložka č. 12345/B"></div>
+  <div class="row"><div class="field"><label>Krajina</label><input type="text" name="company_country" value="<%= s.company_country %>"></div><div class="field" style="flex:3"><label>Verejná adresa aplikácie (pre odkazy v e-mailoch a pozvánkach)</label><input type="text" name="app_url" value="<%= s.app_url %>" placeholder="https://app.vasafirma.sk"></div></div>
   <button class="btn">Uložiť</button></form>
 
 <% } else if (tab === 'invoicing') { %>
@@ -64,11 +65,56 @@
 <% if (s.ai_api_key) { %><form method="post" action="/settings/clear-ai-key" class="card" onsubmit="return confirm('Odstrániť uložený API kľúč?')"><button class="btn danger">Odstrániť API kľúč</button></form><% } %></div>
 
 <% } else if (tab === 'account') { %>
+<div class="card">
+  <h2>Používatelia</h2>
+  <table class="compact"><tr><th>Meno</th><th>Prihlasovacie meno</th><th>E-mail</th><th>Rola</th><th>Posledné prihlásenie</th><th></th></tr>
+  <% for (const u of users) { %><tr style="<%= u.active ? '' : 'opacity:.5' %>"><td><b><%= u.name || '' %></b><% if (u.last_name) { %><br><span class="small muted">pracovník <%= u.last_name %> <%= u.first_name %></span><% } %></td><td><%= u.username %></td><td><%= u.email || '' %></td>
+    <td><form method="post" action="/settings/users/<%= u.id %>/update" class="row" style="gap:4px"><input type="hidden" name="action" value="role"><select name="role" <%= u.id === user.id ? 'disabled' : '' %> onchange="this.form.querySelector('[name=worker_id]').hidden = this.value !== 'worker'"><% for (const [k, v] of Object.entries(ROLES)) { %><option value="<%= k %>" <%= u.role===k?'selected':'' %>><%= v %></option><% } %></select><select name="worker_id" <%= u.role === 'worker' ? '' : 'hidden' %>><option value="">– pracovník –</option><% for (const w of workers) { %><option value="<%= w.id %>" <%= u.worker_id==w.id?'selected':'' %>><%= w.last_name %> <%= w.first_name %></option><% } %></select><% if (u.id !== user.id) { %><button class="btn sm secondary">OK</button><% } %></form></td>
+    <td class="small muted"><%= u.last_login || '–' %></td>
+    <td class="right nowrap"><% if (u.id !== user.id) { %><form class="inline" method="post" action="/settings/users/<%= u.id %>/update"><input type="hidden" name="action" value="<%= u.active ? 'deactivate' : 'activate' %>"><button class="btn sm secondary"><%= u.active ? 'Deaktivovať' : 'Aktivovať' %></button></form> <form class="inline" method="post" action="/settings/users/<%= u.id %>/update" onsubmit="const p=prompt('Nové heslo (min. 8 znakov) pre '+'<%= u.username %>'); if(!p) return false; this.password.value=p;"><input type="hidden" name="action" value="password"><input type="hidden" name="password"><button class="btn sm secondary">Heslo</button></form> <form class="inline" method="post" action="/settings/users/<%= u.id %>/update" onsubmit="return confirm('Odstrániť používateľa?')"><input type="hidden" name="action" value="delete"><button class="btn sm danger">×</button></form><% } else { %><span class="muted small">vy</span><% } %></td></tr><% } %></table>
+  <p class="help mt">Roly: <b>Administrátor</b> všetko · <b>Kancelária</b> všetko okrem nastavení a banky · <b>Dispečer</b> pracovníci, zákazky, lístky, plánovanie, ubytovanie, vozidlá · <b>Účtovníctvo</b> fakturácia, banka, náklady, prehľady · <b>Pracovník</b> iba vlastný portál (hodiny, vyúčtovanie, doklady).</p>
+</div>
 <div class="grid grid-2">
-<form method="post" action="/settings/password" class="card"><h2>Zmena hesla (<%= user.username %>)</h2>
-  <div class="field"><label>Pôvodné heslo</label><input type="password" name="old_password" required></div><div class="field"><label>Nové heslo</label><input type="password" name="new_password" required minlength="6"></div><div class="field"><label>Nové heslo znova</label><input type="password" name="new_password2" required></div><button class="btn">Zmeniť heslo</button></form>
-<form method="post" action="/settings/users/add" class="card"><h2>Pridať používateľa</h2>
-  <div class="field"><label>Prihlasovacie meno</label><input type="text" name="username" required></div><div class="field"><label>Meno</label><input type="text" name="name"></div><div class="field"><label>Heslo</label><input type="password" name="password" required minlength="6"></div><button class="btn">Pridať</button></form>
+<form method="post" action="/settings/invites/add" class="card"><h2>Pozvať nového používateľa</h2>
+  <p class="help">Vytvorí sa odkaz, ktorý pošlete dotyčnej osobe. Po otvorení si sama zvolí meno a heslo. Odkaz platí 14 dní.</p>
+  <div class="row"><div class="field"><label>Meno</label><input type="text" name="name"></div><div class="field"><label>E-mail</label><input type="email" name="email"></div></div>
+  <div class="row"><div class="field"><label>Rola</label><select name="role" onchange="inv_w.hidden = this.value !== 'worker'"><% for (const [k, v] of Object.entries(ROLES)) { %><option value="<%= k %>"><%= v %></option><% } %></select></div><div class="field" id="inv_w" hidden><label>Prepojiť s pracovníkom</label><select name="worker_id"><option value="">–</option><% for (const w of workers) { %><option value="<%= w.id %>"><%= w.last_name %> <%= w.first_name %></option><% } %></select></div></div>
+  <button class="btn">Vytvoriť pozvánku</button>
+  <% if (invites.length) { %><h3 class="mt">Aktívne pozvánky</h3><table class="compact"><% for (const i of invites) { %><tr><td><%= i.name || i.email || '–' %> <span class="badge"><%= ROLES[i.role] %></span></td><td><input type="text" readonly value="<%= baseUrl %>/register/<%= i.token %>" onclick="this.select()" style="font-size:11px"></td><td class="right"><form class="inline" method="post" action="/settings/invites/<%= i.id %>/delete"><button class="btn sm danger">×</button></form></td></tr><% } %></table><% } %>
+</form>
+<div>
+<form method="post" action="/settings/password" class="card"><h2>Zmena môjho hesla (<%= user.username %>)</h2>
+  <div class="field"><label>Pôvodné heslo</label><input type="password" name="old_password" required></div><div class="field"><label>Nové heslo</label><input type="password" name="new_password" required minlength="8"></div><div class="field"><label>Nové heslo znova</label><input type="password" name="new_password2" required></div><button class="btn">Zmeniť heslo</button></form>
+<form method="post" action="/settings/users/add" class="card"><h2>Pridať používateľa priamo (s heslom)</h2>
+  <div class="row"><div class="field"><label>Prihlasovacie meno</label><input type="text" name="username" required></div><div class="field"><label>Meno</label><input type="text" name="name"></div></div>
+  <div class="row"><div class="field"><label>E-mail</label><input type="email" name="email"></div><div class="field"><label>Rola</label><select name="role"><% for (const [k, v] of Object.entries(ROLES)) { %><option value="<%= k %>"><%= v %></option><% } %></select></div><div class="field"><label>Pracovník (pre rolu Pracovník)</label><select name="worker_id"><option value="">–</option><% for (const w of workers) { %><option value="<%= w.id %>"><%= w.last_name %> <%= w.first_name %></option><% } %></select></div></div>
+  <div class="field"><label>Heslo (min. 8 znakov)</label><input type="password" name="password" required minlength="8"></div><button class="btn">Pridať</button></form>
+</div>
+</div>
+
+<% } else if (tab === 'germany') { %>
+<form method="post" action="/settings/save" class="card" style="max-width:860px"><input type="hidden" name="tab" value="germany">
+  <h2>Povolenia a registrácie</h2>
+  <div class="row"><div class="field"><label>Povolenie na prenájom zamestnancov (AÜG-Erlaubnis / povolenie ADZ) – číslo</label><input type="text" name="aug_permit_number" value="<%= s.aug_permit_number %>"></div><div class="field"><label>Platné do</label><input type="date" name="aug_permit_valid_until" value="<%= s.aug_permit_valid_until %>"></div></div>
+  <div class="row"><div class="field"><label>Freistellungsbescheinigung § 48b EStG – číslo</label><input type="text" name="freistellung_number" value="<%= s.freistellung_number %>"><div class="help">Oslobodenie od 15 % Bauabzugsteuer. Bez platného potvrdenia nemecký klient zráža 15 % z faktúry za stavebné práce.</div></div><div class="field"><label>Platné do</label><input type="date" name="freistellung_valid_until" value="<%= s.freistellung_valid_until %>"></div></div>
+  <div class="row"><div class="field"><label>Číslo u SOKA-BAU (Urlaubskasse)</label><input type="text" name="soka_number" value="<%= s.soka_number %>"></div><div class="field"><label>Zahraničné stravné pre Nemecko € / deň</label><input type="number" step="0.01" name="per_diem_rate_de" value="<%= s.per_diem_rate_de %>"></div><div class="field"><label>Štandardný pracovný deň (hod)</label><input type="number" step="0.5" name="standard_hours_per_day" value="<%= s.standard_hours_per_day %>"><div class="help">Hodiny nad tento limit sa počítajú ako nadčas.</div></div></div>
+  <div class="row"><div class="field"><label>Upozorňovať na expiráciu dokladov (dní vopred)</label><input type="number" name="doc_alert_days" value="<%= s.doc_alert_days %>"></div><div class="field"><label>Predvolený jazyk dokladov pre klientov</label><select name="default_language_documents"><option value="sk" <%= s.default_language_documents==='sk'?'selected':'' %>>slovenčina</option><option value="de" <%= s.default_language_documents==='de'?'selected':'' %>>nemčina</option></select></div></div>
+  <h2 class="mt">Upomienky v nemčine (Mahnung)</h2>
+  <div class="row"><div class="field"><label>Úrok z omeškania % p. a.</label><input type="number" step="0.01" name="default_interest_rate" value="<%= s.default_interest_rate %>"><div class="help">§ 288 BGB: 9 bodov nad základnou sadzbou Bundesbank (B2B). Hodnotu aktualizujte podľa aktuálnej sadzby.</div></div><div class="field"><label>Paušálna náhrada € (§ 288 ods. 5 BGB)</label><input type="number" step="0.01" name="reminder_fee_de" value="<%= s.reminder_fee_de %>"></div></div>
+  <div class="field"><label>Predmet (DE)</label><input type="text" name="reminder_subject_de" value="<%= s.reminder_subject_de %>"></div>
+  <div class="field"><label>Text (DE)</label><textarea name="reminder_body_de" style="min-height:220px"><%= s.reminder_body_de %></textarea><div class="help">Premenné ako pri slovenskej upomienke, navyše {INTEREST} a {FEE}. Použije sa pre klientov s jazykom „nemčina“.</div></div>
+  <button class="btn">Uložiť</button></form>
+
+<% } else if (tab === 'backup') { %>
+<div class="grid grid-2">
+<div class="card"><h2>Zálohy databázy</h2>
+  <p class="help">Databáza je jeden súbor. Záloha sa robí automaticky každú noc o 2:30 a vždy pred aktualizáciou aplikácie na novú verziu (údaje sa pri update nikdy nestrácajú, nové verzie iba pridávajú tabuľky a stĺpce). Ponecháva sa posledných 30 záloh. Odporúčame zálohy pravidelne kopírovať mimo servera.</p>
+  <form method="post" action="/settings/save" class="field"><input type="hidden" name="tab" value="backup"><input type="hidden" name="_form_backup_enabled" value="1"><label class="check"><input type="checkbox" name="backup_enabled" <%= s.backup_enabled === '1' ? 'checked' : '' %>> Automatická nočná záloha</label> <button class="btn sm secondary">Uložiť</button></form>
+  <div class="actions"><form method="post" action="/settings/backup-now"><button class="btn">Zálohovať teraz</button></form><a href="/settings/backup/download" class="btn secondary">Stiahnuť aktuálnu databázu</a></div>
+  <% if (backups.length) { %><table class="compact mt"><% for (const b of backups) { %><tr><td><%= b.name %></td><td class="num"><%= (b.size / 1024 / 1024).toFixed(2) %> MB</td><td class="right"><a href="/settings/backup/download?name=<%= b.name %>" class="btn sm secondary">↓</a></td></tr><% } %></table><% } %>
+</div>
+<div class="card"><h2>Verzia</h2><p>Aplikácia <b><%= appVersion %></b>, schéma databázy <b>v<%= schemaVersion %></b>.</p>
+  <p class="help">Aktualizácia: na serveri stiahnite novú verziu a reštartujte aplikáciu (pri Dockeri <code>docker compose pull && docker compose up -d</code> alebo <code>git pull && docker compose up -d --build</code>). Pri štarte sa automaticky vytvorí záloha a aplikujú sa migrácie, existujúce dáta sa zachovajú.</p></div>
 </div>
 
 <% } else if (tab === 'log') { %>

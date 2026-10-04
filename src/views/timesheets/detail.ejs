@@ -1,24 +1,29 @@
 <%- include('../partials/header') %>
-<% const locked = t.status === 'invoiced'; const st = { draft: ['warn', 'Rozpracovaný'], approved: ['info', 'Schválený'], invoiced: ['ok', 'Vyfakturovaný'] }[t.status]; %>
-<div class="topbar"><div><h1>Hodinový lístok T<%= wk.week %>/<%= wk.year %> <span class="badge <%= st[0] %>"><%= st[1] %></span></h1><div class="muted"><%= t.client_name %> – <b><%= t.site_name %></b> · <%= U.fmtDate(t.week_start) %> – <%= U.fmtDate(U.addDays(t.week_start, 6)) %> · sadzba stavby <%= U.money(t.site_rate) %>/h</div></div>
-<div class="actions no-print"><a href="/timesheets" class="btn secondary">← Zoznam</a><button class="btn secondary" type="button" onclick="window.print()">Tlačiť</button><% if (t.status === 'approved') { %><a href="/invoices/from-timesheets?client_id=<%= t.client_id %>&site_id=<%= t.site_id %>" class="btn">Fakturovať</a><% } %></div></div>
-<form method="post" action="/timesheets/<%= t.id %>/save" class="card">
-  <table class="ts-grid compact">
-    <tr><th class="name">Pracovník</th><% days.forEach((d, i) => { %><th class="num <%= i >= 5 ? 'weekend' : '' %>"><%= U.DAY_NAMES[i] %><br><span class="muted"><%= d.slice(8,10) %>.<%= d.slice(5,7) %>.</span></th><% }) %><th class="num">Spolu</th><th class="rate">Sadzba €/h</th><th>Poznámka</th><th class="no-print"></th></tr>
-    <% let total = 0, totalCost = 0, totalBill = 0; for (const r of t.rows) { const h = r.d1+r.d2+r.d3+r.d4+r.d5+r.d6+r.d7; total += h; totalCost += h * r.hourly_cost; const rate = r.rate_override ?? r.worker_rate ?? t.site_rate; totalBill += h * rate; const ro = locked || r.invoice_id; %>
+<% const locked = t.status === 'invoiced'; const st = STATUS[t.status]; const warnings = t.rows.flatMap(r => r.warnings.map(w => r.last_name + ' ' + r.first_name + ' – ' + w)); %>
+<div class="topbar"><div><h1>Hodinový lístok T<%= wk.week %>/<%= wk.year %> <span class="badge <%= st[0] %>"><%= st[1] %></span> <% if (t.signed_at) { %><span class="badge ok">podpísaný <%= t.signed_by %></span><% } %></h1><div class="muted"><%= t.client_name %> – <b><%= t.site_name %></b> · <%= U.fmtDate(t.week_start) %> – <%= U.fmtDate(U.addDays(t.week_start, 6)) %> · sadzba stavby <%= U.money(t.site_rate) %>/h · štandard <%= t.std %> h/deň</div></div>
+<div class="actions no-print"><a href="/timesheets" class="btn secondary">← Zoznam</a><a href="/timesheets/<%= t.id %>?mode=<%= detailed ? 'simple' : 'detail' %>" class="btn secondary"><%= detailed ? 'Jednoduchý režim' : 'Časy od–do' %></a><a href="/timesheets/<%= t.id %>/print?lang=de" target="_blank" class="btn secondary">Stundenzettel (DE)</a><a href="/timesheets/<%= t.id %>/print?lang=sk" target="_blank" class="btn secondary">Tlač (SK)</a><% if (t.status === 'approved') { %><a href="/invoices/from-timesheets?client_id=<%= t.client_id %>&site_id=<%= t.site_id %>" class="btn">Fakturovať</a><% } %></div></div>
+<% if (warnings.length) { %><div class="flash warn"><b>Upozornenie (nemecký zákon o pracovnom čase ArbZG):</b> <%= warnings.join(' · ') %></div><% } %>
+<form method="post" action="/timesheets/<%= t.id %>/save" class="card"><input type="hidden" name="mode" value="<%= detailed ? 'detail' : 'simple' %>">
+  <div style="overflow-x:auto"><table class="ts-grid compact">
+    <tr><th class="name">Pracovník</th><% days.forEach((d, i) => { %><th class="num <%= i >= 5 ? 'weekend' : '' %>"><%= U.DAY_NAMES[i] %><br><span class="muted"><%= d.slice(8,10) %>.<%= d.slice(5,7) %>.</span></th><% }) %><th class="num">Spolu</th><th class="num" title="hodiny nad štandard v pracovné dni">Nadčas</th><th class="num" title="nočné hodiny (22–6)">Noc</th><th class="rate">Sadzba €/h</th><th>Poznámka</th><th class="no-print"></th></tr>
+    <% let total = 0, totalCost = 0, totalBill = 0; for (const r of t.rows) { total += r.total; totalCost += r.total * r.hourly_cost; const rate = r.rate_override ?? r.worker_rate ?? t.site_rate; totalBill += r.total * rate; const ro = locked || r.invoice_id; %>
     <tr data-row>
-      <td class="name"><b><%= r.last_name %> <%= r.first_name %></b><br><span class="muted small"><%= r.position %></span></td>
-      <% for (let i = 1; i <= 7; i++) { %><td class="<%= i >= 6 ? 'weekend' : '' %>"><input type="number" step="0.5" min="0" max="24" name="rows[r<%= r.id %>][d<%= i %>]" value="<%= r['d'+i] || '' %>" placeholder="0" <%= ro ? 'readonly' : '' %> oninput="recalc()"></td><% } %>
-      <td class="num"><b data-sum><%= U.hours(h) %></b></td>
+      <td class="name"><b><%= r.last_name %> <%= r.first_name %></b><br><input type="text" name="rows[r<%= r.id %>][profession]" value="<%= r.profession || r.position || '' %>" placeholder="profesia" style="font-size:11px;padding:2px 4px" <%= ro ? 'readonly' : '' %>></td>
+      <% for (let i = 1; i <= 7; i++) { %><td class="<%= i >= 6 ? 'weekend' : '' %>">
+        <% if (detailed) { %><div style="display:flex;flex-direction:column;gap:2px"><input type="time" name="rows[r<%= r.id %>][s<%= i %>]" value="<%= r['s'+i] || '' %>" style="width:84px;padding:2px" <%= ro ? 'readonly' : '' %> oninput="recalc()" title="začiatok"><input type="time" name="rows[r<%= r.id %>][e<%= i %>]" value="<%= r['e'+i] || '' %>" style="width:84px;padding:2px" <%= ro ? 'readonly' : '' %> oninput="recalc()" title="koniec"><input type="number" name="rows[r<%= r.id %>][b<%= i %>]" value="<%= r['b'+i] || '' %>" placeholder="prest. min" style="width:84px;padding:2px;font-size:11px" <%= ro ? 'readonly' : '' %> oninput="recalc()" title="prestávka v minútach"><input type="number" step="0.25" name="rows[r<%= r.id %>][d<%= i %>]" value="<%= r['d'+i] || '' %>" placeholder="hod" data-h style="width:84px;padding:2px;font-weight:700" <%= ro ? 'readonly' : '' %> oninput="recalc()"></div>
+        <% } else { %><input type="number" step="0.5" min="0" max="24" name="rows[r<%= r.id %>][d<%= i %>]" value="<%= r['d'+i] || '' %>" placeholder="0" data-h <%= ro ? 'readonly' : '' %> oninput="recalc()"><% } %></td><% } %>
+      <td class="num"><b data-sum><%= U.hours(r.total) %></b></td>
+      <td class="num muted" data-ot><%= U.hours(r.overtime) %></td>
+      <td><input type="number" step="0.5" name="rows[r<%= r.id %>][night_hours]" value="<%= r.night_hours || '' %>" placeholder="0" style="width:54px" <%= ro ? 'readonly' : '' %>></td>
       <td class="rate"><input type="number" step="0.01" name="rows[r<%= r.id %>][rate_override]" value="<%= r.rate_override ?? '' %>" placeholder="<%= r.worker_rate ?? t.site_rate %>" <%= ro ? 'readonly' : '' %>></td>
       <td><input type="text" name="rows[r<%= r.id %>][note]" value="<%= r.note || '' %>" <%= ro ? 'readonly' : '' %>></td>
       <td class="no-print"><% if (!ro) { %><button class="btn sm danger" formaction="/timesheets/<%= t.id %>/rows/<%= r.id %>/delete" formnovalidate onclick="return confirm('Odstrániť pracovníka z lístka?')">×</button><% } else if (r.invoice_id) { %><a href="/invoices/<%= r.invoice_id %>" class="badge ok">FA</a><% } %></td>
     </tr>
     <% } %>
-    <tr class="total"><td>Spolu</td><% for (let i = 1; i <= 7; i++) { %><td class="num" data-col="<%= i %>"><%= U.hours(t.rows.reduce((s, r) => s + r['d'+i], 0)) %></td><% } %><td class="num" data-total><%= U.hours(total) %></td><td colspan="3" class="small muted">nákl. <%= U.money(totalCost) %> · fakturovateľné <%= U.money(totalBill) %></td></tr>
-  </table>
+    <tr class="total"><td>Spolu</td><% for (let i = 1; i <= 7; i++) { %><td class="num" data-col="<%= i %>"><%= U.hours(t.rows.reduce((s, r) => s + (r['d'+i] || 0), 0)) %></td><% } %><td class="num" data-total><%= U.hours(total) %></td><td class="num muted"><%= U.hours(t.rows.reduce((s, r) => s + r.overtime, 0)) %></td><td colspan="4" class="small muted">nákl. <%= U.money(totalCost) %> · fakturovateľné <%= U.money(totalBill) %> (bez príplatkov)</td></tr>
+  </table></div>
   <% if (!t.rows.length) { %><p class="muted">Lístok zatiaľ nemá žiadnych pracovníkov – pridajte ich nižšie.</p><% } %>
-  <div class="field mt"><label>Poznámka k lístku (podpis vedúceho stavby, dohody a pod.)</label><input type="text" name="note" value="<%= t.note || '' %>" <%= locked ? 'readonly' : '' %>></div>
+  <div class="field mt"><label>Poznámka k lístku</label><input type="text" name="note" value="<%= t.note || '' %>" <%= locked ? 'readonly' : '' %>></div>
   <div class="actions no-print">
     <% if (!locked) { %>
       <button class="btn secondary" type="submit" name="action" value="save">Uložiť</button>
@@ -26,13 +31,30 @@
     <% } else { %><span class="muted">Lístok je vyfakturovaný a nedá sa upravovať.</span><% } %>
   </div>
 </form>
-<% if (!locked && workers.length) { %>
-<form method="post" action="/timesheets/<%= t.id %>/rows/add" class="card no-print">
-  <h3>Pridať pracovníkov</h3>
-  <div class="row" style="align-items:flex-end"><div class="field"><select name="worker_id" multiple size="6"><% for (const w of workers) { %><option value="<%= w.id %>"><%= w.last_name %> <%= w.first_name %> (<%= w.position %>)</option><% } %></select><div class="help">Podržte Ctrl pre výber viacerých.</div></div><div class="field" style="flex:0"><button class="btn" type="submit">Pridať</button></div></div>
-</form>
-<% } %>
+<div class="grid grid-2">
+  <% if (!locked && workers.length) { %>
+  <form method="post" action="/timesheets/<%= t.id %>/rows/add" class="card no-print">
+    <h3>Pridať pracovníkov</h3>
+    <div class="row" style="align-items:flex-end"><div class="field"><select name="worker_id" multiple size="6"><% for (const w of workers) { %><option value="<%= w.id %>"><%= w.last_name %> <%= w.first_name %> (<%= w.position %>)</option><% } %></select><div class="help">Podržte Ctrl pre výber viacerých.</div></div><div class="field" style="flex:0"><button class="btn" type="submit">Pridať</button></div></div>
+  </form>
+  <% } else { %><div></div><% } %>
+  <div class="card">
+    <h3>Podpis vedúceho stavby</h3>
+    <% if (signature) { %><p><img src="/attachments/<%= signature.id %>" alt="podpis" style="max-height:80px;border:1px solid var(--line);border-radius:6px;background:#fff"><br><span class="small muted"><%= t.signed_by %> · <%= t.signed_at %></span></p><% } %>
+    <% if (!locked) { %>
+    <div class="no-print"><input type="text" id="sig_name" placeholder="Meno vedúceho stavby (Polier / Bauleiter)" style="margin-bottom:6px"><canvas id="sig" width="420" height="140" style="border:1px dashed #9ca3af;border-radius:6px;background:#fff;touch-action:none;width:100%;max-width:420px"></canvas>
+    <div class="actions mt"><button type="button" class="btn sm secondary" onclick="sigClear()">Vymazať</button><button type="button" class="btn sm" onclick="sigSave()">Uložiť podpis</button></div>
+    <div class="help">Podpíšte prstom na mobile alebo myšou. Podpis sa uloží k lístku a vytlačí na Stundenzettel.</div></div>
+    <% } %>
+    <div class="mt"><%- include('../partials/attachments', { entityType: 'timesheet', entityId: t.id, back: '/timesheets/' + t.id }) %></div>
+  </div>
+</div>
 <script>
-function recalc(){const rows=document.querySelectorAll('tr[data-row]');const cols=[0,0,0,0,0,0,0];let tot=0;rows.forEach(r=>{let s=0;r.querySelectorAll('input[type=number]').forEach((inp,i)=>{if(i<7){const v=parseFloat(inp.value)||0;s+=v;cols[i]+=v;}});r.querySelector('[data-sum]').textContent=s.toLocaleString('sk-SK');tot+=s;});cols.forEach((c,i)=>{const el=document.querySelector('[data-col="'+(i+1)+'"]');if(el)el.textContent=c.toLocaleString('sk-SK');});const t=document.querySelector('[data-total]');if(t)t.textContent=tot.toLocaleString('sk-SK');}
+const STD = <%= t.std %>;
+function hrs(s,e,b){if(!s||!e)return null;const [sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);let m=(eh*60+em)-(sh*60+sm);if(m<0)m+=1440;return Math.round(Math.max(0,m-(parseInt(b)||0))/60*100)/100;}
+function recalc(){const rows=document.querySelectorAll('tr[data-row]');const cols=[0,0,0,0,0,0,0];let tot=0;rows.forEach(r=>{let s=0,ot=0;for(let i=1;i<=7;i++){const st=r.querySelector('[name$="[s'+i+']"]'),en=r.querySelector('[name$="[e'+i+']"]'),br=r.querySelector('[name$="[b'+i+']"]'),h=r.querySelector('[name$="[d'+i+']"]');if(st&&en&&st.value&&en.value){const v=hrs(st.value,en.value,br?br.value:0);if(v!==null)h.value=v;}const v=parseFloat(h.value)||0;s+=v;cols[i-1]+=v;if(i<=5)ot+=Math.max(0,v-STD);}r.querySelector('[data-sum]').textContent=s.toLocaleString('sk-SK');r.querySelector('[data-ot]').textContent=ot.toLocaleString('sk-SK');tot+=s;});cols.forEach((c,i)=>{const el=document.querySelector('[data-col="'+(i+1)+'"]');if(el)el.textContent=c.toLocaleString('sk-SK');});const t=document.querySelector('[data-total]');if(t)t.textContent=tot.toLocaleString('sk-SK');}
+const cv=document.getElementById('sig');if(cv){const ctx=cv.getContext('2d');ctx.lineWidth=2;ctx.lineCap='round';ctx.strokeStyle='#111';let dr=false,last=null;const pos=e=>{const r=cv.getBoundingClientRect();const p=e.touches?e.touches[0]:e;return{x:(p.clientX-r.left)*cv.width/r.width,y:(p.clientY-r.top)*cv.height/r.height};};const st=e=>{dr=true;last=pos(e);e.preventDefault();};const mv=e=>{if(!dr)return;const p=pos(e);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;e.preventDefault();};const en=()=>{dr=false;};cv.addEventListener('mousedown',st);cv.addEventListener('mousemove',mv);window.addEventListener('mouseup',en);cv.addEventListener('touchstart',st,{passive:false});cv.addEventListener('touchmove',mv,{passive:false});cv.addEventListener('touchend',en);}
+function sigClear(){const c=document.getElementById('sig');c.getContext('2d').clearRect(0,0,c.width,c.height);}
+async function sigSave(){const name=document.getElementById('sig_name').value.trim();if(!name){alert('Zadajte meno podpisujúceho.');return;}const r=await fetch('/timesheets/<%= t.id %>/sign',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:document.getElementById('sig').toDataURL('image/png'),signed_by:name})});if(r.ok)location.reload();else alert('Podpis sa nepodarilo uložiť.');}
 </script>
 <%- include('../partials/footer') %>

@@ -1,6 +1,6 @@
 </main>
 </div>
-<% if (user && path !== '/assistant') { %>
+<% if (user && user.role !== 'worker' && path !== '/assistant') { %>
 <button type="button" class="ai-fab" onclick="aiToggle()" title="AI asistent">✦ Spýtať sa</button>
 <div id="ai-panel">
   <div class="ai-head"><div>AI asistent<small>Neviete, kde niečo nájsť? Spýtajte sa.</small></div><div><a href="/assistant" class="small">Celá stránka</a> &nbsp; <button type="button" class="btn sm secondary" onclick="aiToggle()">×</button></div></div>
@@ -9,5 +9,6 @@
 </div>
 <script src="/static/js/assistant.js"></script>
 <% } %>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}</script>
 </body>
 </html>

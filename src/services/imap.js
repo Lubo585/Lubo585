@@ -31,7 +31,7 @@ async function checkMailbox() {
         let any = false;
         for (const att of mail.attachments || []) {
           const name = att.filename || 'priloha';
-          if (!/\.(xml|csv|txt|tsv)$/i.test(name)) continue;
+          if (!/\.(xml|csv|txt|tsv|sta|mt940)$/i.test(name)) continue;
           try {
             const r = importStatementFile(att.content, name, { source: 'email', subject: mail.subject, from });
             result.imported++; result.created += r.created; result.matched += r.matched; any = true;
