@@ -2,7 +2,7 @@
 <div class="topbar"><h1>Compliance – vyslanie pracovníkov do Nemecka</h1><a href="/settings?tab=germany" class="btn secondary">Nastavenia DE</a></div>
 <div class="grid grid-2">
   <div class="card"><h2>Povolenia firmy</h2>
-    <table class="compact"><% for (const p of permits) { %><tr><td><b><%= p.label %></b><br><span class="small muted"><%= p.number || 'číslo nezadané' %></span></td><td><span class="badge <%= p.status === 'missing' ? 'danger' : p.status %>"><%= p.text %></span><%= p.date ? ' <span class="small muted">' + U.fmtDate(p.date) + '</span>' : '' %></td></tr><% } %></table>
+    <table class="compact"><% for (const p of permits) { %><tr><td><b><%= p.label %></b><br><span class="small muted"><%= p.number || 'číslo nezadané' %></span></td><td><span class="badge <%= p.status === 'missing' ? 'danger' : p.status %>"><%= p.text %></span><% if (p.date) { %> <span class="small muted"><%= U.fmtDate(p.date) %></span><% } %></td></tr><% } %></table>
     <p class="help">Bez platného povolenia AÜG je prenájom zamestnancov v DE nelegálny; bez Freistellungsbescheinigung klient zráža 15 % Bauabzugsteuer zo stavebných prác.</p>
   </div>
   <div class="card"><h2>Chýbajúce povinné doklady <% if (missing.length) { %><span class="badge danger"><%= missing.length %></span><% } %></h2>
@@ -21,7 +21,7 @@
 </div>
 <div class="card"><h2>AÜG – dĺžka nasadenia pracovníkov u klientov</h2>
   <p class="help">Maximálna doba prenechania jedného pracovníka tomu istému klientovi je 18 mesiacov (§ 1 ods. 1b AÜG), po 9 mesiacoch vzniká nárok na Equal Pay (§ 8 ods. 4 AÜG). Prerušenie dlhšie ako 3 mesiace počítanie nuluje. Počíta sa z hodinových lístkov.</p>
-  <% if (!aug.length) { %><p class="muted">Žiadne dáta.</p><% } else { %><table class="compact"><tr><th>Pracovník</th><th>Klient</th><th>Od</th><th>Posledný týždeň</th><th class="num">Mesiace</th><th>Stav</th></tr><% for (const a of aug) { %><tr><td><a href="/workers/<%= a.worker_id %>"><%= a.name %></a></td><td><%= a.client %></td><td><%= U.fmtDate(a.start) %></td><td><%= U.fmtDate(a.last_week) %> <%= a.active ? '' : '<span class="badge muted">ukončené</span>' %></td><td class="num"><b><%= a.months %></b></td><td><span class="badge <%= a.level %>"><%= a.text %></span></td></tr><% } %></table><% } %>
+  <% if (!aug.length) { %><p class="muted">Žiadne dáta.</p><% } else { %><table class="compact"><tr><th>Pracovník</th><th>Klient</th><th>Od</th><th>Posledný týždeň</th><th class="num">Mesiace</th><th>Stav</th></tr><% for (const a of aug) { %><tr><td><a href="/workers/<%= a.worker_id %>"><%= a.name %></a></td><td><%= a.client %></td><td><%= U.fmtDate(a.start) %></td><td><%= U.fmtDate(a.last_week) %> <% if (!a.active) { %><span class="badge muted">ukončené</span><% } %></td><td class="num"><b><%= a.months %></b></td><td><span class="badge <%= a.level %>"><%= a.text %></span></td></tr><% } %></table><% } %>
 </div>
 <div class="card"><div class="topbar"><h2>SOKA-BAU – hodiny na stavbách s povinnosťou Urlaubskasse</h2><form method="get" class="row" style="align-items:flex-end"><div class="field"><input type="month" name="month" value="<%= month %>"></div><div class="field" style="flex:0"><button class="btn secondary">Zobraziť</button></div><div class="field" style="flex:0"><a href="/compliance/soka.csv?month=<%= month %>" class="btn secondary">CSV</a></div></form></div>
   <p class="help">Zákazky a klientov s povinnosťou SOKA-BAU označte v ich nastaveniach. Mesačné hlásenie: hodiny a dni každého pracovníka.</p>

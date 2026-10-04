@@ -4,7 +4,7 @@
   <p class="help">Služby s prenesením daňovej povinnosti dodané zdaniteľným osobám v iných členských štátoch (faktúry v režime „Prenesenie DPH v EÚ“) za obdobie <%= U.fmtDate(data.from) %> – <%= U.fmtDate(data.to) %>. Kód plnenia 2 = služby podľa § 15 ods. 1. Podáva sa elektronicky cez portál Finančnej správy do 25. dňa po skončení obdobia (mesačne, ak hodnota tovaru presiahne limit; pri službách štvrťročne).</p>
   <% if (!data.rows.length) { %><p class="muted">V tomto období žiadne faktúry s prenesením DPH v EÚ.</p><% } else { %>
   <table><tr><th>Krajina</th><th>IČ DPH odberateľa</th><th>Odberateľ</th><th>Kód</th><th class="num">Hodnota (EUR)</th><th class="num">Faktúr</th></tr>
-  <% let sum = 0; for (const r of data.rows) { sum += r.amount; %><tr><td><%= r.country %></td><td><b><%= r.ic_dph || '<span class="badge danger">chýba IČ DPH</span>' %></b></td><td><%= r.name %></td><td><%= r.code %></td><td class="num"><%= U.money(r.amount) %></td><td class="num"><%= r.cnt %></td></tr><% } %>
+  <% let sum = 0; for (const r of data.rows) { sum += r.amount; %><tr><td><%= r.country %></td><td><b><% if (r.ic_dph) { %><%= r.ic_dph %><% } else { %><span class="badge danger">chýba IČ DPH</span><% } %></b></td><td><%= r.name %></td><td><%= r.code %></td><td class="num"><%= U.money(r.amount) %></td><td class="num"><%= r.cnt %></td></tr><% } %>
   <tr class="total"><td colspan="4">Spolu</td><td class="num"><%= U.money(sum) %></td><td></td></tr></table><% } %>
 </div>
 <%- include('../partials/footer') %>
