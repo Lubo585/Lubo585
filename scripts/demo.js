@@ -8,8 +8,8 @@ const INV = require('../src/services/invoices');
 const M = require('../src/services/matching');
 const S = require('../src/services/settlements');
 
-const force = process.argv.includes('--force');
-if (get('SELECT COUNT(*) AS n FROM clients').n > 0 && !force) { console.log('Databáza už obsahuje dáta. Pre pridanie ukážky spustite: npm run demo -- --force'); process.exit(0); }
+function seed(force) {
+if (get('SELECT COUNT(*) AS n FROM clients').n > 0 && !force) { console.log('Databáza už obsahuje dáta. Pre pridanie ukážky spustite: npm run demo -- --force'); return false; }
 
 const today = U.today();
 const ins = (sql, p) => Number(run(sql, p).lastInsertRowid);
@@ -124,3 +124,7 @@ run("INSERT INTO task_comments(task_id, user_id, type, text) VALUES (1, ?, 'comm
 log('demo', 'Načítané ukážkové dáta');
 console.log(`Hotovo. Ukážkové dáta: ${get('SELECT COUNT(*) n FROM workers').n} pracovníkov, ${get('SELECT COUNT(*) n FROM clients').n} klienti, ${get('SELECT COUNT(*) n FROM timesheets').n} lístkov, ${get('SELECT COUNT(*) n FROM invoices').n} faktúry, ${get('SELECT COUNT(*) n FROM bank_transactions').n} bankových transakcií.`);
 console.log('Prihlásenie: admin / ' + (process.env.ADMIN_PASSWORD || 'admin') + '  ·  kancelaria, dispecer, uctovnik / demo1234');
+return true;
+}
+module.exports = { seed };
+if (require.main === module) seed(process.argv.includes('--force'));

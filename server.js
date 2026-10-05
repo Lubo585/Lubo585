@@ -100,6 +100,9 @@ cron.schedule('* * * * *', () => {
   imap.checkMailbox().catch((e) => log('error', 'IMAP: ' + e.message));
 });
 
+// ukážkové dáta pri štarte (pre testovacie nasadenie, napr. Render): DEMO_SEED=1
+if (process.env.DEMO_SEED === '1') { try { require('./scripts/demo').seed(false); } catch (e) { console.error('Ukážkové dáta:', e.message); } }
+
 const PORT = process.env.PORT || 3000;
 if (require.main === module) {
   app.listen(PORT, () => console.log(`Aplikácia ${pkg.version} (schéma v${SCHEMA_VERSION}) beží na http://localhost:${PORT}`));

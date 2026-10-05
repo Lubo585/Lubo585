@@ -50,6 +50,17 @@ Pracovníka pozvete cez Nastavenia → Používatelia → Pozvať (rola Pracovn�
 
 Heslo `admin` si hneď zmeňte v Nastavenia → Používatelia → Zmena môjho hesla. Ak chcete začať odznova s prázdnou databázou, zastavte aplikáciu (Ctrl+C) a zmažte súbor `data/app.db`.
 
+## B0) Vyskúšať na internete bez vlastného servera (Render, zadarmo, 5 minút)
+
+Ak nechcete nič spúšťať na počítači, dá sa aplikácia nasadiť na bezplatné hostovanie Render.com jedným kliknutím. Dostanete adresu typu `https://sxworkforce.onrender.com`, ktorá sa otvorí v akomkoľvek prehliadači aj na mobile.
+
+1. Otvorte <https://render.com> a zaregistrujte sa (najjednoduchšie tlačidlom „Sign in with GitHub“, účet GitHub už máte).
+2. Kliknite na tento odkaz: **<https://render.com/deploy?repo=https://github.com/Lubo585/Lubo585/tree/claude/determined-mccarthy-7jfplr>**
+3. Render ukáže službu `sxworkforce` z priloženého `render.yaml`. Potvrďte **Apply / Deploy**. Zostavenie trvá 2–4 minúty.
+4. Po dokončení otvorte adresu služby (zobrazí sa hore v Render). Prihlásenie **admin / admin**; aplikácia je naplnená ukážkovou firmou.
+
+Obmedzenia bezplatného plánu: po 15 minútach nečinnosti služba zaspí a prvé otvorenie trvá asi 30 sekúnd; disk je dočasný, takže po reštarte alebo novom nasadení sa dáta vrátia na ukážku. Pre ostrú prevádzku zvoľte v Render platený plán s diskom (nastavte disk na `/opt/render/project/src/data`) a v `render.yaml` vypnite `DEMO_SEED`, alebo použite vlastný server podľa časti B).
+
 ## B) Na internete pre celú firmu (web + mobil)
 
 Potrebujete malý server (VPS za ~5 €/mes.) a doménu, napr. `app.sxworkforce.sk`. Postup je v [DEPLOY.md](DEPLOY.md): skopírovať aplikáciu na server, vyplniť `.env`, `docker compose up -d`. Caddy automaticky vybaví HTTPS. Potom sa všetci prihlasujú na `https://app.sxworkforce.sk` z počítača aj telefónu (na telefóne „Pridať na plochu“ = ikona ako aplikácia). Aktualizácia: `git pull && docker compose up -d --build`, dáta ostávajú, pred migráciou sa urobí záloha.
