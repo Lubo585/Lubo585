@@ -1,0 +1,27 @@
+SX Workforce – firemná aplikácia, prenosná verzia pre Windows
+==============================================================
+Nič sa neinštaluje. Node.js je jediný súbor node.exe v priečinku "node":
+ak tam chýba, SPUSTIT.bat si ho pri prvom spustení sám stiahne z nodejs.org
+(bez inštalácie, bez práv správcu). Ak ste dostali aj ZIP "node-windows.zip",
+rozbaľte ho do rovnakého priečinka a sťahovanie nebude potrebné.
+
+1. Rozbaľte celý ZIP do ľubovoľného priečinka (napr. C:\SXWorkforce alebo na plochu).
+   Nespúšťajte priamo zo ZIP okna, najprv rozbaľte.
+2. Dvakrát kliknite na SPUSTIT.bat.
+   Ak Windows zobrazí "Systém Windows chránil váš počítač", kliknite
+   "Ďalšie informácie" a potom "Spustiť aj tak" (skript nie je podpísaný).
+3. Pri prvom spustení sa opýta, či načítať ukážkové dáta (vzorová firma). Napíšte A.
+4. Otvorí sa prehliadač na http://localhost:3000. Prihlásenie: admin / admin.
+   Ukážkoví používatelia: kancelaria, dispecer, uctovnik (heslo demo1234).
+
+Dáta sú v priečinku "data" (databáza app.db, prílohy, zálohy). Keď chcete
+začať odznova s prázdnou firmou, zavrite aplikáciu a zmažte data\app.db.
+
+Aplikácia beží iba kým je otvorené čierne okno. Na tom istom počítači sa
+k nej dostanete z iných zariadení v domácej/firemnej sieti cez
+http://<IP-adresa-počítača>:3000 (povoľte port 3000 vo firewalle).
+Pre prístup z internetu a mobilné aplikácie pozrite DEPLOY.md.
+
+Aktualizácia na novú verziu: rozbaľte nový ZIP do nového priečinka a
+skopírujte doň starý priečinok "data". Pri prvom spustení sa databáza
+zálohuje a automaticky prevedie na novú verziu.

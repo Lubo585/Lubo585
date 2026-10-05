@@ -4,6 +4,10 @@ Aplikácia beží ako webová stránka na počítači alebo serveri. Tu sú tri 
 
 ## A) Vyskúšať na vlastnom počítači (10 minút)
 
+### Úplne bez inštalácie: prenosná verzia pre Windows
+
+Rozbaľte `SXWorkforce-portable-windows.zip` (dostali ste ho v chate; dá sa zostaviť aj príkazom `./scripts/build-portable.sh`) do ľubovoľného priečinka a dvakrát kliknite na **SPUSTIT.bat**. Nič sa neinštaluje a nepotrebujete práva správcu: spúšťač si pri prvom štarte stiahne jediný súbor `node.exe` z nodejs.org do priečinka `node`, spýta sa na ukážkové dáta, spustí aplikáciu a otvorí prehliadač. Ak Windows zobrazí „Systém Windows chránil váš počítač“, kliknite „Ďalšie informácie“ → „Spustiť aj tak“. Podrobnosti sú v súbore PRECITAJ-MA.txt v balíku.
+
 ### Najrýchlejšia cesta: jeden príkaz
 
 **Windows** – stlačte Win + X → „Terminál“ (alebo PowerShell) a vložte:
