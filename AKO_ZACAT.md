@@ -4,6 +4,20 @@ Aplikácia beží ako webová stránka na počítači alebo serveri. Tu sú tri 
 
 ## A) Vyskúšať na vlastnom počítači (10 minút)
 
+### Najrýchlejšia cesta: jeden príkaz
+
+**Windows** – stlačte Win + X → „Terminál“ (alebo PowerShell) a vložte:
+```
+irm https://raw.githubusercontent.com/Lubo585/Lubo585/claude/determined-mccarthy-7jfplr/install.ps1 | iex
+```
+**macOS / Linux** – v Termináli:
+```
+curl -fsSL https://raw.githubusercontent.com/Lubo585/Lubo585/claude/determined-mccarthy-7jfplr/install.sh | bash
+```
+Príkaz stiahne aplikáciu do priečinka `SXWorkforce` vo vašom profile, nainštaluje Node.js (ak chýba), spýta sa na ukážkové dáta, spustí aplikáciu a otvorí prehliadač na http://localhost:3000. Prihlásenie **admin / admin**. Ak sa Node.js práve inštaloval, spustite ešte raz `START.bat` v priečinku `SXWorkforce`.
+
+**Priamy odkaz na stiahnutie ZIP (bod 2 nižšie):** <https://github.com/Lubo585/Lubo585/archive/refs/heads/claude/determined-mccarthy-7jfplr.zip>
+
 **Najjednoduchšie (Windows):** stiahnite a rozbaľte aplikáciu (bod 2 nižšie) a dvakrát kliknite na **START.bat**. Skript sám nainštaluje Node.js (cez winget, ak chýba), závislosti, spýta sa, či načítať ukážkové dáta, spustí aplikáciu a otvorí prehliadač. Ak Node.js práve nainštaloval, zatvorte okno a spustite START.bat ešte raz. Na macOS / Linuxe spustite v Termináli `./start.sh`.
 
 Ručný postup:
