@@ -4,6 +4,10 @@ Aplikácia beží ako webová stránka na počítači alebo serveri. Tu sú tri 
 
 ## A) Vyskúšať na vlastnom počítači (10 minút)
 
+**Najjednoduchšie (Windows):** stiahnite a rozbaľte aplikáciu (bod 2 nižšie) a dvakrát kliknite na **START.bat**. Skript sám nainštaluje Node.js (cez winget, ak chýba), závislosti, spýta sa, či načítať ukážkové dáta, spustí aplikáciu a otvorí prehliadač. Ak Node.js práve nainštaloval, zatvorte okno a spustite START.bat ešte raz. Na macOS / Linuxe spustite v Termináli `./start.sh`.
+
+Ručný postup:
+
 1. Nainštalujte **Node.js 22** z <https://nodejs.org> (tlačidlo LTS, ďalej-ďalej-dokončiť).
 2. Stiahnite aplikáciu: na GitHube otvorte vetvu `claude/determined-mccarthy-7jfplr` repozitára **Lubo585/Lubo585** → zelené tlačidlo **Code → Download ZIP** → rozbaľte napr. do `C:\agentura` (alebo `git clone`).
 3. Otvorte príkazový riadok v tom priečinku (vo Windows: v Prieskumníkovi do adresného riadku napíšte `cmd` a Enter) a zadajte:

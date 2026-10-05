@@ -41,6 +41,7 @@ Prihlásiť sa môže každý, kto dostane **pozvánku** (Nastavenia → Použí
 
 Požiadavky: **Node.js 22.5+** (vstavaný SQLite, nič sa nekompiluje).
 
+Windows: dvojklik na `START.bat` (nainštaluje Node.js, závislosti, spustí). macOS/Linux: `./start.sh`. Ručne:
 ```bash
 npm install
 cp .env.example .env     # SESSION_SECRET, ADMIN_PASSWORD
