@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 NODE_VER=22.22.0
 OUT=dist; rm -rf "$OUT/SXWorkforce" && mkdir -p "$OUT/SXWorkforce"
 git archive HEAD | tar -x -C "$OUT/SXWorkforce"
-cd "$OUT/SXWorkforce" && rm -rf mobile test .github dist && npm ci --omit=dev --no-audit --no-fund >/dev/null
+cd "$OUT/SXWorkforce" && rm -rf mobile test .github dist Frontrunbotmain && npm ci --omit=dev --no-audit --no-fund >/dev/null
 mkdir -p node data
 cp ../../scripts/portable/SPUSTIT.bat ../../scripts/portable/PRECITAJ-MA.txt .
 if [ "$1" = "--with-node" ]; then curl -fsSL -o node/node.exe "https://nodejs.org/dist/v$NODE_VER/win-x64/node.exe"; fi
