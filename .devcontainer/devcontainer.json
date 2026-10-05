@@ -1,0 +1,14 @@
+{
+  "name": "SX Workforce – firemná aplikácia",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postCreateCommand": "npm install && npm run demo",
+  "postStartCommand": "nohup npm start > /tmp/app.log 2>&1 &",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "Aplikácia (prihlásenie admin / admin)", "onAutoForward": "openBrowser" }
+  },
+  "customizations": {
+    "codespaces": { "openFiles": ["AKO_ZACAT.md"] }
+  },
+  "hostRequirements": { "cpus": 2 }
+}

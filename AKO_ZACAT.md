@@ -50,6 +50,17 @@ Pracovníka pozvete cez Nastavenia → Používatelia → Pozvať (rola Pracovn�
 
 Heslo `admin` si hneď zmeňte v Nastavenia → Používatelia → Zmena môjho hesla. Ak chcete začať odznova s prázdnou databázou, zastavte aplikáciu (Ctrl+C) a zmažte súbor `data/app.db`.
 
+## A0) Najjednoduchšie: spustiť v prehliadači cez GitHub Codespaces (nič sa neinštaluje)
+
+Beží na serveroch GitHubu, zadarmo do 60 hodín mesačne, stačí váš účet GitHub.
+
+1. Otvorte tento odkaz: **<https://codespaces.new/Lubo585/Lubo585?ref=claude/determined-mccarthy-7jfplr&quickstart=1>**
+2. Kliknite na zelené **Create codespace** (prípadne „Resume“). Prvé vytvorenie trvá 2–3 minúty: automaticky sa nainštaluje Node.js, závislosti, načíta sa ukážková firma a aplikácia sa spustí.
+3. Otvorí sa nová karta s aplikáciou (ak prehliadač blokuje vyskakovacie okná, povoľte ich). Ak sa neotvorila, v spodnej časti okna Codespaces kliknite na záložku **PORTS / PORTY** a pri porte 3000 na ikonu glóbusu „Open in Browser“.
+4. Prihlásenie **admin / admin** (ďalší: kancelaria, dispecer, uctovnik / demo1234).
+
+Ak by aplikácia nebežala, v termináli Codespaces (menu ☰ → Terminal → New Terminal) spustite `./scripts/codespaces-start.sh`. Codespace sa po 30 minútach nečinnosti uspí, pri ďalšom otvorení sa aplikácia spustí znova; dáta v ňom ostávajú, kým codespace nezmažete.
+
 ## B0) Vyskúšať na internete bez vlastného servera (Render, zadarmo, 5 minút)
 
 Ak nechcete nič spúšťať na počítači, dá sa aplikácia nasadiť na bezplatné hostovanie Render.com jedným kliknutím. Dostanete adresu typu `https://sxworkforce.onrender.com`, ktorá sa otvorí v akomkoľvek prehliadači aj na mobile.

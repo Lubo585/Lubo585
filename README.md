@@ -39,6 +39,8 @@ Prihlásiť sa môže každý, kto dostane **pozvánku** (Nastavenia → Použí
 
 ## Spustenie
 
+[![Otvoriť v GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Lubo585/Lubo585?ref=claude/determined-mccarthy-7jfplr&quickstart=1) – beží v prehliadači, nič sa neinštaluje (ukážkové dáta sa načítajú automaticky).
+
 Požiadavky: **Node.js 22.5+** (vstavaný SQLite, nič sa nekompiluje).
 
 Windows: dvojklik na `START.bat` (nainštaluje Node.js, závislosti, spustí). macOS/Linux: `./start.sh`. Ručne:
