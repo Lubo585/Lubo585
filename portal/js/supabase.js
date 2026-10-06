@@ -1,0 +1,147 @@
+/* NazovPortalu – napojenie na Supabase (progresívne: bez konfigurácie ostáva demo obsah) */
+(function () {
+  'use strict';
+  var cfg = window.NP_CONFIG || {};
+  if (!cfg.supabaseUrl || !cfg.supabaseKey || !window.supabase) return;
+  var sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey);
+  window.np = window.np || {};
+  window.np.sb = sb;
+
+  /* ---------- Pomocné ---------- */
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); }
+  function photoUrl(path) { return path ? sb.storage.from(cfg.photoBucket).getPublicUrl(path).data.publicUrl : ''; }
+  function plural(n) { return n + ' ' + (n === 1 ? 'inzerát' : (n >= 2 && n <= 4 ? 'inzeráty' : 'inzerátov')); }
+  function stars(avg, cnt) {
+    if (!cnt) return '<span class="stars">Zatiaľ bez recenzií</span>';
+    var full = Math.round(avg); return '<span class="stars">' + '★'.repeat(full) + '☆'.repeat(5 - full) + ' <span class="muted">(' + cnt + ')</span></span>';
+  }
+  function card(l) {
+    var badges = '';
+    if (l.is_verified) badges += '<span class="badge ok">✓ Overené</span>';
+    if (l.is_top) badges += '<span class="badge gold">TOP</span>';
+    if (l.is_online) badges += '<span class="badge online">Online</span>';
+    if (l.photo_count > 0 && !l.cover_path) badges += '';
+    var place = l.parent_city_name ? l.parent_city_name + ' – ' + l.city_name : l.city_name;
+    var photo = l.cover_path ? '<img src="' + esc(photoUrl(l.cover_path)) + '" alt="' + esc(l.title) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover">' : '<div class="blur"></div>♥';
+    return '<a class="listing" href="/inzerat/' + esc(l.slug) + '" data-id="' + esc(l.id) + '">' +
+      '<div class="photo">' + photo + '<div class="badges">' + badges + '</div></div>' +
+      '<div class="body"><div class="title"><span>' + esc(l.title) + '</span><span class="price">' + (l.price_from != null ? 'od ' + Number(l.price_from).toFixed(0) + ' €' : 'dohodou') + '</span></div>' +
+      '<div class="meta"><span>' + esc(place) + '</span>' + stars(l.rating_avg, l.rating_count) + '</div></div></a>';
+  }
+
+  /* ---------- Výpis inzerátov (index, mesto) ---------- */
+  var grid = document.querySelector('[data-listings]');
+  if (grid) {
+    var params = new URLSearchParams(location.search);
+    function currentFilters() {
+      var tags = [].map.call(document.querySelectorAll('.chip.is-active[data-filter]'), function (c) { return c.dataset.filter; });
+      return {
+        p_city: (document.getElementById('f-city') || {}).value || grid.dataset.city || params.get('mesto') || null,
+        p_category: (document.getElementById('f-cat') || {}).value || grid.dataset.category || params.get('kategoria') || null,
+        p_q: (document.getElementById('f-q') || {}).value || params.get('q') || null,
+        p_verified: tags.indexOf('overene') !== -1,
+        p_online: tags.indexOf('online') !== -1,
+        p_with_reviews: tags.indexOf('recenzie') !== -1,
+        p_limit: Number(grid.dataset.limit || 24), p_offset: 0
+      };
+    }
+    function load() {
+      grid.setAttribute('aria-busy', 'true');
+      sb.rpc('search_listings', currentFilters()).then(function (r) {
+        grid.removeAttribute('aria-busy');
+        if (r.error) { console.error(r.error); return; }
+        grid.innerHTML = r.data.length ? r.data.map(card).join('') : '<p class="muted">Žiadne inzeráty nezodpovedajú filtru.</p>';
+        var cnt = document.getElementById('result-count'); if (cnt) cnt.textContent = plural(r.data.length);
+      });
+    }
+    load();
+    var form = document.getElementById('search-form');
+    if (form) { form.addEventListener('submit', function (e) { e.preventDefault(); load(); }); form.addEventListener('change', load); }
+    document.querySelectorAll('.chip[data-filter]').forEach(function (c) { c.addEventListener('click', function () { setTimeout(load, 0); }); });
+  }
+
+  /* ---------- Detail inzerátu ---------- */
+  var detail = document.querySelector('[data-listing-detail]');
+  if (detail) {
+    var slug = detail.dataset.slug || location.pathname.split('/').filter(Boolean).pop();
+    sb.from('public_listings').select('*').eq('slug', slug).maybeSingle().then(function (r) {
+      if (r.error || !r.data) return;
+      var l = r.data;
+      document.title = l.title + ' – ' + (l.is_verified ? 'overená ' : '') + l.category_name.toLowerCase() + ' ' + (l.parent_city_name || l.city_name) + ' | ' + (cfg.siteName || document.title.split('|').pop().trim());
+      var h1 = detail.querySelector('h1'); if (h1) h1.textContent = l.title;
+      var body = detail.querySelector('[data-field="body"]'); if (body) body.textContent = l.body;
+      var g = detail.querySelector('.gallery');
+      if (g && l.cover_path) g.innerHTML = '<div class="photo"><img src="' + esc(photoUrl(l.cover_path)) + '" alt="' + esc(l.title) + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px"></div>';
+      sb.rpc('bump_views', { p_listing: l.id });
+      var btn = detail.querySelector('[data-phone], [data-reveal]');
+      if (btn) {
+        btn.removeAttribute('data-phone'); btn.setAttribute('data-reveal', l.id);
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          sb.rpc('reveal_phone', { p_listing: l.id }).then(function (p) {
+            if (p.error) { btn.textContent = p.error.message; return; }
+            btn.textContent = p.data; btn.setAttribute('href', 'tel:' + String(p.data).replace(/\s/g, ''));
+          });
+        }, { once: true });
+      }
+      var rep = detail.querySelector('[data-report]');
+      if (rep) rep.addEventListener('click', function (e) {
+        e.preventDefault();
+        var reason = prompt('Dôvod nahlásenia: fake_photos, underage, coercion, scam, duplicate, offensive, other', 'fake_photos');
+        if (!reason) return;
+        var details = prompt('Podrobnosti (nepovinné)') || null;
+        sb.rpc('submit_report', { p_listing: l.id, p_reason: reason, p_details: details }).then(function (x) {
+          alert(x.error ? 'Chyba: ' + x.error.message : 'Ďakujeme, nahlásenie sme prijali a preveríme ho do 24 hodín.');
+        });
+      });
+    });
+  }
+
+  /* ---------- Pridanie inzerátu ---------- */
+  var addForm = document.querySelector('form[data-add-listing]');
+  if (addForm) {
+    addForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var f = addForm, out = f.querySelector('[data-status]') || f;
+      function say(m) { if (out !== f) { out.hidden = false; out.textContent = m; } else alert(m); }
+      try {
+        var email = f.email.value, phone = f.tel.value, dob = f.dob.value;
+        var session = (await sb.auth.getSession()).data.session;
+        if (!session) {
+          var otp = await sb.auth.signInWithOtp({ email: email, options: { data: { date_of_birth: dob, phone: phone, display_name: f.title.value.split(',')[0] }, emailRedirectTo: location.href } });
+          if (otp.error) throw otp.error;
+          say('Poslali sme vám prihlasovací odkaz na ' + email + '. Po kliknutí sa vráťte sem a odošlite formulár znova.');
+          return;
+        }
+        var cat = await sb.from('categories').select('id').eq('name', f.kategoria.value).single();
+        var cityQ = await sb.from('cities').select('id').ilike('name', '%' + f.mesto.value.split('–').pop().trim() + '%').limit(1).maybeSingle();
+        if (!cityQ.data) throw new Error('Mesto sa nenašlo. Zadajte napr. „Bratislava – Ružinov“ alebo „Košice“.');
+        var ins = await sb.from('listings').insert({
+          owner_id: session.user.id, category_id: cat.data.id, city_id: cityQ.data.id,
+          title: f.title.value, body: f.text.value, price_from: f.cena.value || null,
+          blur_faces: !!f.blur.checked, status: 'pending'
+        }).select('id').single();
+        if (ins.error) throw ins.error;
+        var files = f.fotky.files;
+        for (var i = 0; i < files.length && i < 10; i++) {
+          var path = ins.data.id + '/' + Date.now() + '-' + i + '.' + (files[i].name.split('.').pop() || 'jpg');
+          var up = await sb.storage.from(cfg.photoBucket).upload(path, files[i], { contentType: files[i].type });
+          if (!up.error) await sb.from('listing_photos').insert({ listing_id: ins.data.id, storage_path: path, sort: i, is_cover: i === 0 });
+        }
+        var ver = await sb.from('verifications').insert({ listing_id: ins.data.id }).select('code').single();
+        say('Inzerát je uložený a čaká na kontrolu. Váš overovací kód je ' + (ver.data ? ver.data.code : '—') + '. Nahrajte krátke selfie video s týmto kódom vo svojom účte.');
+        f.reset();
+      } catch (err) { say('Chyba: ' + (err.message || err)); }
+    });
+  }
+
+  /* ---------- Heartbeat „som online“ pre prihlásenú inzerentku ---------- */
+  sb.auth.getSession().then(function (r) {
+    if (!r.data.session) return;
+    sb.from('listings').select('id').eq('owner_id', r.data.session.user.id).eq('status', 'active').then(function (q) {
+      if (!q.data || !q.data.length) return;
+      function beat() { q.data.forEach(function (l) { sb.rpc('heartbeat', { p_listing: l.id }); }); }
+      beat(); setInterval(beat, 5 * 60 * 1000);
+    });
+  });
+})();

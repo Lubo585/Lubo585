@@ -83,7 +83,7 @@
   <div>
     <h1>Pridať inzerát zdarma</h1>
     <p class="lead muted">Základný inzerát je bez poplatku. Vyplnenie trvá približne 10 minút, overenie schválime zvyčajne do 2 hodín.</p>
-    <form class="panel" action="/api/inzerat" method="post" style="display:grid;gap:14px" novalidate>
+    <form class="panel" data-add-listing action="/api/inzerat" method="post" style="display:grid;gap:14px" novalidate>
       <h2 style="font-size:1.1rem">1. Účet a overenie veku</h2>
       <div class="field"><label for="i-email">E-mail *</label><input id="i-email" name="email" type="email" required autocomplete="email"></div>
       <div class="field"><label for="i-tel">Telefón * <span class="muted">(zobrazí sa až po kliknutí klienta)</span></label><input id="i-tel" name="tel" type="tel" required autocomplete="tel" placeholder="+421"></div>
@@ -101,7 +101,8 @@
       <label style="display:flex;gap:8px;font-size:.9rem"><input type="checkbox" required style="width:auto;min-height:auto;margin-top:4px"> Súhlasím s <a href="/podmienky.html">podmienkami používania</a> a beriem na vedomie <a href="/ochrana-sukromia.html">informácie o spracúvaní osobných údajov</a>.</label>
       <label style="display:flex;gap:8px;font-size:.9rem"><input type="checkbox" required style="width:auto;min-height:auto;margin-top:4px"> Som si vedomý/á, že po odoslaní nasleduje video overenie (selfie s kódom), bez ktorého inzerát nezíska odznak Overené.</label>
       <button class="btn btn-primary btn-block" type="submit">Pokračovať na overenie</button>
-      <p class="muted" style="font-size:.8rem;margin:0">Ukážkový formulár. Odoslanie vyžaduje backend (napr. Supabase, Laravel, Node).</p>
+      <p class="notice" data-status aria-live="polite" hidden></p>
+      <p class="muted" style="font-size:.8rem;margin:0">Odoslanie funguje po doplnení Supabase konfigurácie v js/config.js (pozri supabase/README.md).</p>
     </form>
   </div>
   <aside>
@@ -149,6 +150,9 @@
   <a href="/ucet/"><span>☺</span><span>Účet</span></a>
 </nav>
 
+<script src="/js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="/js/app.js" defer></script>
+<script src="/js/supabase.js" defer></script>
 </body>
 </html>

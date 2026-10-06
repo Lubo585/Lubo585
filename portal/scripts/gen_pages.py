@@ -47,7 +47,10 @@ def page(path, title, desc, body, canonical=None, extra_head='', robots='index, 
 </main>
 
 {footer}
+<script src="/js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="/js/app.js" defer></script>
+<script src="/js/supabase.js" defer></script>
 </body>
 </html>
 '''
@@ -100,7 +103,7 @@ page('mesto.html',
 </section>
 <section class="section"><div class="wrap">
   <div class="section-head"><div><h2>Overené inzeráty – Bratislava</h2><p class="muted" id="result-count">8 inzerátov</p></div></div>
-  <div class="grid">{cards}</div>
+  <div class="grid" data-listings data-city="bratislava" data-limit="24">{cards}</div>
 </div></section>
 <section class="section"><div class="wrap seo-text">
   <h2>Erotická inzercia Bratislava – čo nájdete na NazovPortalu</h2>
@@ -117,7 +120,7 @@ page('inzerat.html',
      'Nikol, 26 – overená spoločníčka Bratislava Ružinov | NazovPortalu',
      'Nikol, 26 rokov, Bratislava Ružinov. Overený profil s videom, 41 hodnotení, priemer 4,9. Diskrétny privát, cena od 80 €. Kontakt po kliknutí.',
      f'''{bc}
-<section class="section" style="padding-top:16px"><div class="wrap detail">
+<section class="section" style="padding-top:16px"><div class="wrap detail" data-listing-detail data-slug="nikol-26-bratislava-12345">
   <div>
     <div class="gallery" aria-label="Fotogaléria">
       <div class="photo"></div><div class="photo"></div><div class="photo"></div><div class="photo"></div>
@@ -125,7 +128,7 @@ page('inzerat.html',
     <p class="muted" style="font-size:.85rem;margin-top:8px">Fotky overené videom 28. 9. 2026 · Vodoznak NazovPortalu · Tvár rozmazaná na želanie inzerentky</p>
     <div class="panel" style="margin-top:16px">
       <h2 style="font-size:1.2rem">O mne</h2>
-      <p>Som Nikol, príjemná a diskrétna spoločníčka z Ružinova. Ponúkam príjemne strávený čas v čistom a diskrétnom priváte s vlastným parkovaním. Vážim si slušnosť a dochvíľnosť. Volajte, prosím, len v uvedených hodinách.</p>
+      <p data-field="body">Som Nikol, príjemná a diskrétna spoločníčka z Ružinova. Ponúkam príjemne strávený čas v čistom a diskrétnom priváte s vlastným parkovaním. Vážim si slušnosť a dochvíľnosť. Volajte, prosím, len v uvedených hodinách.</p>
       <h3>Služby</h3>
       <div class="chips"><span class="chip">Klasika</span><span class="chip">Erotická masáž</span><span class="chip">Spoločníčka na večer</span><span class="chip">Sprcha spolu</span></div>
       <h3 style="margin-top:14px">Cenník</h3>
@@ -148,7 +151,7 @@ page('inzerat.html',
       <div style="height:8px"></div>
       <a class="btn btn-ghost btn-block" href="#sprava">Napísať správu (diskrétne)</a>
       <div style="height:8px"></div>
-      <a class="btn btn-ghost btn-block btn-sm" href="/bezpecnost.html#nahlasenie">⚑ Nahlásiť inzerát</a>
+      <a class="btn btn-ghost btn-block btn-sm" href="/bezpecnost.html#nahlasenie" data-report>⚑ Nahlásiť inzerát</a>
       <p class="muted" style="font-size:.8rem;margin:12px 0 0">Pri kontakte uveďte, že voláte z NazovPortalu. Nikdy neposielajte platbu vopred.</p>
     </div>
     <div class="panel" style="margin-top:12px">
@@ -176,7 +179,7 @@ page('pridat-inzerat.html',
   <div>
     <h1>Pridať inzerát zdarma</h1>
     <p class="lead muted">Základný inzerát je bez poplatku. Vyplnenie trvá približne 10 minút, overenie schválime zvyčajne do 2 hodín.</p>
-    <form class="panel" action="/api/inzerat" method="post" style="display:grid;gap:14px" novalidate>
+    <form class="panel" data-add-listing action="/api/inzerat" method="post" style="display:grid;gap:14px" novalidate>
       <h2 style="font-size:1.1rem">1. Účet a overenie veku</h2>
       <div class="field"><label for="i-email">E-mail *</label><input id="i-email" name="email" type="email" required autocomplete="email"></div>
       <div class="field"><label for="i-tel">Telefón * <span class="muted">(zobrazí sa až po kliknutí klienta)</span></label><input id="i-tel" name="tel" type="tel" required autocomplete="tel" placeholder="+421"></div>
@@ -194,7 +197,8 @@ page('pridat-inzerat.html',
       <label style="display:flex;gap:8px;font-size:.9rem"><input type="checkbox" required style="width:auto;min-height:auto;margin-top:4px"> Súhlasím s <a href="/podmienky.html">podmienkami používania</a> a beriem na vedomie <a href="/ochrana-sukromia.html">informácie o spracúvaní osobných údajov</a>.</label>
       <label style="display:flex;gap:8px;font-size:.9rem"><input type="checkbox" required style="width:auto;min-height:auto;margin-top:4px"> Som si vedomý/á, že po odoslaní nasleduje video overenie (selfie s kódom), bez ktorého inzerát nezíska odznak Overené.</label>
       <button class="btn btn-primary btn-block" type="submit">Pokračovať na overenie</button>
-      <p class="muted" style="font-size:.8rem;margin:0">Ukážkový formulár. Odoslanie vyžaduje backend (napr. Supabase, Laravel, Node).</p>
+      <p class="notice" data-status aria-live="polite" hidden></p>
+      <p class="muted" style="font-size:.8rem;margin:0">Odoslanie funguje po doplnení Supabase konfigurácie v js/config.js (pozri supabase/README.md).</p>
     </form>
   </div>
   <aside>

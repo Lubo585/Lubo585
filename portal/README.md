@@ -23,6 +23,8 @@ Skript nahradí názov aj doménu vo všetkých HTML, JSON-LD, sitemap, robots, 
 | `podmienky.html`, `ochrana-sukromia.html`, `cookies.html` | Právne vzory (doplniť údaje prevádzkovateľa, nechať skontrolovať) |
 | `404.html` | Chybová stránka |
 | `css/style.css`, `js/app.js` | Štýly (farby v `:root`) a logika (brána 18+, filtre, menu, skryté číslo) |
+| `js/config.js`, `js/supabase.js` | Konfigurácia a napojenie na Supabase (výpis, detail, odhalenie čísla, nahlásenie, pridanie inzerátu, heartbeat) |
+| `supabase/` | Migrácie, úložisko, cron, Edge Function pre platby, lokálne testy |
 | `robots.txt`, `sitemap.xml`, `manifest.webmanifest`, `.htaccess` | SEO a server |
 | `scripts/gen_pages.py` | Po úprave hlavičky/pätičky v `index.html` pregeneruje podstránky |
 
@@ -38,9 +40,13 @@ Skript nahradí názov aj doménu vo všetkých HTML, JSON-LD, sitemap, robots, 
 - Prístupnosť: skip link, aria popisy, kontrast, ovládanie klávesnicou, 44px dotykové ciele.
 - Označenie obsahu pre dospelých: `meta rating=adult` + RTA label (vyžadujú ho rodičovské filtre, niektoré appstory a reklamné siete).
 
+## Backend
+
+Hotový v priečinku `supabase/` (Postgres schéma s RLS, RPC, úložisko, webhook platieb, testy). Nasadenie a popis je v `supabase/README.md`. Frontend sa pripája cez `js/config.js`; bez konfigurácie zobrazuje demo obsah.
+
 ## Čo treba doplniť pred spustením
 
-1. **Backend**: ukladanie inzerátov, účty, overovanie videom, nahlasovanie, platby. Vhodné napr. Supabase/Postgres + Node alebo Laravel.
+1. **Supabase projekt**: vytvoriť a nasadiť migrácie podľa `supabase/README.md`, doplniť kľúče do `js/config.js`.
 2. **Obrázky**: `img/og-cover.jpg` (1200×630), `img/logo.png`, `img/icon-192.png`, `img/icon-512.png`. Fotky inzerátov servírujte vo WebP s vodoznakom.
 3. **Platobná brána** pre high-risk segment (CCBill, Segpay, Verotel, Paxum).
 4. **Právne texty**: doplniť prevádzkovateľa, zodpovednú osobu podľa DSA, prejsť advokátom.
