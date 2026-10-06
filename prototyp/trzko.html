@@ -1,0 +1,767 @@
+<title>Tržko</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one responsive app shell. Below 700px of container width it is a phone app with a bottom tab bar,
+   above it a web portal with a top bar. Desktop viewers can switch between both views in the frame above. */
+:root{
+  --bg:#F4F5FA; --surface:#FFFFFF; --surface-2:#ECEEF6; --fg:#171A2B; --muted:#5F6680; --line:#DCDFEA;
+  --accent:#2447D6; --accent-fg:#FFFFFF; --accent-soft:#E4E9FF;
+  --sun:#FFD233; --sun-fg:#1D1600;
+  --ok:#188A52; --ok-soft:#DDF4E7; --warn:#C76A05; --warn-soft:#FFF0DB; --danger:#CF3535; --danger-soft:#FDE3E3;
+  --frame:#1C1F2E; --stage:#E9EBF3;
+  --t1:#DCE6FF; --t2:#FFE7D6; --t3:#E2F5E8; --t4:#FBE3EE; --t5:#FFF3C4; --t6:#E6E1FA;
+  --font-display:'Bricolage Grotesque','Figtree',system-ui,sans-serif;
+  --font-ui:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --r:14px; --r-s:10px;
+  --shadow:0 1px 2px rgba(23,26,43,.05),0 8px 24px rgba(23,26,43,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1119; --surface:#171A26; --surface-2:#1F2332; --fg:#EEF0F7; --muted:#9AA1B8; --line:#2A2F41;
+    --accent:#7C93FF; --accent-fg:#0B1033; --accent-soft:#1E2749;
+    --sun:#FFD233; --sun-fg:#1D1600;
+    --ok:#4CC98A; --ok-soft:#163626; --warn:#F0A04B; --warn-soft:#3A2A14; --danger:#F07171; --danger-soft:#3E1C1C;
+    --frame:#2A2F41; --stage:#090A10;
+    --t1:#1F2A4A; --t2:#3C2A1E; --t3:#1C3327; --t4:#3A2230; --t5:#3A3217; --t6:#2A2546;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1119; --surface:#171A26; --surface-2:#1F2332; --fg:#EEF0F7; --muted:#9AA1B8; --line:#2A2F41;
+  --accent:#7C93FF; --accent-fg:#0B1033; --accent-soft:#1E2749;
+  --sun:#FFD233; --sun-fg:#1D1600;
+  --ok:#4CC98A; --ok-soft:#163626; --warn:#F0A04B; --warn-soft:#3A2A14; --danger:#F07171; --danger-soft:#3E1C1C;
+  --frame:#2A2F41; --stage:#090A10;
+  --t1:#1F2A4A; --t2:#3C2A1E; --t3:#1C3327; --t4:#3A2230; --t5:#3A3217; --t6:#2A2546;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--stage);color:var(--fg);font-family:var(--font-ui);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3,h4{margin:0;font-family:var(--font-display);text-wrap:balance;line-height:1.15}
+p{margin:0}
+svg{display:block}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- Stage (around the device) ---------- */
+.stage{min-height:100%;display:flex;flex-direction:column;align-items:center;padding-inline:16px;padding-block:14px 28px;gap:14px}
+.stage-bar{width:100%;max-width:1180px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.stage-title{display:flex;align-items:baseline;gap:10px;min-width:0}
+.stage-title strong{font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:-.01em}
+.stage-title span{color:var(--muted);font-size:13px}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.stage-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ghost{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600}
+.info{width:100%;max-width:1180px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px 22px}
+.info h3{font-size:15px;margin-bottom:4px}
+.info p{font-size:13.5px;color:var(--muted)}
+.info .vs{font-size:12px;color:var(--danger);font-weight:600;letter-spacing:.02em;text-transform:uppercase}
+
+/* ---------- Device ---------- */
+.device{width:100%;max-width:1180px;background:var(--bg);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);transition:max-width .25s ease,border-radius .25s ease}
+.device.phone{max-width:392px;height:min(820px,calc(100vh - 110px));min-height:560px;border:10px solid var(--frame);border-radius:46px;position:relative}
+.device.phone::before{content:"";position:absolute;top:10px;left:50%;transform:translateX(-50%);width:110px;height:26px;background:var(--frame);border-radius:0 0 18px 18px;z-index:5}
+.device.bare{max-width:none;height:calc(100vh - 62px);border:0;border-radius:0}
+.device.bare::before{display:none}
+.stage.bare{padding:0}
+.stage.bare .stage-bar{padding:8px 12px;gap:6px}
+.stage.bare .info{width:calc(100% - 24px)}
+
+.app{container:app / inline-size;height:100%;display:flex;flex-direction:column;background:var(--bg)}
+.content{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.device:not(.phone):not(.bare) .content{overflow:visible}
+.device:not(.phone):not(.bare) .app{height:auto;min-height:720px}
+.wrap{width:100%;max-width:1120px;margin-inline:auto;padding-inline:20px;padding-block:18px 32px}
+.device.phone .wrap,.device.bare .wrap{padding-inline:16px;padding-block:52px 28px}
+.device.bare .wrap{padding-top:14px}
+
+/* ---------- Top bar (web) ---------- */
+.topbar{display:flex;align-items:center;gap:16px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:4}
+.topbar .inner{width:100%;max-width:1120px;margin-inline:auto;display:flex;align-items:center;gap:16px}
+.logo{font-family:var(--font-display);font-weight:800;font-size:24px;letter-spacing:-.03em;color:var(--accent);display:flex;align-items:center;gap:6px}
+.logo i{width:10px;height:10px;border-radius:3px;background:var(--sun);display:inline-block;transform:rotate(12deg)}
+.topsearch{flex:1;display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid transparent;border-radius:999px;padding:8px 14px;min-width:0}
+.topsearch:focus-within{border-color:var(--accent);background:var(--surface)}
+.topsearch input{flex:1;min-width:0;border:0;background:transparent;font-size:15px}
+.topsearch input::placeholder{color:var(--muted)}
+.topsearch .loc{display:flex;align-items:center;gap:4px;color:var(--muted);font-size:13px;white-space:nowrap;border-left:1px solid var(--line);padding-left:10px}
+.topnav{display:flex;align-items:center;gap:6px}
+.iconbtn{position:relative;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--fg)}
+.iconbtn:hover{background:var(--surface-2)}
+.iconbtn .dot{position:absolute;top:6px;right:6px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:13px}
+
+/* ---------- Tab bar (app) ---------- */
+.tabbar{display:none;align-items:stretch;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:6px 6px calc(8px + env(safe-area-inset-bottom,0px))}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;font-size:11px;font-weight:600;color:var(--muted);border-radius:12px;position:relative}
+.tab[aria-current="page"]{color:var(--accent)}
+.tab .dot{position:absolute;top:2px;right:calc(50% - 22px);min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.tab.plus span{display:none}
+.tab.plus b{width:52px;height:52px;margin-top:-22px;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;box-shadow:0 8px 20px color-mix(in oklab,var(--accent) 40%,transparent)}
+
+/* ---------- Primitives ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:12px;font-weight:700;font-size:15px;border:1px solid transparent;transition:transform .08s ease}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--accent);color:var(--accent-fg)}
+.btn.secondary{background:var(--surface);border-color:var(--line);color:var(--fg)}
+.btn.soft{background:var(--accent-soft);color:var(--accent)}
+.btn.sun{background:var(--sun);color:var(--sun-fg)}
+.btn.block{width:100%}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:7px;font-size:11.5px;font-weight:700;background:var(--surface-2);color:var(--muted)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.tag.accent{background:var(--accent-soft);color:var(--accent)}
+.tag.cz{background:var(--surface-2);color:var(--fg)}
+.sec{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 0 12px}
+.sec h2{font-size:20px;font-weight:700;letter-spacing:-.01em}
+.sec a,.sec button.link{color:var(--accent);font-weight:600;font-size:14px;text-decoration:none}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.row{display:flex;align-items:center;gap:10px}
+.row.between{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:10px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:600;color:var(--muted)}
+.field input,.field select,.field textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:15px}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.field .hint{font-size:12.5px;color:var(--muted)}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.switch:first-child{border-top:0}
+.switch b{font-weight:600}
+.switch small{display:block;color:var(--muted);font-weight:400;font-size:12.5px}
+.toggle{width:44px;height:26px;border-radius:999px;background:var(--line);position:relative;flex:none;transition:background .15s}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+.toggle[aria-checked="true"]{background:var(--ok)}
+.toggle[aria-checked="true"]::after{transform:translateX(18px)}
+.back{display:inline-flex;align-items:center;gap:4px;font-weight:600;color:var(--fg);padding:6px 10px 6px 4px;border-radius:999px;margin-left:-4px}
+.back:hover{background:var(--surface-2)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--fg);color:var(--bg);padding:11px 16px;border-radius:999px;font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:all .2s ease;z-index:50;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- Home ---------- */
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:stretch}
+.hero-search{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px}
+.hero-search h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-bottom:14px}
+.hero-search h1 em{font-style:normal;color:var(--accent)}
+.searchbox{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid transparent;border-radius:14px;padding:10px 12px 10px 14px}
+.searchbox:focus-within{border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px var(--accent-soft)}
+.searchbox input{flex:1;min-width:0;border:0;background:transparent;font-size:16px}
+.searchbox input::placeholder{color:var(--muted)}
+.searchbox .go{background:var(--accent);color:var(--accent-fg);border-radius:10px;padding:9px 14px;font-weight:700}
+.locpill{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:13.5px;color:var(--muted)}
+.locpill b{color:var(--fg);font-weight:600}
+.hero-cta{background:var(--accent);color:var(--accent-fg);border-radius:18px;padding:22px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;position:relative;overflow:hidden}
+.hero-cta h2{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.hero-cta p{opacity:.85;font-size:14px}
+.hero-cta .btn{align-self:flex-start}
+.hero-cta .stamp{position:absolute;right:14px;top:14px;width:76px;height:76px;border-radius:50%;background:var(--sun);display:grid;place-items:center;transform:rotate(-10deg);color:var(--sun-fg);font-family:var(--font-display);font-weight:800;font-size:12px;line-height:1.05;text-align:center;padding:6px}
+.hero-cta .stamp b{display:block;font-size:22px;letter-spacing:-.02em}
+.hero-cta h2,.hero-cta p{max-width:calc(100% - 84px)}
+.cats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.cat{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;font-size:12.5px;font-weight:600;text-align:center;transition:border-color .12s}
+.cat:hover{border-color:var(--accent)}
+.cat i{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;font-style:normal}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;text-align:left;display:flex;flex-direction:column;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.thumb{position:relative;aspect-ratio:4/3;max-width:100%;display:grid;place-items:center;font-size:54px}
+.thumb .fav{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;background:color-mix(in oklab,var(--surface) 85%,transparent);display:grid;place-items:center;color:var(--fg)}
+.thumb .fav[aria-pressed="true"]{color:var(--danger)}
+.thumb .corner{position:absolute;left:8px;bottom:8px;display:flex;gap:4px}
+.card-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px}
+.price{font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.01em}
+.price small{font-family:var(--font-ui);font-weight:600;font-size:12px;color:var(--muted);margin-left:6px}
+.price.free{color:var(--ok)}
+.card h3{font-family:var(--font-ui);font-size:14px;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.meta span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:2px}
+.list .card{flex-direction:row}
+.list .card .thumb{width:132px;aspect-ratio:1;font-size:40px;flex:none}
+.list .card .card-body{flex:1;min-width:0;justify-content:center}
+.trust{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.trust .panel{display:flex;gap:12px;align-items:flex-start}
+.trust i{width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.trust b{display:block;font-size:14px}
+.trust p{font-size:12.5px;color:var(--muted)}
+
+/* ---------- Search ---------- */
+.results-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:14px 0 10px}
+.results-head h2{font-size:18px}
+.sortsel{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.sortsel select{border:0;background:transparent;font-weight:600;color:var(--fg)}
+.savedsearch{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.savedsearch:first-child{border-top:0}
+.savedsearch b{font-weight:600;display:block}
+.savedsearch small{color:var(--muted);font-size:12.5px}
+.empty{text-align:center;padding:40px 16px;color:var(--muted)}
+.empty b{display:block;color:var(--fg);font-size:17px;margin-bottom:6px}
+
+/* ---------- Detail ---------- */
+.detail{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:22px;align-items:start}
+.gallery{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:4/3;max-width:100%;display:grid;place-items:center;font-size:110px;background:var(--surface-2)}
+.gallery .dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
+.gallery .dots i{width:7px;height:7px;border-radius:50%;background:color-mix(in oklab,var(--fg) 30%,transparent)}
+.gallery .dots i.on{background:var(--fg)}
+.gallery .fav{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;background:var(--surface);display:grid;place-items:center;box-shadow:var(--shadow)}
+.gallery .fav[aria-pressed="true"]{color:var(--danger)}
+.thumbs{display:flex;gap:8px;margin-top:8px}
+.thumbs i{width:64px;height:64px;border-radius:10px;display:grid;place-items:center;font-size:26px;font-style:normal;border:2px solid transparent}
+.thumbs i.on{border-color:var(--accent)}
+.dprice{font-family:var(--font-display);font-weight:800;font-size:32px;letter-spacing:-.02em}
+.dprice small{font-family:var(--font-ui);font-weight:600;font-size:14px;color:var(--muted);margin-left:8px}
+.dtitle{font-size:22px;font-weight:700;margin:6px 0 10px}
+.seller{display:flex;align-items:center;gap:12px}
+.seller .avatar{width:48px;height:48px;font-size:16px}
+.seller b{display:flex;align-items:center;gap:6px}
+.stars{color:var(--warn);letter-spacing:1px;font-size:13px}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kv div{background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.kv small{display:block;color:var(--muted);font-size:12px}
+.kv b{font-weight:600;font-size:14px}
+.map{height:150px;border-radius:12px;background:
+  linear-gradient(var(--line) 1px,transparent 1px) 0 0/28px 28px,
+  linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/28px 28px,var(--surface-2);position:relative;overflow:hidden}
+.map::before{content:"";position:absolute;left:50%;top:50%;width:90px;height:90px;border-radius:50%;background:color-mix(in oklab,var(--accent) 18%,transparent);transform:translate(-50%,-50%)}
+.map::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;border-radius:50%;background:var(--accent);border:3px solid var(--surface);transform:translate(-50%,-50%)}
+.map span{position:absolute;left:10px;bottom:8px;font-size:12px;color:var(--muted);background:var(--surface);padding:3px 8px;border-radius:6px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions .btn.block{grid-column:1/-1}
+.safebox{display:flex;gap:10px;padding:12px;border-radius:12px;background:var(--ok-soft);color:var(--ok);font-size:13px;font-weight:500}
+.safebox svg{flex:none}
+.desc{white-space:pre-line;font-size:15px}
+.hscroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.hscroll .card{width:170px;flex:none}
+.sticky-actions{display:none}
+
+/* ---------- Add ---------- */
+.steps{display:flex;gap:6px;margin:4px 0 18px}
+.steps i{flex:1;height:5px;border-radius:999px;background:var(--line)}
+.steps i.on{background:var(--accent)}
+.dropzone{border:2px dashed var(--line);border-radius:18px;padding:34px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--surface)}
+.dropzone .ico{width:64px;height:64px;border-radius:18px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.photos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.photos i{aspect-ratio:1;max-width:100%;border-radius:12px;display:grid;place-items:center;font-size:30px;font-style:normal;position:relative}
+.photos i.main::after{content:"Hlavná";position:absolute;left:6px;bottom:6px;font-size:10px;font-weight:700;background:var(--fg);color:var(--bg);padding:2px 6px;border-radius:5px}
+.photos i.add{border:2px dashed var(--line);color:var(--muted);font-size:24px}
+.ai{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-size:13.5px;font-weight:500}
+.ai svg{flex:none;margin-top:1px}
+.pricehint{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;background:var(--surface-2);font-size:13px}
+.pricebar{position:relative;height:6px;border-radius:999px;background:linear-gradient(90deg,var(--ok),var(--sun),var(--danger));margin:10px 0 6px}
+.pricebar i{position:absolute;top:-5px;width:16px;height:16px;border-radius:50%;background:var(--surface);border:3px solid var(--fg);transform:translateX(-50%)}
+.done{text-align:center;padding:26px 10px 10px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.done .check{width:84px;height:84px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center}
+.done h2{font-size:26px;font-weight:800}
+.timer{font-family:var(--font-display);font-weight:800;font-size:44px;letter-spacing:-.03em;color:var(--accent)}
+.addwrap{max-width:680px;margin-inline:auto}
+
+/* ---------- Chat ---------- */
+.convs{display:flex;flex-direction:column}
+.conv{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);text-align:left;width:100%}
+.conv:first-child{border-top:0}
+.conv .avatar{width:46px;height:46px;flex:none}
+.conv .body{flex:1;min-width:0}
+.conv b{display:flex;justify-content:space-between;gap:8px;font-size:14.5px}
+.conv b small{font-weight:500;color:var(--muted);font-size:12px}
+.conv p{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv.unread p{color:var(--fg);font-weight:600}
+.conv .item{width:46px;height:46px;border-radius:10px;display:grid;place-items:center;font-size:22px;flex:none}
+.chatwrap{display:grid;grid-template-columns:340px minmax(0,1fr);gap:18px;align-items:start}
+.convs-panel,.thread{min-width:0}
+.conv p,.conv b{min-width:0}
+.thread{display:flex;flex-direction:column;min-height:480px}
+.thread-head{display:flex;align-items:center;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.thread-head .item{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font-size:20px}
+.msgs{flex:1;display:flex;flex-direction:column;gap:8px;padding:14px 0}
+.msg{max-width:78%;padding:10px 13px;border-radius:16px;font-size:14.5px;background:var(--surface-2)}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--accent-fg);border-bottom-right-radius:6px}
+.msg.them{align-self:flex-start;border-bottom-left-radius:6px}
+.msg time{display:block;font-size:11px;opacity:.65;margin-top:3px}
+.scam{align-self:stretch;display:flex;gap:10px;padding:12px;border-radius:12px;background:var(--danger-soft);color:var(--danger);font-size:13px;font-weight:500}
+.scam svg{flex:none}
+.scam b{display:block;font-weight:700}
+.quick{display:flex;gap:8px;overflow-x:auto;padding:6px 0;scrollbar-width:none}
+.composer{display:flex;gap:8px;align-items:center;padding-top:10px;border-top:1px solid var(--line)}
+.composer input{flex:1;min-width:0;padding:11px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:15px}
+.composer button{width:44px;height:44px;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;flex:none}
+
+/* ---------- Profile ---------- */
+.phead{display:flex;align-items:center;gap:16px}
+.phead .avatar{width:72px;height:72px;font-size:24px}
+.phead h2{font-size:22px;font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.stats div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stats b{display:block;font-family:var(--font-display);font-size:22px;font-weight:800}
+.stats small{color:var(--muted);font-size:12px}
+.menu{display:flex;flex-direction:column}
+.menu>button,.menu .switch{display:flex;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line);width:100%;text-align:left;font-weight:600}
+.menu>button:first-child{border-top:0}
+.menu>button i{width:34px;height:34px;border-radius:9px;background:var(--surface-2);display:grid;place-items:center;color:var(--accent);font-style:normal;flex:none}
+.menu>button span{flex:1}
+.menu>button small{color:var(--muted);font-weight:500;font-size:12.5px}
+.verify{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.verify div{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:10px;background:var(--ok-soft);color:var(--ok);font-size:12px;font-weight:700;text-align:center}
+.pgrid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:22px;align-items:start}
+
+/* ---------- Compact (phone) layout ---------- */
+@container app (max-width: 700px){
+  .topbar{display:none}
+  .tabbar{display:flex}
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .hero-search{padding:0;background:transparent;border:0}
+  .hero-search h1{font-size:26px}
+  .hero-cta{padding:18px}
+  .hero-cta h2{font-size:19px}
+  .cats{display:flex;overflow-x:auto;gap:8px;padding-bottom:4px;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .cat{flex:none;width:86px;padding:10px 6px}
+  .grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .thumb{font-size:44px}
+  .trust{grid-template-columns:1fr 1fr}
+  .list .card .thumb{width:112px}
+  .detail{grid-template-columns:minmax(0,1fr)}
+  .gallery{font-size:90px;border-radius:14px}
+  .dprice{font-size:28px}
+  .actions{display:none}
+  .sticky-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:sticky;bottom:0;padding:10px 0 4px;background:linear-gradient(transparent,var(--bg) 30%)}
+  .chatwrap{grid-template-columns:minmax(0,1fr)}
+  .chatwrap .convs-panel.hidden-mobile{display:none}
+  .thread{min-height:0}
+  .pgrid{grid-template-columns:minmax(0,1fr)}
+  .sec{margin:22px 0 10px}
+  .sec h2{font-size:18px}
+  .photos{grid-template-columns:repeat(3,1fr)}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="stage" id="stage">
+  <div class="stage-bar">
+    <div class="stage-title"><strong>Tržko</strong><span>prototyp inzertného portálu · SK + CZ</span></div>
+    <div class="stage-actions">
+      <div class="seg" id="modeSeg" role="group" aria-label="Zobrazenie">
+        <button type="button" data-action="mode" data-mode="phone" aria-pressed="true">Mobil</button>
+        <button type="button" data-action="mode" data-mode="web" aria-pressed="false">Počítač</button>
+      </div>
+      <button type="button" class="ghost" data-action="theme" id="themeBtn">Tmavý režim</button>
+      <button type="button" class="ghost" data-action="info" aria-expanded="false">Čo je inak než Bazoš</button>
+    </div>
+  </div>
+  <div class="info" id="infoPanel" hidden>
+    <div><span class="vs">Bazoš: telefón a e-mail naverejno</span><h3>Overený predajca a hodnotenia</h3><p>Overenie cez telefón, e-mail a bankovú identitu. Po každom obchode hodnotenie, počet predajov a čas odpovede priamo pri inzeráte.</p></div>
+    <div><span class="vs">Bazoš: platba na vlastné riziko</span><h3>Bezpečná platba s úschovou</h3><p>Kupujúci zaplatí portálu, peniaze sa uvoľnia až po prevzatí. Doručenie cez výdajné boxy priamo z inzerátu.</p></div>
+    <div><span class="vs">Bazoš: ručné vypĺňanie formulára</span><h3>Inzerát za minútu</h3><p>Odfotíš, aplikácia navrhne názov, kategóriu, stav aj cenu podľa podobných predaných vecí. Ty len potvrdíš.</p></div>
+    <div><span class="vs">Bazoš: SMS a hovory od podvodníkov</span><h3>Chat s ochranou</h3><p>Komunikácia v aplikácii, číslo zostáva skryté. Podozrivé správy s falošnými kuriérmi sa označia skôr, než klikneš.</p></div>
+    <div><span class="vs">Bazoš: len kraj, bez vzdialenosti</span><h3>Vzdialenosť a mapa</h3><p>Inzeráty zoradené podľa vzdialenosti od teba, s mapou a filtrom okruhu. Uložené hľadania pošlú notifikáciu pri novom kuse.</p></div>
+    <div><span class="vs">Bazoš: dva oddelené weby</span><h3>Jeden trh pre SK aj CZ</h3><p>Spoločná databáza, ceny v € aj Kč s prepočtom. Kupujúci z Bratislavy vidí aj Brno, keď to má bližšie než Košice.</p></div>
+  </div>
+  <div class="device phone" id="device">
+    <div class="app" id="app">
+      <header class="topbar">
+        <div class="inner">
+          <button type="button" class="logo" data-action="nav" data-screen="home" aria-label="Tržko, domov"><i></i>Tržko</button>
+          <form class="topsearch" data-action="searchform">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input id="topq" type="search" placeholder="Čo hľadáš? Napríklad bicykel, iPhone, sedačka" aria-label="Hľadať">
+            <span class="loc"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s7-6.5 7-11.5a7 7 0 1 0-14 0C5 14.5 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Bratislava · 30 km</span>
+          </form>
+          <nav class="topnav">
+            <button type="button" class="btn primary sm" data-action="nav" data-screen="add">+ Pridať inzerát</button>
+            <button type="button" class="iconbtn" data-action="nav" data-screen="saved" aria-label="Uložené"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20.5s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.8a4.5 4.5 0 0 1 7.5 2.7c0 5.4-7.5 10-7.5 10z"/></svg></button>
+            <button type="button" class="iconbtn" data-action="nav" data-screen="chat" aria-label="Správy"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z"/></svg><span class="dot" id="topBadge">2</span></button>
+            <button type="button" class="avatar" data-action="nav" data-screen="profile" aria-label="Profil">ĽK</button>
+          </nav>
+        </div>
+      </header>
+      <main class="content" id="content"></main>
+      <nav class="tabbar" id="tabbar" aria-label="Hlavná navigácia">
+        <button type="button" class="tab" data-action="nav" data-screen="home"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Domov</span></button>
+        <button type="button" class="tab" data-action="nav" data-screen="search"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Hľadať</span></button>
+        <button type="button" class="tab plus" data-action="nav" data-screen="add" aria-label="Pridať inzerát"><b><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></b><span>Pridať</span></button>
+        <button type="button" class="tab" data-action="nav" data-screen="chat"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z"/></svg><span>Správy</span><span class="dot" id="tabBadge">2</span></button>
+        <button type="button" class="tab" data-action="nav" data-screen="profile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Profil</span></button>
+      </nav>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+/* ---------- Data (examples) ---------- */
+const CATS=[
+  ['Autá','🚗','t1'],['Elektro','📱','t6'],['Nábytok','🛋️','t2'],['Deti','🧸','t4'],['Oblečenie','👟','t5'],['Šport','🚲','t3'],
+  ['Dom a záhrada','🪴','t3'],['Zvieratá','🐕','t2'],['Reality','🏠','t1'],['Práca','💼','t6'],['Služby','🛠️','t5'],['Ostatné','📦','t4']
+];
+const L=[
+ {id:1,title:'Horský bicykel Kross Level 5.0, rám L, 29"',price:420,cur:'EUR',city:'Bratislava – Ružinov',km:2.1,cat:'Šport',cond:'Používané',img:'🚲',t:'t3',verified:true,delivery:true,time:'pred 12 min',seller:'Marek K.',rating:4.9,sales:23,since:'2021',resp:'do 1 h',
+  desc:'Predám horský bicykel Kross Level 5.0, rám L (vhodný na výšku 178 až 190 cm), kolesá 29". Hydraulické brzdy Shimano, odpružená vidlica RockShox Judy. Najazdené cca 1 500 km, pravidelne servisovaný, v júli menená reťaz a kazeta.\n\nDôvod predaja: prechod na elektrobicykel. Možnosť vyskúšať v Ružinove, prípadne pošlem cez box po bezpečnej platbe.'},
+ {id:2,title:'iPhone 14 128 GB, modrý, batéria 91 %',price:430,cur:'EUR',city:'Trnava',km:38,cat:'Elektro',cond:'Ako nové',img:'📱',t:'t1',verified:true,delivery:true,time:'pred 25 min',seller:'Jana P.',rating:5.0,sales:41,since:'2020',resp:'do 30 min',
+  desc:'iPhone 14, 128 GB, farba modrá. Kúpený v Orange, odblokovaný, bez škrabancov, od prvého dňa v obale a so sklom. Kapacita batérie 91 %. Pôvodná krabica, kábel, blok z predajne. Záruka do marca 2027.'},
+ {id:3,title:'Rohová sedačka, sivá, rozkladacia s úložným priestorom',price:190,cur:'EUR',city:'Bratislava – Petržalka',km:4.5,cat:'Nábytok',cond:'Používané',img:'🛋️',t:'t2',verified:false,delivery:false,time:'pred 1 h',seller:'Peter',rating:null,sales:0,since:'2026',resp:'nový účet',
+  desc:'Rohová sedačka 250 × 180 cm, pravý roh, rozkladacia, s úložným priestorom na perinu. Stav primeraný veku, bez dier, jedna menšia škvrna na operadle (viď foto). Len osobný odber, 7. poschodie s výťahom.'},
+ {id:4,title:'Detská autosedačka Cybex Solution, 9–18 kg, isofix',price:1900,cur:'CZK',city:'Brno',km:128,cat:'Deti',cond:'Používané',img:'👶',t:'t4',verified:true,delivery:true,time:'pred 2 h',seller:'Lucie H.',rating:4.8,sales:12,since:'2022',resp:'do 2 h',cz:true,
+  desc:'Autosedačka Cybex Solution, 9 až 18 kg, isofix, nebouraná, po jednom dítěti. Potah pratelný, vyprán. Osobně v Brně nebo zásilkovnou.'},
+ {id:5,title:'PlayStation 5 + 2 ovládače DualSense + 4 hry',price:390,cur:'EUR',city:'Nitra',km:85,cat:'Elektro',cond:'Používané',img:'🎮',t:'t6',verified:true,delivery:true,time:'pred 3 h',seller:'Tomáš R.',rating:4.7,sales:8,since:'2023',resp:'do 1 h',
+  desc:'PS5 disková verzia, 2 ovládače, hry: God of War Ragnarök, Gran Turismo 7, FIFA 24, Spider-Man 2. Všetko funkčné, krabica k dispozícii.'},
+ {id:6,title:'Škoda Octavia III Combi 2.0 TDI, 2017, 168 000 km',price:11900,cur:'EUR',city:'Žilina',km:190,cat:'Autá',cond:'Používané',img:'🚗',t:'t1',verified:true,delivery:false,time:'pred 4 h',seller:'Autobazár Hliník',rating:4.6,sales:150,since:'2019',resp:'do 1 h',firm:true,
+  desc:'Octavia III Combi 2.0 TDI 110 kW, DSG, 2017, 168 000 km, servisná knižka, 2. majiteľ, nehavarované (overené v registri). STK a EK do 2028. Možnosť financovania a protiúčtu.'},
+ {id:7,title:'Zimná bunda Columbia Omni-Heat, pánska M',price:45,cur:'EUR',city:'Bratislava – Staré Mesto',km:1.2,cat:'Oblečenie',cond:'Ako nové',img:'🧥',t:'t5',verified:false,delivery:true,time:'pred 5 h',seller:'Dominika',rating:4.9,sales:6,since:'2024',resp:'do 3 h',
+  desc:'Pánska zimná bunda Columbia, veľkosť M, nosená jednu sezónu. Teplá, s kapucňou. Pošlem cez box.'},
+ {id:8,title:'Kočík Joolz Day+ kompletný set, hlboká + športová',price:8500,cur:'CZK',city:'Praha 6',km:330,cat:'Deti',cond:'Používané',img:'🍼',t:'t4',verified:true,delivery:true,time:'včera',seller:'Kateřina V.',rating:5.0,sales:19,since:'2021',resp:'do 1 h',cz:true,
+  desc:'Kočárek Joolz Day+ v barvě Noble Blue. Hluboká korba, sportovní sedačka, nánožník, taška, pláštěnka. Po jednom dítěti, pečlivě udržovaný.'},
+ {id:9,title:'Vŕtačka Bosch GSB 18V-55 + 2 batérie 2 Ah + kufor',price:95,cur:'EUR',city:'Senec',km:24,cat:'Dom a záhrada',cond:'Používané',img:'🔧',t:'t3',verified:true,delivery:true,time:'včera',seller:'Štefan M.',rating:4.8,sales:31,since:'2020',resp:'do 2 h',
+  desc:'Príklepová aku vŕtačka Bosch GSB 18V-55, dve batérie 2 Ah, nabíjačka, L-Boxx kufor. Používaná hobby, plne funkčná.'},
+ {id:10,title:'Monstera deliciosa, 120 cm, v keramickom kvetináči',price:25,cur:'EUR',city:'Bratislava – Ružinov',km:3.8,cat:'Dom a záhrada',cond:'Nové',img:'🪴',t:'t3',verified:false,delivery:false,time:'včera',seller:'Alica',rating:null,sales:1,since:'2025',resp:'do 1 dňa',
+  desc:'Krásna zdravá monstera, výška 120 cm, v keramickom kvetináči s podmiskou. Osobný odber Ružinov.'},
+ {id:11,title:'Notebook Lenovo ThinkPad T14 gen 2, i5, 16 GB, 512 GB',price:520,cur:'EUR',city:'Košice',km:400,cat:'Elektro',cond:'Používané',img:'💻',t:'t6',verified:true,delivery:true,time:'pred 2 dňami',seller:'IT bazár KE',rating:4.5,sales:88,since:'2018',resp:'do 1 h',firm:true,
+  desc:'Repasovaný ThinkPad T14 gen 2, i5-1135G7, 16 GB RAM, 512 GB SSD, Full HD IPS, Windows 11 Pro. Stav A, záruka 12 mesiacov, faktúra.'},
+ {id:12,title:'Darujem detské knihy, 20 ks, vek 3 až 7 rokov',price:0,cur:'EUR',city:'Pezinok',km:19,cat:'Deti',cond:'Používané',img:'📚',t:'t5',verified:true,delivery:false,time:'pred 2 dňami',seller:'Mária S.',rating:5.0,sales:3,since:'2022',resp:'do 2 h',
+  desc:'Darujem balík 20 detských kníh (rozprávky, leporelá, encyklopédia pre najmenších). Odber v Pezinku, najlepšie naraz.'}
+];
+const CONVS=[
+ {id:'c1',name:'Jana P.',init:'JP',item:2,last:'Super, zajtra o 17:00 pri Auparku, pošlem to cez bezpečnú platbu.',time:'10:42',unread:true,
+  msgs:[{me:true,t:'Dobrý deň, je iPhone ešte dostupný? Dala by sa cena 400 €?',at:'9:58'},{me:false,t:'Dobrý deň, áno, je. Pri osobnom odbere viem ísť na 410 €.',at:'10:05'},{me:true,t:'Platí. Stretneme sa zajtra v Bratislave?',at:'10:30'},{me:false,t:'Super, zajtra o 17:00 pri Auparku, pošlem to cez bezpečnú platbu.',at:'10:42'}]},
+ {id:'c2',name:'Kupujúci „Martin“',init:'M',item:1,last:'Kuriér už je objednaný, len potvrďte údaje tu: zasielka-kurier-sk.top/…',time:'8:15',unread:true,scam:true,
+  msgs:[{me:false,t:'Dobrý deň, kúpim bicykel za plnú cenu, som v zahraničí, pošlem kuriéra.',at:'8:10'},{me:false,t:'Kuriér už je objednaný, len potvrďte údaje tu: zasielka-kurier-sk.top/potvrdenie',at:'8:15',scam:true}]},
+ {id:'c3',name:'Štefan M.',init:'ŠM',item:9,last:'Ďakujem za hodnotenie, nech dobre slúži!',time:'včera',unread:false,
+  msgs:[{me:true,t:'Vŕtačka prišla, všetko v poriadku, peniaze som uvoľnil.',at:'včera 18:02'},{me:false,t:'Ďakujem za hodnotenie, nech dobre slúži!',at:'včera 18:20'}]}
+];
+const SAVED_SEARCHES=[
+ {q:'iPhone 13',meta:'do 350 € · Bratislava 30 km',fresh:2},
+ {q:'detský bicykel 20"',meta:'do 120 € · 50 km · len s doručením',fresh:0},
+ {q:'ThinkPad',meta:'SK + CZ · overení predajcovia',fresh:5}
+];
+
+/* ---------- State ---------- */
+const S={
+  screen:'home',stack:[],mode:'phone',
+  fav:new Set([2,9]),q:'',cat:null,
+  f:{delivery:false,verified:false,near:false,cond:null},sort:'new',
+  detail:null,phone:false,
+  add:{step:1,photos:[],started:null,done:null,title:'',price:'',cat:'',cond:'',deliv:true,safe:true},
+  conv:null,convs:JSON.parse(JSON.stringify(CONVS)),
+  infoOpen:false
+};
+const $=s=>document.querySelector(s);
+const content=$('#content');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nbsp=s=>s.replace(/ /g,' ');
+const fmtN=n=>nbsp(n.toLocaleString('sk-SK'));
+function price(l,withApprox){
+  if(l.price===0) return '<span class="price free">Zadarmo</span>';
+  const main=l.cur==='CZK'?fmtN(l.price)+' Kč':fmtN(l.price)+' €';
+  const ap=(withApprox!==false&&l.cur==='CZK')?'<small>≈ '+fmtN(Math.round(l.price/25))+' €</small>':'';
+  return '<span class="price">'+main+ap+'</span>';
+}
+const km=l=>nbsp((l.km<10?l.km.toLocaleString('sk-SK',{minimumFractionDigits:1,maximumFractionDigits:1}):Math.round(l.km))+' km');
+const catOf=n=>CATS.find(c=>c[0]===n)||CATS[11];
+const stars=r=>r?'<span class="stars" aria-label="'+r+' z 5">'+'★'.repeat(Math.round(r))+'☆'.repeat(5-Math.round(r))+'</span>':'';
+const I={
+  heart:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20.5s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.8a4.5 4.5 0 0 1 7.5 2.7c0 5.4-7.5 10-7.5 10z"/></svg>',
+  heartF:'<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.8a4.5 4.5 0 0 1 7.5 2.7c0 5.4-7.5 10-7.5 10z"/></svg>',
+  shield:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6z"/><path d="m9 12 2 2 4-4"/></svg>',
+  box:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 8l9-4 9 4v9l-9 4-9-4z"/><path d="M3 8l9 4 9-4M12 12v9"/></svg>',
+  pin:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s7-6.5 7-11.5a7 7 0 1 0-14 0C5 14.5 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>',
+  camera:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  spark:'<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 5.7L19.5 9.5l-5.7 1.8L12 17l-1.8-5.7L4.5 9.5l5.7-1.8zM19 15l.9 2.6 2.6.9-2.6.9L19 22l-.9-2.6-2.6-.9 2.6-.9z"/></svg>',
+  check:'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>',
+  chat:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 5h16v11H8l-4 4z"/></svg>',
+  send:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>',
+  warn:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18h.01"/></svg>',
+  bell:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15z"/><path d="M10 21h4"/></svg>',
+  phone:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>',
+  share:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 12v7h14v-7"/></svg>',
+  search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'
+};
+
+/* ---------- Components ---------- */
+function card(l,opts){
+  opts=opts||{};
+  const fav=S.fav.has(l.id);
+  return '<article class="card" data-action="open" data-id="'+l.id+'" role="link" tabindex="0">'
+   +'<div class="thumb" style="background:var(--'+l.t+')"><span aria-hidden="true">'+l.img+'</span>'
+   +'<button type="button" class="fav" data-action="fav" data-id="'+l.id+'" aria-pressed="'+fav+'" aria-label="Uložiť">'+(fav?I.heartF:I.heart)+'</button>'
+   +(l.cz?'<div class="corner"><span class="tag cz">CZ</span></div>':'')
+   +'</div><div class="card-body">'+price(l)
+   +'<h3>'+esc(l.title)+'</h3>'
+   +'<div class="meta"><span>'+esc(l.city.split(' – ')[0])+' · '+km(l)+'</span><span>'+esc(l.time)+'</span></div>'
+   +'<div class="tags">'+(l.verified?'<span class="tag ok">'+I.shield+'Overený</span>':'')+(l.delivery?'<span class="tag">'+I.box+'Doručenie</span>':'')+(l.firm?'<span class="tag accent">Firma</span>':'')+'</div>'
+   +'</div></article>';
+}
+function catIcon(c,size){return '<i style="background:var(--'+c[2]+')">'+c[1]+'</i>'}
+function header(title,extra){
+  return '<div class="row between" style="margin-bottom:12px"><button type="button" class="back" data-action="back">'+I.back+'Späť</button>'+(extra||'')+'</div>'+(title?'<h2 style="font-size:22px;font-weight:800;margin-bottom:14px">'+title+'</h2>':'');
+}
+
+/* ---------- Screens ---------- */
+function home(){
+  const near=L.slice().sort((a,b)=>a.km-b.km).slice(0,8);
+  const fresh=L.slice(0,4);
+  return '<div class="wrap">'
+  +'<div class="hero"><div class="hero-search"><h1>Kúp a predaj <em>v okolí</em>. Rýchlo a bezpečne.</h1>'
+  +'<form class="searchbox" data-action="searchform">'+I.search+'<input id="homeq" type="search" placeholder="Čo hľadáš?" aria-label="Hľadať" value="'+esc(S.q)+'"><button type="submit" class="go">Hľadať</button></form>'
+  +'<div class="locpill">'+I.pin+'<b>Bratislava</b> · okruh 30 km · <button type="button" data-action="toast" data-msg="Zmena lokality a okruhu" style="color:var(--accent);font-weight:600">zmeniť</button></div></div>'
+  +'<div class="hero-cta"><div class="stamp"><span><b>60 s</b>a hotovo</span></div><div><h2>Odfoť a predaj</h2><p>Aplikácia doplní názov, kategóriu aj cenu podľa podobných vecí. Ty len potvrdíš.</p></div><button type="button" class="btn sun" data-action="nav" data-screen="add">Pridať inzerát zadarmo</button></div></div>'
+  +'<div class="sec"><h2>Kategórie</h2></div><div class="cats">'+CATS.map(c=>'<button type="button" class="cat" data-action="cat" data-cat="'+esc(c[0])+'">'+catIcon(c)+'<span>'+esc(c[0])+'</span></button>').join('')+'</div>'
+  +'<div class="sec"><h2>Nové v okolí</h2><button type="button" class="link" data-action="nav" data-screen="search">Zobraziť všetko</button></div><div class="grid">'+near.map(l=>card(l)).join('')+'</div>'
+  +'<div class="sec"><h2>Prečo nakupovať tu</h2></div><div class="trust">'
+  +'<div class="panel"><i>'+I.shield+'</i><div><b>Overení predajcovia</b><p>Telefón, e-mail a banková identita. Hodnotenia po každom obchode.</p></div></div>'
+  +'<div class="panel"><i>'+I.box+'</i><div><b>Bezpečná platba</b><p>Peniaze držíme, kým tovar neprevezmeš. Vrátenie do 48 hodín.</p></div></div>'
+  +'<div class="panel"><i>'+I.chat+'</i><div><b>Chat bez čísla</b><p>Tvoje číslo nikto nevidí. Podozrivé správy označíme.</p></div></div>'
+  +'<div class="panel"><i>'+I.pin+'</i><div><b>SK aj CZ v jednom</b><p>Brno je z Bratislavy bližšie než Košice. Ceny v € aj Kč.</p></div></div>'
+  +'</div>'
+  +'<div class="sec"><h2>Práve pridané</h2></div><div class="grid">'+fresh.map(l=>card(l)).join('')+'</div>'
+  +'</div>';
+}
+function filtered(){
+  let r=L.slice();
+  const q=S.q.trim().toLowerCase();
+  if(q) r=r.filter(l=>(l.title+' '+l.cat+' '+l.city+' '+l.desc).toLowerCase().includes(q));
+  if(S.cat) r=r.filter(l=>l.cat===S.cat);
+  if(S.f.delivery) r=r.filter(l=>l.delivery);
+  if(S.f.verified) r=r.filter(l=>l.verified);
+  if(S.f.near) r=r.filter(l=>l.km<=30);
+  if(S.f.cond) r=r.filter(l=>l.cond===S.f.cond);
+  if(S.sort==='near') r.sort((a,b)=>a.km-b.km);
+  else if(S.sort==='cheap') r.sort((a,b)=>eur(a)-eur(b));
+  else if(S.sort==='exp') r.sort((a,b)=>eur(b)-eur(a));
+  return r;
+}
+const eur=l=>l.cur==='CZK'?l.price/25:l.price;
+function search(){
+  const active=S.q||S.cat;
+  let html='<div class="wrap">';
+  html+='<form class="searchbox" data-action="searchform" style="margin-bottom:12px">'+I.search+'<input id="sq" type="search" placeholder="Hľadať v SK aj CZ" aria-label="Hľadať" value="'+esc(S.q)+'">'+(S.q?'<button type="button" class="chip" data-action="clearq" style="padding:5px 10px">Zrušiť</button>':'<button type="submit" class="go">Hľadať</button>')+'</form>';
+  if(!active){
+    html+='<div class="sec" style="margin-top:10px"><h2>Uložené hľadania</h2><button type="button" class="link" data-action="toast" data-msg="Notifikácie pre uložené hľadania sú zapnuté">'+I.bell+'</button></div><div class="panel" style="padding:4px 16px">'
+    +SAVED_SEARCHES.map(s=>'<button type="button" class="savedsearch" data-action="runq" data-q="'+esc(s.q)+'" style="width:100%;text-align:left"><div><b>'+esc(s.q)+'</b><small>'+esc(s.meta)+'</small></div>'+(s.fresh?'<span class="tag accent">'+s.fresh+' nové</span>':'<span class="tag">bez zmeny</span>')+'</button>').join('')+'</div>';
+    html+='<div class="sec"><h2>Nedávno hľadané</h2></div><div class="chips">'+['bicykel','sedačka','iphone 14','kočík','autosedačka','monstera'].map(q=>'<button type="button" class="chip" data-action="runq" data-q="'+q+'">'+q+'</button>').join('')+'</div>';
+    html+='<div class="sec"><h2>Kategórie</h2></div><div class="cats">'+CATS.map(c=>'<button type="button" class="cat" data-action="cat" data-cat="'+esc(c[0])+'">'+catIcon(c)+'<span>'+esc(c[0])+'</span></button>').join('')+'</div>';
+    html+='</div>';return html;
+  }
+  const r=filtered();
+  html+='<div class="chips">'
+   +(S.cat?'<button type="button" class="chip" aria-pressed="true" data-action="cat" data-cat="">'+esc(S.cat)+' ✕</button>':'')
+   +'<button type="button" class="chip" aria-pressed="'+S.f.near+'" data-action="filter" data-key="near">'+I.pin+'Do 30 km</button>'
+   +'<button type="button" class="chip" aria-pressed="'+S.f.delivery+'" data-action="filter" data-key="delivery">'+I.box+'S doručením</button>'
+   +'<button type="button" class="chip" aria-pressed="'+S.f.verified+'" data-action="filter" data-key="verified">'+I.shield+'Overení</button>'
+   +['Nové','Ako nové','Používané'].map(c=>'<button type="button" class="chip" aria-pressed="'+(S.f.cond===c)+'" data-action="cond" data-cond="'+c+'">'+c+'</button>').join('')
+   +'</div>';
+  html+='<div class="results-head"><h2>'+(S.cat?esc(S.cat):'„'+esc(S.q)+'“')+' <span class="muted" style="font-weight:500;font-size:14px">'+r.length+' '+(r.length===1?'inzerát':r.length<5?'inzeráty':'inzerátov')+'</span></h2>'
+   +'<div class="row"><button type="button" class="chip" data-action="savesearch">'+I.bell+'Uložiť hľadanie</button><label class="sortsel">Zoradiť <select id="sortsel" data-action="sort"><option value="new"'+(S.sort==='new'?' selected':'')+'>najnovšie</option><option value="near"'+(S.sort==='near'?' selected':'')+'>najbližšie</option><option value="cheap"'+(S.sort==='cheap'?' selected':'')+'>najlacnejšie</option><option value="exp"'+(S.sort==='exp'?' selected':'')+'>najdrahšie</option></select></label></div></div>';
+  html+=r.length?'<div class="grid">'+r.map(l=>card(l)).join('')+'</div>':'<div class="empty"><b>Nič sme nenašli</b>Skús kratšie slovo, zruš filtre alebo si ulož hľadanie a dáme ti vedieť, keď niečo pribudne.<div style="margin-top:14px"><button type="button" class="btn soft sm" data-action="savesearch">'+I.bell+'Uložiť hľadanie</button></div></div>';
+  return html+'</div>';
+}
+function detail(){
+  const l=L.find(x=>x.id===S.detail); if(!l) return home();
+  const fav=S.fav.has(l.id);
+  const similar=L.filter(x=>x.cat===l.cat&&x.id!==l.id).concat(L.filter(x=>x.cat!==l.cat&&x.id!==l.id)).slice(0,6);
+  const c=catOf(l.cat);
+  const actions=(cls)=>'<div class="'+cls+'">'
+    +'<button type="button" class="btn primary" data-action="msg" data-id="'+l.id+'">'+I.chat+'Napísať</button>'
+    +(l.price>0&&l.delivery?'<button type="button" class="btn sun" data-action="buy" data-id="'+l.id+'">'+I.shield+'Kúpiť bezpečne</button>':'<button type="button" class="btn secondary" data-action="phone">'+I.phone+(S.phone?'+421 9xx 123 456':'Zobraziť číslo')+'</button>')
+    +'</div>';
+  return '<div class="wrap">'+header('', '<div class="row"><button type="button" class="iconbtn" data-action="toast" data-msg="Odkaz skopírovaný" aria-label="Zdieľať">'+I.share+'</button></div>')
+   +'<div class="detail"><div>'
+   +'<div class="gallery" style="background:var(--'+l.t+')"><span aria-hidden="true">'+l.img+'</span><button type="button" class="fav" data-action="fav" data-id="'+l.id+'" aria-pressed="'+fav+'" aria-label="Uložiť">'+(fav?I.heartF:I.heart)+'</button><div class="dots"><i class="on"></i><i></i><i></i><i></i></div></div>'
+   +'<div class="thumbs"><i class="on" style="background:var(--'+l.t+')">'+l.img+'</i><i style="background:var(--t5)">'+c[1]+'</i><i style="background:var(--t1)">📷</i><i style="background:var(--t6)">📷</i></div>'
+   +'<div class="sec"><h2>Popis</h2></div><p class="desc">'+esc(l.desc)+'</p>'
+   +'<div class="sec"><h2>Kde</h2></div><div class="map"><span>'+esc(l.city)+' · '+km(l)+' od teba</span></div>'
+   +'</div><div class="stack" style="gap:14px">'
+   +'<div>'+price(l).replace('class="price','class="dprice')+'<h1 class="dtitle">'+esc(l.title)+'</h1>'
+   +'<div class="row" style="flex-wrap:wrap;gap:6px">'+(l.verified?'<span class="tag ok">'+I.shield+'Overený predajca</span>':'<span class="tag warn">Neoverený predajca</span>')+(l.delivery?'<span class="tag">'+I.box+'Doručenie cez box</span>':'<span class="tag">Len osobne</span>')+(l.cz?'<span class="tag cz">Česko</span>':'')+'</div></div>'
+   +actions('actions')
+   +(l.price>0&&l.delivery?'<div class="safebox">'+I.shield+'<span><b>Bezpečná platba.</b> Zaplatíš portálu, predajca pošle tovar a peniaze mu uvoľníme až po tvojom prevzatí. Ak nepríde, dostaneš ich späť.</span></div>':'<div class="safebox" style="background:var(--warn-soft);color:var(--warn)">'+I.warn+'<span>Tento inzerát je bez bezpečnej platby. Plať až pri osobnom prevzatí a nikdy neposielaj zálohu vopred.</span></div>')
+   +'<div class="kv"><div><small>Stav</small><b>'+l.cond+'</b></div><div><small>Kategória</small><b>'+esc(l.cat)+'</b></div><div><small>Pridané</small><b>'+esc(l.time)+'</b></div><div><small>Zobrazenia</small><b class="num">'+(l.id*37+112)+'</b></div></div>'
+   +'<div class="panel"><div class="seller"><span class="avatar">'+esc(l.seller.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase())+'</span><div style="flex:1;min-width:0"><b>'+esc(l.seller)+(l.verified?'<span style="color:var(--ok)">'+I.shield+'</span>':'')+'</b>'
+   +'<div class="small muted">'+(l.rating?stars(l.rating)+' '+l.rating.toLocaleString('sk-SK')+' · '+l.sales+' predajov':'Zatiaľ bez hodnotení')+'</div><div class="small muted">Na Tržku od '+l.since+' · odpovedá '+esc(l.resp)+'</div></div>'
+   +'<button type="button" class="btn secondary sm" data-action="toast" data-msg="Profil predajcu">Profil</button></div></div>'
+   +'<div class="row" style="gap:6px;flex-wrap:wrap"><button type="button" class="chip" data-action="toast" data-msg="Ďakujeme, inzerát preveríme">Nahlásiť</button><button type="button" class="chip" data-action="toast" data-msg="Tipy na bezpečný nákup">Ako nakupovať bezpečne</button></div>'
+   +'</div></div>'
+   +'<div class="sec"><h2>Podobné</h2></div><div class="hscroll">'+similar.map(x=>card(x)).join('')+'</div>'
+   +actions('sticky-actions')
+   +'</div>';
+}
+function add(){
+  const a=S.add;
+  let html='<div class="wrap addwrap">';
+  if(a.step<4){
+    html+='<div class="row between"><button type="button" class="back" data-action="back">'+I.back+'Zrušiť</button><span class="small muted num" id="addtimer">'+(a.started?elapsed():'0 s')+'</span></div>';
+    html+='<div class="steps"><i class="'+(a.step>=1?'on':'')+'"></i><i class="'+(a.step>=2?'on':'')+'"></i><i class="'+(a.step>=3?'on':'')+'"></i></div>';
+  }
+  if(a.step===1){
+    html+='<h2 style="font-size:24px;font-weight:800;margin-bottom:6px">Odfoť, čo predávaš</h2><p class="muted" style="margin-bottom:16px">Prvá fotka bude hlavná. Z fotiek rozpoznáme, čo to je, a predvyplníme inzerát.</p>';
+    html+='<button type="button" class="dropzone" data-action="photo" style="width:100%"><span class="ico">'+I.camera+'</span><b>Odfotiť alebo vybrať z galérie</b><span class="small muted">Až 12 fotiek · ukážka pridá vzorovú fotku</span></button>';
+    if(a.photos.length) html+='<div class="photos">'+a.photos.map((p,i)=>'<i class="'+(i===0?'main':'')+'" style="background:var(--'+p[1]+')">'+p[0]+'</i>').join('')+(a.photos.length<12?'<button type="button" class="add" data-action="photo" style="aspect-ratio:1;border-radius:12px;border:2px dashed var(--line);color:var(--muted);font-size:24px">+</button>':'')+'</div>';
+    html+='<div style="margin-top:20px"><button type="button" class="btn primary block" data-action="addnext" '+(a.photos.length?'':'disabled style="opacity:.5"')+'>Pokračovať</button></div>';
+  }
+  if(a.step===2){
+    html+='<h2 style="font-size:24px;font-weight:800;margin-bottom:6px">Skontroluj a uprav</h2><p class="muted" style="margin-bottom:14px">Doplnili sme to za teba podľa fotky a podobných inzerátov. Všetko môžeš zmeniť.</p>';
+    html+='<div class="ai">'+I.spark+'<span>Rozpoznali sme <b>horský bicykel Kross Level</b>. Podobné kusy sa za posledné 3 mesiace predali za <b class="num">380 až 460 €</b>, najčastejšie do 5 dní.</span></div>';
+    html+='<div class="stack" style="gap:14px;margin-top:16px">'
+    +'<div class="field"><label for="f-title">Názov</label><input id="f-title" data-bind="title" value="'+esc(a.title)+'"></div>'
+    +'<div class="row" style="gap:10px;align-items:stretch"><div class="field" style="flex:1"><label for="f-cat">Kategória</label><select id="f-cat" data-bind="cat">'+CATS.map(c=>'<option'+(c[0]===a.cat?' selected':'')+'>'+esc(c[0])+'</option>').join('')+'</select></div>'
+    +'<div class="field" style="flex:1"><label for="f-cond">Stav</label><select id="f-cond" data-bind="cond">'+['Nové','Ako nové','Používané','Na diely'].map(c=>'<option'+(c===a.cond?' selected':'')+'>'+c+'</option>').join('')+'</select></div></div>'
+    +'<div class="field"><label for="f-price">Cena v €</label><input id="f-price" data-bind="price" inputmode="numeric" value="'+esc(a.price)+'">'
+    +'<div class="pricehint"><span>Odporúčaná cena</span><b class="num">420 €</b></div><div class="pricebar"><i style="left:'+pricePos(a.price)+'%"></i></div><div class="row between small muted num"><span>380 € predá sa rýchlo</span><span>460 € dlhšie čaká</span></div></div>'
+    +'<div class="field"><label for="f-desc">Popis</label><textarea id="f-desc" rows="4">Horský bicykel Kross Level 5.0, rám L, kolesá 29", hydraulické brzdy Shimano. Pravidelne servisovaný, najazdené cca 1 500 km.</textarea><span class="hint">Napísali sme návrh, pokojne ho uprav. Čím konkrétnejší popis, tým menej otázok v chate.</span></div>'
+    +'<div class="field"><label>Kde</label><div class="row" style="gap:8px;flex-wrap:wrap"><span class="chip" aria-pressed="true">'+I.pin+'Bratislava – Ružinov</span><span class="small muted">podľa polohy, presná adresa sa nezobrazuje</span></div></div>'
+    +'<div class="panel" style="padding:4px 16px"><div class="switch"><div><b>Doručenie cez výdajný box</b><small>Kupujúci platí dopravu, ty len zanesieš balík do boxu.</small></div><button type="button" class="toggle" role="switch" aria-checked="'+a.deliv+'" data-action="tog" data-key="deliv" aria-label="Doručenie"></button></div>'
+    +'<div class="switch"><div><b>Bezpečná platba</b><small>Peniaze dostaneš po prevzatí kupujúcim. Bez poplatku pre predajcu.</small></div><button type="button" class="toggle" role="switch" aria-checked="'+a.safe+'" data-action="tog" data-key="safe" aria-label="Bezpečná platba"></button></div></div>'
+    +'<div class="row" style="gap:10px"><button type="button" class="btn secondary" data-action="addprev">Späť</button><button type="button" class="btn primary" style="flex:1" data-action="addnext">Zverejniť zadarmo</button></div>'
+    +'</div>';
+  }
+  if(a.step===3){
+    html+='<div class="done"><span class="check">'+I.check+'</span><h2>Inzerát je online</h2><p class="muted">Trvalo ti to</p><div class="timer num">'+a.done+'</div><p class="muted" style="max-width:34ch">Uvidí ho každý v okruhu 30 km a ľudia s uloženým hľadaním „bicykel“ dostanú notifikáciu.</p>'
+    +'<div class="card" style="width:100%;max-width:340px;text-align:left;cursor:default"><div class="thumb" style="background:var(--t3);aspect-ratio:16/9;font-size:44px">🚲</div><div class="card-body"><span class="price num">'+fmtN(Number(a.price)||420)+'&nbsp;€</span><h3>'+esc(a.title)+'</h3><div class="meta"><span>Bratislava · 0 km</span><span>práve teraz</span></div><div class="tags"><span class="tag ok">'+I.shield+'Overený</span>'+(a.deliv?'<span class="tag">'+I.box+'Doručenie</span>':'')+'</div></div></div>'
+    +'<div class="row" style="gap:10px;width:100%;max-width:340px"><button type="button" class="btn secondary" style="flex:1" data-action="toast" data-msg="Odkaz skopírovaný">'+I.share+'Zdieľať</button><button type="button" class="btn primary" style="flex:1" data-action="addreset">Hotovo</button></div>'
+    +'<button type="button" class="chip" data-action="toast" data-msg="Topovanie na 7 dní za 2,90 €">Topovať na 7 dní za 2,90 €</button></div>';
+  }
+  return html+'</div>';
+}
+function pricePos(p){const n=Number(p)||420;return Math.max(2,Math.min(98,((n-360)/(480-360))*100));}
+function elapsed(){if(!S.add.started)return '0 s';const s=Math.round((Date.now()-S.add.started)/1000);return s+' s';}
+function chat(){
+  const list='<div class="panel convs-panel '+(S.conv?'hidden-mobile':'')+'" style="padding:4px 16px"><div class="convs">'+S.convs.map(c=>{const l=L.find(x=>x.id===c.item);return '<button type="button" class="conv '+(c.unread?'unread':'')+'" data-action="conv" data-id="'+c.id+'"><span class="avatar">'+esc(c.init)+'</span><span class="body"><b>'+esc(c.name)+'<small>'+esc(c.time)+'</small></b><p>'+(c.scam?'⚠️ ':'')+esc(c.last)+'</p></span><span class="item" style="background:var(--'+l.t+')">'+l.img+'</span></button>'}).join('')+'</div></div>';
+  let thread='';
+  if(S.conv){
+    const c=S.convs.find(x=>x.id===S.conv);const l=L.find(x=>x.id===c.item);
+    thread='<div class="panel thread"><div class="thread-head"><button type="button" class="back" data-action="convclose" aria-label="Späť na správy">'+I.back+'</button><span class="item" style="background:var(--'+l.t+')">'+l.img+'</span><div style="flex:1;min-width:0"><b>'+esc(c.name)+'</b><div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(l.title)+' · '+price(l,false).replace(/<[^>]+>/g,'')+'</div></div><button type="button" class="chip" data-action="open" data-id="'+l.id+'">Inzerát</button></div>'
+    +'<div class="msgs" id="msgs">'+c.msgs.map(m=>'<div class="msg '+(m.me?'me':'them')+'">'+esc(m.t)+'<time>'+esc(m.at)+'</time></div>'+(m.scam?'<div class="scam">'+I.warn+'<span><b>Pozor, toto vyzerá ako podvod.</b> Odkaz vedie mimo Tržka a napodobňuje kuriéra. Nikdy nezadávaj kartu na cudzej stránke. Skutočná bezpečná platba beží len tu v aplikácii. <button type="button" data-action="toast" data-msg="Používateľ nahlásený a zablokovaný" style="text-decoration:underline;font-weight:700">Nahlásiť a zablokovať</button></span></div>':'')).join('')+'</div>'
+    +'<div class="quick">'+['Je to ešte dostupné?','Aká je posledná cena?','Môžem prísť dnes?','Pošlete cez box?'].map(q=>'<button type="button" class="chip" data-action="quick" data-q="'+esc(q)+'">'+esc(q)+'</button>').join('')+'</div>'
+    +'<form class="composer" data-action="sendform"><input id="msgin" placeholder="Napíš správu" aria-label="Správa" autocomplete="off"><button type="submit" aria-label="Odoslať">'+I.send+'</button></form></div>';
+  } else {
+    thread='<div class="panel empty convs-panel hidden-mobile" style="min-height:300px;display:grid;place-items:center"><div><b>Vyber konverzáciu</b>Správy zostávajú v aplikácii, tvoje číslo nikto nevidí.</div></div>';
+  }
+  return '<div class="wrap"><div class="sec" style="margin-top:0"><h2>Správy</h2><span class="small muted">'+(function(n){return n===0?'všetko prečítané':n===1?'1 neprečítaná':n<5?n+' neprečítané':n+' neprečítaných'})(S.convs.filter(c=>c.unread).length)+'</span></div><div class="chatwrap">'+list+thread+'</div></div>';
+}
+function saved(){
+  const r=L.filter(l=>S.fav.has(l.id));
+  return '<div class="wrap">'+header('Uložené')+(r.length?'<div class="grid">'+r.map(l=>card(l)).join('')+'</div>':'<div class="empty"><b>Zatiaľ nič uložené</b>Klikni na srdiečko pri inzeráte a nájdeš ho tu.</div>')+'</div>';
+}
+function profile(){
+  const mine=L.filter(l=>[1,9,12].includes(l.id));
+  const dark=document.documentElement.getAttribute('data-theme')==='dark'||(!document.documentElement.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+  return '<div class="wrap"><div class="pgrid"><div>'
+  +'<div class="phead"><span class="avatar">ĽK</span><div><h2>Ľubomír K.</h2><div class="small muted">'+stars(4.9)+' 4,9 · 12 hodnotení · na Tržku od 2026</div><span class="tag ok" style="margin-top:4px">'+I.shield+'Overený profil</span></div></div>'
+  +'<div class="stats"><div><b class="num">3</b><small>aktívne inzeráty</small></div><div><b class="num">12</b><small>predané</small></div><div><b class="num">1 240 €</b><small>utržené</small></div></div>'
+  +'<div class="panel" style="margin-bottom:14px"><div class="row between" style="margin-bottom:10px"><b>Overenie</b><span class="small muted">3 z 3</span></div><div class="verify"><div>'+I.phone+'Telefón</div><div>'+I.chat+'E-mail</div><div>'+I.shield+'Banková identita</div></div></div>'
+  +'<div class="panel menu" style="padding:4px 16px">'
+  +'<button type="button" data-action="toast" data-msg="Moje inzeráty"><i>'+I.box+'</i><span>Moje inzeráty <small>3 aktívne · 1 koncept</small></span></button>'
+  +'<button type="button" data-action="nav" data-screen="saved"><i>'+I.heart+'</i><span>Uložené <small>'+S.fav.size+' inzeráty</small></span></button>'
+  +'<button type="button" data-action="nav" data-screen="search"><i>'+I.bell+'</i><span>Uložené hľadania <small>3, notifikácie zapnuté</small></span></button>'
+  +'<button type="button" data-action="toast" data-msg="Bezpečná platba a výplaty"><i>'+I.shield+'</i><span>Bezpečná platba a výplaty <small>IBAN overený · výplata do 2 dní</small></span></button>'
+  +'<div class="switch"><div><b>Tmavý režim</b><small>Šetrí oči aj batériu</small></div><button type="button" class="toggle" role="switch" aria-checked="'+dark+'" data-action="theme" aria-label="Tmavý režim"></button></div>'
+  +'<div class="switch"><div><b>Jazyk</b><small>Inzeráty z CZ sa zobrazujú v pôvodnom znení</small></div><div class="seg"><button type="button" aria-pressed="true" data-action="toast" data-msg="Slovenčina">SK</button><button type="button" aria-pressed="false" data-action="toast" data-msg="Prepnutie na češtinu">CZ</button></div></div>'
+  +'<button type="button" data-action="toast" data-msg="Nastavenia"><i>⚙️</i><span>Nastavenia a súkromie</span></button>'
+  +'</div></div><div>'
+  +'<div class="sec" style="margin-top:0"><h2>Moje inzeráty</h2><button type="button" class="link" data-action="nav" data-screen="add">+ Pridať</button></div><div class="list stack">'+mine.map(l=>card(l)).join('')+'</div>'
+  +'</div></div></div>';
+}
+
+/* ---------- Render ---------- */
+const SCREENS={home,search,detail,add,chat,saved,profile};
+function render(){
+  content.innerHTML=(SCREENS[S.screen]||home)();
+  content.scrollTop=0;
+  if(!(S.screen==='chat'&&S.conv)) window.scrollTo({top:0});
+  const tabScreen={detail:'home',saved:'profile'}[S.screen]||S.screen;
+  document.querySelectorAll('#tabbar .tab').forEach(t=>{ if(t.dataset.screen===tabScreen) t.setAttribute('aria-current','page'); else t.removeAttribute('aria-current'); });
+  const unread=S.convs.filter(c=>c.unread).length;
+  ['topBadge','tabBadge'].forEach(id=>{const el=document.getElementById(id); el.textContent=unread; el.hidden=!unread;});
+  if(S.screen==='chat'&&S.conv){const m=$('#msgs'); if(m) m.scrollTop=m.scrollHeight;}
+}
+function go(screen,push){
+  if(push!==false&&screen!==S.screen) S.stack.push(S.screen);
+  S.screen=screen; render();
+}
+function back(){ S.screen=S.stack.pop()||'home'; render(); }
+function toast(msg){const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast.h); toast.h=setTimeout(()=>t.classList.remove('show'),2200);}
+
+/* ---------- Events ---------- */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-action]'); if(!el) return;
+  const a=el.dataset.action, d=el.dataset;
+  switch(a){
+    case 'nav':
+      if(d.screen==='add'&&S.screen!=='add'){S.add={step:1,photos:[],started:null,done:null,title:'',price:'',cat:'',cond:'',deliv:true,safe:true};}
+      if(['home','search','chat','profile'].includes(d.screen)){S.stack=[];if(d.screen==='search'){S.q='';S.cat=null;}if(d.screen==='chat')S.conv=null;}
+      go(d.screen); break;
+    case 'back': back(); break;
+    case 'open': S.detail=Number(d.id); S.phone=false; go('detail'); break;
+    case 'fav': {const id=Number(d.id); if(S.fav.has(id)){S.fav.delete(id);toast('Odstránené z uložených');}else{S.fav.add(id);toast('Uložené. Dáme vedieť, keď klesne cena.');} render(); break;}
+    case 'cat': S.cat=d.cat||null; S.q=''; go('search'); break;
+    case 'runq': S.q=d.q; S.cat=null; go('search'); break;
+    case 'clearq': S.q=''; S.cat=null; render(); break;
+    case 'filter': S.f[d.key]=!S.f[d.key]; render(); break;
+    case 'cond': S.f.cond=S.f.cond===d.cond?null:d.cond; render(); break;
+    case 'savesearch': toast('Hľadanie uložené, pošleme notifikáciu pri novom inzeráte'); break;
+    case 'phone': S.phone=true; toast('Číslo zobrazené. Radšej píš v aplikácii, je to bezpečnejšie.'); render(); break;
+    case 'msg': {const l=L.find(x=>x.id===Number(d.id)); let c=S.convs.find(x=>x.item===l.id); if(!c){c={id:'c'+Date.now(),name:l.seller,init:l.seller.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),item:l.id,last:'',time:'teraz',unread:false,msgs:[]}; S.convs.unshift(c);} S.conv=c.id; go('chat'); break;}
+    case 'buy': toast('Bezpečná platba: suma sa zablokuje, predajca pošle tovar cez box'); break;
+    case 'conv': S.conv=d.id; const c=S.convs.find(x=>x.id===d.id); if(c) c.unread=false; render(); break;
+    case 'convclose': S.conv=null; render(); break;
+    case 'quick': sendMsg(d.q); break;
+    case 'photo': {const pool=[['🚲','t3'],['🔩','t5'],['🛞','t1'],['📏','t6']]; if(S.add.photos.length<12){ if(!S.add.started) S.add.started=Date.now(); S.add.photos.push(pool[S.add.photos.length%pool.length]); } render(); break;}
+    case 'addnext':
+      if(S.add.step===1){ if(!S.add.photos.length) return; S.add.title=S.add.title||'Horský bicykel Kross Level 5.0, rám L, 29"'; S.add.cat=S.add.cat||'Šport'; S.add.cond=S.add.cond||'Používané'; S.add.price=S.add.price||'420'; S.add.step=2; }
+      else if(S.add.step===2){ S.add.done=elapsed(); S.add.step=3; }
+      render(); break;
+    case 'addprev': S.add.step=Math.max(1,S.add.step-1); render(); break;
+    case 'addreset': S.add={step:1,photos:[],started:null,done:null,title:'',price:'',cat:'',cond:'',deliv:true,safe:true}; S.stack=[]; go('profile'); break;
+    case 'tog': S.add[d.key]=!S.add[d.key]; render(); break;
+    case 'mode': setMode(d.mode); break;
+    case 'theme': {const r=document.documentElement; const cur=r.getAttribute('data-theme'); const isDark=cur==='dark'||(!cur&&matchMedia('(prefers-color-scheme: dark)').matches); r.setAttribute('data-theme',isDark?'light':'dark'); $('#themeBtn').textContent=isDark?'Tmavý režim':'Svetlý režim'; if(S.screen==='profile') render(); break;}
+    case 'info': {const p=$('#infoPanel'); p.hidden=!p.hidden; el.setAttribute('aria-expanded',String(!p.hidden)); break;}
+    case 'toast': toast(d.msg||'Ukážka'); break;
+  }
+});
+document.addEventListener('submit',e=>{
+  const f=e.target.closest('form[data-action]'); if(!f) return; e.preventDefault();
+  if(f.dataset.action==='searchform'){ const inp=f.querySelector('input'); S.q=inp.value.trim(); S.cat=null; if(S.q) go('search'); else { S.stack=[]; go('search'); } const tq=$('#topq'); if(tq) tq.value=S.q; }
+  if(f.dataset.action==='sendform'){ const inp=$('#msgin'); if(inp.value.trim()){ sendMsg(inp.value.trim()); } }
+});
+document.addEventListener('input',e=>{
+  const b=e.target.dataset&&e.target.dataset.bind; if(!b) return;
+  S.add[b]=e.target.value;
+  if(b==='price'){const bar=content.querySelector('.pricebar i'); if(bar) bar.style.left=pricePos(e.target.value)+'%';}
+});
+document.addEventListener('change',e=>{ if(e.target.id==='sortsel'){S.sort=e.target.value;render();} });
+document.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.matches('.card[data-action="open"]')){e.preventDefault();e.target.click();} });
+function sendMsg(text){
+  const c=S.convs.find(x=>x.id===S.conv); if(!c) return;
+  const now=new Date(); const at=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  c.msgs.push({me:true,t:text,at}); c.last=text; c.time=at; render();
+  setTimeout(()=>{ if(S.conv!==c.id||c.scam) return; const reply=/cena|cenu/i.test(text)?'Viem ísť trochu dole pri osobnom odbere, napíšte sumu.':/dostupn/i.test(text)?'Áno, stále dostupné.':/box|pošl/i.test(text)?'Áno, pošlem cez box, cez bezpečnú platbu je to bez starostí.':'Dobre, dajte vedieť, kedy sa vám hodí.'; c.msgs.push({me:false,t:reply,at}); c.last=reply; render(); },900);
+}
+let timerH=null;
+setInterval(()=>{ const t=document.getElementById('addtimer'); if(t&&S.add.started&&S.add.step<3) t.textContent=elapsed(); },1000);
+
+/* ---------- Mode (phone frame vs. web) ---------- */
+function setMode(m){
+  S.mode=m; const dev=$('#device'), stage=$('#stage'); const small=window.innerWidth<720;
+  dev.classList.toggle('phone',m==='phone'&&!small); dev.classList.toggle('bare',small); stage.classList.toggle('bare',small);
+  document.querySelectorAll('#modeSeg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));
+  $('#modeSeg').hidden=small;
+}
+window.addEventListener('resize',()=>setMode(S.mode));
+setMode('phone');
+render();
+})();
+</script>
