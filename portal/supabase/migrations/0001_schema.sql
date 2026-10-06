@@ -34,7 +34,7 @@ create table public.profiles (
   id            uuid primary key references auth.users(id) on delete cascade,
   role          public.user_role not null default 'user',
   display_name  text,
-  date_of_birth date not null,
+  date_of_birth date,                                     -- povinný až pred pridaním inzerátu (pozri politiku "inzerat vlozenie")
   age_confirmed_at timestamptz not null default now(),
   terms_accepted_at timestamptz not null default now(),
   phone         text,                                   -- súkromné, nikdy vo verejnom view
@@ -42,7 +42,7 @@ create table public.profiles (
   ban_reason    text,
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now(),
-  constraint profiles_adult check (date_of_birth <= (current_date - interval '18 years'))
+  constraint profiles_adult check (date_of_birth is null or date_of_birth <= (current_date - interval '18 years'))
 );
 create or replace function public.my_role() returns public.user_role
 language sql stable security definer set search_path = public as $$
@@ -57,7 +57,8 @@ $$;
 -- privilegovaný kontext: moderátor/admin alebo serverové pripojenie (service_role, SQL editor, webhooky)
 create or replace function public.is_privileged() returns boolean
 language sql stable security definer set search_path = public as $$
-  select public.is_staff() or (auth.uid() is null and current_user not in ('anon','authenticated'))
+  -- current_user by v security definer funkcii bol vždy vlastník; GUC "role" nesie SET ROLE od PostgREST (anon/authenticated/service_role)
+  select public.is_staff() or coalesce(current_setting('role', true), 'none') not in ('anon','authenticated')
 $$;
 
 -- IP adresa klienta z hlavičiek PostgREST (Supabase ju nastavuje; klient ju nevie podvrhnúť bez proxy)
@@ -171,9 +172,11 @@ begin
       new.views := 0; new.last_online_at := null; new.published_at := null;
     else
       new.slug := old.slug; new.last_online_at := old.last_online_at; new.published_at := old.published_at;
-      if new.status not in ('draft','pending','paused') or old.status in ('rejected','removed') then new.status := old.status; end if;
+      if new.status not in ('draft','pending','paused','removed') or old.status in ('rejected','removed') then new.status := old.status; end if;
       -- úprava aktívneho inzerátu ide znova na kontrolu
-      if old.status = 'active' and (new.title <> old.title or new.body <> old.body) then new.status := 'pending'; end if;
+      if old.status = 'active' and (new.title, new.body, new.attributes, new.price_list, new.city_id, new.category_id, new.availability, new.age)
+         is distinct from (old.title, old.body, old.attributes, old.price_list, old.city_id, old.category_id, old.availability, old.age)
+      then new.status := 'pending'; end if;
       new.verified_until := old.verified_until; new.top_until := old.top_until;
       new.highlight_until := old.highlight_until; new.rejection_note := old.rejection_note; new.views := old.views;
     end if;
@@ -192,15 +195,17 @@ create table public.listing_tags (
 create table public.listing_photos (
   id           uuid primary key default gen_random_uuid(),
   listing_id   uuid not null references public.listings(id) on delete cascade,
-  storage_path text not null,            -- bucket listing-photos
+  storage_path text not null,            -- <listing_id>/<súbor>; po schválení v bucket listing-photos, dovtedy listing-uploads
   sort         int not null default 0,
   is_cover     boolean not null default false,
   approved     boolean not null default false,
-  created_at   timestamptz not null default now()
+  created_at   timestamptz not null default now(),
+  constraint photos_own_folder check (split_part(storage_path, '/', 1) = listing_id::text)
 );
 create index listing_photos_listing_idx on public.listing_photos(listing_id);
 
 -- ---------- Overenie (video/selfie s kódom) ----------
+create or replace function public.default_code() returns text language sql volatile as $$ select upper(substr(replace(gen_random_uuid()::text,'-',''),1,6)) $$;
 create table public.verifications (
   id           uuid primary key default gen_random_uuid(),
   listing_id   uuid not null references public.listings(id) on delete cascade,
@@ -213,6 +218,12 @@ create table public.verifications (
   created_at   timestamptz not null default now()
 );
 create index verifications_listing_idx on public.verifications(listing_id, status);
+create unique index verifications_one_pending on public.verifications(listing_id) where status = 'pending';
+create or replace function public.verifications_guard() returns trigger language plpgsql as $$
+begin
+  if not public.is_privileged() then new.status := 'pending'; new.reviewed_by := null; new.reviewed_at := null; new.note := null; new.code := default_code(); end if;
+  return new;
+end $$;
 
 -- Schválenie overenia = odznak na 90 dní
 create or replace function public.verifications_after_update() returns trigger language plpgsql security definer set search_path = public as $$
@@ -224,6 +235,7 @@ begin
   end if;
   return new;
 end $$;
+create trigger verifications_guard before insert on public.verifications for each row execute function public.verifications_guard();
 create trigger verifications_after_update after update on public.verifications for each row execute function public.verifications_after_update();
 
 -- ---------- Kontakty (odhalenie čísla) a recenzie ----------
@@ -265,7 +277,7 @@ create trigger reviews_guard before insert on public.reviews for each row execut
 -- ---------- Nahlásenia ----------
 create table public.reports (
   id            uuid primary key default gen_random_uuid(),
-  listing_id    uuid not null references public.listings(id) on delete cascade,
+  listing_id    uuid not null references public.listings(id) on delete restrict,   -- dôkazy sa nemažú s inzerátom
   reporter_id   uuid references public.profiles(id) on delete set null,
   reason        public.report_reason not null,
   details       text,
@@ -300,7 +312,7 @@ insert into public.products values
 -- ---------- Objednávky (topovanie) ----------
 create table public.orders (
   id            uuid primary key default gen_random_uuid(),
-  listing_id    uuid not null references public.listings(id) on delete cascade,
+  listing_id    uuid not null references public.listings(id) on delete restrict,   -- účtovné záznamy sa nemažú
   buyer_id      uuid not null references public.profiles(id),
   product       public.order_product not null,
   amount_eur    numeric(8,2) not null check (amount_eur >= 0),
@@ -341,6 +353,11 @@ begin
     else
       update public.listings set highlight_until = greatest(coalesce(highlight_until, now()), now()) + d where id = new.listing_id;
     end if;
+    perform set_config('np.internal', '0', true);
+  elsif new.status = 'refunded' and old.status = 'paid' then
+    perform set_config('np.internal', '1', true);
+    if new.product::text like 'top%' then update public.listings set top_until = null where id = new.listing_id;
+    else update public.listings set highlight_until = null where id = new.listing_id; end if;
     perform set_config('np.internal', '0', true);
   end if;
   return new;
@@ -398,12 +415,12 @@ returns setof public.public_listings language sql stable security definer set se
   join public.listings l on l.id = pl.id
   where (p_city is null or pl.city_slug = p_city or pl.parent_city_slug = p_city)
     and (p_category is null or pl.category_slug = p_category)
-    and (p_q is null or p_q = '' or l.search @@ plainto_tsquery('simple', public.f_unaccent(p_q)) or pl.title ilike '%' || p_q || '%')
+    and (p_q is null or p_q = '' or l.search @@ plainto_tsquery('simple', public.f_unaccent(left(p_q, 80))) or pl.title ilike '%' || replace(replace(left(p_q, 80), '%', ''), '_', '') || '%')
     and (not p_verified or pl.is_verified)
     and (not p_online or pl.is_online)
     and (not p_with_reviews or pl.rating_count > 0)
   order by pl.is_top desc, pl.is_verified desc, pl.published_at desc
-  limit least(p_limit, 100) offset greatest(p_offset, 0)
+  limit least(greatest(p_limit, 1), 100) offset least(greatest(p_offset, 0), 5000)
 $$;
 
 -- Odhalenie telefónu: zaloguje kontakt (podmienka pre recenziu).
@@ -446,6 +463,12 @@ begin
    where action = 'report' and created_at > now() - interval '1 hour'
      and ((auth.uid() is not null and actor_id = auth.uid()) or (v_ip is not null and data->>'ip' = encode(digest(v_ip,'sha256'),'hex')));
   if v_cnt >= 10 then raise exception 'Príliš veľa nahlásení. Skúste neskôr.' using errcode = '53400'; end if;
+  if not exists (select 1 from public.listings where id = p_listing and status = 'active') then
+    raise exception 'Inzerát nie je dostupný.' using errcode = 'P0002';
+  end if;
+  if auth.uid() is not null and exists (select 1 from public.reports where listing_id = p_listing and reporter_id = auth.uid() and status in ('open','in_review')) then
+    return (select id from public.reports where listing_id = p_listing and reporter_id = auth.uid() and status in ('open','in_review') limit 1);
+  end if;
   insert into public.reports(listing_id, reporter_id, reason, details, contact_email)
   values (p_listing, auth.uid(), p_reason, left(p_details, 2000), p_email) returning id into v_id;
   insert into public.audit_log(actor_id, action, entity, entity_id, data) values (auth.uid(), 'report', 'listing', p_listing::text,
@@ -473,7 +496,7 @@ create or replace function public.handle_new_user() returns trigger language plp
 begin
   insert into public.profiles(id, display_name, date_of_birth, phone)
   values (new.id, coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email,'@',1)),
-          (new.raw_user_meta_data->>'date_of_birth')::date, new.raw_user_meta_data->>'phone');
+          nullif(new.raw_user_meta_data->>'date_of_birth','')::date, new.raw_user_meta_data->>'phone');
   return new;
 end $$;
 create trigger on_auth_user_created after insert on auth.users for each row execute function public.handle_new_user();
@@ -515,9 +538,9 @@ create policy "profil uprava"  on public.profiles for update using (id = auth.ui
 
 -- inzeráty: verejnosť číta cez view; priamo len vlastník a staff
 create policy "inzerat vlastnik" on public.listings for select using (owner_id = auth.uid() or public.is_staff());
-create policy "inzerat vlozenie" on public.listings for insert with check (owner_id = auth.uid() and exists (select 1 from public.profiles where id = auth.uid() and banned_at is null));
+create policy "inzerat vlozenie" on public.listings for insert with check (owner_id = auth.uid() and exists (select 1 from public.profiles where id = auth.uid() and banned_at is null and date_of_birth is not null));
 create policy "inzerat uprava"   on public.listings for update using (owner_id = auth.uid() or public.is_staff()) with check (owner_id = auth.uid() or public.is_staff());
-create policy "inzerat zmazanie" on public.listings for delete using (owner_id = auth.uid() or public.is_staff());
+create policy "inzerat zmazanie" on public.listings for delete using (public.is_staff());  -- vlastník inzerát len "odstráni" (status removed), dôkazy zostávajú
 
 create policy "tagy citanie"  on public.listing_tags for select using (true);
 create policy "tagy vlastnik" on public.listing_tags for all using (exists (select 1 from public.listings l where l.id = listing_id and (l.owner_id = auth.uid() or public.is_staff())))
@@ -529,7 +552,16 @@ create policy "fotky uprava"   on public.listing_photos for update using (exists
 create policy "fotky zmazanie" on public.listing_photos for delete using (exists (select 1 from public.listings l where l.id = listing_id and (l.owner_id = auth.uid() or public.is_staff())));
 -- vlastník nemôže sám schváliť fotku
 create or replace function public.photos_guard() returns trigger language plpgsql as $$
-begin if not public.is_privileged() then new.approved := coalesce(old.approved, false); end if; return new; end $$;
+begin
+  if not public.is_privileged() then
+    if tg_op = 'INSERT' then new.approved := false;
+    else
+      new.listing_id := old.listing_id;
+      new.approved := case when new.storage_path <> old.storage_path then false else old.approved end;
+    end if;
+  end if;
+  return new;
+end $$;
 create trigger photos_guard before insert or update on public.listing_photos for each row execute function public.photos_guard();
 
 create policy "overenie vlastnik" on public.verifications for select using (exists (select 1 from public.listings l where l.id = listing_id and l.owner_id = auth.uid()) or public.is_staff());
@@ -552,12 +584,16 @@ create policy "objednavky vlozenie" on public.orders for insert with check (buye
 
 create policy "audit staff" on public.audit_log for select using (public.is_staff());
 
--- Práva pre role Supabase
+-- Práva pre role Supabase.
+-- Zásada: anon/authenticated majú EXECUTE len na to, čo potrebujú. Funkcie rozšírení (unaccent, pg_trgm, pgcrypto) a pomocné/trigger
+-- funkcie bežia s právami volajúceho, preto ich povolíme; RPC, ktoré nemá volať anonym, výslovne odoberieme.
+revoke execute on all functions in schema public from public, anon, authenticated;
+alter default privileges in schema public revoke execute on functions from public, anon, authenticated;
+grant execute on all functions in schema public to anon, authenticated;          -- rozšírenia, pomocné a trigger funkcie, verejné RPC
+revoke execute on function public.heartbeat, public.moderate_listing from anon;  -- len prihlásení (vnútri sa overuje vlastníctvo / is_staff)
 grant usage on schema public to anon, authenticated;
 grant select on public.public_listings, public.cities, public.regions, public.categories, public.service_tags, public.products to anon, authenticated;
 grant select, insert, update, delete on public.listings, public.listing_tags, public.listing_photos, public.verifications, public.reviews, public.orders to authenticated;
 grant select, update on public.profiles to authenticated;
 grant select on public.contacts, public.reports, public.audit_log to authenticated;
-grant usage, select on all sequences in schema public to authenticated;
-grant execute on function public.search_listings, public.reveal_phone, public.bump_views, public.submit_report to anon, authenticated;
-grant execute on function public.heartbeat, public.moderate_listing to authenticated;
+-- sekvencie: len tie, do ktorých authenticated vkladá (messages_id_seq je v 0005); audit_log plní server

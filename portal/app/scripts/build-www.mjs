@@ -19,13 +19,12 @@ for (const name of readdirSync(root)) {
 const sbUmd = join(here, '..', 'node_modules', '@supabase', 'supabase-js', 'dist', 'umd', 'supabase.js');
 if (existsSync(sbUmd)) {
   mkdirSync(join(out, 'vendor'), { recursive: true });
-  cpSync(sbUmd, join(out, 'vendor', 'supabase.js'));
+  cpSync(sbUmd, join(out, 'vendor', 'supabase.js'));   // vždy aktuálna verzia z node_modules (web má kópiu v portal/vendor)
 }
 // Capacitor runtime + pluginy sa injektujú samé cez cap sync; tu len prepneme CDN -> lokálny súbor a označíme natívny build
 for (const name of readdirSync(out).filter(f => f.endsWith('.html'))) {
   const p = join(out, name);
   let html = readFileSync(p, 'utf8');
-  html = html.replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@2[^"]*" defer><\/script>/, '<script src="/vendor/supabase.js" defer></script>');
   html = html.replace('<html lang="sk">', '<html lang="sk" data-native="1">');
   writeFileSync(p, html);
 }

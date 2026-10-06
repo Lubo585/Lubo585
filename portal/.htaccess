@@ -1,5 +1,11 @@
 # NazovPortalu – Apache: HTTPS, bez www, kompresia, cache, bezpečnostné hlavičky
+Options -Indexes
 RewriteEngine On
+# Backend, skripty a projekt aplikácie nikdy nesmú byť dostupné z webu (ak sa nahrá celý priečinok portal/)
+RedirectMatch 404 ^/(supabase|scripts|app|\.git|\.github|node_modules)(/|$)
+<FilesMatch "\.(md|toml|sql|py|sh|mjs|gitignore|lock|example)$">
+  Require all denied
+</FilesMatch>
 RewriteCond %{HTTPS} off [OR]
 RewriteCond %{HTTP_HOST} ^www\. [NC]
 RewriteRule ^ https://nazovportalu.sk%{REQUEST_URI} [L,R=301]
@@ -30,7 +36,7 @@ AddType application/vnd.android.package-archive .apk
   Header always set X-Permitted-Cross-Domain-Policies "none"
   Header always set Cross-Origin-Opener-Policy "same-origin"
   # CSP: skripty len z vlastnej domény a jsdelivr (supabase-js), spojenia len na Supabase; inline štýly sú v šablóne, inline skripty nie
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
   # Označenie obsahu pre dospelých (RTA label – vyžadujú ho niektoré filtre a appstory)
   Header always set Rating "RTA-5042-1996-1400-1577-RTA"
 </IfModule>

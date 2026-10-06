@@ -20,6 +20,7 @@ Postgres schéma s RLS, RPC funkcie, úložisko a webhook platieb. Všetko je v 
 | Online stav | RPC `heartbeat` každých 5 min z klienta inzerentky → `is_online` vo view |
 | Vyhľadávanie | RPC `search_listings` (mesto vrátane mestských častí, kategória, fulltext bez diakritiky, len overené, online, s recenziami), radenie TOP → overené → najnovšie |
 | Audit | `audit_log` pre moderáciu, nahlásenia a platby |
+| Mazanie | inzerát maže len staff; vlastník ho „odstráni“ statusom; nahlásenia a objednávky sa s inzerátom nemažú (dôkazy, účtovníctvo). Zmazanie účtu riešte anonymizáciou profilu, nie DELETE |
 | Správy | `conversations`/`messages` s realtime publikáciou; písať smú len účastníci, blokovanie, počítadlá neprečítaných; prvá správa sa počíta ako kontakt |
 | Mobil | `device_tokens` pre push, `app_config` (údržba, oznam, minimálna verzia appky) |
 
@@ -55,7 +56,7 @@ Postgres schéma s RLS, RPC funkcie, úložisko a webhook platieb. Všetko je v 
 ```bash
 sudo ./supabase/tests/run.sh
 ```
-Spustí migrácie na čistom PostgreSQL s mockom `auth`/`storage` a prejde 15 + 8 + 10 scenárov (obchodné pravidlá, správy, bezpečnosť) (neplnoletá registrácia, samo-aktivácia, samo-povýšenie, RLS pre anon, vyhľadávanie bez diakritiky, odhalenie čísla, recenzia bez kontaktu, priorita nahlásenia, platba a TOP, rate limit).
+Spustí migrácie na čistom PostgreSQL s mockom `auth`/`storage` a prejde 42 scenárov (obchodné pravidlá, správy, bezpečnosť). Výsledky auditu: `../SECURITY.md` (neplnoletá registrácia, samo-aktivácia, samo-povýšenie, RLS pre anon, vyhľadávanie bez diakritiky, odhalenie čísla, recenzia bez kontaktu, priorita nahlásenia, platba a TOP, rate limit).
 
 ## Čo zostáva
 

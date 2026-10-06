@@ -27,6 +27,7 @@ Skript nahradí názov aj doménu vo všetkých HTML, JSON-LD, sitemap, robots, 
 | `supabase/` | Migrácie, úložisko, cron, Edge Function pre platby, lokálne testy |
 | `spravy.html`, `js/native.js`, `sw.js`, `.well-known/` | Správy v reálnom čase, natívna vrstva pre appku, PWA service worker, deep linky |
 | `aplikacia.html`, `js/download.js`, `downloads/` | Stránka na stiahnutie (detekcia Android/iPhone), manifest verzie, miesto pre APK |
+| `vendor/supabase.js` | Self-hostovaná knižnica supabase-js (bez CDN, prísna CSP) |
 | `app/` | Capacitor projekt pre iOS a Android (ikony, splash, Android/iOS natívne projekty) |
 | `robots.txt`, `sitemap.xml`, `manifest.webmanifest`, `.htaccess` | SEO a server |
 | `scripts/gen_pages.py` | Po úprave hlavičky/pätičky v `index.html` pregeneruje podstránky |
@@ -59,6 +60,10 @@ Hotový v priečinku `supabase/` (Postgres schéma s RLS, RPC, úložisko, webho
 4. **Právne texty**: doplniť prevádzkovateľa, zodpovednú osobu podľa DSA, prejsť advokátom.
 5. **Analytika bez cookies** (Plausible / Matomo), Google Search Console + Bing Webmaster, odoslať sitemap.
 6. Generovať stránky pre každé mesto a kategóriu (kombinácie `mesto × kategória` sú najcennejšie kľúčové slová).
+
+## Bezpečnosť
+
+Výsledky penetračného testu a zoznam opráv: `SECURITY.md`. Databázové testy (42 scenárov): `sudo ./supabase/tests/run.sh`. Pri nasadení nahrávajte na web len statické súbory (bez `supabase/`, `scripts/`, `app/`); `.htaccess` ich pre istotu blokuje.
 
 ## Lokálny náhľad
 

@@ -43,3 +43,37 @@ select public.start_conversation('aaaaaaaa-0000-0000-0000-000000000003','ahoj') 
 insert into public.messages(conversation_id,sender_id,body) select :'c2', auth.uid(), 'msg '||g from generate_series(1,58) g;  -- používateľ už má 2 správy -> spolu 60
 select count(*) as sent_in_minute from public.messages where conversation_id = :'c2';
 insert into public.messages(conversation_id,sender_id,body) values (:'c2', auth.uid(), 'msg 61');
+\echo '--- výmena schválenej fotky: zmena cesty ruší schválenie, listing_id nemenný:'
+reset role; set request.jwt.claim.sub = '';
+set role authenticated; set request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+update public.listing_photos set storage_path = 'aaaaaaaa-0000-0000-0000-000000000001/ina.jpg', listing_id = 'aaaaaaaa-0000-0000-0000-000000000002' where id='dddddddd-0000-0000-0000-000000000001' returning approved, listing_id = 'aaaaaaaa-0000-0000-0000-000000000001' as listing_unchanged;
+\echo '--- fotka z cudzieho priečinka (očakávaná chyba constraintu):'
+insert into public.listing_photos(listing_id,storage_path) values ('aaaaaaaa-0000-0000-0000-000000000001','aaaaaaaa-0000-0000-0000-000000000002/cudzia.jpg');
+\echo '--- vlastník nemôže inzerát zmazať (0 riadkov), môže ho len odstrániť statusom:'
+delete from public.listings where id='aaaaaaaa-0000-0000-0000-000000000002';
+select count(*) from public.listings where id='aaaaaaaa-0000-0000-0000-000000000002';
+update public.listings set status='removed' where id='aaaaaaaa-0000-0000-0000-000000000002' returning status;
+\echo '--- zmena ceny/atribútov aktívneho inzerátu -> pending:'
+update public.listings set price_list = '[{"label":"1h","price":10}]' where id='aaaaaaaa-0000-0000-0000-000000000001' returning status;
+reset role; set request.jwt.claim.sub = ''; update public.listings set status='active' where id='aaaaaaaa-0000-0000-0000-000000000001';
+\echo '--- falošné overenie: status/reviewed_by sa vynulujú, druhé čakajúce zlyhá (očakávaná chyba):'
+set role authenticated; set request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+insert into public.verifications(listing_id,storage_path,status,reviewed_by,reviewed_at) values ('aaaaaaaa-0000-0000-0000-000000000003','aaaaaaaa-0000-0000-0000-000000000003/v.mp4','approved','33333333-3333-3333-3333-333333333333',now()) returning status, reviewed_by;
+insert into public.verifications(listing_id,storage_path) values ('aaaaaaaa-0000-0000-0000-000000000003','aaaaaaaa-0000-0000-0000-000000000003/v2.mp4');
+\echo '--- refund ruší TOP:'
+reset role; set request.jwt.claim.sub = '';
+update public.orders set status='refunded' where id='cccccccc-0000-0000-0000-000000000001';
+select top_until is null as top_cleared from public.listings where id='aaaaaaaa-0000-0000-0000-000000000001';
+\echo '--- nahlásenie neaktívneho inzerátu (očakávaná chyba) a opakované nahlásenie (rovnaké id):'
+set role authenticated; set request.jwt.claim.sub = '55555555-5555-5555-5555-555555555555';
+select public.submit_report('aaaaaaaa-0000-0000-0000-000000000002','scam','x');
+select public.submit_report('aaaaaaaa-0000-0000-0000-000000000003','scam','prve') = public.submit_report('aaaaaaaa-0000-0000-0000-000000000003','scam','druhe') as same_report;
+\echo '--- realtime: replica identity messages (d = default, nie full):'
+select relreplident from pg_class where oid = 'public.messages'::regclass;
+\echo '--- anon nemá EXECUTE na moderate_listing / heartbeat:'
+select has_function_privilege('anon', 'public.moderate_listing(uuid, public.listing_status, text)', 'execute') as anon_moderate, has_function_privilege('anon', 'public.search_listings(text,text,text,boolean,boolean,boolean,int,int)', 'execute') as anon_search;
+\echo '--- registrácia bez dátumu narodenia prejde, inzerát bez neho nie (očakávaná chyba RLS):'
+reset role; set request.jwt.claim.sub = '';
+insert into auth.users(id,email,raw_user_meta_data) values ('66666666-6666-6666-6666-666666666666','bezdob@test.sk','{}');
+set role authenticated; set request.jwt.claim.sub = '66666666-6666-6666-6666-666666666666';
+insert into public.listings(owner_id,category_id,city_id,title,body) values (auth.uid(),1,1,'Bez veku','Dostatočne dlhý text inzerátu bez veku.');

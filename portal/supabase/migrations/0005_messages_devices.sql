@@ -67,11 +67,16 @@ begin
   select owner_id into v_adv from public.listings where id = p_listing and status = 'active';
   if v_adv is null then raise exception 'Inzerát nie je dostupný.' using errcode = 'P0002'; end if;
   if v_adv = auth.uid() then raise exception 'Nemôžete písať sami sebe.' using errcode = '42501'; end if;
-  insert into public.conversations(listing_id, client_id, advertiser_id) values (p_listing, auth.uid(), v_adv)
-    on conflict (listing_id, client_id) do update set last_message_at = now() returning id into v_conv;
+  select id into v_conv from public.conversations where listing_id = p_listing and client_id = auth.uid();
+  if v_conv is null then
+    if (select count(*) from public.conversations where client_id = auth.uid() and created_at > now() - interval '1 hour') >= 20 then
+      raise exception 'Príliš veľa nových konverzácií. Skúste neskôr.' using errcode = '53400';
+    end if;
+    insert into public.conversations(listing_id, client_id, advertiser_id) values (p_listing, auth.uid(), v_adv) returning id into v_conv;
+    -- prvá správa sa počíta ako kontakt (umožní neskôr recenziu), len raz
+    insert into public.contacts(listing_id, user_id) values (p_listing, auth.uid());
+  end if;
   insert into public.messages(conversation_id, sender_id, body) values (v_conv, auth.uid(), left(p_body, 2000));
-  -- prvá správa sa počíta ako kontakt (umožní neskôr recenziu)
-  insert into public.contacts(listing_id, user_id) values (p_listing, auth.uid());
   return v_conv;
 end $$;
 
@@ -134,10 +139,12 @@ grant select on public.conversations to authenticated;
 grant select, insert on public.messages to authenticated;
 grant select, insert, update, delete on public.device_tokens to authenticated;
 grant select on public.app_config to anon, authenticated;
-grant usage, select on sequence public.messages_id_seq to authenticated;
-grant execute on function public.start_conversation, public.mark_read, public.block_conversation to authenticated;
+grant usage on sequence public.messages_id_seq to authenticated;
+grant execute on function public.start_conversation, public.mark_read, public.block_conversation, public.messages_guard, public.messages_after_insert to authenticated;
 
 -- Realtime: klienti dostávajú nové správy a zmeny konverzácií okamžite (RLS sa uplatňuje aj na realtime)
 alter publication supabase_realtime add table public.messages;
 alter publication supabase_realtime add table public.conversations;
-alter table public.messages replica identity full;
+-- Pri DELETE sa RLS v realtime neuplatňuje; s replica identity DEFAULT sa pošle len primárny kľúč, nie obsah správy
+alter table public.messages replica identity default;
+alter table public.conversations replica identity default;

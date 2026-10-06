@@ -49,7 +49,7 @@ def page(path, title, desc, body, canonical=None, extra_head='', robots='index, 
 {footer}
 <script src="/js/config.js"></script>
 <script src="/js/native.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script src="/vendor/supabase.js" defer></script>
 <script src="/js/app.js" defer></script>
 <script src="/js/supabase.js" defer></script>
 </body>

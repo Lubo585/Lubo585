@@ -40,7 +40,10 @@
     });
     /* Deep linky: https://nazovportalu.sk/inzerat/slug -> otvorí rovnakú cestu v appke */
     P.App.addListener('appUrlOpen', function (ev) {
-      try { var u = new URL(ev.url); if (u.pathname && u.pathname !== location.pathname) location.href = u.pathname + u.search; } catch (e) {}
+      try {
+        var u = new URL(ev.url); var path = u.pathname.replace(/^\/+/, '/');
+        if (/^\/(?!\/)/.test(path) && path !== location.pathname) location.href = path + u.search;   // len cesta v rámci aplikácie, nikdy cudzí host
+      } catch (e) {}
     });
   }
 
@@ -54,7 +57,7 @@
       });
       P.PushNotifications.addListener('pushNotificationActionPerformed', function (n) {
         var d = n.notification && n.notification.data;
-        if (d && d.url) location.href = d.url;
+        if (d && typeof d.url === 'string' && /^\/(?!\/)/.test(d.url)) location.href = d.url;   // len relatívna cesta
       });
       P.PushNotifications.register();
     }).catch(function () {});
