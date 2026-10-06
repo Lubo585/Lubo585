@@ -76,7 +76,9 @@
         `Anliegen: ${data.get("anliegen")}\n\n` +
         `${data.get("nachricht")}`
       );
-      window.location.href = `mailto:info@sxworkforce.de?subject=${betreff}&body=${body}`;
+      const mailto = `mailto:info@sxworkforce.de?subject=${betreff}&body=${body}`;
+      form.dataset.lastMailto = mailto;
+      window.location.href = mailto;
       const ok = form.querySelector(".form__success");
       if (ok) ok.style.display = "block";
       form.reset();

@@ -10,8 +10,15 @@ impressum.html      Impressum (Platzhalter in eckigen Klammern ausfüllen)
 datenschutz.html    Datenschutzerklärung
 assets/css/style.css
 assets/js/main.js   Navigation, Scroll-Reveal, Galerie-Lightbox, Kontaktformular, Cookie-Hinweis
-assets/img/         Logo, Team- und Baustellenfotos
+assets/img/         Logo, Team-, Baustellen- und Fahrzeugfotos
+404.html            Fehlerseite
+.htaccess           HTTPS-Umleitung, Caching, 404
+robots.txt / sitemap.xml / favicon.ico
+tests/check-site.mjs   automatischer Funktionstest (node tests/check-site.mjs)
+build-zip.sh        erstellt dist/sx-workforce-website.zip für den Upload
 ```
+
+Slowakische Schritt-für-Schritt-Anleitung für den Upload: `NAVOD-NAHODENIE.md`.
 
 ## Veröffentlichen
 
