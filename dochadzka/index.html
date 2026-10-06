@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Dochádzka ZS 2026/27</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout: one column, 720px wide, sticky tab bar; subject cards first, week-by-week log second. */
+  :root {
+    --bg: #f3f5f8;
+    --surface: #ffffff;
+    --surface-2: #e9edf3;
+    --fg: #17203a;
+    --muted: #5d6882;
+    --line: #d5dbe6;
+    --accent: #2b4c9b;
+    --accent-fg: #ffffff;
+    --ok: #1f7a4d;
+    --ok-bg: #e2f3ea;
+    --warn: #9a5b00;
+    --warn-bg: #fff0d6;
+    --bad: #b3261e;
+    --bad-bg: #fde3e1;
+    --lecture: #2f7d3a;
+    --seminar: #1e6fa8;
+    --display: "Literata", Georgia, "Times New Roman", serif;
+    --body: "Public Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11182a; --surface: #1a2338; --surface-2: #232e47; --fg: #e8ecf5; --muted: #9ca8c4;
+      --line: #334162; --accent: #8fb0ff; --accent-fg: #0b1430;
+      --ok: #6fd39a; --ok-bg: #163726; --warn: #f2b85b; --warn-bg: #3d2d10; --bad: #ff8a80; --bad-bg: #4a1f1c;
+      --lecture: #7bd389; --seminar: #7cc0f0; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #11182a; --surface: #1a2338; --surface-2: #232e47; --fg: #e8ecf5; --muted: #9ca8c4;
+    --line: #334162; --accent: #8fb0ff; --accent-fg: #0b1430;
+    --ok: #6fd39a; --ok-bg: #163726; --warn: #f2b85b; --warn-bg: #3d2d10; --bad: #ff8a80; --bad-bg: #4a1f1c;
+    --lecture: #7bd389; --seminar: #7cc0f0; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.45; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 16px; padding-block: 16px 48px; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 600; text-wrap: balance; margin: 0; }
+  h1 { font-size: 1.7rem; line-height: 1.2; }
+  h2 { font-size: 1.15rem; }
+  h3 { font-size: 1rem; }
+  .eyebrow { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .muted { color: var(--muted); }
+  .num { font-variant-numeric: tabular-nums; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  header { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .headrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .sub { color: var(--muted); font-size: .9rem; }
+  .btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 12px; font-weight: 500; font-size: .9rem; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+
+  .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+  .tile .v { font-family: var(--display); font-size: 1.5rem; line-height: 1.1; }
+  .tile .l { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+  .tile.bad .v { color: var(--bad); } .tile.warn .v { color: var(--warn); } .tile.ok .v { color: var(--ok); }
+
+  .tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; gap: 4px; background: var(--surface-2); border-radius: 10px; padding: 4px; margin-bottom: 14px; }
+  .tabs button { flex: 1; border: 0; background: transparent; padding: 8px; border-radius: 7px; font-weight: 500; color: var(--muted); }
+  .tabs button[aria-selected="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+  .notice { background: var(--warn-bg); color: var(--fg); border-left: 3px solid var(--warn); border-radius: 6px; padding: 10px 12px; font-size: .9rem; margin-bottom: 14px; }
+  .notice b { color: var(--warn); }
+
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; min-width: 0; }
+  .card > summary { list-style: none; cursor: pointer; padding: 12px 14px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: start; }
+  .card > summary::-webkit-details-marker { display: none; }
+  .card .name { font-family: var(--display); font-size: 1.05rem; font-weight: 600; line-height: 1.25; }
+  .card .detail { font-size: .82rem; color: var(--muted); margin-top: 2px; }
+  .pill { display: inline-block; font-size: .74rem; font-weight: 600; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+  .pill.ok { background: var(--ok-bg); color: var(--ok); }
+  .pill.warn { background: var(--warn-bg); color: var(--warn); }
+  .pill.bad { background: var(--bad-bg); color: var(--bad); }
+  .pill.off { background: var(--surface-2); color: var(--muted); }
+  .bar { grid-column: 1 / -1; height: 8px; background: var(--surface-2); border-radius: 4px; overflow: hidden; position: relative; }
+  .bar > i { display: block; height: 100%; background: var(--ok); border-radius: 4px; }
+  .bar.warn > i { background: var(--warn); } .bar.bad > i { background: var(--bad); }
+  .bar > b { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--fg); opacity: .5; }
+  .stats { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .84rem; color: var(--muted); }
+  .stats strong { color: var(--fg); font-weight: 600; }
+
+  .card .body { border-top: 1px solid var(--line); padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .slot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: .86rem; }
+  .slot .t { flex: 1 1 200px; min-width: 0; }
+  .type { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .04em; padding: 2px 6px; border-radius: 4px; border: 1px solid currentColor; }
+  .type.P { color: var(--lecture); } .type.S { color: var(--seminar); }
+  .switch { display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; color: var(--muted); }
+  .switch input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+
+  .occ { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; padding: 8px 0; border-top: 1px dashed var(--line); }
+  .occ:first-of-type { border-top: 0; }
+  .occ .when { font-size: .88rem; }
+  .occ .when small { color: var(--muted); display: block; font-size: .78rem; }
+  .occ.past.unmarked .when::after { content: " · nezaznačené"; color: var(--warn); font-size: .78rem; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; background: transparent; padding: 6px 9px; font-size: .8rem; font-weight: 500; color: var(--muted); border-left: 1px solid var(--line); }
+  .seg button:first-child { border-left: 0; }
+  .seg button[aria-pressed="true"].p { background: var(--ok-bg); color: var(--ok); }
+  .seg button[aria-pressed="true"].a { background: var(--bad-bg); color: var(--bad); }
+  .seg button[aria-pressed="true"].x { background: var(--surface-2); color: var(--fg); }
+
+  .weeknav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+  .weeknav h2 { font-size: 1.1rem; }
+  .weeknav .range { font-size: .82rem; color: var(--muted); }
+  .day { margin-bottom: 14px; }
+  .day h3 { padding: 0 2px 6px; display: flex; justify-content: space-between; align-items: baseline; }
+  .day h3 span { font-family: var(--body); font-weight: 500; font-size: .82rem; color: var(--muted); }
+  .day .card { padding: 2px 14px; }
+  .lesson { display: grid; grid-template-columns: 52px 1fr; gap: 4px 10px; padding: 10px 0; border-top: 1px solid var(--line); align-items: start; }
+  .lesson:first-child { border-top: 0; }
+  .lesson .time { font-size: .82rem; color: var(--muted); line-height: 1.3; padding-top: 2px; }
+  .lesson .what { min-width: 0; }
+  .lesson .what .n { font-weight: 600; }
+  .lesson .what .m { font-size: .8rem; color: var(--muted); }
+  .lesson .seg { grid-column: 2; justify-self: start; margin-top: 4px; }
+  .empty { color: var(--muted); font-size: .9rem; padding: 10px 2px; }
+
+  .settings { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .settings label { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; color: var(--muted); min-width: 0; }
+  .settings input, .settings select { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; min-width: 0; width: 100%; }
+  .settings .full { grid-column: 1 / -1; }
+  .settings p { margin: 0; font-size: .82rem; color: var(--muted); }
+  .status { font-size: .78rem; color: var(--muted); margin-top: 18px; text-align: center; }
+  @media (max-width: 460px) {
+    .summary { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .tile { padding: 8px 10px; } .tile .v { font-size: 1.25rem; }
+    .settings { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: no-preference) { .bar > i { transition: width .25s ease; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="headrow">
+      <div>
+        <div class="eyebrow">Zimný semester 2026/27 · 2m-pra</div>
+        <h1>Dochádzka</h1>
+      </div>
+      <button class="btn" id="toggleSettings" type="button" aria-expanded="false">Nastavenia</button>
+    </div>
+    <div class="sub" id="subline">Povolené absencie: najviac 50 % hodín z každého predmetu.</div>
+  </header>
+
+  <section class="settings" id="settings" hidden>
+    <label>Začiatok semestra (pondelok 1. týždňa)
+      <input type="date" id="setStart">
+    </label>
+    <label>Počet týždňov výučby
+      <input type="number" id="setWeeks" min="1" max="20">
+    </label>
+    <label>Limit absencií (%)
+      <input type="number" id="setLimit" min="0" max="100">
+    </label>
+    <label>Do limitu počítať
+      <select id="setScope">
+        <option value="all">Všetky hodiny</option>
+        <option value="S">Len semináre</option>
+        <option value="P">Len prednášky</option>
+      </select>
+    </label>
+    <p class="full">Čísla v zátvorkách v rozvrhu sú týždne semestra, v ktorých hodina prebieha. Apka z nich a zo začiatku semestra vypočíta dátumy. Ak škola uvádza iný začiatok, zmeň ho tu a všetko sa prepočíta.</p>
+  </section>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="tabSubjects" aria-selected="true">Predmety</button>
+    <button type="button" role="tab" id="tabWeek" aria-selected="false">Týždeň</button>
+  </div>
+
+  <div id="noticeAlt" class="notice" hidden></div>
+
+  <section id="viewSubjects" class="list"></section>
+  <section id="viewWeek" hidden>
+    <div class="weeknav">
+      <button class="btn" type="button" id="prevWeek" aria-label="Predchádzajúci týždeň">‹</button>
+      <div style="text-align:center">
+        <h2 id="weekTitle"></h2>
+        <div class="range" id="weekRange"></div>
+      </div>
+      <button class="btn" type="button" id="nextWeek" aria-label="Nasledujúci týždeň">›</button>
+    </div>
+    <div id="weekBody"></div>
+    <div style="text-align:center;margin-top:6px"><button class="btn" type="button" id="todayWeek">Na aktuálny týždeň</button></div>
+  </section>
+
+  <div class="status" id="status"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---- Rozvrh (prepísaný z osobného rozvrhu, ZS 2026/27) ----
+  // type: P = prednáška (zelené), S = seminár (modré). weeks: null = každý týždeň.
+  // alt: v rozvrhu čiarkovaný rámček = viac skupín toho istého seminára; zapni tú svoju.
+  const SUBJECTS = [
+    { id: 'ep3', name: 'Európske právo III.', sub: 'Justičná spolupráca v civilných veciach EÚ', slots: [
+      { id: 'ep3-p',  type: 'P', day: 0, from: '09:20', to: '10:55', room: 'P 1.01', teacher: 'L. Garayová', weeks: [7] },
+      { id: 'ep3-s1', type: 'S', day: 0, from: '16:00', to: '17:35', room: 'P 1.01', teacher: 'V. Bednár Marková', weeks: [1, 2, 3, 4], alt: 'skupina 1' },
+      { id: 'ep3-s2', type: 'S', day: 0, from: '16:00', to: '17:35', room: 'P 1.01', teacher: 'V. Bednár Marková', weeks: [3, 6, 9, 10], alt: 'skupina 2' },
+      { id: 'ep3-s3', type: 'S', day: 0, from: '17:40', to: '19:15', room: 'P 1.01', teacher: 'V. Bednár Marková', weeks: [3, 5, 6], alt: 'z-mob' },
+    ]},
+    { id: 'ep5', name: 'Európske právo V.', sub: 'Vnútorný trh a súťažné právo EÚ', slots: [
+      { id: 'ep5-p', type: 'P', day: 0, from: '11:00', to: '12:35', room: 'P 1.02', teacher: 'A. Karpat', weeks: [7] },
+      { id: 'ep5-s', type: 'S', day: 0, from: '12:40', to: '14:15', room: 'P 1.02', teacher: 'A. Karpat', weeks: [3, 6, 7, 9] },
+    ]},
+    { id: 'rmep', name: 'Repetitórium z medzinárodného a európskeho práva', sub: '', slots: [
+      { id: 'rmep-p', type: 'P', day: 0, from: '09:20', to: '10:55', room: 'Zas. č. 3', teacher: 'A. Karpat', weeks: [7] },
+    ]},
+    { id: 'opp2', name: 'Občianske právo procesné II.', sub: '', slots: [
+      { id: 'opp2-p', type: 'P', day: 0, from: '14:20', to: '15:55', room: 'P 1.02', teacher: 'R. Smyčková', weeks: [8] },
+      { id: 'opp2-s', type: 'S', day: 2, from: '16:00', to: '17:35', room: 'P 1.01', teacher: 'D. Vyhnálik', weeks: [3, 9] },
+    ]},
+    { id: 'pdv', name: 'Právo duševného vlastníctva', sub: '', slots: [
+      { id: 'pdv-p',  type: 'P', day: 1, from: '08:30', to: '10:05', room: 'P 1.02', teacher: 'R. Kopčová', weeks: [12] },
+      { id: 'pdv-s1', type: 'S', day: 1, from: '10:10', to: '11:45', room: 'P 1.02', teacher: 'R. Kopčová', weeks: [1, 2, 3, 12], alt: 'skupina 1' },
+      { id: 'pdv-s2', type: 'S', day: 1, from: '10:10', to: '11:45', room: 'P 1.02', teacher: 'R. Kopčová', weeks: [3, 9, 10, 12], alt: 'skupina 2' },
+    ]},
+    { id: 'krim', name: 'Kriminalistika', sub: '', slots: [
+      { id: 'krim-p', type: 'P', day: 1, from: '10:10', to: '11:45', room: 'P 1.01', teacher: 'P. Polák', weeks: [12] },
+      { id: 'krim-s', type: 'S', day: 2, from: '14:20', to: '15:55', room: 'P 1.01', teacher: 'P. Polák', weeks: [3, 9] },
+    ]},
+    { id: 'tpp2', name: 'Trestné právo procesné II.', sub: '', slots: [
+      { id: 'tpp2-p', type: 'P', day: 1, from: '12:40', to: '14:15', room: 'P 1.01', teacher: 'P. Polák', weeks: [11, 12] },
+      { id: 'tpp2-s', type: 'S', day: 2, from: '12:40', to: '14:15', room: 'P 1.01', teacher: 'J. Záhora', weeks: [3, 9] },
+    ]},
+    { id: 'rtp', name: 'Rozhodovanie v trestnom práve', sub: '', slots: [
+      { id: 'rtp-s', type: 'S', day: 3, from: '09:20', to: '10:55', room: 'S 1.10', teacher: 'M. Tittlová', weeks: [3] },
+    ]},
+    { id: 'pen', name: 'Penológia', sub: '', slots: [
+      { id: 'pen-p', type: 'P', day: 3, from: '11:00', to: '12:35', room: 'S 1.10', teacher: 'M. Tittlová', weeks: null },
+    ]},
+    { id: 'rop', name: 'Repetitórium z obchodného práva', sub: '', slots: [
+      { id: 'rop-p', type: 'P', day: 3, from: '12:40', to: '14:15', room: 'P 1.02', teacher: 'R. Kopčová', weeks: null },
+    ]},
+    { id: 'rpp', name: 'Repetitórium z pracovného práva', sub: '', slots: [
+      { id: 'rpp-p', type: 'P', day: 3, from: '14:20', to: '15:55', room: 'P 1.02', teacher: 'T. Máhrová', weeks: null },
+    ]},
+    { id: 'sl', name: 'Súdne lekárstvo', sub: '', slots: [
+      { id: 'sl-p', type: 'P', day: 3, from: '16:00', to: '17:35', room: 'P 1.02', teacher: 'N. Moravanský', weeks: null },
+    ]},
+  ];
+  const DAYS = ['Po', 'Ut', 'St', 'Št', 'Pi'];
+  const DAY_FULL = ['Pondelok', 'Utorok', 'Streda', 'Štvrtok', 'Piatok'];
+  const TYPE_NAME = { P: 'prednáška', S: 'seminár' };
+
+  const DEFAULT_SETTINGS = { start: '2026-09-21', weeks: 12, limit: 50, scope: 'all', slots: {} };
+  let settings = Object.assign({}, DEFAULT_SETTINGS);
+  let marks = {};        // occId -> 'p' | 'a' | 'x'
+  let activeTab = 'subjects';
+  let viewWeek = null;
+  let db = null;
+  const $ = (id) => document.getElementById(id);
+
+  // ---- Ukladanie: db artefaktu, inak localStorage ----
+  const LS_KEY = 'dochadzka-zs2627';
+  function lsLoad() { try { const r = localStorage.getItem(LS_KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
+  function lsSave() { try { localStorage.setItem(LS_KEY, JSON.stringify({ settings, marks })); } catch (e) {} }
+  const queues = {};
+  function dbWrite(docName, data) {
+    if (!db) { lsSave(); return; }
+    const prev = queues[docName] || Promise.resolve();
+    queues[docName] = prev.then(() => db.doc('app/' + docName).set(data)).catch((e) => {
+      setStatus('Uloženie zlyhalo (' + (e && e.code ? e.code : 'chyba') + '). Skús znova.');
+    });
+  }
+  function saveSettings() { dbWrite('settings', settings); }
+  function saveMarks() { dbWrite('marks', { marks }); }
+  function setStatus(t) { $('status').textContent = t; }
+
+  // ---- Výpočty ----
+  function parseDate(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+  function fmt(d) { return d.getDate() + '. ' + (d.getMonth() + 1) + '.'; }
+  function occDate(week, day) { const d = parseDate(settings.start); d.setDate(d.getDate() + (week - 1) * 7 + day); return d; }
+  function slotActive(slot) { return slot.alt ? settings.slots[slot.id] === true : settings.slots[slot.id] !== false; }
+  function slotWeeks(slot) { return slot.weeks || Array.from({ length: settings.weeks }, (_, i) => i + 1); }
+  function occId(slot, w) { return slot.id + '-w' + w; }
+  function today0() { const t = new Date(); t.setHours(0, 0, 0, 0); return t; }
+  function currentWeek() {
+    const diff = Math.floor((today0() - parseDate(settings.start)) / 86400000);
+    return Math.min(Math.max(Math.floor(diff / 7) + 1, 1), settings.weeks);
+  }
+  function inScope(slot) { return settings.scope === 'all' || slot.type === settings.scope; }
+
+  function occurrences(subject) {
+    const out = [];
+    subject.slots.forEach((slot) => {
+      if (!slotActive(slot)) return;
+      slotWeeks(slot).forEach((w) => {
+        if (w > settings.weeks) return;
+        out.push({ id: occId(slot, w), slot, week: w, date: occDate(w, slot.day), mark: marks[occId(slot, w)] });
+      });
+    });
+    out.sort((a, b) => a.date - b.date || a.slot.from.localeCompare(b.slot.from));
+    return out;
+  }
+  function stats(subject) {
+    const occ = occurrences(subject).filter((o) => inScope(o.slot) && o.mark !== 'x');
+    const total = occ.length;
+    const absent = occ.filter((o) => o.mark === 'a').length;
+    const present = occ.filter((o) => o.mark === 'p').length;
+    const t = today0();
+    const unmarked = occ.filter((o) => !o.mark && o.date < t).length;
+    const maxAbs = Math.floor(total * settings.limit / 100);
+    const left = maxAbs - absent;
+    let level = 'ok';
+    if (total === 0) level = 'off';
+    else if (left < 0) level = 'bad';
+    else if (left === 0 || absent / Math.max(maxAbs, 1) >= 0.75) level = 'warn';
+    return { total, absent, present, unmarked, maxAbs, left, level, pct: total ? Math.round(absent / total * 100) : 0 };
+  }
+
+  // ---- Render ----
+  function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+  function segHtml(id, mark) {
+    return '<span class="seg" data-occ="' + id + '">' +
+      '<button type="button" class="p" aria-pressed="' + (mark === 'p') + '" data-m="p">Bol som</button>' +
+      '<button type="button" class="a" aria-pressed="' + (mark === 'a') + '" data-m="a">Chýbal som</button>' +
+      '<button type="button" class="x" aria-pressed="' + (mark === 'x') + '" data-m="x">Odpadla</button></span>';
+  }
+  const LEVEL_TXT = { ok: 'V poriadku', warn: 'Pozor', bad: 'Prekročené', off: 'Nepočíta sa' };
+
+  function renderSummary() {
+    let bad = 0, warn = 0, unmarked = 0, absTotal = 0;
+    SUBJECTS.forEach((s) => { const st = stats(s); if (st.level === 'bad') bad++; if (st.level === 'warn') warn++; unmarked += st.unmarked; absTotal += st.absent; });
+    const w = currentWeek();
+    $('summary').innerHTML =
+      '<div class="tile"><div class="v num">' + w + '. <span class="muted" style="font-size:.9rem">/ ' + settings.weeks + '</span></div><div class="l">týždeň semestra</div></div>' +
+      '<div class="tile ' + (bad ? 'bad' : warn ? 'warn' : 'ok') + '"><div class="v num">' + (bad + warn) + '</div><div class="l">' + (bad ? 'predmetov nad limitom alebo na hrane' : 'predmetov na hrane limitu') + '</div></div>' +
+      '<div class="tile ' + (unmarked ? 'warn' : '') + '"><div class="v num">' + unmarked + '</div><div class="l">prebehnutých hodín bez záznamu</div></div>';
+    $('subline').textContent = 'Povolené absencie: najviac ' + settings.limit + ' % ' + (settings.scope === 'S' ? 'seminárov' : settings.scope === 'P' ? 'prednášok' : 'hodín') + ' z každého predmetu. Zatiaľ vynechaných hodín: ' + absTotal + '.';
+  }
+
+  function renderNotice() {
+    const open = SUBJECTS.filter((s) => s.slots.some((sl) => sl.alt) && !s.slots.some((sl) => sl.alt && slotActive(sl)));
+    const n = $('noticeAlt');
+    if (!open.length || activeTab !== 'subjects') { n.hidden = true; return; }
+    n.hidden = false;
+    n.innerHTML = '<b>Vyber si skupinu seminára.</b> V rozvrhu máš viac skupín (čiarkované rámčeky) pri: ' + open.map((s) => esc(s.name)).join(', ') + '. Otvor predmet a zapni termín, na ktorý chodíš. Kým to neurobíš, semináre sa do limitu nepočítajú.';
+  }
+
+  function renderSubjects() {
+    const openIds = new Set(Array.from(document.querySelectorAll('#viewSubjects details[open]')).map((d) => d.dataset.id));
+    const t = today0();
+    $('viewSubjects').innerHTML = SUBJECTS.map((s) => {
+      const st = stats(s);
+      const occ = occurrences(s);
+      const fill = st.total ? Math.min(100, st.absent / st.total * 100) : 0;
+      const slotsHtml = s.slots.map((sl) => {
+        const on = slotActive(sl);
+        return '<div class="slot"><span class="type ' + sl.type + '">' + TYPE_NAME[sl.type] + '</span>' +
+          '<span class="t">' + DAYS[sl.day] + ' ' + sl.from + '–' + sl.to + ' · ' + esc(sl.room) + ' · ' + esc(sl.teacher) +
+          (sl.weeks ? ' <span class="muted num">(týždne ' + sl.weeks.join(', ') + ')</span>' : ' <span class="muted">(každý týždeň)</span>') +
+          (sl.alt ? ' <span class="muted">· ' + esc(sl.alt) + '</span>' : '') + '</span>' +
+          '<label class="switch"><input type="checkbox" data-slot="' + sl.id + '" ' + (on ? 'checked' : '') + '> ' + (sl.alt ? 'chodím sem' : 'počítať') + '</label></div>';
+      }).join('');
+      const occHtml = occ.length ? occ.map((o) => {
+        const past = o.date < t;
+        return '<div class="occ ' + (past ? 'past' : '') + (past && !o.mark ? ' unmarked' : '') + '">' +
+          '<div class="when num">' + DAYS[o.slot.day] + ' ' + fmt(o.date) + ' · ' + o.slot.from + '<small>' + o.week + '. týždeň · ' + TYPE_NAME[o.slot.type] + (s.slots.length > 1 ? ' · ' + esc(o.slot.teacher) : '') + '</small></div>' +
+          segHtml(o.id, o.mark) + '</div>';
+      }).join('') : '<div class="empty">Žiadne zapnuté termíny.</div>';
+      return '<details class="card" data-id="' + s.id + '"' + (openIds.has(s.id) ? ' open' : '') + '><summary>' +
+        '<div><div class="name">' + esc(s.name) + '</div><div class="detail">' + (s.sub ? esc(s.sub) + ' · ' : '') +
+        s.slots.map((sl) => TYPE_NAME[sl.type]).filter((v, i, a) => a.indexOf(v) === i).join(' + ') + '</div></div>' +
+        '<span class="pill ' + st.level + '">' + LEVEL_TXT[st.level] + '</span>' +
+        '<div class="bar ' + st.level + '"><i style="width:' + fill + '%"></i><b style="left:' + settings.limit + '%"></b></div>' +
+        '<div class="stats num">' +
+          (st.level === 'off' ? '<span>Nič sa nepočíta do limitu</span>' :
+          '<span>Absencie <strong>' + st.absent + ' / ' + st.maxAbs + '</strong> povolených</span>' +
+          '<span>Hodín <strong>' + st.total + '</strong></span>' +
+          '<span>' + (st.left >= 0 ? 'Môžeš ešte vynechať <strong>' + st.left + '</strong>' : 'Nad limit o <strong>' + (-st.left) + '</strong>') + '</span>' +
+          (st.unmarked ? '<span style="color:var(--warn)">Bez záznamu: ' + st.unmarked + '</span>' : '')) +
+        '</div></summary>' +
+        '<div class="body"><div class="eyebrow">Termíny v rozvrhu</div>' + slotsHtml +
+        '<div class="eyebrow" style="margin-top:4px">Hodiny</div><div>' + occHtml + '</div></div></details>';
+    }).join('');
+  }
+
+  function renderWeek() {
+    if (viewWeek == null) viewWeek = currentWeek();
+    const w = viewWeek;
+    const mon = occDate(w, 0), fri = occDate(w, 4);
+    $('weekTitle').textContent = w + '. týždeň' + (w === currentWeek() ? ' (aktuálny)' : '');
+    $('weekRange').textContent = fmt(mon) + ' – ' + fmt(fri) + ' ' + fri.getFullYear();
+    $('prevWeek').disabled = w <= 1; $('nextWeek').disabled = w >= settings.weeks;
+    const t = today0();
+    const html = DAYS.map((d, di) => {
+      const items = [];
+      SUBJECTS.forEach((s) => s.slots.forEach((sl) => {
+        if (sl.day !== di || !slotActive(sl) || slotWeeks(sl).indexOf(w) < 0) return;
+        items.push({ s, sl, id: occId(sl, w) });
+      }));
+      items.sort((a, b) => a.sl.from.localeCompare(b.sl.from));
+      const date = occDate(w, di);
+      const isToday = date.getTime() === t.getTime();
+      const body = items.length ? items.map((it) =>
+        '<div class="lesson"><div class="time num">' + it.sl.from + '<br>' + it.sl.to + '</div>' +
+        '<div class="what"><div class="n">' + esc(it.s.name) + '</div><div class="m"><span class="type ' + it.sl.type + '">' + TYPE_NAME[it.sl.type] + '</span> ' + esc(it.sl.room) + ' · ' + esc(it.sl.teacher) +
+        (!inScope(it.sl) ? ' · <span class="muted">mimo limitu</span>' : '') + '</div></div>' +
+        segHtml(it.id, marks[it.id]) + '</div>').join('')
+        : '<div class="empty">Bez výučby.</div>';
+      return '<div class="day"><h3>' + DAY_FULL[di] + (isToday ? ' · dnes' : '') + '<span class="num">' + fmt(date) + '</span></h3><div class="card">' + body + '</div></div>';
+    }).join('');
+    $('weekBody').innerHTML = html;
+  }
+
+  function render() {
+    renderSummary(); renderNotice();
+    $('viewSubjects').hidden = activeTab !== 'subjects';
+    $('viewWeek').hidden = activeTab !== 'week';
+    $('tabSubjects').setAttribute('aria-selected', activeTab === 'subjects');
+    $('tabWeek').setAttribute('aria-selected', activeTab === 'week');
+    if (activeTab === 'subjects') renderSubjects(); else renderWeek();
+  }
+  function fillSettingsForm() {
+    $('setStart').value = settings.start; $('setWeeks').value = settings.weeks;
+    $('setLimit').value = settings.limit; $('setScope').value = settings.scope;
+  }
+
+  // ---- Udalosti ----
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('.seg button');
+    if (!b) return;
+    const id = b.parentElement.dataset.occ, m = b.dataset.m;
+    if (marks[id] === m) delete marks[id]; else marks[id] = m;
+    saveMarks(); render();
+  });
+  document.addEventListener('change', (e) => {
+    const cb = e.target.closest('input[data-slot]');
+    if (!cb) return;
+    settings.slots = Object.assign({}, settings.slots, { [cb.dataset.slot]: cb.checked });
+    saveSettings(); render();
+  });
+  $('tabSubjects').onclick = () => { activeTab = 'subjects'; render(); };
+  $('tabWeek').onclick = () => { activeTab = 'week'; render(); };
+  $('prevWeek').onclick = () => { viewWeek = Math.max(1, viewWeek - 1); render(); };
+  $('nextWeek').onclick = () => { viewWeek = Math.min(settings.weeks, viewWeek + 1); render(); };
+  $('todayWeek').onclick = () => { viewWeek = currentWeek(); render(); };
+  $('toggleSettings').onclick = () => { const s = $('settings'); s.hidden = !s.hidden; $('toggleSettings').setAttribute('aria-expanded', String(!s.hidden)); };
+  ['setStart', 'setWeeks', 'setLimit', 'setScope'].forEach((id) => {
+    $(id).addEventListener('change', () => {
+      const v = $(id).value;
+      if (id === 'setStart' && /^\d{4}-\d{2}-\d{2}$/.test(v)) settings.start = v;
+      if (id === 'setWeeks') settings.weeks = Math.min(20, Math.max(1, parseInt(v, 10) || 12));
+      if (id === 'setLimit') settings.limit = Math.min(100, Math.max(0, parseInt(v, 10) || 0));
+      if (id === 'setScope') settings.scope = v;
+      viewWeek = null; fillSettingsForm(); saveSettings(); render();
+    });
+  });
+
+  // ---- Štart ----
+  function applyRemote(settingsDoc, marksDoc) {
+    if (settingsDoc) settings = Object.assign({}, DEFAULT_SETTINGS, settingsDoc, { slots: settingsDoc.slots || {} });
+    if (marksDoc) marks = Object.assign({}, marksDoc.marks || {});
+    fillSettingsForm(); render();
+  }
+  const local = lsLoad();
+  if (local) { settings = Object.assign({}, DEFAULT_SETTINGS, local.settings || {}); marks = local.marks || {}; }
+  fillSettingsForm(); render();
+  setStatus('Pripájam úložisko…');
+
+  const useDb = (window.claude && typeof window.claude.use === 'function') ? window.claude.use('db') : Promise.resolve(null);
+  useDb.then((ns) => {
+    if (!ns) { setStatus('Dochádzka sa ukladá len v tomto prehliadači.'); return; }
+    db = ns;
+    let gotS = false, gotM = false;
+    const ready = () => { if (gotS && gotM) setStatus('Dochádzka je uložená v artefakte a zdieľaná medzi tvojimi zariadeniami.'); };
+    db.doc('app/settings').onSnapshot((snap) => {
+      if (snap.exists) { applyRemote(snap.data(), null); }
+      else if (!gotS) { saveSettings(); }
+      gotS = true; ready();
+    }, (err) => setStatus('Úložisko nedostupné: ' + err.code));
+    db.doc('app/marks').onSnapshot((snap) => {
+      if (snap.exists) { applyRemote(null, snap.data()); }
+      else if (!gotM && Object.keys(marks).length) { saveMarks(); }
+      gotM = true; ready();
+    }, (err) => setStatus('Úložisko nedostupné: ' + err.code));
+  });
+})();
+</script>
+</body>
+</html>
