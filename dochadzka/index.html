@@ -101,6 +101,7 @@
   .type.P { color: var(--lecture); } .type.S { color: var(--seminar); }
   .switch { display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; color: var(--muted); }
   .switch input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+  select.freq { font: inherit; font-size: .8rem; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; }
 
   .occ { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; padding: 8px 0; border-top: 1px dashed var(--line); }
   .occ:first-of-type { border-top: 0; }
@@ -173,7 +174,7 @@
         <option value="P">Len prednášky</option>
       </select>
     </label>
-    <p class="full">Každá hodina z rozvrhu sa počíta každý týždeň výučby. Dátumy hodín sa rátajú od začiatku semestra. Ak sa zmení dĺžka semestra alebo začiatok, zmeň to tu a všetko sa prepočíta. Termín, ktorý nechceš rátať, vypni priamo pri predmete.</p>
+    <p class="full">Každá hodina z rozvrhu sa počíta každý týždeň výučby. Dátumy hodín sa rátajú od začiatku semestra. Ak sa zmení dĺžka semestra alebo začiatok, zmeň to tu a všetko sa prepočíta. Pri každom termíne vieš nastaviť, či je každý týždeň alebo len v nepárnych či párnych týždňoch. Termín, ktorý nechceš rátať, vypni priamo pri predmete.</p>
   </section>
 
   <div class="summary" id="summary"></div>
@@ -210,6 +211,7 @@
   // type: P = prednáška (zelené), S = seminár (modré). Každá hodina beží každý týždeň semestra.
   // Čísla v zátvorkách z pôvodného rozvrhu sa podľa skúsenosti neriadia výučbou, preto sa ignorujú.
   // alt: v rozvrhu čiarkovaný doplnkový termín; zapína sa ručne.
+  // freq: 'all' (každý týždeň), 'odd' (nepárne týždne), 'even' (párne); dá sa prepnúť v apke.
   const SUBJECTS = [
     { id: 'ep3', name: 'Európske právo III.', sub: 'Justičná spolupráca v civilných veciach EÚ', slots: [
       { id: 'ep3-p',  type: 'P', day: 0, from: '09:20', to: '10:55', room: 'P 1.01', teacher: 'L. Garayová', weeks: null },
@@ -218,7 +220,7 @@
     ]},
     { id: 'ep5', name: 'Európske právo V.', sub: 'Vnútorný trh a súťažné právo EÚ', slots: [
       { id: 'ep5-p', type: 'P', day: 0, from: '11:00', to: '12:35', room: 'P 1.02', teacher: 'A. Karpat', weeks: null },
-      { id: 'ep5-s', type: 'S', day: 0, from: '12:40', to: '14:15', room: 'P 1.02', teacher: 'A. Karpat', weeks: null },
+      { id: 'ep5-s', type: 'S', day: 0, from: '12:40', to: '14:15', room: 'P 1.02', teacher: 'A. Karpat', weeks: null, freq: 'odd' },
     ]},
     { id: 'rmep', name: 'Repetitórium z medzinárodného a európskeho práva', sub: '', slots: [
       { id: 'rmep-p', type: 'P', day: 0, from: '09:20', to: '10:55', room: 'Zas. č. 3', teacher: 'A. Karpat', weeks: null },
@@ -259,7 +261,8 @@
   const DAY_FULL = ['Pondelok', 'Utorok', 'Streda', 'Štvrtok', 'Piatok'];
   const TYPE_NAME = { P: 'prednáška', S: 'seminár' };
 
-  const DEFAULT_SETTINGS = { start: '2026-09-21', weeks: 12, limit: 50, scope: 'all', slots: {} };
+  const DEFAULT_SETTINGS = { start: '2026-09-21', weeks: 12, limit: 50, scope: 'all', slots: {}, freq: {} };
+  const FREQ_NAME = { all: 'každý týždeň', odd: 'nepárne týždne', even: 'párne týždne' };
   let settings = Object.assign({}, DEFAULT_SETTINGS);
   let marks = {};        // occId -> 'p' | 'a' | 'x'
   let activeTab = 'subjects';
@@ -288,7 +291,12 @@
   function fmt(d) { return d.getDate() + '. ' + (d.getMonth() + 1) + '.'; }
   function occDate(week, day) { const d = parseDate(settings.start); d.setDate(d.getDate() + (week - 1) * 7 + day); return d; }
   function slotActive(slot) { return slot.alt ? settings.slots[slot.id] === true : settings.slots[slot.id] !== false; }
-  function slotWeeks(slot) { return slot.weeks || Array.from({ length: settings.weeks }, (_, i) => i + 1); }
+  function slotFreq(slot) { return settings.freq[slot.id] || slot.freq || 'all'; }
+  function slotWeeks(slot) {
+    const f = slotFreq(slot);
+    const all = slot.weeks || Array.from({ length: settings.weeks }, (_, i) => i + 1);
+    return all.filter((w) => f === 'all' || (f === 'odd' ? w % 2 === 1 : w % 2 === 0));
+  }
   function occId(slot, w) { return slot.id + '-w' + w; }
   function today0() { const t = new Date(); t.setHours(0, 0, 0, 0); return t; }
   function currentWeek() {
@@ -365,8 +373,8 @@
         const on = slotActive(sl);
         return '<div class="slot"><span class="type ' + sl.type + '">' + TYPE_NAME[sl.type] + '</span>' +
           '<span class="t">' + DAYS[sl.day] + ' ' + sl.from + '–' + sl.to + ' · ' + esc(sl.room) + ' · ' + esc(sl.teacher) +
-          (sl.weeks ? ' <span class="muted num">(týždne ' + sl.weeks.join(', ') + ')</span>' : ' <span class="muted">(každý týždeň)</span>') +
           (sl.alt ? ' <span class="muted">· ' + esc(sl.alt) + '</span>' : '') + '</span>' +
+          '<select class="freq" data-freq="' + sl.id + '" aria-label="Ako často">' + ['all', 'odd', 'even'].map((f) => '<option value="' + f + '"' + (slotFreq(sl) === f ? ' selected' : '') + '>' + FREQ_NAME[f] + '</option>').join('') + '</select>' +
           '<label class="switch"><input type="checkbox" data-slot="' + sl.id + '" ' + (on ? 'checked' : '') + '> ' + (sl.alt ? 'chodím sem' : 'počítať') + '</label></div>';
       }).join('');
       const occHtml = occ.length ? occ.map((o) => {
@@ -442,6 +450,8 @@
     saveMarks(); render();
   });
   document.addEventListener('change', (e) => {
+    const sel = e.target.closest('select[data-freq]');
+    if (sel) { settings.freq = Object.assign({}, settings.freq, { [sel.dataset.freq]: sel.value }); saveSettings(); render(); return; }
     const cb = e.target.closest('input[data-slot]');
     if (!cb) return;
     settings.slots = Object.assign({}, settings.slots, { [cb.dataset.slot]: cb.checked });
@@ -466,12 +476,12 @@
 
   // ---- Štart ----
   function applyRemote(settingsDoc, marksDoc) {
-    if (settingsDoc) settings = Object.assign({}, DEFAULT_SETTINGS, settingsDoc, { slots: settingsDoc.slots || {} });
+    if (settingsDoc) settings = Object.assign({}, DEFAULT_SETTINGS, settingsDoc, { slots: settingsDoc.slots || {}, freq: settingsDoc.freq || {} });
     if (marksDoc) marks = Object.assign({}, marksDoc.marks || {});
     fillSettingsForm(); render();
   }
   const local = lsLoad();
-  if (local) { settings = Object.assign({}, DEFAULT_SETTINGS, local.settings || {}); marks = local.marks || {}; }
+  if (local) { settings = Object.assign({}, DEFAULT_SETTINGS, local.settings || {}, { freq: (local.settings && local.settings.freq) || {} }); marks = local.marks || {}; }
   fillSettingsForm(); render();
   setStatus('Pripájam úložisko…');
 
