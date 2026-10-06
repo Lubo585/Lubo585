@@ -1,0 +1,10 @@
+# NazovPortalu – robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /ucet/
+Disallow: /*?utm_
+Disallow: /*&utm_
+
+Sitemap: https://nazovportalu.sk/sitemap.xml

@@ -1,0 +1,14 @@
+{
+  "name": "NazovPortalu",
+  "short_name": "NazovPortalu",
+  "description": "Overená erotická inzercia na Slovensku. Diskrétne, bezpečne, bez falošných profilov.",
+  "lang": "sk",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0a0d",
+  "theme_color": "#c2185b",
+  "icons": [
+    { "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
