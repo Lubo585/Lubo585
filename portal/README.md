@@ -26,6 +26,7 @@ Skript nahradí názov aj doménu vo všetkých HTML, JSON-LD, sitemap, robots, 
 | `js/config.js`, `js/supabase.js` | Konfigurácia a napojenie na Supabase (výpis, detail, odhalenie čísla, nahlásenie, pridanie inzerátu, heartbeat) |
 | `supabase/` | Migrácie, úložisko, cron, Edge Function pre platby, lokálne testy |
 | `spravy.html`, `js/native.js`, `sw.js`, `.well-known/` | Správy v reálnom čase, natívna vrstva pre appku, PWA service worker, deep linky |
+| `aplikacia.html`, `js/download.js`, `downloads/` | Stránka na stiahnutie (detekcia Android/iPhone), manifest verzie, miesto pre APK |
 | `app/` | Capacitor projekt pre iOS a Android (ikony, splash, Android/iOS natívne projekty) |
 | `robots.txt`, `sitemap.xml`, `manifest.webmanifest`, `.htaccess` | SEO a server |
 | `scripts/gen_pages.py` | Po úprave hlavičky/pätičky v `index.html` pregeneruje podstránky |
@@ -44,7 +45,7 @@ Skript nahradí názov aj doménu vo všetkých HTML, JSON-LD, sitemap, robots, 
 
 ## Mobilná aplikácia (iOS + Android)
 
-V priečinku `app/` je Capacitor projekt, ktorý balí tento web do natívnej aplikácie s rovnakým Supabase backendom (zdieľané dáta, realtime správy, push, deep linky). Postup v `app/README.md`, podmienky obchodov a riziká v `app/STORE.md`. Web je zároveň inštalovateľná PWA (`manifest.webmanifest`, `sw.js`).
+V priečinku `app/` je Capacitor projekt, ktorý balí tento web do natívnej aplikácie s rovnakým Supabase backendom (zdieľané dáta, realtime správy, push, deep linky). Aplikácia sa sťahuje priamo z webu (`aplikacia.html`, `downloads/version.json`, podpísaný APK cez `app/scripts/release.sh` alebo CI). Postup v `app/README.md`, podmienky obchodov a riziká v `app/STORE.md`. Web je zároveň inštalovateľná PWA (`manifest.webmanifest`, `sw.js`).
 
 ## Backend
 

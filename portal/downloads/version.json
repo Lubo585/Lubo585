@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "versionCode": 10000,
+  "apk": "/downloads/nazovportalu-1.0.0.apk",
+  "sha256": "",
+  "sizeMB": 0,
+  "minAndroid": "7.0 (API 24)",
+  "releasedAt": "",
+  "changelog": [
+    "Prvé vydanie: overené inzeráty, filtre podľa mesta, správy v reálnom čase, push notifikácie."
+  ],
+  "note": "Tento súbor prepisuje skript app/scripts/release.sh alebo CI pri každom vydaní. Stránka /aplikacia.html z neho číta verziu, odkaz a kontrolný súčet."
+}

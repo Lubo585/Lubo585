@@ -18,7 +18,7 @@ Aplikácia v podobe erotickej inzercie spoločníčok a privátov preto **s vyso
 | **Alternatívne obchody** | ✅ napr. Aptoide, Uptodown; v EÚ od 2024 aj iné obchody | ✅ v EÚ alternatívne obchody (DMA, iOS 17.4+) s notarizáciou Apple | Apple notarizácia stále kontroluje bezpečnosť, nie obsah; obsahové pravidlá určuje obchod. |
 | **Oficiálne obchody s obmedzenou verziou** | ⚠️ | ⚠️ | Verzia „zoznamka / spoločenské stretnutia“ bez cenníkov a explicitných služieb, s prísnym 18+ ratingom. Riziko zamietnutia a trvalého zablokovania vývojárskeho účtu (Apple aj Google blokujú účty za opakované porušenia), čo ohrozí aj iné vaše aplikácie. |
 
-Odporúčanie: spustiť ako PWA + priamy APK, obchody skúsiť až s právne posúdenou „soft“ verziou a **na samostatnom vývojárskom účte**.
+**Zvolená stratégia: priame stiahnutie z webu.** Stránka `/aplikacia.html` ponúka Android APK (s SHA-256 a návodom) a pre iPhone pridanie PWA na plochu. Aplikácia si sama kontroluje `downloads/version.json` a ponúkne novú verziu. Obchody prípadne neskôr so „soft“ verziou **na samostatnom vývojárskom účte**.
 
 ## Ak sa rozhodnete odoslať do obchodov
 

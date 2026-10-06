@@ -13,7 +13,9 @@ Postgres schéma s RLS, RPC funkcie, úložisko a webhook platieb. Všetko je v 
 | Recenzie | insert prejde len po zalogovanom kontakte (`contacts`), vlastný inzerát sa hodnotiť nedá, zverejnenie až po schválení |
 | Nahlásenia | RPC `submit_report` (aj anonymne); neplnoletosť a nátlak dostanú prioritu 1 |
 | Topovanie | `orders` → webhook platobnej brány (Edge Function) označí `paid` → trigger predĺži `top_until` / `highlight_until`; kupujúci si zaplatenie sám označiť nemôže |
-| Fotky | bucket `listing-photos` (verejný), nahrávať smie len vlastník do priečinka svojho inzerátu; vlastník si fotku nemôže sám schváliť |
+| Fotky | upload do privátneho `listing-uploads`; po schválení moderátorom trigger presunie súbor do verejného `listing-photos`. Neschválené fotky nie sú verejne dostupné ani pri uhádnutí cesty |
+| Limity zneužitia | IP klienta zo serverových hlavičiek (nie z parametra): odhalenie čísla 30/hod na účet či IP a 300/hod na inzerát, nahlásenia 10/hod, správy 60/min |
+| Platby | ceny v tabuľke `products`; sumu objednávky nastavuje server, klientom poslaná suma sa ignoruje; webhook kontroluje sumu a podpis v konštantnom čase |
 | Overovacie videá | bucket `verification-media` (privátny), číta len staff |
 | Online stav | RPC `heartbeat` každých 5 min z klienta inzerentky → `is_online` vo view |
 | Vyhľadávanie | RPC `search_listings` (mesto vrátane mestských častí, kategória, fulltext bez diakritiky, len overené, online, s recenziami), radenie TOP → overené → najnovšie |
@@ -53,7 +55,7 @@ Postgres schéma s RLS, RPC funkcie, úložisko a webhook platieb. Všetko je v 
 ```bash
 sudo ./supabase/tests/run.sh
 ```
-Spustí migrácie na čistom PostgreSQL s mockom `auth`/`storage` a prejde 15 + 8 scenárov (vrátane správ) (neplnoletá registrácia, samo-aktivácia, samo-povýšenie, RLS pre anon, vyhľadávanie bez diakritiky, odhalenie čísla, recenzia bez kontaktu, priorita nahlásenia, platba a TOP, rate limit).
+Spustí migrácie na čistom PostgreSQL s mockom `auth`/`storage` a prejde 15 + 8 + 10 scenárov (obchodné pravidlá, správy, bezpečnosť) (neplnoletá registrácia, samo-aktivácia, samo-povýšenie, RLS pre anon, vyhľadávanie bez diakritiky, odhalenie čísla, recenzia bez kontaktu, priorita nahlásenia, platba a TOP, rate limit).
 
 ## Čo zostáva
 

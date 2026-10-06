@@ -159,13 +159,13 @@
         var ins = await sb.from('listings').insert({
           owner_id: session.user.id, category_id: cat.data.id, city_id: cityQ.data.id,
           title: f.title.value, body: f.text.value, price_from: f.cena.value || null,
-          blur_faces: !!f.blur.checked, status: 'pending'
+          contact_phone: phone, blur_faces: !!f.blur.checked, status: 'pending'
         }).select('id').single();
         if (ins.error) throw ins.error;
         var files = f.fotky.files;
         for (var i = 0; i < files.length && i < 10; i++) {
           var path = ins.data.id + '/' + Date.now() + '-' + i + '.' + (files[i].name.split('.').pop() || 'jpg');
-          var up = await sb.storage.from(cfg.photoBucket).upload(path, files[i], { contentType: files[i].type });
+          var up = await sb.storage.from(cfg.uploadBucket || 'listing-uploads').upload(path, files[i], { contentType: files[i].type });
           if (!up.error) await sb.from('listing_photos').insert({ listing_id: ins.data.id, storage_path: path, sort: i, is_cover: i === 0 });
         }
         var ver = await sb.from('verifications').insert({ listing_id: ins.data.id }).select('code').single();

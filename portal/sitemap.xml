@@ -4,6 +4,7 @@
   <url><loc>https://nazovportalu.sk/mesto.html</loc><changefreq>hourly</changefreq><priority>0.9</priority></url>
   <url><loc>https://nazovportalu.sk/inzerat.html</loc><changefreq>daily</changefreq><priority>0.7</priority></url>
   <url><loc>https://nazovportalu.sk/pridat-inzerat.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nazovportalu.sk/aplikacia.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://nazovportalu.sk/bezpecnost.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nazovportalu.sk/podmienky.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://nazovportalu.sk/ochrana-sukromia.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>

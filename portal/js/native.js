@@ -66,3 +66,33 @@
     if (navigator.share) return navigator.share({ title: title, url: url });
   };
 })();
+
+/* ---------- Kontrola aktualizácií pri priamej distribúcii (Android APK) ---------- */
+(function () {
+  var C = window.Capacitor;
+  if (!(C && C.isNativePlatform && C.isNativePlatform()) || C.getPlatform() !== 'android') return;
+  var cfg = window.NP_CONFIG || {};
+  var url = (cfg.siteUrl || '') + (cfg.appVersionUrl || '/downloads/version.json');
+  function cmp(a, b) { var x = String(a).split('.').map(Number), y = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); } return 0; }
+  function check() {
+    fetch(url, { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (v) {
+      if (!v || !v.version || !window.NP_APP_VERSION || cmp(v.version, window.NP_APP_VERSION) <= 0 || !v.apk) return;
+      if (!(typeof v.apk === 'string' && (/^\/[^\/\\]/.test(v.apk) || /^https:\/\//.test(v.apk)) && /\.apk$/.test(v.apk))) return;
+      if (document.getElementById('np-update')) return;
+      var bar = document.createElement('div'); bar.id = 'np-update';
+      bar.style.cssText = 'position:fixed;left:12px;right:12px;bottom:84px;z-index:60;background:#1a1216;border:1px solid #d4af37;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;font-size:.9rem;box-shadow:0 10px 30px rgba(0,0,0,.4)';
+      bar.innerHTML = '<span style="flex:1">Nová verzia aplikácie <b>' + String(v.version).replace(/[^0-9.]/g, '') + '</b> je k dispozícii. Inštalácia cez nový APK zachová vaše prihlásenie aj dáta.</span>' +
+        '<a class="btn btn-gold btn-sm" href="#" id="np-update-go">Stiahnuť</a><button class="btn btn-ghost btn-sm" id="np-update-x" aria-label="Zavrieť">✕</button>';
+      document.body.appendChild(bar);
+      var apk = /^https?:/.test(v.apk) ? v.apk : (cfg.siteUrl || '') + v.apk;
+      document.getElementById('np-update-go').addEventListener('click', function (e) {
+        e.preventDefault();
+        var P = C.Plugins || {};
+        if (P.Browser) P.Browser.open({ url: apk }); else window.open(apk, '_system');
+      });
+      document.getElementById('np-update-x').addEventListener('click', function () { bar.remove(); });
+    }).catch(function () {});
+  }
+  setTimeout(check, 2500);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) check(); });
+})();

@@ -1,0 +1,63 @@
+name: Android release APK (priame stiahnutie)
+
+on:
+  push:
+    tags: [ 'app-v*' ]          # napr. git tag app-v1.1.0 && git push --tags
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Verzia X.Y.Z'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: portal/app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: portal/app/package-lock.json }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - uses: android-actions/setup-android@v3
+      - name: Verzia
+        id: v
+        run: |
+          V="${{ github.event.inputs.version }}"; [ -z "$V" ] && V="${GITHUB_REF_NAME#app-v}"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+      - name: Podpisový kľúč zo secrets
+        env: { KEYSTORE_B64: "${{ secrets.NP_KEYSTORE_BASE64 }}" }
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then echo "::error::Chýba secret NP_KEYSTORE_BASE64 (base64 z .keystore)"; exit 1; fi
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/np.keystore"
+      - run: npm ci
+      - name: Build + podpis + version.json
+        env:
+          NP_KEYSTORE_PATH: ${{ runner.temp }}/np.keystore
+          NP_KEYSTORE_PASSWORD: ${{ secrets.NP_KEYSTORE_PASSWORD }}
+          NP_KEY_ALIAS: ${{ secrets.NP_KEY_ALIAS }}
+          NP_KEY_PASSWORD: ${{ secrets.NP_KEY_PASSWORD }}
+        run: ./scripts/release.sh "${{ steps.v.outputs.version }}" "Vydanie ${{ steps.v.outputs.version }}"
+      - name: Odkaz vo version.json na GitHub Release (ak APK nehostujete na webe)
+        run: |
+          cd ../downloads
+          python3 - <<'PY'
+          import json; p='version.json'; v=json.load(open(p))
+          v['apk']=f"https://github.com/${{ github.repository }}/releases/download/app-v{v['version']}/nazovportalu-{v['version']}.apk"
+          json.dump(v,open(p,'w'),ensure_ascii=False,indent=2)
+          PY
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: app-v${{ steps.v.outputs.version }}
+          name: Aplikácia ${{ steps.v.outputs.version }}
+          files: |
+            portal/downloads/nazovportalu-${{ steps.v.outputs.version }}.apk
+            portal/downloads/version.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: downloads
+          path: portal/downloads/

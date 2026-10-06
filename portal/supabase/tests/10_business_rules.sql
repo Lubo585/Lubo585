@@ -33,8 +33,10 @@ select title, city_name, parent_city_name, is_verified, is_top, rating_count fro
 select count(*) from public.listings;
 \echo '--- search bratislava + "ruzinov" bez diakritiky:'
 select title, city_slug from public.search_listings(p_city=>'bratislava', p_q=>'ruzinov');
-\echo '--- anon reveal_phone:'
-select public.reveal_phone('aaaaaaaa-0000-0000-0000-000000000001','iphash1');
+\echo '--- anon reveal_phone (povolené s IP hlavičkou od servera, loguje hash IP):'
+select set_config('request.headers', '{"x-forwarded-for":"198.51.100.7"}', false) \gset
+select public.reveal_phone('aaaaaaaa-0000-0000-0000-000000000001');
+select set_config('request.headers', '', false) \gset
 reset role; set role authenticated; set request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
 \echo '--- recenzia bez kontaktu (očakávaná chyba):'
 insert into public.reviews(listing_id,author_id,rating,body) values ('aaaaaaaa-0000-0000-0000-000000000001',auth.uid(),5,'Super');
@@ -54,7 +56,9 @@ reset role; set request.jwt.claim.sub = '';
 update public.orders set status='paid', paid_at=now(), provider='test' where id='cccccccc-0000-0000-0000-000000000001';
 \echo '--- po webhooku: TOP ~7 dní (true,true) + overenie schválené moderátorom s JWT (verified true):'
 select (l.top_until - now()) > interval '6 days 23 hours' as top_7d_ok, p.is_top, p.is_verified from public.listings l join public.public_listings p on p.id=l.id;
-\echo '--- rate limit: 30 volaní OK, 31. zlyhá:'
+\echo '--- rate limit: 30 volaní OK, 31. zlyhá (očakávaná chyba):'
 set role anon; set request.jwt.claim.sub = '';
-select count(*) from (select public.reveal_phone('aaaaaaaa-0000-0000-0000-000000000001','iphash2') from generate_series(1,30)) x;
-select public.reveal_phone('aaaaaaaa-0000-0000-0000-000000000001','iphash2');
+select set_config('request.headers', '{"x-forwarded-for":"198.51.100.8"}', false) \gset
+select count(*) from (select public.reveal_phone('aaaaaaaa-0000-0000-0000-000000000001') from generate_series(1,30)) x;
+select public.reveal_phone('aaaaaaaa-0000-0000-0000-000000000001');
+select set_config('request.headers', '', false) \gset

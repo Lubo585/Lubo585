@@ -6,12 +6,31 @@ RewriteRule ^ https://nazovportalu.sk%{REQUEST_URI} [L,R=301]
 
 ErrorDocument 404 /404.html
 
+# Priame stiahnutie aplikácie
+AddType application/vnd.android.package-archive .apk
+<FilesMatch "\.apk$">
+  Header set Content-Disposition "attachment"
+  Header set Cache-Control "public, max-age=3600"
+</FilesMatch>
+<Files "version.json">
+  Header set Cache-Control "no-cache, must-revalidate"
+  Header set Access-Control-Allow-Origin "*"
+</Files>
+# Súbory pre app linky musia byť servírované ako JSON bez prípony
+<Files "apple-app-site-association">
+  ForceType application/json
+</Files>
+
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Permitted-Cross-Domain-Policies "none"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  # CSP: skripty len z vlastnej domény a jsdelivr (supabase-js), spojenia len na Supabase; inline štýly sú v šablóne, inline skripty nie
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
   # Označenie obsahu pre dospelých (RTA label – vyžadujú ho niektoré filtre a appstory)
   Header always set Rating "RTA-5042-1996-1400-1577-RTA"
 </IfModule>

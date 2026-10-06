@@ -22,8 +22,21 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Podpis release buildu z premenných prostredia (CI secrets alebo lokálny ~/.gradle/gradle.properties)
+    signingConfigs {
+        release {
+            def ks = System.getenv("NP_KEYSTORE_PATH") ?: project.findProperty("NP_KEYSTORE_PATH")
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv("NP_KEYSTORE_PASSWORD") ?: project.findProperty("NP_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("NP_KEY_ALIAS") ?: project.findProperty("NP_KEY_ALIAS")
+                keyPassword System.getenv("NP_KEY_PASSWORD") ?: project.findProperty("NP_KEY_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         release {
+            signingConfig (System.getenv("NP_KEYSTORE_PATH") || project.findProperty("NP_KEYSTORE_PATH")) ? signingConfigs.release : null
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

@@ -44,7 +44,17 @@ npm run ios             # otvorí Xcode           (len macOS, Xcode + CocoaPods:
 
 `https://nazovportalu.sk/inzerat/...` sa otvorí priamo v aplikácii. Na webe musia byť súbory `/.well-known/assetlinks.json` (Android, doplňte SHA-256 odtlačok podpisového kľúča) a `/.well-known/apple-app-site-association` (iOS, doplňte Team ID), obidva sú pripravené v `portal/.well-known/`.
 
-## Vydanie
+## Vydanie na priame stiahnutie z webu (zvolený kanál)
+
+```bash
+export NP_KEYSTORE_PATH=~/kluce/nazovportalu.keystore NP_KEYSTORE_PASSWORD=... NP_KEY_ALIAS=nazovportalu NP_KEY_PASSWORD=...
+./scripts/release.sh 1.1.0 "Opravy chýb" "Nové filtre"
+```
+Skript zvýši verziu, zostaví podpísaný APK, uloží ho do `portal/downloads/`, prepíše `version.json` (verzia, SHA-256, veľkosť, zmeny) a web aj aplikácia novú verziu okamžite ponúknu. Potom nahrajte `downloads/` na server. Alternatíva bez počítača s Android SDK: `git tag app-v1.1.0 && git push --tags` spustí `android-release.yml`, ktorý APK pripojí ku GitHub Release a `version.json` nasmeruje naň (vyžaduje secrets `NP_KEYSTORE_BASE64`, `NP_KEYSTORE_PASSWORD`, `NP_KEY_ALIAS`, `NP_KEY_PASSWORD`).
+
+**Podpisový kľúč je najdôležitejší súbor projektu.** Aktualizácia sa dá nainštalovať cez starú verziu len s rovnakým kľúčom a rovnakým `appId`; pri jeho strate musia používatelia aplikáciu odinštalovať (dáta na serveri zostanú, lokálne prihlásenie nie). Uložte ho na dve miesta mimo gitu.
+
+## Vydanie do obchodov (ak niekedy)
 
 - **Android**: `npm run release:android` → `android/app/build/outputs/bundle/release/app-release.aab`. Podpisový kľúč vytvorte raz (`keytool -genkey ...`), uložte mimo gitu a použite v `android/app/build.gradle` (`signingConfigs`) alebo cez Play App Signing.
 - **iOS**: Xcode → Product → Archive → Distribute (vyžaduje Apple Developer účet, 99 USD/rok).

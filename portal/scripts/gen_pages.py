@@ -319,6 +319,52 @@ page('spravy.html', 'Správy | NazovPortalu', 'Diskrétne správy medzi klientmi
 <p class="notice" style="margin-top:16px">Správy fungujú po doplnení Supabase konfigurácie (js/config.js). Bez nej je táto stránka ukážková.</p>
 </div></section>''', extra_head=bcld, robots='noindex, follow', current='/spravy.html')
 
+bc, bcld = crumbs([("Domov", "/"), ("Aplikácia", "/aplikacia.html")])
+page('aplikacia.html', 'Stiahnuť aplikáciu NazovPortalu pre Android a iPhone',
+     'Mobilná aplikácia NazovPortalu na priame stiahnutie: Android APK z nášho webu s overeným kontrolným súčtom, pre iPhone pridanie na plochu. Overené inzeráty, správy a upozornenia v telefóne.',
+     f"""{bc}
+<section class="hero" style="padding-top:16px"><div class="wrap" data-download>
+  <h1>Aplikácia v telefóne</h1>
+  <p class="lead">Rýchlejšia ako web, s upozorneniami na nové správy a inzeráty vo vašom meste. Sťahuje sa priamo z nášho webu, nie z obchodu, aby nikto nevidel, čo máte nainštalované.</p>
+  <div class="trust-row"><span>Rovnaký účet ako na webe</span><span>Aktualizácie bez straty dát</span><span>Bez reklamných sledovačov</span></div>
+
+  <div class="features" style="margin-top:8px">
+    <article class="feature" data-show="android desktop">
+      <div class="ico">▲</div><h3>Android</h3>
+      <p>Verzia <strong data-v="version">–</strong> · <span data-v="size"></span> · Android <span data-v="minAndroid"></span></p>
+      <p style="margin-top:12px"><a class="btn btn-primary btn-block" data-apk href="#" rel="nofollow" download>Stiahnuť APK</a></p>
+      <details class="faq" style="margin-top:10px"><summary>Ako nainštalovať APK (3 kroky)</summary>
+        <p>1. Klepnite na Stiahnuť a potvrďte stiahnutie.<br>2. Otvorte stiahnutý súbor. Ak sa zobrazí „Z bezpečnostných dôvodov…“, klepnite na <em>Nastavenia</em> a povoľte inštaláciu z tohto zdroja (Chrome). Povolenie môžete hneď po inštalácii vypnúť.<br>3. Klepnite na <em>Inštalovať</em>. Pri aktualizácii stačí nainštalovať nový APK cez starý, prihlásenie aj dáta zostanú.</p>
+      </details>
+      <p class="muted" style="font-size:.8rem;margin:10px 0 0">Kontrolný súčet SHA-256: <code data-v="sha256" style="word-break:break-all">–</code></p>
+    </article>
+    <article class="feature" data-show="ios desktop">
+      <div class="ico">◯</div><h3>iPhone a iPad</h3>
+      <p>Apple nepovoľuje inštaláciu mimo App Store, preto použite webovú aplikáciu. Funguje rovnako: ikona na ploche, celá obrazovka, upozornenia.</p>
+      <p style="margin-top:12px"><strong>Safari → tlačidlo Zdieľať <span aria-hidden="true">⎙</span> → „Pridať na plochu“</strong></p>
+      <p class="muted" style="font-size:.85rem">Upozornenia povolíte po pridaní na plochu v nastaveniach aplikácie (iOS 16.4 a novší).</p>
+    </article>
+    <article class="feature" data-show="desktop">
+      <div class="ico">▦</div><h3>Ste na počítači?</h3>
+      <p>Naskenujte kód telefónom, otvorí sa táto stránka.</p>
+      <img src="/img/qr-aplikacia.svg" alt="QR kód na stránku aplikácie" width="180" height="180" style="background:#fff;padding:8px;border-radius:12px;margin-top:8px">
+    </article>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <h2 style="font-size:1.15rem">Čo je nové</h2>
+    <ul class="muted" data-v="changelog" style="padding-left:1.1em;margin:0"></ul>
+    <p class="muted" style="font-size:.85rem;margin:10px 0 0">Vydané: <span data-v="released">–</span></p>
+  </div>
+
+  <div class="seo-text" style="margin-top:18px">
+    <h2>Prečo priame stiahnutie</h2>
+    <p>Aplikácia s obsahom pre dospelých nepatrí do App Store ani Google Play, preto ju ponúkame priamo. APK je podpísaný naším kľúčom a pri každom vydaní zverejňujeme kontrolný súčet, podľa ktorého si overíte, že súbor nebol zmenený. Aplikácia sa sama upozorní na novú verziu.</p>
+    <h3>Bezpečnosť</h3>
+    <p>Sťahujte výlučne z tejto stránky. Aplikácia nežiada žiadne oprávnenia navyše okrem notifikácií a prístupu k fotkám pri pridávaní inzerátu. Všetky dáta sú uložené na našich serveroch v EÚ, nie v telefóne, takže odinštalovanie ani výmena telefónu o nič nepripraví.</p>
+  </div>
+</div></section>""", extra_head=bcld + '<script type="application/ld+json">{"@context":"https://schema.org","@type":"MobileApplication","name":"NazovPortalu","operatingSystem":"Android","applicationCategory":"LifestyleApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"downloadUrl":"https://nazovportalu.sk/aplikacia.html","contentRating":"18+"}</script>\n<script src="/js/download.js" defer></script>', current='/aplikacia.html')
+
 page('404.html', 'Stránka sa nenašla | NazovPortalu', 'Požadovaná stránka neexistuje alebo bol inzerát odstránený.',
      '''<section class="section" style="text-align:center;padding-top:60px"><div class="wrap">
 <h1>Inzerát alebo stránka sa nenašla</h1><p class="lead muted">Inzerát mohol byť odstránený alebo adresa obsahuje chybu.</p>

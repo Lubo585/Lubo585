@@ -60,6 +60,16 @@ language sql stable security definer set search_path = public as $$
   select public.is_staff() or (auth.uid() is null and current_user not in ('anon','authenticated'))
 $$;
 
+-- IP adresa klienta z hlavičiek PostgREST (Supabase ju nastavuje; klient ju nevie podvrhnúť bez proxy)
+create or replace function public.client_ip() returns text
+language plpgsql stable as $$
+declare h json; ip text;
+begin
+  begin h := current_setting('request.headers', true)::json; exception when others then return null; end;
+  ip := coalesce(h->>'cf-connecting-ip', split_part(h->>'x-forwarded-for', ',', 1), h->>'x-real-ip');
+  return nullif(trim(ip), '');
+end $$;
+
 comment on table public.profiles is 'Jeden riadok na účet. role rozhoduje o právach. Vek 18+ vynútený constraintom.';
 create trigger profiles_updated before update on public.profiles for each row execute function public.set_updated_at();
 
@@ -121,7 +131,8 @@ create table public.listings (
   age             int  check (age between 18 and 99),
   price_from      numeric(8,2) check (price_from >= 0),
   price_list      jsonb not null default '[]',             -- [{label, price}]
-  attributes      jsonb not null default '{}',             -- výška, postava, jazyky…
+  attributes      jsonb not null default '{}',             -- výška, postava, jazyky… (NIKDY telefón, view ho aj tak odstráni)
+  contact_phone   text,                                    -- súkromné; vydáva len rpc reveal_phone
   availability    text,
   accepts_card    boolean not null default false,
   phone_hidden    boolean not null default true,
@@ -148,7 +159,7 @@ create or replace function public.listings_before_write() returns trigger langua
 declare c text;
 begin
   select slug into c from public.cities where id = new.city_id;
-  if new.slug is null then
+  if new.slug is null or (tg_op = 'INSERT' and not public.is_privileged()) then
     new.slug := public.slugify(new.title) || '-' || c || '-' || substr(replace(new.id::text,'-',''),1,6);
   end if;
   -- bežný používateľ nemôže sám nastaviť stav active ani platené/overené polia
@@ -157,7 +168,9 @@ begin
     if tg_op = 'INSERT' then
       new.status := case when new.status = 'pending' then 'pending' else 'draft' end;
       new.verified_until := null; new.top_until := null; new.highlight_until := null; new.rejection_note := null;
+      new.views := 0; new.last_online_at := null; new.published_at := null;
     else
+      new.slug := old.slug; new.last_online_at := old.last_online_at; new.published_at := old.published_at;
       if new.status not in ('draft','pending','paused') or old.status in ('rejected','removed') then new.status := old.status; end if;
       -- úprava aktívneho inzerátu ide znova na kontrolu
       if old.status = 'active' and (new.title <> old.title or new.body <> old.body) then new.status := 'pending'; end if;
@@ -273,6 +286,17 @@ begin
 end $$;
 create trigger reports_before_insert before insert on public.reports for each row execute function public.reports_before_insert();
 
+-- ---------- Cenník platených služieb (zdroj pravdy pre sumy) ----------
+create table public.products (
+  product   public.order_product primary key,
+  price_eur numeric(8,2) not null check (price_eur >= 0),
+  label     text not null,
+  is_active boolean not null default true
+);
+insert into public.products values
+ ('top_1d', 5, 'TOP na 1 deň', true), ('top_7d', 25, 'TOP na 7 dní', true), ('top_30d', 79, 'TOP na 30 dní', true),
+ ('highlight_1d', 2, 'Zvýraznenie na 1 deň', true), ('highlight_7d', 12, 'Zvýraznenie na 7 dní', true);
+
 -- ---------- Objednávky (topovanie) ----------
 create table public.orders (
   id            uuid primary key default gen_random_uuid(),
@@ -287,6 +311,22 @@ create table public.orders (
   created_at    timestamptz not null default now()
 );
 create index orders_listing_idx on public.orders(listing_id);
+
+-- Sumu, stav a poskytovateľa nastavuje server; klient určuje len inzerát a produkt
+create or replace function public.orders_before_insert() returns trigger language plpgsql security definer set search_path = public as $$
+declare p public.products;
+begin
+  select * into p from public.products where product = new.product and is_active;
+  if p.product is null then raise exception 'Produkt nie je dostupný.' using errcode = 'P0002'; end if;
+  if not public.is_privileged() then
+    new.amount_eur := p.price_eur; new.status := 'pending'; new.provider := null; new.provider_ref := null; new.paid_at := null;
+    if not exists (select 1 from public.listings where id = new.listing_id and owner_id = new.buyer_id) then
+      raise exception 'Topovať možno len vlastný inzerát.' using errcode = '42501';
+    end if;
+  end if;
+  return new;
+end $$;
+create trigger orders_before_insert before insert on public.orders for each row execute function public.orders_before_insert();
 
 -- Zaplatená objednávka predĺži TOP / zvýraznenie (volá webhook platobnej brány cez service role)
 create or replace function public.orders_after_update() returns trigger language plpgsql security definer set search_path = public as $$
@@ -323,7 +363,7 @@ create table public.audit_log (
 -- =====================================================================
 create or replace view public.public_listings
 with (security_invoker = false) as
-select l.id, l.slug, l.title, l.body, l.age, l.price_from, l.price_list, l.attributes, l.availability, l.accepts_card,
+select l.id, l.slug, l.title, l.body, l.age, l.price_from, l.price_list, (l.attributes - 'phone' - 'tel' - 'email') as attributes, l.availability, l.accepts_card,
        l.blur_faces, l.published_at, l.last_online_at, l.views,
        coalesce(l.verified_until  > now(), false) as is_verified,
        coalesce(l.top_until       > now(), false) as is_top,
@@ -366,22 +406,27 @@ returns setof public.public_listings language sql stable security definer set se
   limit least(p_limit, 100) offset greatest(p_offset, 0)
 $$;
 
--- Odhalenie telefónu: zaloguje kontakt (podmienka pre recenziu), limit 30 / hod na používateľa alebo IP
+-- Odhalenie telefónu: zaloguje kontakt (podmienka pre recenziu).
+-- Limity: 30/hod na účet alebo IP (IP zo serverových hlavičiek, nie od klienta), 300/hod na inzerát proti hromadnému zberu.
 create or replace function public.reveal_phone(p_listing uuid, p_ip_hash text default null)
 returns text language plpgsql security definer set search_path = public as $$
-declare v_phone text; v_cnt int;
+declare v_phone text; v_cnt int; v_ip text;
 begin
+  v_ip := public.client_ip();
+  if auth.uid() is null and v_ip is null then raise exception 'Prihláste sa.' using errcode = '42501'; end if;
   select count(*) into v_cnt from public.contacts
    where created_at > now() - interval '1 hour'
-     and ((auth.uid() is not null and user_id = auth.uid()) or (p_ip_hash is not null and ip_hash = p_ip_hash));
+     and ((auth.uid() is not null and user_id = auth.uid()) or (v_ip is not null and ip_hash = encode(digest(v_ip, 'sha256'), 'hex')));
   if v_cnt >= 30 then raise exception 'Príliš veľa požiadaviek. Skúste neskôr.' using errcode = '53400'; end if;
+  select count(*) into v_cnt from public.contacts where listing_id = p_listing and created_at > now() - interval '1 hour';
+  if v_cnt >= 300 then raise exception 'Inzerát je dočasne preťažený. Skúste neskôr.' using errcode = '53400'; end if;
 
-  select coalesce(l.attributes->>'phone', o.phone) into v_phone
+  select coalesce(l.contact_phone, o.phone) into v_phone
     from public.listings l join public.profiles o on o.id = l.owner_id
    where l.id = p_listing and l.status = 'active' and o.banned_at is null;
   if v_phone is null then raise exception 'Inzerát nie je dostupný.' using errcode = 'P0002'; end if;
 
-  insert into public.contacts(listing_id, user_id, ip_hash) values (p_listing, auth.uid(), p_ip_hash);
+  insert into public.contacts(listing_id, user_id, ip_hash) values (p_listing, auth.uid(), case when v_ip is null then null else encode(digest(v_ip, 'sha256'), 'hex') end);
   return v_phone;
 end $$;
 
@@ -394,11 +439,17 @@ $$;
 -- Nahlásenie (aj anonymné)
 create or replace function public.submit_report(p_listing uuid, p_reason public.report_reason, p_details text default null, p_email text default null)
 returns uuid language plpgsql security definer set search_path = public as $$
-declare v_id uuid;
+declare v_id uuid; v_ip text; v_cnt int;
 begin
+  v_ip := public.client_ip();
+  select count(*) into v_cnt from public.audit_log
+   where action = 'report' and created_at > now() - interval '1 hour'
+     and ((auth.uid() is not null and actor_id = auth.uid()) or (v_ip is not null and data->>'ip' = encode(digest(v_ip,'sha256'),'hex')));
+  if v_cnt >= 10 then raise exception 'Príliš veľa nahlásení. Skúste neskôr.' using errcode = '53400'; end if;
   insert into public.reports(listing_id, reporter_id, reason, details, contact_email)
   values (p_listing, auth.uid(), p_reason, left(p_details, 2000), p_email) returning id into v_id;
-  insert into public.audit_log(actor_id, action, entity, entity_id, data) values (auth.uid(), 'report', 'listing', p_listing::text, jsonb_build_object('reason', p_reason));
+  insert into public.audit_log(actor_id, action, entity, entity_id, data) values (auth.uid(), 'report', 'listing', p_listing::text,
+    jsonb_build_object('reason', p_reason, 'ip', case when v_ip is null then null else encode(digest(v_ip,'sha256'),'hex') end));
   return v_id;
 end $$;
 
@@ -450,6 +501,9 @@ create policy "ciselniky citanie" on public.regions      for select using (true)
 create policy "ciselniky citanie" on public.cities       for select using (true);
 create policy "ciselniky citanie" on public.categories   for select using (true);
 create policy "ciselniky citanie" on public.service_tags for select using (true);
+alter table public.products enable row level security;
+create policy "ciselniky citanie" on public.products for select using (true);
+create policy "ciselniky staff"   on public.products for all using (public.is_staff()) with check (public.is_staff());
 create policy "ciselniky staff"   on public.cities       for all using (public.is_staff()) with check (public.is_staff());
 create policy "ciselniky staff"   on public.categories   for all using (public.is_staff()) with check (public.is_staff());
 create policy "ciselniky staff"   on public.service_tags for all using (public.is_staff()) with check (public.is_staff());
@@ -500,7 +554,7 @@ create policy "audit staff" on public.audit_log for select using (public.is_staf
 
 -- Práva pre role Supabase
 grant usage on schema public to anon, authenticated;
-grant select on public.public_listings, public.cities, public.regions, public.categories, public.service_tags to anon, authenticated;
+grant select on public.public_listings, public.cities, public.regions, public.categories, public.service_tags, public.products to anon, authenticated;
 grant select, insert, update, delete on public.listings, public.listing_tags, public.listing_photos, public.verifications, public.reviews, public.orders to authenticated;
 grant select, update on public.profiles to authenticated;
 grant select on public.contacts, public.reports, public.audit_log to authenticated;

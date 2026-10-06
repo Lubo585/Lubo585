@@ -50,7 +50,10 @@ begin
   if new.sender_id not in (c.client_id, c.advertiser_id) then raise exception 'Nie ste účastníkom.' using errcode = '42501'; end if;
   if c.blocked_by is not null then raise exception 'Konverzácia je zablokovaná.' using errcode = '42501'; end if;
   if exists (select 1 from public.profiles where id = new.sender_id and banned_at is not null) then raise exception 'Účet je zablokovaný.' using errcode = '42501'; end if;
-  new.read_at := null;
+  if (select count(*) from public.messages where sender_id = new.sender_id and created_at > now() - interval '1 minute') >= 60 then
+    raise exception 'Príliš veľa správ. Skúste o chvíľu.' using errcode = '53400';
+  end if;
+  new.read_at := null; new.created_at := now();
   return new;
 end $$;
 create trigger messages_guard before insert on public.messages for each row execute function public.messages_guard();
