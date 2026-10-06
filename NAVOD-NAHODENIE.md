@@ -7,9 +7,7 @@ Stránka je čisto statická (HTML + CSS + JavaScript + obrázky). Nepotrebuje P
 Hotový balík je v súbore **`dist/sx-workforce-website.zip`**. Po rozbalení obsahuje:
 
 ```
-index.html          hlavná stránka
-impressum.html      Impressum
-datenschutz.html    Datenschutzerklärung
+index.html          celá stránka (one-page, Impressum a Datenschutz sú vyskakovacie okná)
 404.html            chybová stránka
 .htaccess           nastavenie servera (HTTPS presmerovanie, cache, 404)
 favicon.ico         ikona
@@ -39,8 +37,8 @@ Ak hosting nebeží na Apache (napr. nginx), `.htaccess` sa ignoruje. Stránka b
 
 ## 4. Pred spustením doplniť
 
-- **Impressum** (`impressum.html`): adresa, registrový súd, číslo zápisu, IČO, IČ DPH sú zatiaľ v hranatých zátvorkách `[…]`.
-- **Datenschutz** (`datenschutz.html`): adresa firmy v bode 1.
+- **Impressum** (v `index.html`, blok `id="impressum"`): adresa, registrový súd, číslo zápisu, IČO, IČ DPH sú zatiaľ v hranatých zátvorkách `[…]`.
+- **Datenschutz** (v `index.html`, blok `id="datenschutz"`): adresa firmy v bode 1.
 - **Kontaktný formulár**: po odoslaní otvorí e‑mailový program s predvyplnenou správou na `info@sxworkforce.de`. Ak chcete, aby sa správa posielala priamo zo servera, treba ho napojiť na formulárovú službu (napr. Formspree, Web3Forms) alebo PHP skript hostingu.
 
 ## 5. Test po nahodení
@@ -53,7 +51,7 @@ Otvorte stránku a skontrolujte:
 - odkazy Impressum a Datenschutz v pätičke fungujú,
 - neexistujúca adresa (napr. `/abc`) zobrazí vlastnú 404 stránku.
 
-Automatický test (70 kontrol) sa dá spustiť lokálne príkazom `node tests/check-site.mjs` (vyžaduje Node.js a Playwright).
+Automatický test sa dá spustiť lokálne príkazom `node tests/check-site.mjs` (vyžaduje Node.js a Playwright).
 
 ## 6. Lokálne zobrazenie bez hostingu
 

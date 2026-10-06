@@ -5,9 +5,8 @@ Statische Unternehmenswebsite (Deutsch) für SX Workforce, s.r.o. – Personaldi
 ## Struktur
 
 ```
-index.html          Startseite (Hero, Leistungen, Vorteile, Ablauf, Projekte, Team, Karriere, Kontakt)
-impressum.html      Impressum (Platzhalter in eckigen Klammern ausfüllen)
-datenschutz.html    Datenschutzerklärung
+index.html          One-Page-Website (Hero, Leistungen, Vorteile, Ablauf, Projekte, Fuhrpark, Team, Karriere, Kontakt;
+                    Impressum und Datenschutz als Overlays unter #impressum / #datenschutz)
 assets/css/style.css
 assets/js/main.js   Navigation, Scroll-Reveal, Galerie-Lightbox, Kontaktformular, Cookie-Hinweis
 assets/img/         Logo, Team-, Baustellen- und Fahrzeugfotos
@@ -32,6 +31,6 @@ npx http-server . -p 8080
 
 ## Offene Punkte vor dem Livegang
 
-- Impressum: Anschrift, Registernummer, IČO und USt-ID eintragen.
+- Impressum (Block `id="impressum"` in index.html): Anschrift, Registernummer, IČO und USt-ID eintragen.
 - Kontaktformular: aktuell öffnet es das E-Mail-Programm (mailto). Für einen serverseitigen Versand den Submit-Handler in `assets/js/main.js` an ein Formular-Backend anbinden.
 - Google Fonts werden extern geladen; auf Wunsch lokal einbinden (siehe Datenschutzerklärung).

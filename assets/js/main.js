@@ -99,6 +99,58 @@
     );
   }
 
+  // Rechtliche Overlays (Impressum / Datenschutz) – per Hash erreichbar (#impressum, #datenschutz)
+  const modals = document.querySelectorAll(".modal");
+  if (modals.length) {
+    const openModal = (id) => {
+      const m = document.getElementById(id);
+      if (!m) return false;
+      modals.forEach((x) => (x.hidden = true));
+      m.hidden = false;
+      m.scrollTop = 0;
+      document.body.classList.add("modal-open");
+      return true;
+    };
+    const closeModals = () => {
+      modals.forEach((x) => (x.hidden = true));
+      document.body.classList.remove("modal-open");
+      if (location.hash === "#impressum" || location.hash === "#datenschutz") {
+        history.replaceState(null, "", location.pathname + location.search);
+      }
+    };
+    document.querySelectorAll('a[href="#impressum"], a[href="#datenschutz"]').forEach((a) =>
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        const id = a.getAttribute("href").slice(1);
+        openModal(id);
+        history.replaceState(null, "", "#" + id);
+      })
+    );
+    modals.forEach((m) => {
+      m.querySelector(".modal__close").addEventListener("click", closeModals);
+      m.addEventListener("click", (e) => { if (e.target === m) closeModals(); });
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModals(); });
+    const fromHash = () => {
+      const id = location.hash.slice(1);
+      if (id === "impressum" || id === "datenschutz") openModal(id);
+    };
+    window.addEventListener("hashchange", fromHash);
+    fromHash();
+  }
+
+  // Aktiven Menüpunkt beim Scrollen markieren
+  const navLinks = [...document.querySelectorAll('.nav a[href^="#"]:not(.btn)')];
+  const sections = navLinks.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+  if (sections.length && "IntersectionObserver" in window) {
+    const setActive = (id) => navLinks.forEach((a) => a.classList.toggle("is-active", a.getAttribute("href") === "#" + id));
+    const so = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); }),
+      { rootMargin: "-40% 0px -55% 0px" }
+    );
+    sections.forEach((s) => so.observe(s));
+  }
+
   // Jahr im Footer
   const y = document.querySelector("#jahr");
   if (y) y.textContent = new Date().getFullYear();

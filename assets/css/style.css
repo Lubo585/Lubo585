@@ -358,3 +358,28 @@ p { margin: 0 0 1em; }
   .fleet { grid-template-columns: 1fr; grid-template-rows: 220px 200px 200px; }
   .fleet__main { grid-column: span 1; }
 }
+
+/* Rechtliche Overlays (Impressum / Datenschutz) */
+.modal {
+  position: fixed; inset: 0; z-index: 95; background: rgba(5,8,10,.7);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 4rem 1rem; overflow-y: auto;
+}
+.modal[hidden] { display: none; }
+.modal__panel {
+  position: relative; background: #fff; color: var(--c-text); border-radius: var(--radius);
+  max-width: 820px; width: 100%; padding: 2.5rem; box-shadow: var(--shadow-lg);
+}
+.modal__close {
+  position: absolute; top: 1rem; right: 1.25rem; background: none; border: 0;
+  font-size: 2rem; line-height: 1; cursor: pointer; color: var(--c-muted);
+}
+.modal__close:hover { color: var(--c-dark); }
+.modal .legal h3 { font-size: 1.1rem; margin-top: 1.5rem; }
+.modal .legal a { color: var(--c-accent-dark); text-decoration: underline; }
+body.modal-open { overflow: hidden; }
+
+/* Aktiver Menüpunkt */
+.nav a.is-active::after { width: 100%; }
+.nav a.is-active { color: var(--c-accent-dark); }
+@media (max-width: 600px) { .modal { padding: 1rem; } .modal__panel { padding: 1.75rem 1.25rem; } }

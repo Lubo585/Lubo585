@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 mkdir -p dist
 rm -f dist/sx-workforce-website.zip
 zip -r -q dist/sx-workforce-website.zip \
-  index.html impressum.html datenschutz.html 404.html \
+  index.html 404.html \
   .htaccess favicon.ico robots.txt sitemap.xml \
   assets \
   -x 'assets/**/.DS_Store'

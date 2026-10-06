@@ -56,7 +56,7 @@ const browser = await chromium.launch({
 
 try {
   // 1. Alle Seiten erreichbar, keine Konsolenfehler, keine fehlgeschlagenen Requests
-  for (const page of ["/", "/impressum.html", "/datenschutz.html", "/404.html"]) {
+  for (const page of ["/", "/404.html"]) {
     const p = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     const errors = [], failed = [];
     p.on("pageerror", (e) => errors.push(e.message));
@@ -109,10 +109,27 @@ try {
     if (!(await p.$(href))) missingAnchors.push(href);
   }
   check(missingAnchors.length === 0, "Alle Menü-/Ankerlinks zeigen auf vorhandene Abschnitte", missingAnchors.join(", "));
-  const pageLinks = [...new Set(links.filter((l) => /^[a-z0-9-]+\.html$/i.test(l)))];
-  const missingPages = [];
-  for (const l of pageLinks) { if ((await p.request.get(BASE + "/" + l)).status() !== 200) missingPages.push(l); }
-  check(missingPages.length === 0, `Verlinkte Unterseiten erreichbar (${pageLinks.join(", ")})`, missingPages.join(", "));
+  const htmlLinks = links.filter((l) => /\.html$/i.test(l));
+  check(htmlLinks.length === 0, "One-Page: keine Links auf separate Unterseiten", htmlLinks.join(", "));
+  const navCount = await p.$$eval('.nav a[href^="#"]', (els) => els.length);
+  check(navCount >= 6, `Menü besteht aus Sprungmarken auf der Seite (${navCount} Einträge)`);
+  // Impressum / Datenschutz als Overlay
+  await p.click('.footer a[href="#impressum"]');
+  await p.waitForTimeout(150);
+  check(await p.isVisible("#impressum"), "Impressum öffnet sich als Overlay auf derselben Seite");
+  check((await p.evaluate(() => location.hash)) === "#impressum", "Impressum ist per Link #impressum erreichbar");
+  await p.keyboard.press("Escape");
+  await p.waitForTimeout(100);
+  check(!(await p.isVisible("#impressum")), "Impressum-Overlay schließt mit Escape");
+  await p.click('.footer a[href="#datenschutz"]');
+  await p.waitForTimeout(150);
+  check(await p.isVisible("#datenschutz") && (await p.textContent("#datenschutz")).includes("DSGVO"), "Datenschutz öffnet sich als Overlay mit Inhalt");
+  await p.click("#datenschutz .modal__close");
+  await p.waitForTimeout(100);
+  check(!(await p.isVisible("#datenschutz")), "Datenschutz-Overlay schließt über den Schließen-Button");
+  await p.goto(BASE + "/#datenschutz", { waitUntil: "networkidle" });
+  check(await p.isVisible("#datenschutz"), "Direktaufruf /#datenschutz öffnet das Overlay");
+  await p.goto(BASE + "/", { waitUntil: "networkidle" });
   const telMail = links.filter((l) => l.startsWith("tel:") || l.startsWith("mailto:"));
   check(telMail.some((l) => l.includes("+421952566014")) && telMail.some((l) => l.includes("info@sxworkforce.de")),
     "Telefon- und E-Mail-Links korrekt");
@@ -138,6 +155,12 @@ try {
   await p.keyboard.press("Escape");
   await p.waitForTimeout(100);
   check(!(await p.evaluate(() => document.querySelector(".lightbox").classList.contains("is-open"))), "Lightbox schließt mit Escape");
+
+  // Aktiver Menüpunkt
+  await p.evaluate(() => window.scrollTo({ top: document.querySelector("#team").offsetTop + 50, behavior: "instant" }));
+  await p.waitForTimeout(600);
+  const active = await p.$eval(".nav a.is-active", (a) => a.getAttribute("href")).catch(() => null);
+  check(active === "#team", "Aktiver Menüpunkt wird beim Scrollen markiert", `aktiv=${active}`);
 
   // Cookie-Banner
   await p.evaluate(() => localStorage.removeItem("sx-cookie-consent"));
