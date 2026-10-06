@@ -4,7 +4,6 @@ const { all, get } = require('../db');
 const U = require('../utils');
 const INV = require('../services/invoices');
 const R = require('../services/reports');
-const { monthCost } = require('./lodging');
 
 router.get('/', (req, res) => {
   const today = U.today();
@@ -27,12 +26,10 @@ router.get('/', (req, res) => {
   // ziskovosť za obdobie vrátane ubytovania, dopravy, diét
   const from = req.query.from || (today.slice(0, 4) + '-01-01'), to = req.query.to || today;
   const rev = R.revenue(from, to), exp = R.expenses(from, to), lab = R.laborCost(from, to);
-  const lodging = (() => { let t = 0; for (let m = from.slice(0, 7); m <= to.slice(0, 7); m = U.addMonths(m + '-01', 1).slice(0, 7)) t += monthCost(m).total; return U.round2(t); })();
-  const trips = get('SELECT COALESCE(SUM(cost),0) AS c, COALESCE(SUM(km),0) AS km FROM trips WHERE date >= ? AND date <= ?', [from, to]);
   const perDiem = get('SELECT COALESCE(SUM(per_diem_total),0) AS s FROM settlements WHERE month >= ? AND month <= ?', [from.slice(0, 7), to.slice(0, 7)]).s;
   const wagesPaid = get('SELECT COALESCE(SUM(wage_total + bonus_total),0) AS s FROM settlements WHERE month >= ? AND month <= ?', [from.slice(0, 7), to.slice(0, 7)]).s;
-  const byWorker = R.byWorker(from, to).map((w) => { const s = get('SELECT COALESCE(SUM(total_due),0) AS paid, COALESCE(SUM(per_diem_total),0) AS pd FROM settlements WHERE worker_id = ? AND month >= ? AND month <= ?', [w.id, from.slice(0, 7), to.slice(0, 7)]); const lodge = get('SELECT COALESCE(SUM(price_per_night),0) AS p FROM lodging_stays WHERE worker_id = ? AND charge_to = ? AND date_from <= ?', [w.id, 'company', to]); return { ...w, settled: U.round2(s.paid), perdiem: U.round2(s.pd), margin2: U.round2(w.billable - w.labor - w.expenses - s.pd) }; });
-  res.render('finance/index', { title: 'Financie', weeks, overdueIn: U.round2(overdueIn), from, to, rev, exp, lab, lodging, trips, perDiem: U.round2(perDiem), wagesPaid: U.round2(wagesPaid), byWorker, receivables: U.round2(open.reduce((a, i) => a + INV.remaining(i), 0)), retentionSum: U.round2(retention.reduce((a, i) => a + INV.retentionRemaining(i), 0)) });
+  const byWorker = R.byWorker(from, to).map((w) => { const s = get('SELECT COALESCE(SUM(total_due),0) AS paid, COALESCE(SUM(per_diem_total),0) AS pd FROM settlements WHERE worker_id = ? AND month >= ? AND month <= ?', [w.id, from.slice(0, 7), to.slice(0, 7)]); return { ...w, settled: U.round2(s.paid), perdiem: U.round2(s.pd), margin2: U.round2(w.billable - w.labor - w.expenses - s.pd) }; });
+  res.render('finance/index', { title: 'Financie', weeks, overdueIn: U.round2(overdueIn), from, to, rev, exp, lab, perDiem: U.round2(perDiem), wagesPaid: U.round2(wagesPaid), byWorker, receivables: U.round2(open.reduce((a, i) => a + INV.remaining(i), 0)), retentionSum: U.round2(retention.reduce((a, i) => a + INV.retentionRemaining(i), 0)) });
 });
 // exporty CSV pre účtovníctvo
 router.get('/export', (req, res) => res.render('finance/export', { title: 'Export pre účtovníctvo', from: req.query.from || (U.today().slice(0, 4) + '-01-01'), to: req.query.to || U.today() }));

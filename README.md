@@ -19,13 +19,11 @@ Webová a mobilná aplikácia pre personálnu agentúru, ktorá poskytuje (prena
 | **Upomienky** | automaticky denne, 3 stupne, v jazyku klienta; nemecká Mahnung s úrokom z omeškania a paušálom 40 € (§ 288 BGB), s PDF faktúry |
 | **Banka a platby** | import výpisov camt.053 XML, CSV, **MT940** ručne alebo automaticky z e-mailovej schránky (IMAP), párovanie podľa VS, sumy, skonta, zádržného a názvu klienta |
 | **Vyúčtovanie pracovníkov** | mesačne: hodiny × mzda + diéty (DE) + bonusy − zálohy − zrážky, výplatná páska **SK / UA / DE**, stav koncept → schválené → vyplatené (zapíše sa do nákladov) |
-| **Ubytovanie** | ubytovne v DE, kapacita, kto kde býva, cena za noc, hradí firma / zrážka pracovníkovi / preúčtovanie klientovi, mesačné náklady, automatické zrážky |
-| **Vozidlá** | vozidlá so STK a poistením, kniha jázd (vodič, trasa, km, náklady), náklady do účtovníctva |
 | **Náklady** | kategórie, DPH, opakujúce sa mesačné náklady, priradenie k pracovníkovi alebo zákazke |
 | **Zisk a prehľady** | mesačný zisk, ziskovosť podľa zákaziek a pracovníkov, pohľadávky |
-| **Financie** | cash-flow výhľad na 8 týždňov, skutočná ziskovosť vrátane diét, ubytovania a dopravy, **exporty CSV pre účtovníctvo** (faktúry, úhrady, náklady, vyúčtovania, hodiny) |
+| **Financie** | cash-flow výhľad na 8 týždňov, skutočná ziskovosť vrátane diét, **exporty CSV pre účtovníctvo** (faktúry, úhrady, náklady, vyúčtovania, hodiny) |
 | **AI asistent** | nájde faktúry, zákazky, lístky, pracovníkov, úlohy, platby a poradí, ako aplikáciu používať (Claude API) |
-| **Nastavenia** | firma, Nemecko/compliance, fakturácia, upomienky SK/DE, SMTP, IMAP, AI, používatelia a pozvánky, zálohy |
+| **Nastavenia** | firma, Nemecko/compliance, fakturácia, upomienky SK/DE, SMTP, IMAP, AI, používatelia a pozvánky, zálohy, import klientov a pracovníkov z CSV, vymazanie ukážkových dát |
 
 ## Používatelia a roly
 
@@ -33,7 +31,7 @@ Prihlásiť sa môže každý, kto dostane **pozvánku** (Nastavenia → Použí
 
 - **Administrátor** – všetko vrátane nastavení a používateľov
 - **Kancelária** – všetko okrem nastavení a banky
-- **Dispečer** – pracovníci, zákazky, lístky, plánovanie, compliance, ubytovanie, vozidlá, úlohy
+- **Dispečer** – pracovníci, zákazky, lístky, plánovanie, compliance, úlohy
 - **Účtovníctvo** – fakturácia, ponuky, banka, náklady, vyúčtovania, prehľady, financie
 - **Pracovník** – iba vlastný portál: svoje hodiny, vyúčtovania, doklady, plán, úlohy
 
@@ -57,6 +55,8 @@ npm start
 ## Aktualizácie bez straty dát
 
 Databáza je jeden súbor `data/app.db`, prílohy sú v `data/uploads`. Každá nová verzia aplikácie má číslo schémy; pri štarte sa porovná s databázou, **najprv sa vytvorí záloha** (`data/backups/app-before-vX-….db`) a potom sa aplikujú migrácie, ktoré iba pridávajú tabuľky a stĺpce. Údaje sa nikdy nemažú ani neprepisujú. Nočná záloha beží o 2:30, ručná v Nastavenia → Zálohy, odporúčaný externý skript `scripts-backup.sh`.
+
+**Ostrá prevádzka:** kontrolný zoznam v [OSTRA_PREVADZKA.md](OSTRA_PREVADZKA.md) (server, vyčistenie ukážky, import dát, SMTP/IMAP, kontrola s účtovníčkou, prvý mesiac).
 
 ## Prvé kroky
 
@@ -94,7 +94,7 @@ src/auth.js, session-store.js – roly a prístupy, prihlásenie uložené v DB
 src/services/             – invoices, pdf, xrechnung, i18n, compliance, settlements, matching, bankparser,
                             imap, mailer, reminders, reports, attachments, assistant
 src/routes/               – stránky (workers, compliance, planning, timesheets, clients, quotes, invoices,
-                            bank, lodging, vehicles, settlements, finance, portal, settings, assistant …)
+                            bank, settlements, finance, portal, settings, assistant …)
 src/views/                – šablóny EJS
 public/                   – CSS, JS, PWA manifest, service worker, ikony, písma pre PDF
 mobile/                   – Capacitor projekt pre iOS a Android

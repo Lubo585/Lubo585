@@ -99,15 +99,6 @@ M.importTransactions([
 // náklady
 for (const [m, cat, desc, sup, net, vat, rec] of [[0, 'Ubytovanie pracovníkov', 'Pension Alpenblick – 6 lôžok', 'Pension Alpenblick', 1840, 0, 1], [0, 'Poistenie', 'Úrazové poistenie pracovníkov', 'Allianz', 210, 0, 1], [0, 'Účtovníctvo a právne služby', 'Vedenie účtovníctva', 'Účtovníctvo Plus s.r.o.', 350, 23, 1], [0, 'Telekomunikácie a software', 'Mobilné paušály', 'O2', 120, 23, 1], [0, 'Lízing a splátky', 'Lízing VW Transporter', 'VW Leasing', 480, 23, 1], [1, 'Ubytovanie pracovníkov', 'Pension Alpenblick – 6 lôžok', 'Pension Alpenblick', 1840, 0, 1], [1, 'Doprava a PHM', 'PHM cesty do DE', 'Shell', 640, 23, 0], [1, 'Náradie a OOPP', 'Pracovná obuv a odevy', 'Engelbert Strauss', 420, 23, 0], [2, 'Ubytovanie pracovníkov', 'Pension Alpenblick – 6 lôžok', 'Pension Alpenblick', 1840, 0, 1], [2, 'Marketing a nábor', 'Inzercia – nábor pracovníkov', 'Profesia.sk', 180, 23, 0], [2, 'Dane a poplatky', 'SOKA-BAU príspevky', 'SOKA-BAU', 2150, 0, 0]]) run('INSERT INTO expenses(date, category, description, supplier, amount_net, vat_rate, amount_total, recurring, paid) VALUES (?,?,?,?,?,?,?,?,1)', [U.addDays(U.monthStart(U.addMonths(today, -m)), 4), cat, desc, sup, net, vat, U.round2(net * (1 + vat / 100)), rec]);
 
-// ubytovanie, vozidlá
-const l1 = ins("INSERT INTO lodgings(name, address, city, country, capacity, price_per_night, monthly_cost, landlord, contact) VALUES ('Pension Alpenblick','Rosenheimer Str. 88','München','DE',6,10,1840,'Familie Huber','+49 89 4455667')");
-const l2 = ins("INSERT INTO lodgings(name, address, city, country, capacity, price_per_night, landlord) VALUES ('Monteurzimmer Stuttgart-Ost','Wasenstraße 7','Stuttgart','DE',4,16,'Herr Krämer')");
-for (const w of [wid[0], wid[1], wid[2], wid[4]]) run("INSERT INTO lodging_stays(lodging_id, worker_id, date_from, price_per_night, charge_to) VALUES (?,?,?,10,'worker')", [l1, w, U.addMonths(today, -7)]);
-for (const w of [wid[3], wid[5]]) run("INSERT INTO lodging_stays(lodging_id, worker_id, date_from, price_per_night, charge_to) VALUES (?,?,?,16,'company')", [l2, w, U.addMonths(today, -2)]);
-const v1 = ins("INSERT INTO vehicles(plate, name, seats, inspection_until, insurance_until) VALUES ('BA 123 XY','VW Transporter T6',9,?,?)", [U.addDays(today, 25), U.addMonths(today, 7)]);
-run("INSERT INTO trips(vehicle_id, driver_worker_id, date, date_to, route_from, route_to, km, purpose, site_id, cost, passengers) VALUES (?,?,?,?,'Bratislava','München',560,'preprava pracovníkov',?,92.5,'Kovalenko, Shevchenko, Melnyk')", [v1, wid[4], U.addDays(today, -9), U.addDays(today, -9), s1]);
-run("INSERT INTO trips(vehicle_id, driver_worker_id, date, route_from, route_to, km, purpose, site_id, cost) VALUES (?,?,?,'München','Stuttgart',230,'prevoz náradia',?,38)", [v1, wid[4], U.addDays(today, -4), s2]);
-
 // zálohy a vyúčtovanie za minulý mesiac
 run("INSERT INTO worker_transactions(worker_id, date, type, description, amount) VALUES (?,?,'advance','záloha v hotovosti na stavbe',300)", [wid[0], U.addDays(U.monthStart(prevMonth), 12)]);
 run("INSERT INTO worker_transactions(worker_id, date, type, description, amount) VALUES (?,?,'bonus','prémia za kvalitu',150)", [wid[1], U.monthEnd(prevMonth)]);
@@ -121,6 +112,7 @@ for (const [t, desc, to, pr, due, st, site, w] of [['Predĺžiť A1 pre Melnyka'
   run("INSERT INTO task_comments(task_id, user_id, type, text) VALUES (?,?,'assign','Úloha vytvorená')", [id, admin]);
 }
 run("INSERT INTO task_comments(task_id, user_id, type, text) VALUES (1, ?, 'comment', 'Formulár odoslaný, čakám na potvrdenie.')", [disp]);
+setSetting('demo_data', '1');
 log('demo', 'Načítané ukážkové dáta');
 console.log(`Hotovo. Ukážkové dáta: ${get('SELECT COUNT(*) n FROM workers').n} pracovníkov, ${get('SELECT COUNT(*) n FROM clients').n} klienti, ${get('SELECT COUNT(*) n FROM timesheets').n} lístkov, ${get('SELECT COUNT(*) n FROM invoices').n} faktúry, ${get('SELECT COUNT(*) n FROM bank_transactions').n} bankových transakcií.`);
 console.log('Prihlásenie: admin / ' + (process.env.ADMIN_PASSWORD || 'admin') + '  ·  kancelaria, dispecer, uctovnik / demo1234');

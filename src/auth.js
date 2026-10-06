@@ -16,8 +16,6 @@ const ACCESS = [
   ['/settlements', ['admin', 'office', 'accountant']],
   ['/compliance', ['admin', 'office', 'dispatcher']],
   ['/planning', ['admin', 'office', 'dispatcher']],
-  ['/lodging', ['admin', 'office', 'dispatcher']],
-  ['/vehicles', ['admin', 'office', 'dispatcher']],
   ['/timesheets', ['admin', 'office', 'dispatcher', 'accountant']],
   ['/workers', ['admin', 'office', 'dispatcher', 'accountant']],
   ['/clients', ['admin', 'office', 'dispatcher', 'accountant']],
@@ -60,4 +58,19 @@ function csrfGuard(req, res, next) {
   }
   next();
 }
-module.exports = { requireLogin, requireRole, csrfGuard, allowed, ACCESS };
+// Ochrana prihlásenia proti hádaniu hesla: max. 10 pokusov za 15 minút na IP + meno
+const attempts = new Map();
+function loginLimiter(req, res, next) {
+  const key = (req.ip || '') + '|' + String(req.body.username || '').toLowerCase();
+  const now = Date.now(); const a = attempts.get(key) || { n: 0, until: 0 };
+  if (a.until > now) return res.status(429).render('login', { title: 'Prihlásenie', error: `Príliš veľa pokusov. Skúste o ${Math.ceil((a.until - now) / 60000)} min.`, next: '/', mode: 'login' });
+  req.loginFailed = () => { a.n++; if (a.n >= 10) { a.until = now + 15 * 60000; a.n = 0; } attempts.set(key, a); };
+  req.loginOk = () => attempts.delete(key);
+  next();
+}
+setInterval(() => { const now = Date.now(); for (const [k, a] of attempts) if (a.until < now && a.n === 0) attempts.delete(k); }, 10 * 60000).unref();
+function securityHeaders(req, res, next) {
+  res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('X-Frame-Options', 'SAMEORIGIN'); res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+}
+module.exports = { requireLogin, requireRole, csrfGuard, allowed, ACCESS, loginLimiter, securityHeaders };

@@ -19,8 +19,7 @@ function monthData(workerId, month) {
     }
   }
   const tx = all('SELECT * FROM worker_transactions WHERE worker_id = ? AND settlement_id IS NULL AND date <= ?', [workerId, to]);
-  const stays = all('SELECT s.*, l.name AS lodging_name FROM lodging_stays s JOIN lodgings l ON l.id = s.lodging_id WHERE s.worker_id = ? AND s.date_from <= ? AND (s.date_to IS NULL OR s.date_to >= ?)', [workerId, to, from]);
-  return { worker: w, from, to, hours: U.round2(hours), overtime: U.round2(overtime), days, deDays, detail: detail.sort((a, b) => a.day.localeCompare(b.day)), transactions: tx, stays, std };
+  return { worker: w, from, to, hours: U.round2(hours), overtime: U.round2(overtime), days, deDays, detail: detail.sort((a, b) => a.day.localeCompare(b.day)), transactions: tx, std };
 }
 function create(workerId, month, opts = {}) {
   if (get('SELECT id FROM settlements WHERE worker_id = ? AND month = ?', [workerId, month])) throw new Error('Vyúčtovanie za tento mesiac už existuje.');

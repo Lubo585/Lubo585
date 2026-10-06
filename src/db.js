@@ -307,7 +307,7 @@ const MIGRATIONS = [
       CREATE TABLE IF NOT EXISTS quote_items (id INTEGER PRIMARY KEY AUTOINCREMENT, quote_id INTEGER NOT NULL REFERENCES quotes(id) ON DELETE CASCADE, description TEXT NOT NULL, quantity REAL DEFAULT 1, unit TEXT DEFAULT 'hod', unit_price REAL DEFAULT 0, total REAL DEFAULT 0, sort_order INTEGER DEFAULT 0);`);
     addColumn('reminders', 'interest_amount', 'REAL DEFAULT 0'); addColumn('reminders', 'fee_amount', 'REAL DEFAULT 0');
   } },
-  { version: 8, name: 'ubytovanie, vozidlá, vyúčtovanie pracovníkov', up: () => {
+  { version: 8, name: 'vyúčtovanie pracovníkov (tabuľky lodgings/vehicles/trips ostávajú kvôli kompatibilite, moduly boli odstránené)', up: () => {
     db.exec(`CREATE TABLE IF NOT EXISTS lodgings (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, address TEXT, city TEXT, country TEXT DEFAULT 'DE', capacity INTEGER DEFAULT 0, price_per_night REAL DEFAULT 0, monthly_cost REAL DEFAULT 0, landlord TEXT, contact TEXT, active INTEGER DEFAULT 1, note TEXT, created_at TEXT DEFAULT (datetime('now')));
       CREATE TABLE IF NOT EXISTS lodging_stays (id INTEGER PRIMARY KEY AUTOINCREMENT, lodging_id INTEGER NOT NULL REFERENCES lodgings(id) ON DELETE CASCADE, worker_id INTEGER NOT NULL REFERENCES workers(id) ON DELETE CASCADE, date_from TEXT NOT NULL, date_to TEXT, price_per_night REAL DEFAULT 0, charge_to TEXT DEFAULT 'company', note TEXT);
       CREATE TABLE IF NOT EXISTS vehicles (id INTEGER PRIMARY KEY AUTOINCREMENT, plate TEXT NOT NULL, name TEXT, seats INTEGER DEFAULT 5, active INTEGER DEFAULT 1, inspection_until TEXT, insurance_until TEXT, note TEXT);
@@ -419,7 +419,8 @@ const DEFAULT_SETTINGS = {
   per_diem_rate_de: '45',         // zahraničné stravné pre Nemecko €/deň
   standard_hours_per_day: '8',
   doc_alert_days: '60',
-  allow_registration: '0',        // registrácia iba cez pozvánku
+  allow_registration: '0',
+  demo_data: '0',        // registrácia iba cez pozvánku
   backup_enabled: '1',
   default_language_documents: 'sk',
   default_interest_rate: '12.27', // úrok z omeškania B2B (§288 BGB: 9 b. nad základnou sadzbou; SK: 8 b.)

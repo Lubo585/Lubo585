@@ -1,0 +1,18 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Import dát z CSV</h1><a href="/settings?tab=backup" class="btn secondary">← Nastavenia</a></div>
+<% if (result) { %><div class="flash <%= result.errors.length ? 'warn' : 'ok' %>">Import: <b><%= result.created %></b> nových, <%= result.skipped %> preskočených (prázdne alebo už existujúce).<% if (result.errors.length) { %><br>Chyby: <%= result.errors.slice(0, 5).join(' | ') %><% } %></div><% } %>
+<div class="grid grid-2">
+  <form method="post" action="/settings/import" enctype="multipart/form-data" class="card"><input type="hidden" name="what" value="workers">
+    <h2>Pracovníci</h2>
+    <p class="help">CSV so stĺpcami (hlavička v prvom riadku, poradie ľubovoľné): Meno, Priezvisko, Národnosť, Profesia, Telefón, E-mail, Nákladová sadzba, Mzda, Dátum narodenia (RRRR-MM-DD), IBAN, Adresa, Číslo dokladu, Lohngruppe, Nemčina. Z Excelu uložte ako „CSV UTF-8 (oddelený čiarkami)“ alebo s bodkočiarkou. Existujúci (rovnaké meno a priezvisko) sa preskočia.</p>
+    <a href="/settings/import/template/workers.csv" class="btn sm secondary">Stiahnuť šablónu</a>
+    <div class="field mt"><input type="file" name="file" accept=".csv,.txt" required></div><button class="btn">Importovať pracovníkov</button>
+  </form>
+  <form method="post" action="/settings/import" enctype="multipart/form-data" class="card"><input type="hidden" name="what" value="clients">
+    <h2>Klienti</h2>
+    <p class="help">Stĺpce: Názov, IČO/HRB, DIČ, IČ DPH, Adresa, E-mail, E-mail faktúry, Telefón, Kontakt, Krajina (SK/DE/AT), Splatnosť, Zádržné %, Skonto %, Skonto dni. Klientom mimo SK sa nastaví prenesenie DPH v EÚ a nemecký jazyk dokladov; cenníky a zmluvy doplníte v detaile klienta.</p>
+    <a href="/settings/import/template/clients.csv" class="btn sm secondary">Stiahnuť šablónu</a>
+    <div class="field mt"><input type="file" name="file" accept=".csv,.txt" required></div><button class="btn">Importovať klientov</button>
+  </form>
+</div>
+<%- include('../partials/footer') %>

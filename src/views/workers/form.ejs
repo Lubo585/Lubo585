@@ -16,7 +16,7 @@
     <div class="field"><label>Mzda pracovníkovi € / hod</label><input type="number" step="0.01" name="wage_rate" value="<%= w.wage_rate ?? '' %>"><div class="help">Suma, ktorá sa pracovníkovi vypláca za hodinu (pre mesačné vyúčtovanie).</div></div>
     <div class="field"><label>Fakturačná sadzba € / hod (voliteľné)</label><input type="number" step="0.01" name="hourly_rate" value="<%= w.hourly_rate ?? '' %>"><div class="help">Ak je vyplnená, prebíja sadzbu zákazky / cenníka.</div></div>
   </div>
-  <div class="row"><div class="field"><label>Zrážka za ubytovanie € / mesiac (predvolená)</label><input type="number" step="0.01" name="lodging_deduction" value="<%= w.lodging_deduction ?? 0 %>"></div><div class="field"><label>&nbsp;</label><label class="check"><input type="checkbox" name="per_diem" <%= w.per_diem ? 'checked' : '' %>> Nárok na zahraničné stravné (diéty) za dni v DE</label></div><div class="field"><label>IBAN na výplatu</label><input type="text" name="iban" value="<%= w.iban || '' %>"></div></div>
+  <div class="row"><div class="field"><label>&nbsp;</label><label class="check"><input type="checkbox" name="per_diem" <%= w.per_diem ? 'checked' : '' %>> Nárok na zahraničné stravné (diéty) za dni v DE</label></div><div class="field"><label>IBAN na výplatu</label><input type="text" name="iban" value="<%= w.iban || '' %>"></div></div>
   <div class="field"><label>Poznámka</label><textarea name="note"><%= w.note || '' %></textarea></div>
   <div class="field"><label class="check"><input type="checkbox" name="active" <%= w.active ? 'checked' : '' %>> Aktívny</label></div>
   <div class="actions"><button class="btn" type="submit">Uložiť</button><a href="<%= w.id ? '/workers/' + w.id : '/workers' %>" class="btn secondary">Zrušiť</a></div>

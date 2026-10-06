@@ -1,6 +1,9 @@
 const router = require('express').Router();
 const { get, run, getSettings, setSetting, hashPassword, verifyPassword, DEFAULT_SETTINGS, all, log, ROLES, backupDatabase, SCHEMA_VERSION } = require('../db');
 const crypto = require('crypto');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
+const U = require('../utils');
 const mailer = require('../services/mailer');
 const imap = require('../services/imap');
 const reminders = require('../services/reminders');
@@ -94,6 +97,68 @@ router.post('/invites/add', (req, res) => {
   res.redirect('/settings?tab=account');
 });
 router.post('/invites/:id/delete', (req, res) => { run('DELETE FROM invites WHERE id = ?', [req.params.id]); res.redirect('/settings?tab=account'); });
+// ---- import klientov a pracovníkov z CSV (ostrá prevádzka: prenos existujúcich dát) ----
+const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+function parseCsv(text) {
+  text = String(text).replace(/^\uFEFF/, ''); const lines = text.split(/\r?\n/).filter((l) => l.trim());
+  if (lines.length < 2) return { headers: [], rows: [] };
+  const delim = (lines[0].match(/;/g) || []).length >= (lines[0].match(/,/g) || []).length ? ';' : ',';
+  const split = (line) => { const out = []; let cur = ''; let q = false; for (let i = 0; i < line.length; i++) { const ch = line[i]; if (q) { if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; } else if (ch === '"') q = false; else cur += ch; } else if (ch === '"') q = true; else if (ch === delim) { out.push(cur); cur = ''; } else cur += ch; } out.push(cur); return out.map((x) => x.trim()); };
+  const headers = split(lines[0]).map(norm);
+  return { headers, rows: lines.slice(1).map((l) => { const f = split(l); const o = {}; headers.forEach((h, i) => { o[h] = f[i] ?? ''; }); return o; }) };
+}
+const WORKER_COLS = { first_name: ['meno', 'firstname', 'vorname'], last_name: ['priezvisko', 'lastname', 'nachname'], nationality: ['narodnost', 'statnaprislusnost'], position: ['profesia', 'pozicia', 'position', 'beruf'], phone: ['telefon', 'tel', 'mobil'], email: ['email', 'e-mail'], hourly_cost: ['nakladovasadzba', 'naklad', 'nakladeurh', 'hourlycost'], wage_rate: ['mzda', 'mzdaeurh', 'mzdovasadzba', 'wagerate'], hourly_rate: ['fakturacnasadzba', 'sadzba'], birth_date: ['datumnarodenia', 'narodeny', 'birthdate'], iban: ['iban'], address: ['adresa', 'bydlisko'], id_number: ['cislodokladu', 'pas', 'cislopasu'], lohngruppe: ['lohngruppe', 'mzdovaskupina'], german_level: ['nemcina', 'german'] };
+const CLIENT_COLS = { name: ['nazov', 'firma', 'klient', 'name', 'odberatel'], ico: ['ico', 'hrb', 'regno'], dic: ['dic', 'steuernummer'], ic_dph: ['icdph', 'ustidnr', 'vatid', 'dph'], address: ['adresa', 'sidlo', 'address'], email: ['email', 'e-mail'], invoice_email: ['emailfaktury', 'fakturacnyemail', 'rechnungsemail'], phone: ['telefon', 'tel'], contact_person: ['kontakt', 'kontaktnaosoba', 'contact'], country: ['krajina', 'country', 'land'], due_days: ['splatnost', 'splatnostdni', 'duedays'], retention_percent: ['zadrzne', 'zadrznepercent'], skonto_percent: ['skonto', 'skontopercent'], skonto_days: ['skontodni'] };
+function pick(row, keys) { for (const k of keys) if (row[k] !== undefined && row[k] !== '') return row[k]; return ''; }
+router.get('/import', (req, res) => res.render('settings/import', { title: 'Import dát', result: null }));
+router.get('/import/template/:what.csv', (req, res) => {
+  res.setHeader('Content-Disposition', `attachment; filename="sablona-${req.params.what}.csv"`); res.type('text/csv');
+  if (req.params.what === 'workers') return res.send('\uFEFFMeno;Priezvisko;Národnosť;Profesia;Telefón;E-mail;Nákladová sadzba;Mzda;Dátum narodenia;IBAN;Adresa;Číslo dokladu;Lohngruppe;Nemčina\r\nIvan;Kovalenko;Ukrajina;murár;+421900111222;ivan@example.com;10;8,5;1990-05-05;SK11...;Bratislava;FE123456;LG 3;A2\r\n');
+  res.send('\uFEFFNázov;IČO;DIČ;IČ DPH;Adresa;E-mail;E-mail faktúry;Telefón;Kontakt;Krajina;Splatnosť;Zádržné;Skonto;Skonto dni\r\nBauunternehmen Müller GmbH;HRB 24871;143/123/45678;DE811234567;Industriestraße 12, 80339 München;info@mueller.de;rechnungen@mueller.de;+49 89 123;Stefan Müller;DE;30;5;2;10\r\n');
+});
+router.post('/import', upload.single('file'), (req, res) => {
+  const what = req.body.what; const result = { created: 0, skipped: 0, errors: [] };
+  try {
+    if (!req.file) throw new Error('Vyberte súbor CSV.');
+    const { headers, rows } = parseCsv(req.file.buffer.toString('utf8'));
+    if (!rows.length) throw new Error('Súbor neobsahuje žiadne riadky.');
+    for (const r of rows) {
+      try {
+        if (what === 'workers') {
+          const fn = pick(r, WORKER_COLS.first_name), ln = pick(r, WORKER_COLS.last_name);
+          if (!fn || !ln) { result.skipped++; continue; }
+          if (get('SELECT id FROM workers WHERE first_name = ? AND last_name = ?', [fn, ln])) { result.skipped++; continue; }
+          run('INSERT INTO workers(first_name, last_name, nationality, position, phone, email, hourly_cost, wage_rate, hourly_rate, birth_date, iban, address, id_number, lohngruppe, german_level, active, per_diem) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1,1)',
+            [fn, ln, pick(r, WORKER_COLS.nationality), pick(r, WORKER_COLS.position), pick(r, WORKER_COLS.phone), pick(r, WORKER_COLS.email), U.num(pick(r, WORKER_COLS.hourly_cost)), U.num(pick(r, WORKER_COLS.wage_rate)) || null, U.num(pick(r, WORKER_COLS.hourly_rate)) || null, pick(r, WORKER_COLS.birth_date) || null, pick(r, WORKER_COLS.iban), pick(r, WORKER_COLS.address), pick(r, WORKER_COLS.id_number), pick(r, WORKER_COLS.lohngruppe), pick(r, WORKER_COLS.german_level)]);
+        } else {
+          const name = pick(r, CLIENT_COLS.name); if (!name) { result.skipped++; continue; }
+          if (get('SELECT id FROM clients WHERE name = ?', [name])) { result.skipped++; continue; }
+          const country = (pick(r, CLIENT_COLS.country) || 'SK').toUpperCase().slice(0, 2);
+          run('INSERT INTO clients(name, ico, dic, ic_dph, address, email, invoice_email, phone, contact_person, country, due_days, retention_percent, skonto_percent, skonto_days, vat_mode, language, active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)',
+            [name, pick(r, CLIENT_COLS.ico), pick(r, CLIENT_COLS.dic), pick(r, CLIENT_COLS.ic_dph), pick(r, CLIENT_COLS.address), pick(r, CLIENT_COLS.email), pick(r, CLIENT_COLS.invoice_email), pick(r, CLIENT_COLS.phone), pick(r, CLIENT_COLS.contact_person), country, parseInt(pick(r, CLIENT_COLS.due_days), 10) || 14, U.num(pick(r, CLIENT_COLS.retention_percent)), U.num(pick(r, CLIENT_COLS.skonto_percent)), parseInt(pick(r, CLIENT_COLS.skonto_days), 10) || 0, country === 'SK' ? 'standard' : 'eu_reverse', country === 'DE' || country === 'AT' ? 'de' : 'sk']);
+        }
+        result.created++;
+      } catch (e) { result.errors.push(e.message); }
+    }
+    log('import', `Import ${what}: ${result.created} nových, ${result.skipped} preskočených`);
+  } catch (e) { result.errors.push(e.message); }
+  res.render('settings/import', { title: 'Import dát', result, what });
+});
+// ---- vymazanie všetkých dát (začiatok ostrej prevádzky) ----
+router.post('/reset-data', (req, res) => {
+  if (req.body.confirm !== 'VYMAZAT') { req.flash('err', 'Pre vymazanie napíšte do poľa presne VYMAZAT.'); return res.redirect('/settings?tab=backup'); }
+  const b = backupDatabase('before-reset');
+  const { transaction } = require('../db');
+  transaction(() => {
+    for (const t of ['task_comments', 'tasks', 'reminders', 'payments', 'bank_transactions', 'bank_imports', 'invoice_fees', 'invoice_items', 'invoices', 'quote_items', 'quotes', 'timesheet_rows', 'timesheets', 'assignments', 'postings', 'worker_documents', 'worker_transactions', 'settlements', 'expenses', 'client_rates', 'contracts', 'sites', 'clients', 'workers', 'attachments', 'activity_log']) run(`DELETE FROM ${t}`);
+    run("DELETE FROM users WHERE id != ? AND username IN ('kancelaria','dispecer','uctovnik') AND email LIKE '%@sxworkforce.sk'", [req.session.user.id]);
+    run("DELETE FROM sqlite_sequence WHERE name NOT IN ('users','settings')");
+    setSetting('demo_data', '0');
+  });
+  log('reset', 'Vymazané všetky dáta (začiatok ostrej prevádzky), záloha: ' + (b ? require('path').basename(b) : 'zlyhala'));
+  req.flash('ok', 'Všetky dáta boli vymazané (používatelia a nastavenia ostali). Záloha pred vymazaním: ' + (b ? require('path').basename(b) : 'zlyhala'));
+  res.redirect('/settings?tab=backup');
+});
 router.post('/backup-now', (req, res) => { const b = backupDatabase('manual'); req.flash(b ? 'ok' : 'err', b ? 'Záloha vytvorená: ' + require('path').basename(b) : 'Záloha zlyhala.'); res.redirect('/settings?tab=backup'); });
 router.get('/backup/download', (req, res) => {
   const fs = require('fs'); const path = require('path'); const { DB_PATH } = require('../db');

@@ -186,8 +186,7 @@ Sekcie aplikácie a ich adresy:
 - /compliance  Compliance DE: povolenie AÜG a Freistellungsbescheinigung firmy, expirujúce doklady pracovníkov (A1, pas, povolenia), neohlásené vyslania (Meldeportal), AÜG limity 9/18 mesiacov u klienta, SOKA-BAU hodiny. Doklady sa zadávajú v detaile pracovníka (/workers/ID, záložka Doklady).
 - /quotes  Cenové ponuky: PDF pre klienta, prevod na faktúru.
 - /settlements  Vyúčtovanie pracovníkov: mesačne hodiny × mzda + diéty − zálohy − zrážky, výplatná páska SK/UA/DE. Zálohy a zrážky sa zadávajú v detaile pracovníka.
-- /lodging  Ubytovanie: ubytovne, kto kde býva, náklady, zrážky pracovníkom. /vehicles Vozidlá a kniha jázd.
-- /finance  Financie: cash-flow výhľad, skutočná ziskovosť vrátane diét a ubytovania, exporty CSV pre účtovníctvo; /invoices/ec-sales súhrnný výkaz DPH.
+- /finance  Financie: cash-flow výhľad, skutočná ziskovosť vrátane diét, exporty CSV pre účtovníctvo; /invoices/ec-sales súhrnný výkaz DPH.
 - Faktúra: PDF (tlačidlo PDF), odoslanie e-mailom s PDF, XRechnung XML pre nemeckých klientov; jazyk a režim DPH podľa klienta (prenesenie DPH v EÚ pre DE klientov). Hodinový lístok má nemecký Stundenzettel na tlač a podpis na obrazovke.
 - Roly používateľov a pozvánky: /settings?tab=account. Zálohy a verzia: /settings?tab=backup.
 - /settings  Nastavenia: záložky Firma, Fakturácia (číslovanie, DPH), Upomienky (dni po splatnosti, text, automatické odosielanie o 8:00), Odosielanie e-mailov (SMTP), Bankový e-mail (IMAP), Účet a používatelia, AI asistent, Denník.

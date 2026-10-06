@@ -22,7 +22,7 @@ router.get('/:id/edit', (req, res) => {
 router.post('/save', (req, res) => {
   const b = req.body;
   const vals = [b.first_name.trim(), b.last_name.trim(), b.nationality || '', b.position || '', b.phone || '', b.email || '', U.num(b.hourly_cost), b.hourly_rate ? U.num(b.hourly_rate) : null, b.active ? 1 : 0, b.note || '',
-    b.birth_date || null, b.address || '', b.id_number || '', b.iban || '', b.wage_rate ? U.num(b.wage_rate) : null, b.lohngruppe || '', b.german_level || '', b.emergency_contact || '', b.sizes || '', b.per_diem ? 1 : 0, U.num(b.lodging_deduction), b.eu_citizen ? 1 : 0, b.hired_at || null, b.contract_type || ''];
+    b.birth_date || null, b.address || '', b.id_number || '', b.iban || '', b.wage_rate ? U.num(b.wage_rate) : null, b.lohngruppe || '', b.german_level || '', b.emergency_contact || '', b.sizes || '', b.per_diem ? 1 : 0, 0, b.eu_citizen ? 1 : 0, b.hired_at || null, b.contract_type || ''];
   const cols = 'first_name=?, last_name=?, nationality=?, position=?, phone=?, email=?, hourly_cost=?, hourly_rate=?, active=?, note=?, birth_date=?, address=?, id_number=?, iban=?, wage_rate=?, lohngruppe=?, german_level=?, emergency_contact=?, sizes=?, per_diem=?, lodging_deduction=?, eu_citizen=?, hired_at=?, contract_type=?';
   let id = b.id;
   if (id) { run(`UPDATE workers SET ${cols} WHERE id=?`, [...vals, id]); req.flash('ok', 'Pracovník uložený.'); }
@@ -40,11 +40,10 @@ router.get('/:id', (req, res) => {
   const aug = C.augStatus().filter((a) => a.worker_id === w.id);
   const settlements = all('SELECT * FROM settlements WHERE worker_id = ? ORDER BY month DESC LIMIT 12', [w.id]);
   const transactions = all('SELECT * FROM worker_transactions WHERE worker_id = ? ORDER BY date DESC, id DESC LIMIT 30', [w.id]);
-  const stays = all('SELECT ls.*, l.name AS lodging_name, l.city FROM lodging_stays ls JOIN lodgings l ON l.id=ls.lodging_id WHERE ls.worker_id = ? ORDER BY ls.date_from DESC LIMIT 10', [w.id]);
   const sites = all("SELECT s.id, s.name, c.name AS client_name FROM sites s JOIN clients c ON c.id=s.client_id WHERE s.status != 'finished' ORDER BY c.name, s.name");
   const clients = all('SELECT id, name FROM clients WHERE active = 1 ORDER BY name');
   const stats = { hours_year: U.round2(sheets.filter((s) => s.week_start >= today.slice(0, 4) + '-01-01').reduce((a, s) => a + s.hours, 0)), hours_total: get('SELECT COALESCE(SUM(r.d1+r.d2+r.d3+r.d4+r.d5+r.d6+r.d7),0) AS h FROM timesheet_rows r WHERE r.worker_id = ?', [w.id]).h, balance: U.round2(transactions.filter((t) => !t.settlement_id).reduce((a, t) => a + (t.type === 'advance' ? -t.amount : t.type === 'deduction' ? -t.amount : t.amount), 0)) };
-  res.render('workers/detail', { title: `${w.last_name} ${w.first_name}`, w, docs, postings, assignments, sheets, aug, settlements, transactions, stays, sites, clients, stats, DOC_TYPES: C.DOC_TYPES, ASSIGNMENT_TYPES: C.ASSIGNMENT_TYPES });
+  res.render('workers/detail', { title: `${w.last_name} ${w.first_name}`, w, docs, postings, assignments, sheets, aug, settlements, transactions, sites, clients, stats, DOC_TYPES: C.DOC_TYPES, ASSIGNMENT_TYPES: C.ASSIGNMENT_TYPES });
 });
 // doklady
 router.post('/:id/documents/save', (req, res) => {

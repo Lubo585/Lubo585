@@ -6,7 +6,7 @@ const cron = require('node-cron');
 
 const { getSettings, log, backupDatabase, ROLES, SCHEMA_VERSION } = require('./src/db');
 const SqliteStore = require('./src/session-store');
-const { requireLogin, csrfGuard, allowed } = require('./src/auth');
+const { requireLogin, csrfGuard, allowed, securityHeaders } = require('./src/auth');
 const U = require('./src/utils');
 const INV = require('./src/services/invoices');
 const reminders = require('./src/services/reminders');
@@ -35,6 +35,7 @@ app.use(session({
   cookie: { httpOnly: true, sameSite: 'lax', secure, maxAge: 1000 * 60 * 60 * 24 * 14 },
 }));
 app.use(csrfGuard);
+app.use(securityHeaders);
 
 // globálne premenné pre šablóny + flash správy
 app.use((req, res, next) => {
@@ -47,6 +48,15 @@ app.use((req, res, next) => {
   res.locals.allowed = (p) => (req.session.user ? allowed(req.session.user.role, p) : false);
   res.locals.attachmentsFor = (type, id) => attachments.list(type, id);
   res.locals.appVersion = pkg.version;
+  // upozornenia pre administrátora (ostrá prevádzka)
+  const w = [];
+  if (req.session.user && req.session.user.weakPassword) w.push({ text: 'Používate predvolené alebo slabé heslo. Zmeňte si ho v Nastavenia → Používatelia.', href: '/settings?tab=account' });
+  if (req.session.user && req.session.user.role === 'admin') {
+    if (process.env.NODE_ENV === 'production' && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET === 'zmen-ma-na-nahodny-retazec')) w.push({ text: 'V súbore .env nie je nastavený SESSION_SECRET. Nastavte dlhý náhodný reťazec a reštartujte aplikáciu.', href: null });
+    if (!res.locals.settings.company_iban) w.push({ text: 'Nie je vyplnený IBAN firmy, faktúry a upomienky budú bez čísla účtu.', href: '/settings' });
+    if (res.locals.settings.demo_data === '1') w.push({ text: 'Aplikácia obsahuje ukážkové dáta. Pred ostrou prevádzkou ich vymažte v Nastavenia → Zálohy a verzia.', href: '/settings?tab=backup' });
+  }
+  res.locals.adminWarnings = w;
   res.locals.flash = req.session.flash || null;
   delete req.session.flash;
   req.flash = (type, text) => { req.session.flash = { type, text }; };
@@ -69,8 +79,6 @@ app.use('/expenses', require('./src/routes/expenses'));
 app.use('/invoices', require('./src/routes/invoices'));
 app.use('/quotes', require('./src/routes/quotes'));
 app.use('/bank', require('./src/routes/bank'));
-app.use('/lodging', require('./src/routes/lodging'));
-app.use('/vehicles', require('./src/routes/vehicles'));
 app.use('/settlements', require('./src/routes/settlements'));
 app.use('/reports', require('./src/routes/reports'));
 app.use('/finance', require('./src/routes/finance'));

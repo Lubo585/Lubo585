@@ -80,6 +80,10 @@ Potrebujete malý server (VPS za ~5 €/mes.) a doménu, napr. `app.sxworkforce.
 
 Po nasadení podľa B) sa z priečinka `mobile/` zostaví natívna aplikácia pre iOS a Android (návod v [mobile/README.md](mobile/README.md)). Vyžaduje vývojárske účty Apple a Google a zostavenie na počítači s Xcode / Android Studio. Aplikácia zobrazuje váš server, takže funkcie a dáta sú rovnaké ako na webe.
 
+## Prechod na ostrú prevádzku
+
+Keď ste s ukážkou spokojný: Nastavenia → Zálohy a verzia → **Vymazať všetky dáta** (vytvorí sa záloha), potom Nastavenia → **Import dát** pre existujúcich klientov a pracovníkov z CSV. Úplný kontrolný zoznam je v súbore **OSTRA_PREVADZKA.md**.
+
 ## Čo si vo vzore pozrieť
 
 - **Prehľad**: zisk za mesiac, faktúry po splatnosti, nespárované platby, compliance upozornenia.

@@ -2,19 +2,22 @@ const router = require('express').Router();
 const crypto = require('crypto');
 const { all, get, run, verifyPassword, hashPassword, getSettings, log, ROLES } = require('../db');
 const U = require('../utils');
+const { loginLimiter } = require('../auth');
 
 router.get('/login', (req, res) => {
   if (req.session.user) return res.redirect(req.session.user.role === 'worker' ? '/portal' : '/');
   res.render('login', { title: 'Prihlásenie', error: null, next: req.query.next || '/', mode: 'login' });
 });
-router.post('/login', (req, res) => {
+router.post('/login', loginLimiter, (req, res) => {
   const u = get('SELECT * FROM users WHERE username = ? OR email = ?', [String(req.body.username || '').trim(), String(req.body.username || '').trim().toLowerCase()]);
   if (!u || !u.active || !verifyPassword(String(req.body.password || ''), u.password_hash)) {
-    log('auth', `Neúspešné prihlásenie: ${String(req.body.username || '').slice(0, 40)}`);
+    req.loginFailed(); log('auth', `Neúspešné prihlásenie: ${String(req.body.username || '').slice(0, 40)}`);
     return res.status(401).render('login', { title: 'Prihlásenie', error: 'Nesprávne meno alebo heslo.', next: req.body.next || '/', mode: 'login' });
   }
+  req.loginOk();
+  const weak = verifyPassword('admin', u.password_hash) || verifyPassword(String(req.body.username || ''), u.password_hash);
   req.session.regenerate(() => {
-    req.session.user = { id: u.id, username: u.username, name: u.name, role: u.role || 'admin', worker_id: u.worker_id };
+    req.session.user = { id: u.id, username: u.username, name: u.name, role: u.role || 'admin', worker_id: u.worker_id, weakPassword: weak };
     run("UPDATE users SET last_login = datetime('now') WHERE id = ?", [u.id]);
     const next = String(req.body.next || '/');
     res.redirect(u.role === 'worker' ? '/portal' : (next.startsWith('/') && !next.startsWith('//') ? next : '/'));
