@@ -1,0 +1,124 @@
+# ---------------------------------------------------------------------------
+# SignalFlow – konfigurácia. Hodnoty v {zátvorkách} sa dopĺňajú zo signálu.
+# Dostupné polia: pair, base, quote, direction, direction_emoji, entries,
+# targets_inline, targets_block, stop_loss, leverage, timeframe, note, rr,
+# brand, vip_link, hashtags, date, id
+# Pre výsledky navyše: result_label, result_emoji, pnl_pct, tp_index
+# ---------------------------------------------------------------------------
+brand: "CryptoSignals SK"
+vip_link: "https://t.me/+tvoj_invite_link"
+hashtags: "#crypto #trading #bitcoin #altcoins #signals"
+timezone: "Europe/Bratislava"
+
+# Vyžadovať tvoje schválenie v Telegrame pred publikovaním? (odporúčané)
+require_approval: true
+
+# Čo ide na verejné siete (IG/X/FB): "teaser" skryje čísla, "full" zverejní celý signál
+public_mode: teaser
+
+# Kam sa ukladajú vygenerované súbory a databáza signálov
+output_dir: out
+data_dir: data
+
+# Vzhľad obrázkov
+image:
+  font_bold: /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf
+  font_regular: /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf
+  background: "#0B0F19"
+  card: "#131A2B"
+  text: "#FFFFFF"
+  muted: "#8A94A6"
+  long: "#16C784"
+  short: "#EA3943"
+  disclaimer: "Nie je to finančné poradenstvo. Obchoduj na vlastné riziko."
+
+# Kanály, kam sa publikuje. VIP = plný signál, public = podľa public_mode.
+channels:
+  telegram_vip: true
+  discord: true
+  instagram: true
+  x: true
+  facebook: true
+
+templates:
+  telegram_vip: |
+    {direction_emoji} <b>{pair} – {direction}</b> {leverage_tag}
+
+    🎯 <b>Vstup:</b> {entries}
+    {targets_block}
+    🛑 <b>Stop loss:</b> {stop_loss}
+    {timeframe_line}{note_line}
+    📊 R:R ≈ {rr}
+
+    <i>Riadenie rizika: max. 1–3 % kapitálu na obchod.</i>
+    #{base} #{direction}
+
+  discord_title: "{direction_emoji} {pair} – {direction} {leverage_tag}"
+  discord_description: |
+    **Vstup:** {entries}
+    {targets_block}
+    **Stop loss:** {stop_loss}
+    {timeframe_line}{note_line}
+    R:R ≈ {rr}
+
+  # X (Twitter) – max 280 znakov, teaser bez čísel
+  x_teaser: |
+    {direction_emoji} Nový signál vo VIP: ${base} {direction}
+
+    Vstup, ciele a SL už čakajú v skupine 👇
+    {vip_link}
+
+    #{base} #crypto #trading
+  x_full: |
+    {direction_emoji} ${base} {direction} {leverage_tag}
+    Vstup: {entries}
+    TP: {targets_inline}
+    SL: {stop_loss}
+
+    Viac signálov 👉 {vip_link}
+    #{base} #crypto
+
+  facebook_teaser: |
+    {direction_emoji} Nový {direction} signál na {pair} práve odišiel do VIP skupiny.
+
+    Členovia už majú presný vstup, ciele aj stop loss. Chceš byť pri ďalšom?
+    👉 {vip_link}
+
+    {hashtags}
+  facebook_full: |
+    {direction_emoji} {pair} – {direction} {leverage_tag}
+
+    Vstup: {entries}
+    {targets_block}
+    Stop loss: {stop_loss}
+
+    Pridaj sa do VIP 👉 {vip_link}
+    {hashtags}
+
+  instagram_teaser: |
+    {direction_emoji} {pair} {direction} – nový signál vo VIP skupine.
+
+    Presný vstup, ciele a stop loss nájdeš v skupine (link v biu).
+
+    {hashtags}
+  instagram_full: |
+    {direction_emoji} {pair} – {direction} {leverage_tag}
+    Vstup: {entries}
+    {targets_block}
+    Stop loss: {stop_loss}
+
+    Link na VIP v biu.
+    {hashtags}
+
+  # Výsledky obchodov (TP / SL) – posielajú sa všade, aj verejne (je to najlepší kontent)
+  result_vip: |
+    {result_emoji} <b>{pair} {direction} – {result_label}</b>
+    Zisk: <b>{pnl_pct}</b> (s pákou {leverage})
+
+    Gratulujem všetkým, čo boli v obchode! 🚀
+  result_public: |
+    {result_emoji} {pair} {direction} – {result_label}
+    {pnl_pct} pre členov VIP 🚀
+
+    Ďalší signál už čaká 👉 {vip_link}
+    #{base} #crypto #trading

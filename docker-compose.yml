@@ -1,0 +1,9 @@
+services:
+  signalflow:
+    build: .
+    env_file: .env
+    volumes:
+      - ./data:/app/data   # Telegram session + databáza signálov
+      - ./out:/app/out     # vygenerované obrázky a texty
+      - ./config.yaml:/app/config.yaml:ro
+    restart: unless-stopped
