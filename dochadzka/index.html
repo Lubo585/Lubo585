@@ -173,7 +173,7 @@
         <option value="P">Len prednášky</option>
       </select>
     </label>
-    <p class="full">Čísla v zátvorkách v rozvrhu sú týždne semestra, v ktorých hodina prebieha. Apka z nich a zo začiatku semestra vypočíta dátumy. Ak škola uvádza iný začiatok, zmeň ho tu a všetko sa prepočíta.</p>
+    <p class="full">Každá hodina z rozvrhu sa počíta každý týždeň výučby. Dátumy hodín sa rátajú od začiatku semestra. Ak sa zmení dĺžka semestra alebo začiatok, zmeň to tu a všetko sa prepočíta. Termín, ktorý nechceš rátať, vypni priamo pri predmete.</p>
   </section>
 
   <div class="summary" id="summary"></div>
@@ -207,41 +207,40 @@
   'use strict';
 
   // ---- Rozvrh (prepísaný z osobného rozvrhu, ZS 2026/27) ----
-  // type: P = prednáška (zelené), S = seminár (modré). weeks: null = každý týždeň.
-  // alt: v rozvrhu čiarkovaný rámček = viac skupín toho istého seminára; zapni tú svoju.
+  // type: P = prednáška (zelené), S = seminár (modré). Každá hodina beží každý týždeň semestra.
+  // Čísla v zátvorkách z pôvodného rozvrhu sa podľa skúsenosti neriadia výučbou, preto sa ignorujú.
+  // alt: v rozvrhu čiarkovaný doplnkový termín; zapína sa ručne.
   const SUBJECTS = [
     { id: 'ep3', name: 'Európske právo III.', sub: 'Justičná spolupráca v civilných veciach EÚ', slots: [
-      { id: 'ep3-p',  type: 'P', day: 0, from: '09:20', to: '10:55', room: 'P 1.01', teacher: 'L. Garayová', weeks: [7] },
-      { id: 'ep3-s1', type: 'S', day: 0, from: '16:00', to: '17:35', room: 'P 1.01', teacher: 'V. Bednár Marková', weeks: [1, 2, 3, 4], alt: 'skupina 1' },
-      { id: 'ep3-s2', type: 'S', day: 0, from: '16:00', to: '17:35', room: 'P 1.01', teacher: 'V. Bednár Marková', weeks: [3, 6, 9, 10], alt: 'skupina 2' },
-      { id: 'ep3-s3', type: 'S', day: 0, from: '17:40', to: '19:15', room: 'P 1.01', teacher: 'V. Bednár Marková', weeks: [3, 5, 6], alt: 'z-mob' },
+      { id: 'ep3-p',  type: 'P', day: 0, from: '09:20', to: '10:55', room: 'P 1.01', teacher: 'L. Garayová', weeks: null },
+      { id: 'ep3-s',  type: 'S', day: 0, from: '16:00', to: '17:35', room: 'P 1.01', teacher: 'V. Bednár Marková', weeks: null },
+      { id: 'ep3-s3', type: 'S', day: 0, from: '17:40', to: '19:15', room: 'P 1.01', teacher: 'V. Bednár Marková', weeks: null, alt: 'z-mob' },
     ]},
     { id: 'ep5', name: 'Európske právo V.', sub: 'Vnútorný trh a súťažné právo EÚ', slots: [
-      { id: 'ep5-p', type: 'P', day: 0, from: '11:00', to: '12:35', room: 'P 1.02', teacher: 'A. Karpat', weeks: [7] },
-      { id: 'ep5-s', type: 'S', day: 0, from: '12:40', to: '14:15', room: 'P 1.02', teacher: 'A. Karpat', weeks: [3, 6, 7, 9] },
+      { id: 'ep5-p', type: 'P', day: 0, from: '11:00', to: '12:35', room: 'P 1.02', teacher: 'A. Karpat', weeks: null },
+      { id: 'ep5-s', type: 'S', day: 0, from: '12:40', to: '14:15', room: 'P 1.02', teacher: 'A. Karpat', weeks: null },
     ]},
     { id: 'rmep', name: 'Repetitórium z medzinárodného a európskeho práva', sub: '', slots: [
-      { id: 'rmep-p', type: 'P', day: 0, from: '09:20', to: '10:55', room: 'Zas. č. 3', teacher: 'A. Karpat', weeks: [7] },
+      { id: 'rmep-p', type: 'P', day: 0, from: '09:20', to: '10:55', room: 'Zas. č. 3', teacher: 'A. Karpat', weeks: null },
     ]},
     { id: 'opp2', name: 'Občianske právo procesné II.', sub: '', slots: [
-      { id: 'opp2-p', type: 'P', day: 0, from: '14:20', to: '15:55', room: 'P 1.02', teacher: 'R. Smyčková', weeks: [8] },
-      { id: 'opp2-s', type: 'S', day: 2, from: '16:00', to: '17:35', room: 'P 1.01', teacher: 'D. Vyhnálik', weeks: [3, 9] },
+      { id: 'opp2-p', type: 'P', day: 0, from: '14:20', to: '15:55', room: 'P 1.02', teacher: 'R. Smyčková', weeks: null },
+      { id: 'opp2-s', type: 'S', day: 2, from: '16:00', to: '17:35', room: 'P 1.01', teacher: 'D. Vyhnálik', weeks: null },
     ]},
     { id: 'pdv', name: 'Právo duševného vlastníctva', sub: '', slots: [
-      { id: 'pdv-p',  type: 'P', day: 1, from: '08:30', to: '10:05', room: 'P 1.02', teacher: 'R. Kopčová', weeks: [12] },
-      { id: 'pdv-s1', type: 'S', day: 1, from: '10:10', to: '11:45', room: 'P 1.02', teacher: 'R. Kopčová', weeks: [1, 2, 3, 12], alt: 'skupina 1' },
-      { id: 'pdv-s2', type: 'S', day: 1, from: '10:10', to: '11:45', room: 'P 1.02', teacher: 'R. Kopčová', weeks: [3, 9, 10, 12], alt: 'skupina 2' },
+      { id: 'pdv-p', type: 'P', day: 1, from: '08:30', to: '10:05', room: 'P 1.02', teacher: 'R. Kopčová', weeks: null },
+      { id: 'pdv-s', type: 'S', day: 1, from: '10:10', to: '11:45', room: 'P 1.02', teacher: 'R. Kopčová', weeks: null },
     ]},
     { id: 'krim', name: 'Kriminalistika', sub: '', slots: [
-      { id: 'krim-p', type: 'P', day: 1, from: '10:10', to: '11:45', room: 'P 1.01', teacher: 'P. Polák', weeks: [12] },
-      { id: 'krim-s', type: 'S', day: 2, from: '14:20', to: '15:55', room: 'P 1.01', teacher: 'P. Polák', weeks: [3, 9] },
+      { id: 'krim-p', type: 'P', day: 1, from: '10:10', to: '11:45', room: 'P 1.01', teacher: 'P. Polák', weeks: null },
+      { id: 'krim-s', type: 'S', day: 2, from: '14:20', to: '15:55', room: 'P 1.01', teacher: 'P. Polák', weeks: null },
     ]},
     { id: 'tpp2', name: 'Trestné právo procesné II.', sub: '', slots: [
-      { id: 'tpp2-p', type: 'P', day: 1, from: '12:40', to: '14:15', room: 'P 1.01', teacher: 'P. Polák', weeks: [11, 12] },
-      { id: 'tpp2-s', type: 'S', day: 2, from: '12:40', to: '14:15', room: 'P 1.01', teacher: 'J. Záhora', weeks: [3, 9] },
+      { id: 'tpp2-p', type: 'P', day: 1, from: '12:40', to: '14:15', room: 'P 1.01', teacher: 'P. Polák', weeks: null },
+      { id: 'tpp2-s', type: 'S', day: 2, from: '12:40', to: '14:15', room: 'P 1.01', teacher: 'J. Záhora', weeks: null },
     ]},
     { id: 'rtp', name: 'Rozhodovanie v trestnom práve', sub: '', slots: [
-      { id: 'rtp-s', type: 'S', day: 3, from: '09:20', to: '10:55', room: 'S 1.10', teacher: 'M. Tittlová', weeks: [3] },
+      { id: 'rtp-s', type: 'S', day: 3, from: '09:20', to: '10:55', room: 'S 1.10', teacher: 'M. Tittlová', weeks: null },
     ]},
     { id: 'pen', name: 'Penológia', sub: '', slots: [
       { id: 'pen-p', type: 'P', day: 3, from: '11:00', to: '12:35', room: 'S 1.10', teacher: 'M. Tittlová', weeks: null },
@@ -352,7 +351,7 @@
     const n = $('noticeAlt');
     if (!open.length || activeTab !== 'subjects') { n.hidden = true; return; }
     n.hidden = false;
-    n.innerHTML = '<b>Vyber si skupinu seminára.</b> V rozvrhu máš viac skupín (čiarkované rámčeky) pri: ' + open.map((s) => esc(s.name)).join(', ') + '. Otvor predmet a zapni termín, na ktorý chodíš. Kým to neurobíš, semináre sa do limitu nepočítajú.';
+    n.innerHTML = '<b>Doplnkový termín.</b> V rozvrhu je čiarkovaný termín navyše pri: ' + open.map((s) => esc(s.name)).join(', ') + '. Ak naň chodíš, otvor predmet a zapni ho. Kým je vypnutý, do limitu sa nepočíta.';
   }
 
   function renderSubjects() {
