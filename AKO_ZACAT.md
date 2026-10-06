@@ -61,7 +61,11 @@ Beží na serveroch GitHubu, zadarmo do 60 hodín mesačne, stačí váš účet
 
 Ak by aplikácia nebežala, v termináli Codespaces (menu ☰ → Terminal → New Terminal) spustite `./scripts/codespaces-start.sh`. Codespace sa po 30 minútach nečinnosti uspí, pri ďalšom otvorení sa aplikácia spustí znova; dáta v ňom ostávajú, kým codespace nezmažete.
 
-## B0) Vyskúšať na internete bez vlastného servera (Render, zadarmo, 5 minút)
+## B0) Nasadiť na web cez Render (odporúčané pre ostrú prevádzku)
+
+Presný postup krok za krokom je v **NASADENIE_NA_WEB.md** (účet, nasadenie, vlastná doména, zálohy, aktualizácie). Konfigurácia `render.yaml` je nastavená na platený plán s trvalým diskom; pre bezplatné vyskúšanie pozrite poznámku v tom súbore.
+
+### Pôvodný text (bezplatné vyskúšanie)
 
 Ak nechcete nič spúšťať na počítači, dá sa aplikácia nasadiť na bezplatné hostovanie Render.com jedným kliknutím. Dostanete adresu typu `https://sxworkforce.onrender.com`, ktorá sa otvorí v akomkoľvek prehliadači aj na mobile.
 

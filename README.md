@@ -49,7 +49,7 @@ npm start
 ```
 <http://localhost:3000>, prihlásenie `admin` / heslo z `.env` (predvolene `admin`). Ukážkové dáta: `npm run demo`. Testy: `npm test`. Jednoduchý návod pre nových používateľov: [AKO_ZACAT.md](AKO_ZACAT.md).
 
-**Nasadenie na internet (HTTPS, Docker, aktualizácie, zálohy):** pozri [DEPLOY.md](DEPLOY.md).
+**Nasadenie na web:** najjednoduchšie cez Render podľa [NASADENIE_NA_WEB.md](NASADENIE_NA_WEB.md); vlastný server (Docker + HTTPS) podľa [DEPLOY.md](DEPLOY.md).
 **Mobilná aplikácia pre App Store a Google Play:** pozri [mobile/README.md](mobile/README.md). Web funguje aj ako PWA (na telefóne „Pridať na plochu“).
 
 ## Aktualizácie bez straty dát

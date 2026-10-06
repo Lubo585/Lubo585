@@ -1,26 +1,33 @@
-# Nasadenie na Render.com jedným kliknutím (testovacie / malé firemné nasadenie).
-# Bezplatný plán: aplikácia po 15 min nečinnosti zaspí a prvé načítanie trvá ~30 s; disk je dočasný,
-# takže dáta sa pri reštarte stratia (vhodné na vyskúšanie). Pre ostrú prevádzku zvoľte platený plán
-# s diskom (disk: /app/data) alebo vlastný server podľa DEPLOY.md.
+# Nasadenie na Render.com jedným kliknutím – OSTRÁ PREVÁDZKA
+# Plán "starter" s trvalým diskom (dáta ostávajú pri reštarte aj aktualizácii). Cena cca 7 USD/mes. + disk.
+# Pre bezplatné vyskúšanie zmeňte plan: free, odstráňte sekciu disk a nastavte DEMO_SEED na "1" (dáta sú potom dočasné).
 services:
   - type: web
     name: sxworkforce
     runtime: node
-    plan: free
+    plan: starter
+    region: frankfurt
     branch: claude/determined-mccarthy-7jfplr
     buildCommand: npm ci --omit=dev
     startCommand: npm start
     healthCheckPath: /health
+    autoDeploy: false
+    disk:
+      name: data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 2
     envVars:
       - key: NODE_ENV
         value: production
       - key: COOKIE_SECURE
         value: "1"
       - key: DB_PATH
-        value: ./data/app.db
+        value: /opt/render/project/src/data/app.db
+      - key: UPLOAD_DIR
+        value: /opt/render/project/src/data/uploads
       - key: DEMO_SEED
-        value: "1"
+        value: "0"
       - key: ADMIN_PASSWORD
-        value: admin
+        sync: false
       - key: SESSION_SECRET
         generateValue: true
