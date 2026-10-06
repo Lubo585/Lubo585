@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crypto Channel Agent</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cpath d=%27M2 24 L30 8 M2 30 L30 14%27 stroke=%27%23f59e0b%27 stroke-width=%273%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/style.css">
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+<header>
+  <div class="brand">📐 Crypto Channel Agent</div>
+  <div class="controls">
+    <select id="symbol"></select>
+    <input id="newSymbol" placeholder="pridať symbol (napr. LINKUSDT)" size="22">
+    <button id="addSymbol" title="Pridať do watchlistu">+</button>
+    <div id="timeframes" class="tf"></div>
+  </div>
+  <div id="status" class="status"></div>
+</header>
+
+<main>
+  <section class="chart-area">
+    <div id="ticker" class="ticker"></div>
+    <div id="chart"></div>
+    <div id="legend" class="legend"></div>
+    <div id="evals" class="evals"></div>
+  </section>
+
+  <aside>
+    <nav class="tabs">
+      <button data-tab="ai" class="active">AI analýza</button>
+      <button data-tab="channels">Kanály</button>
+      <button data-tab="alerts">Alerty</button>
+      <button data-tab="history">História</button>
+      <button data-tab="help">Nastavenie</button>
+    </nav>
+
+    <div id="tab-ai" class="tab active">
+      <div class="row">
+        <label>Časové rámce pre analýzu</label>
+        <div id="aiTfs" class="tf"></div>
+      </div>
+      <div class="row">
+        <label>Poznámky / podklady z TradingView (čo vidíš, čo ťa zaujíma)</label>
+        <textarea id="notes" rows="4" placeholder="napr. Na 4h mám klesajúci kanál od 12.9., cena testuje spodný okraj. Zaujíma ma long pri odraze."></textarea>
+      </div>
+      <div class="row">
+        <label>Screenshoty grafu z TradingView (voliteľné, max 6)</label>
+        <input type="file" id="images" accept="image/png,image/jpeg,image/webp" multiple>
+        <div id="imgPreview" class="imgs"></div>
+      </div>
+      <div class="row inline">
+        <label><input type="checkbox" id="incDetected" checked> auto-detegované kanály</label>
+        <label><input type="checkbox" id="incAlerts" checked> alerty z TV (7 dní)</label>
+      </div>
+      <div class="row inline">
+        <button id="analyze" class="primary">🧠 Analyzovať</button>
+        <button id="preview">Náhľad podkladov (JSON)</button>
+      </div>
+      <div id="aiStatus" class="muted"></div>
+      <div id="report"></div>
+      <pre id="snapshot" class="hidden"></pre>
+    </div>
+
+    <div id="tab-channels" class="tab">
+      <p class="muted">Kanál zadaj tak, ako ho vidíš v TradingView: dvojklik na kresbu → <b>Súradnice</b>. Horná čiara = 2 body, spodná čiara = 1 bod (rovnobežka) alebo 2 body.</p>
+      <form id="channelForm">
+        <input type="hidden" id="chId">
+        <div class="grid2">
+          <label>Názov <input id="chName" value="Môj kanál" required></label>
+          <label>Rámec <select id="chTf"></select></label>
+        </div>
+        <fieldset><legend>Horná čiara</legend>
+          <div class="grid2">
+            <label>Bod 1 – čas (UTC) <input type="datetime-local" id="u1t" required></label>
+            <label>Bod 1 – cena <input type="number" step="any" id="u1p" required></label>
+            <label>Bod 2 – čas (UTC) <input type="datetime-local" id="u2t" required></label>
+            <label>Bod 2 – cena <input type="number" step="any" id="u2p" required></label>
+          </div>
+        </fieldset>
+        <fieldset><legend>Spodná čiara</legend>
+          <div class="grid2">
+            <label>Bod 1 – čas (UTC) <input type="datetime-local" id="l1t" required></label>
+            <label>Bod 1 – cena <input type="number" step="any" id="l1p" required></label>
+            <label>Bod 2 – čas (voliteľné) <input type="datetime-local" id="l2t"></label>
+            <label>Bod 2 – cena (voliteľné) <input type="number" step="any" id="l2p"></label>
+          </div>
+        </fieldset>
+        <label>Poznámka <input id="chNotes" placeholder="prečo je kanál dôležitý, odkiaľ je"></label>
+        <div class="row inline">
+          <button type="submit" class="primary">💾 Uložiť kanál</button>
+          <button type="button" id="chReset">Nový</button>
+          <button type="button" id="chFromAuto" title="Predvyplní formulár z auto-detegovaného kanála">Z auto-detekcie</button>
+        </div>
+      </form>
+      <div id="channelList"></div>
+    </div>
+
+    <div id="tab-alerts" class="tab">
+      <div class="row inline">
+        <button id="runMonitor">Skontrolovať kanály teraz</button>
+        <button id="refreshAlerts">Obnoviť</button>
+      </div>
+      <div id="alertList"></div>
+    </div>
+
+    <div id="tab-history" class="tab">
+      <div id="historyList"></div>
+    </div>
+
+    <div id="tab-help" class="tab">
+      <div id="helpBox"></div>
+    </div>
+  </aside>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>
