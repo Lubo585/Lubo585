@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">NazovPortalu</string>
+    <string name="title_activity_main">NazovPortalu</string>
+    <string name="package_name">sk.nazovportalu.app</string>
+    <string name="custom_url_scheme">sk.nazovportalu.app</string>
+</resources>

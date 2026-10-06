@@ -1,0 +1,36 @@
+{
+  "name": "nazovportalu-app",
+  "version": "1.0.0",
+  "description": "Mobilná aplikácia NazovPortalu (Capacitor) – iOS a Android nad spoločným Supabase backendom",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-www.mjs",
+    "sync": "npm run build && npx cap sync",
+    "android": "npm run sync && npx cap open android",
+    "ios": "npm run sync && npx cap open ios",
+    "run:android": "npm run sync && npx cap run android",
+    "run:ios": "npm run sync && npx cap run ios",
+    "assets": "npx @capacitor/assets generate --iconBackgroundColor '#0f0a0d' --iconBackgroundColorDark '#0f0a0d' --splashBackgroundColor '#0f0a0d' --splashBackgroundColorDark '#0f0a0d' --pwaManifestPath ../manifest.webmanifest",
+    "release:android": "npm run sync && cd android && ./gradlew bundleRelease",
+    "test:db": "sudo ../supabase/tests/run.sh"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/camera": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "@capacitor/preferences": "^8.0.0",
+    "@capacitor/push-notifications": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0",
+    "@capacitor/browser": "^8.0.0",
+    "@supabase/supabase-js": "^2.47.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.0.0"
+  }
+}

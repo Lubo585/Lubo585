@@ -25,6 +25,8 @@ Skript nahradí názov aj doménu vo všetkých HTML, JSON-LD, sitemap, robots, 
 | `css/style.css`, `js/app.js` | Štýly (farby v `:root`) a logika (brána 18+, filtre, menu, skryté číslo) |
 | `js/config.js`, `js/supabase.js` | Konfigurácia a napojenie na Supabase (výpis, detail, odhalenie čísla, nahlásenie, pridanie inzerátu, heartbeat) |
 | `supabase/` | Migrácie, úložisko, cron, Edge Function pre platby, lokálne testy |
+| `spravy.html`, `js/native.js`, `sw.js`, `.well-known/` | Správy v reálnom čase, natívna vrstva pre appku, PWA service worker, deep linky |
+| `app/` | Capacitor projekt pre iOS a Android (ikony, splash, Android/iOS natívne projekty) |
 | `robots.txt`, `sitemap.xml`, `manifest.webmanifest`, `.htaccess` | SEO a server |
 | `scripts/gen_pages.py` | Po úprave hlavičky/pätičky v `index.html` pregeneruje podstránky |
 
@@ -39,6 +41,10 @@ Skript nahradí názov aj doménu vo všetkých HTML, JSON-LD, sitemap, robots, 
 - Rýchlosť: žiadne externé knižnice ani fonty, jeden CSS, jeden JS s `defer`, kompresia a cache v `.htaccess`.
 - Prístupnosť: skip link, aria popisy, kontrast, ovládanie klávesnicou, 44px dotykové ciele.
 - Označenie obsahu pre dospelých: `meta rating=adult` + RTA label (vyžadujú ho rodičovské filtre, niektoré appstory a reklamné siete).
+
+## Mobilná aplikácia (iOS + Android)
+
+V priečinku `app/` je Capacitor projekt, ktorý balí tento web do natívnej aplikácie s rovnakým Supabase backendom (zdieľané dáta, realtime správy, push, deep linky). Postup v `app/README.md`, podmienky obchodov a riziká v `app/STORE.md`. Web je zároveň inštalovateľná PWA (`manifest.webmanifest`, `sw.js`).
 
 ## Backend
 

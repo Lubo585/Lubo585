@@ -7,5 +7,6 @@
   <url><loc>https://nazovportalu.sk/bezpecnost.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nazovportalu.sk/podmienky.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://nazovportalu.sk/ochrana-sukromia.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://nazovportalu.sk/spravy.html</loc><changefreq>monthly</changefreq><priority>0.2</priority></url>
   <url><loc>https://nazovportalu.sk/kontakt.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>

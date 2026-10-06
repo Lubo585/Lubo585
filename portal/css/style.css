@@ -153,7 +153,7 @@ p{margin:0 0 1em}
 @media(min-width:900px){.footer{padding-bottom:32px}}
 
 /* Mobilná spodná lišta */
-.bottom-bar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(4,1fr);background:rgba(23,16,20,.95);border-top:1px solid var(--line);backdrop-filter:blur(10px);padding:6px 0 max(6px,env(safe-area-inset-bottom))}
+.bottom-bar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(23,16,20,.95);border-top:1px solid var(--line);backdrop-filter:blur(10px);padding:6px 0 max(6px,env(safe-area-inset-bottom))}
 .bottom-bar a{display:grid;place-items:center;gap:2px;font-size:.72rem;color:var(--muted);padding:6px}
 .bottom-bar a span:first-child{font-size:1.2rem}
 .bottom-bar a.is-cta span:first-child{background:var(--accent);color:#fff;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;margin-top:-14px}
@@ -188,3 +188,8 @@ body.locked{overflow:hidden}
 .prose{max-width:80ch}
 .prose h2{margin-top:1.6em}
 .prose ul{padding-left:1.2em}
+
+/* Natívna aplikácia: odsadenie pod výrez / stavovú lištu */
+html[data-native="1"] .header{padding-top:env(safe-area-inset-top)}
+html[data-native="1"] .footer{display:none}
+html[data-native="1"] .bottom-bar{display:grid}

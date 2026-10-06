@@ -48,6 +48,7 @@ def page(path, title, desc, body, canonical=None, extra_head='', robots='index, 
 
 {footer}
 <script src="/js/config.js"></script>
+<script src="/js/native.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="/js/app.js" defer></script>
 <script src="/js/supabase.js" defer></script>
@@ -149,7 +150,9 @@ page('inzerat.html',
       <dl class="kv" style="margin:12px 0"><dt>Vek</dt><dd>26</dd><dt>Výška</dt><dd>168 cm</dd><dt>Postava</dt><dd>štíhla</dd><dt>Jazyky</dt><dd>SK, EN</dd><dt>Dostupnosť</dt><dd>Po–So 10:00–22:00</dd><dt>Prijíma</dt><dd>hotovosť, karta</dd></dl>
       <a class="btn btn-primary btn-block" href="#" data-phone="+421 900 000 000">Zobraziť telefónne číslo</a>
       <div style="height:8px"></div>
-      <a class="btn btn-ghost btn-block" href="#sprava">Napísať správu (diskrétne)</a>
+      <a class="btn btn-ghost btn-block" href="#sprava" data-message>Napísať správu (diskrétne)</a>
+      <div style="height:8px"></div>
+      <a class="btn btn-ghost btn-block btn-sm" href="#" data-share>Zdieľať inzerát</a>
       <div style="height:8px"></div>
       <a class="btn btn-ghost btn-block btn-sm" href="/bezpecnost.html#nahlasenie" data-report>⚑ Nahlásiť inzerát</a>
       <p class="muted" style="font-size:.8rem;margin:12px 0 0">Pri kontakte uveďte, že voláte z NazovPortalu. Nikdy neposielajte platbu vopred.</p>
@@ -299,6 +302,22 @@ page('kontakt.html', 'Kontakt a podpora | NazovPortalu', 'Kontaktujte podporu Na
 </div>
 <h2>Prevádzkovateľ</h2><p>[Obchodné meno] · IČO [●] · [adresa] · zodpovedná osoba podľa DSA: [●]</p>
 </div></section>''', extra_head=bcld, current='/kontakt.html')
+
+bc, bcld = crumbs([("Domov", "/"), ("Správy", "/spravy.html")])
+page('spravy.html', 'Správy | NazovPortalu', 'Diskrétne správy medzi klientmi a inzerentkami cez portál. Bez zdieľania telefónneho čísla.',
+     f'''{bc}<section class="section" style="padding-top:16px"><div class="wrap" data-inbox>
+<h1>Správy</h1>
+<p class="muted">Komunikácia prebieha cez portál, telefónne číslo zostáva skryté. Správy sa synchronizujú medzi webom a aplikáciou v reálnom čase.</p>
+<div class="detail">
+  <div class="grid" style="grid-template-columns:1fr" data-conv-list><p class="muted">Načítavam…</p></div>
+  <div class="panel" data-thread hidden>
+    <div data-messages style="max-height:50vh;overflow:auto;display:grid;gap:6px;margin-bottom:12px"></div>
+    <form data-send style="display:flex;gap:8px"><input class="field" style="flex:1;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card-2);color:var(--text)" placeholder="Napíšte správu…" maxlength="2000" required><button class="btn btn-primary" type="submit">Poslať</button></form>
+    <p style="margin:10px 0 0"><a href="#" class="muted" data-block style="font-size:.85rem">Zablokovať konverzáciu</a></p>
+  </div>
+</div>
+<p class="notice" style="margin-top:16px">Správy fungujú po doplnení Supabase konfigurácie (js/config.js). Bez nej je táto stránka ukážková.</p>
+</div></section>''', extra_head=bcld, robots='noindex, follow', current='/spravy.html')
 
 page('404.html', 'Stránka sa nenašla | NazovPortalu', 'Požadovaná stránka neexistuje alebo bol inzerát odstránený.',
      '''<section class="section" style="text-align:center;padding-top:60px"><div class="wrap">

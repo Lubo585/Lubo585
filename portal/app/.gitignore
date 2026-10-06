@@ -1,0 +1,10 @@
+node_modules/
+www/
+*.log
+.DS_Store
+# podpisové kľúče nikdy do gitu
+*.keystore
+*.jks
+*.p12
+*.mobileprovision
+android/app/release/

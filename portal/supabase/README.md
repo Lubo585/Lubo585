@@ -18,6 +18,8 @@ Postgres schéma s RLS, RPC funkcie, úložisko a webhook platieb. Všetko je v 
 | Online stav | RPC `heartbeat` každých 5 min z klienta inzerentky → `is_online` vo view |
 | Vyhľadávanie | RPC `search_listings` (mesto vrátane mestských častí, kategória, fulltext bez diakritiky, len overené, online, s recenziami), radenie TOP → overené → najnovšie |
 | Audit | `audit_log` pre moderáciu, nahlásenia a platby |
+| Správy | `conversations`/`messages` s realtime publikáciou; písať smú len účastníci, blokovanie, počítadlá neprečítaných; prvá správa sa počíta ako kontakt |
+| Mobil | `device_tokens` pre push, `app_config` (údržba, oznam, minimálna verzia appky) |
 
 ## Nasadenie do nového Supabase projektu
 
@@ -28,7 +30,7 @@ Postgres schéma s RLS, RPC funkcie, úložisko a webhook platieb. Všetko je v 
    supabase login
    cd portal && supabase link --project-ref <ref>
    ```
-3. Nasaďte migrácie (poradie 0001 → 0004). Pred 0004 zapnite rozšírenie **pg_cron** v Database → Extensions.
+3. Nasaďte migrácie (poradie 0001 → 0005). Pred 0004 zapnite rozšírenie **pg_cron** v Database → Extensions.
    ```bash
    supabase db push
    ```
@@ -51,7 +53,7 @@ Postgres schéma s RLS, RPC funkcie, úložisko a webhook platieb. Všetko je v 
 ```bash
 sudo ./supabase/tests/run.sh
 ```
-Spustí migrácie na čistom PostgreSQL s mockom `auth`/`storage` a prejde 15 scenárov (neplnoletá registrácia, samo-aktivácia, samo-povýšenie, RLS pre anon, vyhľadávanie bez diakritiky, odhalenie čísla, recenzia bez kontaktu, priorita nahlásenia, platba a TOP, rate limit).
+Spustí migrácie na čistom PostgreSQL s mockom `auth`/`storage` a prejde 15 + 8 scenárov (vrátane správ) (neplnoletá registrácia, samo-aktivácia, samo-povýšenie, RLS pre anon, vyhľadávanie bez diakritiky, odhalenie čísla, recenzia bez kontaktu, priorita nahlásenia, platba a TOP, rate limit).
 
 ## Čo zostáva
 

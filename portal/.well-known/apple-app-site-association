@@ -1,0 +1,1 @@
+{ "applinks": { "apps": [], "details": [ { "appID": "TEAMID.sk.nazovportalu.app", "paths": [ "/inzerat/*", "/spravy.html", "/*" ] } ] } }

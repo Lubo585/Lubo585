@@ -111,7 +111,9 @@
       <dl class="kv" style="margin:12px 0"><dt>Vek</dt><dd>26</dd><dt>Výška</dt><dd>168 cm</dd><dt>Postava</dt><dd>štíhla</dd><dt>Jazyky</dt><dd>SK, EN</dd><dt>Dostupnosť</dt><dd>Po–So 10:00–22:00</dd><dt>Prijíma</dt><dd>hotovosť, karta</dd></dl>
       <a class="btn btn-primary btn-block" href="#" data-phone="+421 900 000 000">Zobraziť telefónne číslo</a>
       <div style="height:8px"></div>
-      <a class="btn btn-ghost btn-block" href="#sprava">Napísať správu (diskrétne)</a>
+      <a class="btn btn-ghost btn-block" href="#sprava" data-message>Napísať správu (diskrétne)</a>
+      <div style="height:8px"></div>
+      <a class="btn btn-ghost btn-block btn-sm" href="#" data-share>Zdieľať inzerát</a>
       <div style="height:8px"></div>
       <a class="btn btn-ghost btn-block btn-sm" href="/bezpecnost.html#nahlasenie" data-report>⚑ Nahlásiť inzerát</a>
       <p class="muted" style="font-size:.8rem;margin:12px 0 0">Pri kontakte uveďte, že voláte z NazovPortalu. Nikdy neposielajte platbu vopred.</p>
@@ -169,12 +171,14 @@
 <!-- Mobilná spodná lišta -->
 <nav class="bottom-bar" aria-label="Rýchle menu">
   <a href="/"><span>⌂</span><span>Domov</span></a>
-  <a href="#search-form"><span>⌕</span><span>Hľadať</span></a>
+  <a href="/mesto.html"><span>⌕</span><span>Hľadať</span></a>
   <a class="is-cta" href="/pridat-inzerat.html"><span>+</span><span>Pridať</span></a>
+  <a href="/spravy.html"><span>✉</span><span>Správy</span></a>
   <a href="/ucet/"><span>☺</span><span>Účet</span></a>
 </nav>
 
 <script src="/js/config.js"></script>
+<script src="/js/native.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="/js/app.js" defer></script>
 <script src="/js/supabase.js" defer></script>

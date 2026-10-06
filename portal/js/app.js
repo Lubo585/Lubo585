@@ -76,3 +76,10 @@
   /* ---------- Aktuálny rok v pätičke ---------- */
   document.querySelectorAll('[data-year]').forEach(function (el) { el.textContent = new Date().getFullYear(); });
 })();
+
+/* ---------- PWA: service worker len na webe (v natívnej aplikácii má cache Capacitor) ---------- */
+(function () {
+  if ('serviceWorker' in navigator && document.documentElement.getAttribute('data-native') !== '1' && location.protocol === 'https:') {
+    navigator.serviceWorker.register('/sw.js').catch(function () {});
+  }
+})();
