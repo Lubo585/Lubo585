@@ -61,3 +61,43 @@ npx http-server . -p 8080
 ```
 
 a otvorte `http://localhost:8080`.
+
+## 7. Hosting na Websupporte + e‑mail cez Google Workspace
+
+Doména aj webhosting sú na Websupporte, pošta beží cez Google Workspace (Gmail). Web a pošta sú nezávislé: web riadi záznam `A` (a `CNAME` pre www), poštu záznam `MX`.
+
+### 7.1 Poradie krokov
+
+1. **Websupport – objednať webhosting** k doméne sxworkforce.de (The Hosting) a vypnúť pôvodnú stavebnicu stránky.
+2. **Websupport – SSL**: v detaile hostingu zapnúť bezplatný certifikát Let's Encrypt pre `sxworkforce.de` aj `www.sxworkforce.de`.
+3. **Websupport – nahrať web**: obsah ZIP‑u do koreňového priečinka hostingu (vrátane `.htaccess`).
+4. **Google Workspace – založiť účet** na admin.google.com s doménou `sxworkforce.de`, vytvoriť schránku `info@sxworkforce.de` (prípadne ďalšie, napr. pre Lucu Schulza a Petra Krška).
+5. **Websupport – DNS záznamy** podľa tabuľky nižšie (overenie domény, MX, SPF, DKIM, DMARC).
+6. **Google Admin – aktivovať Gmail** (Účet → Domény → Spravovať domény → Aktivovať Gmail). Google potom MX záznam skontroluje.
+7. Poslať testovací e‑mail na info@sxworkforce.de a z neho odpovedať.
+
+### 7.2 DNS záznamy na Websupporte
+
+V administrácii Websupportu: Domény → sxworkforce.de → **DNS záznamy**. Ak Websupport ponúka „nastaviť záznamy pre externú poštu“ alebo predvoľbu pre Google Workspace, dá sa použiť, inak zadať ručne:
+
+| Typ   | Názov (host) | Hodnota                                                        | Priorita | Poznámka |
+|-------|--------------|----------------------------------------------------------------|----------|----------|
+| A     | @            | IP adresa hostingu Websupport (uvedená v detaile hostingu)     |          | web |
+| CNAME | www          | sxworkforce.de.                                                |          | web, ak Websupport nenastaví sám |
+| MX    | @            | smtp.google.com.                                               | 1        | pošta cez Google |
+| TXT   | @            | `v=spf1 include:_spf.google.com ~all`                          |          | SPF |
+| TXT   | google._domainkey | hodnota DKIM z Google Admin (Aplikácie → Gmail → Overenie e‑mailu → Generovať záznam) | | DKIM |
+| TXT   | _dmarc       | `v=DMARC1; p=quarantine; rua=mailto:info@sxworkforce.de`       |          | DMARC |
+| TXT   | @            | `google-site-verification=…` (dostanete pri zakladaní Workspace) | | overenie domény |
+
+Dôležité:
+
+- Všetky **staré MX záznamy** (Websupport mail, prípadne iné) treba zmazať. Zostáva len jeden MX `smtp.google.com` s prioritou 1.
+- Ak už existuje TXT záznam začínajúci `v=spf1`, nevytvárajte druhý, iba do neho doplňte `include:_spf.google.com`.
+- DKIM záznam vygenerujte v Google Admin **až po** založení účtu a skopírujte ho presne, je dlhý.
+- Po zmene DNS počkajte 1 až 24 hodín (výnimočne do 72 h). Dovtedy môžu e‑maily chodiť ešte na starý server.
+- Pri DMARC začnite s `p=quarantine`; po pár týždňoch bez problémov môžete prepnúť na `p=reject`.
+
+### 7.3 Kontaktný formulár a Google
+
+Formulár na stránke otvára e‑mailový program návštevníka s predvyplnenou správou na info@sxworkforce.de, takže s Google Workspace funguje bez zmeny. Ak chcete správy odosielať priamo zo stránky, dá sa napojiť formulárová služba (Formspree, Web3Forms), ktorá ich doručí do Gmailu.
