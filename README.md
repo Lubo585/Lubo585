@@ -31,6 +31,5 @@ npx http-server . -p 8080
 
 ## Offene Punkte vor dem Livegang
 
-- Impressum (Block `id="impressum"` in index.html): Anschrift, Registernummer, IČO und USt-ID eintragen.
 - Kontaktformular: aktuell öffnet es das E-Mail-Programm (mailto). Für einen serverseitigen Versand den Submit-Handler in `assets/js/main.js` an ein Formular-Backend anbinden.
 - Google Fonts werden extern geladen; auf Wunsch lokal einbinden (siehe Datenschutzerklärung).

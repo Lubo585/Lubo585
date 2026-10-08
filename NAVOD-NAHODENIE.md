@@ -37,8 +37,7 @@ Ak hosting nebeží na Apache (napr. nginx), `.htaccess` sa ignoruje. Stránka b
 
 ## 4. Pred spustením doplniť
 
-- **Impressum** (v `index.html`, blok `id="impressum"`): adresa, registrový súd, číslo zápisu, IČO, IČ DPH sú zatiaľ v hranatých zátvorkách `[…]`.
-- **Datenschutz** (v `index.html`, blok `id="datenschutz"`): adresa firmy v bode 1.
+- **Impressum a Datenschutz** sú vyplnené (adresa, IČO, DIČ, IČ DPH, zápis v OR). Ak sa údaje zmenia, upravte bloky `id="impressum"` a `id="datenschutz"` v `index.html`.
 - **Kontaktný formulár**: po odoslaní otvorí e‑mailový program s predvyplnenou správou na `info@sxworkforce.de`. Ak chcete, aby sa správa posielala priamo zo servera, treba ho napojiť na formulárovú službu (napr. Formspree, Web3Forms) alebo PHP skript hostingu.
 
 ## 5. Test po nahodení
