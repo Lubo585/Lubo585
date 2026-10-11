@@ -1,24 +1,27 @@
 // Všetky texty webu v nemčine. Položky označené "DOPLNIŤ" sú odhadované
 // zástupné hodnoty – pred spustením ich prosím nahraďte reálnymi údajmi.
 
+// Firemné údaje podľa Obchodného registra SR a Registra účtovných závierok (IČO 52616533)
 export const company = {
-  shortName: 'PSPK',
+  shortName: 'PSPSK',
   legalName: 'POZEMNÉ STAVBY PODNIK KOŠICE s.r.o.',
-  tagline: 'Bau-Fachkräfte für Deutschland',
+  tagline: 'Bau-Nachunternehmer für Deutschland',
   address: {
     street: 'Južná trieda 66',
     city: '040 01 Košice',
     country: 'Slowakei',
   },
-  email: 'info@pspk.sk',
+  email: 'info@pspsk.de',
   phone: '+421 900 000 000', // DOPLNIŤ – telefónne číslo
   phoneDisplay: '+421 900 000 000', // DOPLNIŤ
-  ico: '00 000 000', // DOPLNIŤ – IČO
-  dic: '0000000000', // DOPLNIŤ – DIČ
-  vat: 'SK0000000000', // DOPLNIŤ – IČ DPH
-  register: 'Obchodný register Mestského súdu Košice, Oddiel: Sro', // DOPLNIŤ – vložka
-  managingDirector: 'Ľubomír Kruk', // DOPLNIŤ – konateľ
-  website: 'https://www.pspk.sk',
+  ico: '52 616 533',
+  dic: '2121105954',
+  vat: 'SK2121105954',
+  register: 'Handelsregister: Mestský súd Košice (Stadtgericht Košice), Abt. Sro, Nr. 47394/V',
+  founded: '2019',
+  shareCapital: '5.000 EUR',
+  managingDirector: 'Štefan Nagy-Bačo',
+  website: 'https://www.pspsk.de',
 }
 
 export const nav = {
@@ -30,18 +33,18 @@ export const nav = {
     { label: 'Referenzen', href: '#referenzen' },
     { label: 'Kontakt', href: '#kontakt' },
   ],
-  cta: 'Personal anfragen',
+  cta: 'Angebot anfragen',
 }
 
 export const hero = {
-  eyebrow: 'Personaldienstleistung für die Bauwirtschaft',
+  eyebrow: 'Ihr Nachunternehmer aus der Slowakei',
   titleLines: ['Qualifizierte', 'Bau-Fachkräfte', 'für Ihr Projekt.'],
   highlight: 'Bau-Fachkräfte',
   subtitle:
-    'Wir stellen erfahrene Maurer, Betonbauer, Zimmerer, Trockenbauer und komplette Montageteams aus der Slowakei für Baustellen in ganz Deutschland – flexibel, zuverlässig und rechtssicher.',
+    'Wir übernehmen Rohbau, Mauerwerk, Zimmererarbeiten, Trockenbau und Ausbau als Nachunternehmer auf Werkvertragsbasis – mit eigenen, eingespielten Teams aus der Slowakei für Baustellen in ganz Deutschland.',
   primaryCta: 'Unverbindlich anfragen',
   secondaryCta: 'Unsere Leistungen',
-  badges: ['A1-Bescheinigung', 'Deutschsprachige Vorarbeiter', 'Einsatzbereit in 14 Tagen'],
+  badges: ['Werkvertrag zum Festpreis', 'Deutschsprachige Vorarbeiter', 'Start in 10–14 Tagen'],
   background: 'photos/betonage.jpg',
   photoMain: 'photos/dachstuhl.jpg',
   photoSmall: 'photos/rohbau-waende.jpg',
@@ -64,33 +67,33 @@ export const marquee = [
 
 export const services = {
   eyebrow: 'Leistungen',
-  title: 'Personal, das auf der Baustelle ankommt.',
+  title: 'Gewerke, die wir für Sie ausführen.',
   subtitle:
-    'Vom einzelnen Facharbeiter bis zum eingespielten Team mit eigenem Polier – wir liefern genau die Kapazität, die Ihr Projekt gerade braucht.',
+    'Vom einzelnen Gewerk bis zum kompletten Rohbau – wir übernehmen klar abgegrenzte Leistungen als Nachunternehmer, mit eigenem Polier, eigenem Werkzeug und Verantwortung für das Ergebnis.',
   items: [
     {
       icon: 'users',
       image: 'photos/mauerwerk.jpg',
-      title: 'Arbeitnehmerüberlassung',
-      text: 'Geprüfte Fachkräfte zur zeitlich flexiblen Verstärkung Ihrer Kolonnen – mit allen Nachweisen, Versicherungen und A1-Bescheinigungen.',
+      title: 'Rohbau & Mauerwerk',
+      text: 'Fundamente, Bodenplatten, Mauerwerk aus Ziegel oder Porenbeton, Decken und Stahlbeton – komplett als Nachunternehmer zum Festpreis oder nach Aufmaß.',
     },
     {
       icon: 'hardhat',
       image: 'photos/betonage.jpg',
-      title: 'Werkverträge & Subunternehmen',
-      text: 'Wir übernehmen abgegrenzte Gewerke als Nachunternehmer: Rohbau, Mauerwerk, Schalung, Trockenbau oder Ausbau – zum Festpreis oder nach Aufmaß.',
+      title: 'Schalung, Bewehrung & Beton',
+      text: 'Schalungsbau, Eisenflechten und Betonage für Wohn-, Gewerbe- und Industriebauten – termingerecht, mit eigener Kolonne und eigenem Vorarbeiter.',
     },
     {
       icon: 'layers',
       image: 'photos/dachstuhl.jpg',
-      title: 'Komplette Montageteams',
-      text: 'Eingespielte Kolonnen von 4 bis 30 Mann inklusive deutschsprachigem Vorarbeiter, Werkzeug und eigener Logistik.',
+      title: 'Holzbau, Dach & Ausbau',
+      text: 'Dachstühle, Holzrahmenbau, Trockenbau, Estrich, Fliesen und Malerarbeiten – eingespielte Teams von 4 bis 30 Mann inklusive Werkzeug und Logistik.',
     },
     {
       icon: 'search',
       image: 'photos/fassade-geruest.jpg',
-      title: 'Rekrutierung & Vermittlung',
-      text: 'Sie suchen Festpersonal? Wir rekrutieren in der Slowakei gezielt nach Ihrem Profil und begleiten die Einarbeitung vor Ort.',
+      title: 'Haustechnik & Elektro',
+      text: 'Elektroinstallation, Heizung, Sanitär, Lüftung und Fußbodenheizung – ausgeführt von geprüften Fachkräften mit eigener Bauleitung.',
     },
   ],
 }
@@ -141,23 +144,23 @@ export const why = {
   eyebrow: 'Warum PSPK',
   title: 'Wir kennen beide Seiten der Baustelle.',
   subtitle:
-    'Als Bauunternehmen aus Košice wissen wir, was ein Polier von seiner Mannschaft erwartet – deshalb vermitteln wir nur Leute, die wir selbst einsetzen würden.',
+    'Als Bauunternehmen aus Košice wissen wir, was ein Bauleiter von seinem Nachunternehmer erwartet – deshalb setzen wir nur Leute ein, die sich auf unseren eigenen Baustellen bewährt haben.',
   image: 'photos/fabrika-tag.jpg',
   items: [
     {
       icon: 'clock',
-      title: 'Schnell verfügbar',
-      text: 'Einsatzbereite Fachkräfte in der Regel innerhalb von 10 bis 14 Tagen nach Auftragserteilung.',
+      title: 'Schnell auf der Baustelle',
+      text: 'Unsere Teams starten in der Regel innerhalb von 10 bis 14 Tagen nach Vertragsunterzeichnung.',
     },
     {
       icon: 'shield',
       title: 'Rechtssicher & transparent',
-      text: 'A1-Bescheinigungen, Mindestlohn-Dokumentation, SOKA-BAU und Zollmeldungen – wir kümmern uns um die komplette Compliance.',
+      text: 'Werkvertrag mit klarem Leistungsumfang, A1-Bescheinigungen, Mindestlohn-Dokumentation, SOKA-BAU und Zollmeldungen – wir kümmern uns um die komplette Entsende-Compliance.',
     },
     {
       icon: 'languages',
       title: 'Deutschsprachige Vorarbeiter',
-      text: 'Jedes Team hat einen Ansprechpartner, der Ihre Anweisungen direkt an die Mannschaft weitergibt.',
+      text: 'Jedes Team hat einen deutschsprachigen Polier, der die Ausführung vor Ort verantwortet und mit Ihrer Bauleitung abstimmt.',
     },
     {
       icon: 'home',
@@ -167,7 +170,7 @@ export const why = {
     {
       icon: 'scale',
       title: 'Flexibel skalierbar',
-      text: 'Aufstocken, reduzieren, verlängern: Sie passen die Teamgröße an Ihren Bauzeitenplan an.',
+      text: 'Mehrere Gewerke parallel, zusätzliche Bauabschnitte, verlängerte Laufzeit: Wir passen die Teamgröße an Ihren Bauzeitenplan an.',
     },
     {
       icon: 'award',
@@ -179,27 +182,27 @@ export const why = {
 
 export const process = {
   eyebrow: 'Ablauf',
-  title: 'In vier Schritten zur verstärkten Mannschaft.',
+  title: 'In vier Schritten zum ausgeführten Gewerk.',
   steps: [
     {
       n: '01',
       title: 'Bedarf klären',
-      text: 'Sie nennen uns Gewerk, Anzahl, Zeitraum und Einsatzort. Wir melden uns innerhalb von 24 Stunden mit einem Vorschlag.',
+      text: 'Sie nennen uns Gewerk, Leistungsumfang, Zeitraum und Einsatzort. Wir melden uns innerhalb von 24 Stunden mit einem ersten Vorschlag.',
     },
     {
       n: '02',
-      title: 'Team zusammenstellen',
-      text: 'Wir wählen passende Fachkräfte aus unserem Pool aus und stellen Ihnen Profile und Qualifikationsnachweise vor.',
+      title: 'Angebot & Team',
+      text: 'Wir kalkulieren das Gewerk auf Basis Ihrer Pläne, erstellen ein Festpreis- oder Einheitspreisangebot und stellen das passende Team zusammen.',
     },
     {
       n: '03',
-      title: 'Verträge & Formalitäten',
-      text: 'Arbeitnehmerüberlassungs- oder Werkvertrag, A1, Meldungen – wir bereiten alles vor, Sie unterschreiben.',
+      title: 'Werkvertrag & Formalitäten',
+      text: 'Werkvertrag nach VOB/B, A1-Bescheinigungen, Zoll- und Entsendemeldungen – wir bereiten alles vor, Sie unterschreiben.',
     },
     {
       n: '04',
-      title: 'Einsatz & Betreuung',
-      text: 'Das Team reist an und startet. Ein fester Ansprechpartner bleibt während des gesamten Einsatzes für Sie erreichbar.',
+      title: 'Ausführung & Abnahme',
+      text: 'Das Team reist an und führt das Gewerk aus. Ein fester Ansprechpartner bleibt bis zur Abnahme für Sie erreichbar.',
     },
   ],
 }
@@ -207,10 +210,10 @@ export const process = {
 export const stats = {
   // DOPLNIŤ – zástupné čísla, nahraďte reálnymi
   items: [
-    { value: 120, suffix: '+', label: 'Fachkräfte im Pool' },
+    { value: 120, suffix: '+', label: 'Fachkräfte im Team' },
     { value: 15, suffix: '', label: 'Jahre Bauerfahrung' },
     { value: 40, suffix: '+', label: 'Projekte in DE & SK' },
-    { value: 14, suffix: ' Tage', label: 'bis zum Einsatzstart' },
+    { value: 14, suffix: ' Tage', label: 'bis zum Baustart' },
   ],
 }
 
@@ -253,17 +256,17 @@ export const contact = {
   eyebrow: 'Kontakt',
   title: 'Sprechen wir über Ihr Projekt.',
   subtitle:
-    'Schreiben Sie uns kurz, welches Gewerk Sie wann und wo brauchen – wir melden uns innerhalb eines Werktags.',
+    'Schreiben Sie uns kurz, welches Gewerk Sie wann und wo ausgeführt haben möchten – wir melden uns innerhalb eines Werktags mit einem Vorschlag.',
   form: {
     name: 'Name',
     companyName: 'Unternehmen',
     email: 'E-Mail',
     phone: 'Telefon',
-    trade: 'Gewerk / Anzahl Fachkräfte',
+    trade: 'Gewerk / Leistungsumfang',
     message: 'Projekt, Zeitraum, Einsatzort',
     submit: 'Anfrage senden',
     privacy: 'Mit dem Absenden stimmen Sie der Verarbeitung Ihrer Daten zur Bearbeitung der Anfrage zu.',
-    subject: 'Anfrage Bau-Fachkräfte',
+    subject: 'Anfrage Werkvertrag Bauleistungen',
   },
   direct: {
     title: 'Direkt erreichen',
@@ -278,5 +281,5 @@ export const footer = {
     { label: 'Impressum', href: '#impressum' },
     { label: 'Datenschutz', href: '#datenschutz' },
   ],
-  note: 'Arbeitnehmerüberlassung und Werkverträge erfolgen gemäß den geltenden Vorschriften (AÜG, AEntG, Entsenderichtlinie).',
+  note: 'Alle Leistungen werden als Nachunternehmer auf Basis von Werkverträgen erbracht – gemäß Arbeitnehmer-Entsendegesetz (AEntG), EU-Entsenderichtlinie und den tariflichen Vorgaben der deutschen Bauwirtschaft.',
 }

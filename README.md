@@ -1,7 +1,8 @@
-# PSPK – Bau-Fachkräfte für Deutschland
+# PSPSK.de – Bau-Nachunternehmer für Deutschland
 
 Nemecká prezentačná stránka spoločnosti **POZEMNÉ STAVBY PODNIK KOŠICE s.r.o.**
-zameraná na personálny leasing a subdodávky pre stavby v Nemecku.
+zameraná na subdodávky stavebných prác (Werkvertrag) pre stavby v Nemecku.
+Doména: pspsk.de, e-mail: info@pspsk.de.
 
 Jednostránkový web s plynulým scrollovaním (Lenis) a animáciami (Motion).
 
@@ -28,11 +29,11 @@ npm run lint
 Všetky texty sú v súbore `src/content/de.ts`. Položky označené komentárom
 `DOPLNIŤ` sú zástupné a treba ich nahradiť reálnymi údajmi:
 
-- telefónne číslo, IČO, DIČ, IČ DPH, zápis v obchodnom registri, konateľ
+- telefónne číslo (IČO, DIČ, IČ DPH, register a konateľ sú doplnené z ORSR)
 - čísla v sekcii štatistík (počet pracovníkov, roky skúseností, projekty)
-- tri ukážkové nemecké referencie (Wohnquartier, Logistikhalle, Bürosanierung)
+- názvy, miesta a rozsah troch menších referencií
 
-Kontaktný formulár aktuálne otvára e-mailového klienta (mailto na info@pspk.sk).
+Kontaktný formulár aktuálne otvára e-mailového klienta (mailto na info@pspsk.de).
 Ak chcete odosielanie bez e-mailového klienta, pripojte službu ako Formspree alebo
 Web3Forms v súbore `src/components/Contact.tsx`.
 

@@ -47,10 +47,17 @@ export default function Footer() {
                 {company.address.street}, {company.address.city}, {company.address.country}
               </p>
               <p>Geschäftsführer: {company.managingDirector}</p>
+              <p>Gegründet {company.founded} · Stammkapital {company.shareCapital}</p>
               <p>IČO (Reg.-Nr.): {company.ico}</p>
-              <p>DIČ: {company.dic}</p>
+              <p>DIČ (Steuernr.): {company.dic}</p>
               <p>USt-IdNr.: {company.vat}</p>
               <p>{company.register}</p>
+              <p>
+                Web:{' '}
+                <a href={company.website} className="hover:text-amber">
+                  www.pspsk.de
+                </a>
+              </p>
               <p>
                 E-Mail:{' '}
                 <a href={`mailto:${company.email}`} className="hover:text-amber">
