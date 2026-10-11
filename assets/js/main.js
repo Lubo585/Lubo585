@@ -18,6 +18,26 @@
     );
   }
 
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Scroll-Fortschrittsleiste
+  const bar = document.createElement("div");
+  bar.className = "progress-bar";
+  document.body.appendChild(bar);
+  const header = document.querySelector(".header");
+  const onScroll = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + "%";
+    if (header) header.classList.toggle("is-scrolled", window.scrollY > 40);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  // Staffelung: Index für Kinder in Rastern setzen (--i)
+  document.querySelectorAll(".services, .advantages, .process, .gallery, .fleet, .team-lead, .office__media, .tags").forEach((grid) => {
+    [...grid.children].forEach((child, i) => child.style.setProperty("--i", i));
+  });
+
   // Scroll-Reveal
   const revealEls = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window) {
@@ -35,6 +55,51 @@
     revealEls.forEach((el) => io.observe(el));
   } else {
     revealEls.forEach((el) => el.classList.add("is-visible"));
+  }
+
+  // Zähler in der Kennzahlen-Leiste
+  const stats = document.querySelectorAll(".stat");
+  if (stats.length && "IntersectionObserver" in window && !reduceMotion) {
+    const countUp = (el) => {
+      const strong = el.querySelector("strong");
+      const text = strong.textContent.trim();
+      const m = text.match(/^(\d+)(.*)$/);
+      if (!m) { el.classList.add("is-counted"); return; }
+      const target = parseInt(m[1], 10), suffix = m[2];
+      const start = performance.now(), dur = 1400;
+      const from = target > 100 ? Math.max(0, target - 60) : 0;
+      const tick = (now) => {
+        const t = Math.min(1, (now - start) / dur);
+        const eased = 1 - Math.pow(1 - t, 3);
+        strong.textContent = Math.round(from + (target - from) * eased) + suffix;
+        if (t < 1) requestAnimationFrame(tick); else el.classList.add("is-counted");
+      };
+      requestAnimationFrame(tick);
+    };
+    const co = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { countUp(e.target); co.unobserve(e.target); } });
+    }, { threshold: 0.6 });
+    stats.forEach((s) => co.observe(s));
+  }
+
+  // Sanfter Parallax für Hero-Text und Bilder
+  const parallaxEls = [...document.querySelectorAll(".hero__inner, .about__media, .office__media")];
+  if (parallaxEls.length && !reduceMotion) {
+    parallaxEls.forEach((el) => el.setAttribute("data-parallax", ""));
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const vh = window.innerHeight;
+      parallaxEls.forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > vh) return;
+        const center = r.top + r.height / 2 - vh / 2;
+        const factor = el.classList.contains("hero__inner") ? 0.18 : 0.06;
+        el.style.transform = `translateY(${(-center * factor).toFixed(1)}px)`;
+      });
+    };
+    window.addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    update();
   }
 
   // Galerie-Lightbox

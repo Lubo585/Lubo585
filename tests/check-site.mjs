@@ -112,7 +112,7 @@ try {
   const htmlLinks = links.filter((l) => /\.html$/i.test(l));
   check(htmlLinks.length === 0, "One-Page: keine Links auf separate Unterseiten", htmlLinks.join(", "));
   const navCount = await p.$$eval('.nav a[href^="#"]', (els) => els.length);
-  check(navCount >= 6, `Menü besteht aus Sprungmarken auf der Seite (${navCount} Einträge)`);
+  check(navCount >= 7, `Menü besteht aus Sprungmarken auf der Seite (${navCount} Einträge)`);
   // Impressum / Datenschutz als Overlay
   await p.click('.footer a[href="#impressum"]');
   await p.waitForTimeout(150);
@@ -136,8 +136,8 @@ try {
 
   // Pflichtinhalte
   const text = await p.evaluate(() => document.body.textContent);
-  for (const must of ["Elektroinstallationen", "HLS-Arbeiten", "Trockenbauarbeiten", "Gerüstbauarbeiten", "Komplette Bauarbeiten",
-    "Luca Schulz", "Peter Krško", "Büro & Recruiting", "Fuhrpark", "Impressum", "Datenschutz", "info@sxworkforce.de", "+421 952 566 014", "www.sxworkforce.de"]) {
+  for (const must of ["Elektroinstallationen", "Heizung, Lüftung, Sanitär", "Trockenbau", "Gerüstbau", "Komplette Bauarbeiten", "Wer wir sind", "Nachunternehmer",
+    "Luca Schulz", "Peter Krško", "Büro & Recruiting", "Fuhrpark", "Häufige Fragen", "Impressum", "Datenschutz", "info@sxworkforce.de", "+421 952 566 014", "www.sxworkforce.de"]) {
     check(text.includes(must), `Inhalt vorhanden: „${must}“`);
   }
   const brandImgs = imgs2.filter((i) => /hero|service-|project-(site|team|geruest)|team-|fleet|van|truck/.test(i.src)).length;
