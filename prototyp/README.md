@@ -1,4 +1,4 @@
-# Tržko – prototyp inzertného portálu (SK + CZ)
+# Tržko (trzko.sk) – prototyp inzertného portálu (SK + CZ)
 
 Klikateľný prototyp inzertného portálu, ktorý sa na telefóne správa ako aplikácia
 (spodná lišta, jedna obrazovka naraz) a na počítači ako webový portál (horná lišta, mriežka).
@@ -16,5 +16,12 @@ Na počítači sa dá prepínať medzi zobrazením **Mobil** a **Počítač** a 
 - Pridanie inzerátu v troch krokoch: fotka, automaticky predvyplnený názov, kategória a cena podľa podobných predaných vecí, zverejnenie so stopkami.
 - Správy: chat v aplikácii bez zverejnenia čísla, upozornenie na podvodnú správu s falošným kuriérom, rýchle odpovede.
 - Profil: overenie (telefón, e-mail, banková identita), štatistiky, moje inzeráty, tmavý režim, jazyk SK/CZ.
+
+## Animácie
+
+Prechody medzi obrazovkami (dopredu a späť inak), postupné objavovanie kariet a kategórií, pulz srdiečka pri uložení,
+kĺzavý ukazovateľ v spodnej lište, skeleton pri hľadaní, stav „pozeráme sa na fotku“ so skenovacou linkou,
+nakreslenie fajky s počítadlom sekúnd a konfetami po zverejnení, „píše…“ v chate, prepínanie fotiek v galérii,
+počítadlá v profile. Všetko rešpektuje systémové nastavenie obmedzeného pohybu (prefers-reduced-motion).
 
 Všetky inzeráty, mená a správy sú vymyslené ukážky.

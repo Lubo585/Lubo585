@@ -250,7 +250,6 @@ svg{display:block}
 /* ---------- Add ---------- */
 .steps{display:flex;gap:6px;margin:4px 0 18px}
 .steps i{flex:1;height:5px;border-radius:999px;background:var(--line)}
-.steps i.on{background:var(--accent)}
 .dropzone{border:2px dashed var(--line);border-radius:18px;padding:34px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--surface)}
 .dropzone .ico{width:64px;height:64px;border-radius:18px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
 .photos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
@@ -344,13 +343,92 @@ svg{display:block}
   .sec{margin:22px 0 10px}
   .sec h2{font-size:18px}
   .photos{grid-template-columns:repeat(3,1fr)}
+  .stats b{font-size:19px;white-space:nowrap}
 }
+
+/* ---------- Motion ---------- */
+@keyframes screen-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes screen-back{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.45)}70%{transform:scale(.9)}100%{transform:scale(1)}}
+@keyframes tab-bump{0%{transform:translateY(0)}40%{transform:translateY(-4px) scale(1.15)}100%{transform:none}}
+@keyframes msg-in{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes dots{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-4px);opacity:1}}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes wobble{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(-3deg) scale(1.05)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes burst{from{opacity:1;transform:rotate(var(--a)) translateY(0) scale(1)}to{opacity:0;transform:rotate(var(--a)) translateY(-78px) scale(.2)}}
+@keyframes ring{from{transform:scale(1);opacity:.55}to{transform:scale(1.9);opacity:0}}
+@keyframes slide-up{from{transform:translateY(100%);opacity:0}to{transform:none;opacity:1}}
+@keyframes scan{0%{top:0}100%{top:calc(100% - 3px)}}
+.content>.wrap{animation:screen-in .38s cubic-bezier(.2,.8,.2,1) both}
+.content.back>.wrap{animation-name:screen-back}
+.content.still>.wrap{animation:none}
+.grid .card,.list .card,.hscroll .card{animation:rise .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*45ms)}
+.cat{animation:rise .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*30ms)}
+.content.still .card,.content.still .cat,.content.still .dprice,.content.still .sticky-actions,.content.still .ai{animation:none}
+.thumb span,.gallery>span{transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.card:hover .thumb span{transform:scale(1.12) rotate(-4deg)}
+.cat i{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.cat:hover i{transform:scale(1.14) rotate(-6deg)}
+.fav.pop svg{animation:pop .45s cubic-bezier(.34,1.56,.64,1)}
+.fav,.iconbtn,.chip,.btn,.cat{transition:transform .15s ease,background .15s ease,color .15s ease,border-color .15s ease,box-shadow .2s ease}
+.fav:hover{transform:scale(1.12)}
+.btn.primary:hover,.btn.sun:hover{transform:translateY(-1px);box-shadow:0 8px 20px color-mix(in oklab,var(--accent) 28%,transparent)}
+.btn:active,.chip:active,.cat:active{transform:scale(.96)}
+.tab svg{transition:transform .2s}
+.tab[aria-current="page"] svg{animation:tab-bump .45s cubic-bezier(.34,1.56,.64,1)}
+.tabbar{position:relative}
+.tab-ind{position:absolute;top:0;height:3px;border-radius:0 0 999px 999px;background:var(--accent);transition:left .35s cubic-bezier(.2,.8,.2,1),width .35s}
+.tab.plus b{position:relative;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.tab.plus:hover b{transform:scale(1.08) rotate(90deg)}
+.tab.plus b::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--accent);animation:ring 2.6s ease-out infinite;animation-delay:1.2s}
+.toast{transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .25s}
+.msg{animation:msg-in .3s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*35ms)}
+.content.still .msg{animation:none}
+.content.still .msg.new{animation:msg-in .3s cubic-bezier(.2,.8,.2,1) both}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:13px 14px;background:var(--surface-2);border-radius:16px;border-bottom-left-radius:6px;animation:msg-in .3s both}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:dots 1.1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+.skel{background:linear-gradient(90deg,var(--surface-2) 25%,var(--line) 50%,var(--surface-2) 75%);background-size:200% 100%;animation:shimmer 1.2s linear infinite;border-radius:8px}
+.skel-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;animation:rise .4s both;animation-delay:calc(var(--i,0)*40ms)}
+.skel-card .skel.img{aspect-ratio:4/3;border-radius:0}
+.skel-card .skel.line{height:12px;margin:10px 12px}
+.skel-card .skel.line.short{width:45%}
+.hero-cta .stamp{animation:wobble 5s ease-in-out infinite}
+.steps i{position:relative;overflow:hidden}
+.steps i::after{content:"";position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .55s cubic-bezier(.2,.8,.2,1)}
+.steps i.on{background:var(--line)}
+.steps i.on::after{transform:scaleX(1)}
+.pricebar i{transition:left .4s cubic-bezier(.34,1.56,.64,1)}
+.photos i{animation:pop .4s cubic-bezier(.34,1.56,.64,1) both}
+.analyze{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/10;max-width:100%;display:grid;place-items:center;font-size:72px;background:var(--surface-2)}
+.analyze::after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--accent);box-shadow:0 0 18px 4px color-mix(in oklab,var(--accent) 60%,transparent);animation:scan 1.1s ease-in-out infinite alternate}
+.analyze-lines{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.analyze-lines .skel{height:14px}
+.done .check{position:relative;animation:pop .6s cubic-bezier(.34,1.56,.64,1)}
+.done .check svg path{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .3s ease-out forwards}
+.burst{position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4px;border-radius:50%;background:var(--c);animation:burst .95s ease-out forwards;animation-delay:var(--d);pointer-events:none}
+.done>*:not(.check){animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.done>*:nth-child(2){animation-delay:.15s}.done>*:nth-child(3){animation-delay:.2s}.done>*:nth-child(4){animation-delay:.25s}.done>*:nth-child(5){animation-delay:.3s}.done>*:nth-child(6){animation-delay:.4s}.done>*:nth-child(7){animation-delay:.5s}
+.sticky-actions{animation:slide-up .45s .1s cubic-bezier(.2,.8,.2,1) both}
+.dprice{animation:rise .5s .08s cubic-bezier(.2,.8,.2,1) both}
+.ai{animation:rise .5s .12s cubic-bezier(.2,.8,.2,1) both}
+.gallery>span{animation:rise .35s both}
+.thumbs i{cursor:pointer;transition:transform .2s,border-color .2s}
+.thumbs i:hover{transform:translateY(-2px)}
+.gallery .dots i{transition:background .25s,transform .25s}
+.gallery .dots i.on{transform:scale(1.3)}
+.conv{transition:background .15s}
+.conv:hover{background:var(--surface-2);margin-inline:-16px;padding-inline:16px;border-radius:10px}
+.toggle::after{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.device{transition:max-width .35s cubic-bezier(.2,.8,.2,1),border-radius .35s,border-width .35s}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 
 <div class="stage" id="stage">
   <div class="stage-bar">
-    <div class="stage-title"><strong>Tržko</strong><span>prototyp inzertného portálu · SK + CZ</span></div>
+    <div class="stage-title"><strong>Tržko</strong><span>trzko.sk · prototyp inzertného portálu SK + CZ</span></div>
     <div class="stage-actions">
       <div class="seg" id="modeSeg" role="group" aria-label="Zobrazenie">
         <button type="button" data-action="mode" data-mode="phone" aria-pressed="true">Mobil</button>
@@ -372,7 +450,7 @@ svg{display:block}
     <div class="app" id="app">
       <header class="topbar">
         <div class="inner">
-          <button type="button" class="logo" data-action="nav" data-screen="home" aria-label="Tržko, domov"><i></i>Tržko</button>
+          <button type="button" class="logo" data-action="nav" data-screen="home" aria-label="Tržko, domov"><i></i>Tržko<small style="font-family:var(--font-ui);font-size:12px;font-weight:600;color:var(--muted);margin-left:4px;letter-spacing:0">.sk</small></button>
           <form class="topsearch" data-action="searchform">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
             <input id="topq" type="search" placeholder="Čo hľadáš? Napríklad bicykel, iPhone, sedačka" aria-label="Hľadať">
@@ -453,9 +531,10 @@ const S={
   fav:new Set([2,9]),q:'',cat:null,
   f:{delivery:false,verified:false,near:false,cond:null},sort:'new',
   detail:null,phone:false,
-  add:{step:1,photos:[],started:null,done:null,title:'',price:'',cat:'',cond:'',deliv:true,safe:true},
+  add:{step:1,photos:[],started:null,done:null,title:'',price:'',cat:'',cond:'',deliv:true,safe:true,analyzing:false},
   conv:null,convs:JSON.parse(JSON.stringify(CONVS)),
-  infoOpen:false
+  infoOpen:false,
+  navBack:false,popId:null,loading:false,typing:false,newMsg:false,galIdx:0
 };
 const $=s=>document.querySelector(s);
 const content=$('#content');
@@ -491,12 +570,11 @@ const I={
 };
 
 /* ---------- Components ---------- */
-function card(l,opts){
-  opts=opts||{};
+function card(l,i){
   const fav=S.fav.has(l.id);
-  return '<article class="card" data-action="open" data-id="'+l.id+'" role="link" tabindex="0">'
+  return '<article class="card" data-action="open" data-id="'+l.id+'" role="link" tabindex="0" style="--i:'+Math.min(i||0,11)+'">'
    +'<div class="thumb" style="background:var(--'+l.t+')"><span aria-hidden="true">'+l.img+'</span>'
-   +'<button type="button" class="fav" data-action="fav" data-id="'+l.id+'" aria-pressed="'+fav+'" aria-label="Uložiť">'+(fav?I.heartF:I.heart)+'</button>'
+   +'<button type="button" class="fav'+(S.popId===l.id?' pop':'')+'" data-action="fav" data-id="'+l.id+'" aria-pressed="'+fav+'" aria-label="Uložiť">'+(fav?I.heartF:I.heart)+'</button>'
    +(l.cz?'<div class="corner"><span class="tag cz">CZ</span></div>':'')
    +'</div><div class="card-body">'+price(l)
    +'<h3>'+esc(l.title)+'</h3>'
@@ -518,15 +596,15 @@ function home(){
   +'<form class="searchbox" data-action="searchform">'+I.search+'<input id="homeq" type="search" placeholder="Čo hľadáš?" aria-label="Hľadať" value="'+esc(S.q)+'"><button type="submit" class="go">Hľadať</button></form>'
   +'<div class="locpill">'+I.pin+'<b>Bratislava</b> · okruh 30 km · <button type="button" data-action="toast" data-msg="Zmena lokality a okruhu" style="color:var(--accent);font-weight:600">zmeniť</button></div></div>'
   +'<div class="hero-cta"><div class="stamp"><span><b>60 s</b>a hotovo</span></div><div><h2>Odfoť a predaj</h2><p>Aplikácia doplní názov, kategóriu aj cenu podľa podobných vecí. Ty len potvrdíš.</p></div><button type="button" class="btn sun" data-action="nav" data-screen="add">Pridať inzerát zadarmo</button></div></div>'
-  +'<div class="sec"><h2>Kategórie</h2></div><div class="cats">'+CATS.map(c=>'<button type="button" class="cat" data-action="cat" data-cat="'+esc(c[0])+'">'+catIcon(c)+'<span>'+esc(c[0])+'</span></button>').join('')+'</div>'
-  +'<div class="sec"><h2>Nové v okolí</h2><button type="button" class="link" data-action="nav" data-screen="search">Zobraziť všetko</button></div><div class="grid">'+near.map(l=>card(l)).join('')+'</div>'
+  +'<div class="sec"><h2>Kategórie</h2></div><div class="cats">'+CATS.map((c,i)=>'<button type="button" class="cat" style="--i:'+i+'" data-action="cat" data-cat="'+esc(c[0])+'">'+catIcon(c)+'<span>'+esc(c[0])+'</span></button>').join('')+'</div>'
+  +'<div class="sec"><h2>Nové v okolí</h2><button type="button" class="link" data-action="nav" data-screen="search">Zobraziť všetko</button></div><div class="grid">'+near.map((l,i)=>card(l,i)).join('')+'</div>'
   +'<div class="sec"><h2>Prečo nakupovať tu</h2></div><div class="trust">'
   +'<div class="panel"><i>'+I.shield+'</i><div><b>Overení predajcovia</b><p>Telefón, e-mail a banková identita. Hodnotenia po každom obchode.</p></div></div>'
   +'<div class="panel"><i>'+I.box+'</i><div><b>Bezpečná platba</b><p>Peniaze držíme, kým tovar neprevezmeš. Vrátenie do 48 hodín.</p></div></div>'
   +'<div class="panel"><i>'+I.chat+'</i><div><b>Chat bez čísla</b><p>Tvoje číslo nikto nevidí. Podozrivé správy označíme.</p></div></div>'
   +'<div class="panel"><i>'+I.pin+'</i><div><b>SK aj CZ v jednom</b><p>Brno je z Bratislavy bližšie než Košice. Ceny v € aj Kč.</p></div></div>'
   +'</div>'
-  +'<div class="sec"><h2>Práve pridané</h2></div><div class="grid">'+fresh.map(l=>card(l)).join('')+'</div>'
+  +'<div class="sec"><h2>Práve pridané</h2></div><div class="grid">'+fresh.map((l,i)=>card(l,i)).join('')+'</div>'
   +'</div>';
 }
 function filtered(){
@@ -552,8 +630,14 @@ function search(){
     html+='<div class="sec" style="margin-top:10px"><h2>Uložené hľadania</h2><button type="button" class="link" data-action="toast" data-msg="Notifikácie pre uložené hľadania sú zapnuté">'+I.bell+'</button></div><div class="panel" style="padding:4px 16px">'
     +SAVED_SEARCHES.map(s=>'<button type="button" class="savedsearch" data-action="runq" data-q="'+esc(s.q)+'" style="width:100%;text-align:left"><div><b>'+esc(s.q)+'</b><small>'+esc(s.meta)+'</small></div>'+(s.fresh?'<span class="tag accent">'+s.fresh+' nové</span>':'<span class="tag">bez zmeny</span>')+'</button>').join('')+'</div>';
     html+='<div class="sec"><h2>Nedávno hľadané</h2></div><div class="chips">'+['bicykel','sedačka','iphone 14','kočík','autosedačka','monstera'].map(q=>'<button type="button" class="chip" data-action="runq" data-q="'+q+'">'+q+'</button>').join('')+'</div>';
-    html+='<div class="sec"><h2>Kategórie</h2></div><div class="cats">'+CATS.map(c=>'<button type="button" class="cat" data-action="cat" data-cat="'+esc(c[0])+'">'+catIcon(c)+'<span>'+esc(c[0])+'</span></button>').join('')+'</div>';
+    html+='<div class="sec"><h2>Kategórie</h2></div><div class="cats">'+CATS.map((c,i)=>'<button type="button" class="cat" style="--i:'+i+'" data-action="cat" data-cat="'+esc(c[0])+'">'+catIcon(c)+'<span>'+esc(c[0])+'</span></button>').join('')+'</div>';
     html+='</div>';return html;
+  }
+  if(S.loading){
+    html+='<div class="chips">'+['Do 30 km','S doručením','Overení','Nové','Ako nové','Používané'].map(c=>'<button type="button" class="chip" disabled>'+c+'</button>').join('')+'</div>'
+    +'<div class="results-head"><h2>'+(S.cat?esc(S.cat):'„'+esc(S.q)+'“')+' <span class="muted" style="font-weight:500;font-size:14px">hľadáme…</span></h2></div>'
+    +'<div class="grid">'+Array.from({length:6},(_,i)=>'<div class="skel-card" style="--i:'+i+'"><div class="skel img"></div><div class="skel line short"></div><div class="skel line"></div><div class="skel line short"></div></div>').join('')+'</div></div>';
+    return html;
   }
   const r=filtered();
   html+='<div class="chips">'
@@ -565,7 +649,7 @@ function search(){
    +'</div>';
   html+='<div class="results-head"><h2>'+(S.cat?esc(S.cat):'„'+esc(S.q)+'“')+' <span class="muted" style="font-weight:500;font-size:14px">'+r.length+' '+(r.length===1?'inzerát':r.length<5?'inzeráty':'inzerátov')+'</span></h2>'
    +'<div class="row"><button type="button" class="chip" data-action="savesearch">'+I.bell+'Uložiť hľadanie</button><label class="sortsel">Zoradiť <select id="sortsel" data-action="sort"><option value="new"'+(S.sort==='new'?' selected':'')+'>najnovšie</option><option value="near"'+(S.sort==='near'?' selected':'')+'>najbližšie</option><option value="cheap"'+(S.sort==='cheap'?' selected':'')+'>najlacnejšie</option><option value="exp"'+(S.sort==='exp'?' selected':'')+'>najdrahšie</option></select></label></div></div>';
-  html+=r.length?'<div class="grid">'+r.map(l=>card(l)).join('')+'</div>':'<div class="empty"><b>Nič sme nenašli</b>Skús kratšie slovo, zruš filtre alebo si ulož hľadanie a dáme ti vedieť, keď niečo pribudne.<div style="margin-top:14px"><button type="button" class="btn soft sm" data-action="savesearch">'+I.bell+'Uložiť hľadanie</button></div></div>';
+  html+=r.length?'<div class="grid">'+r.map((l,i)=>card(l,i)).join('')+'</div>':'<div class="empty"><b>Nič sme nenašli</b>Skús kratšie slovo, zruš filtre alebo si ulož hľadanie a dáme ti vedieť, keď niečo pribudne.<div style="margin-top:14px"><button type="button" class="btn soft sm" data-action="savesearch">'+I.bell+'Uložiť hľadanie</button></div></div>';
   return html+'</div>';
 }
 function detail(){
@@ -573,14 +657,15 @@ function detail(){
   const fav=S.fav.has(l.id);
   const similar=L.filter(x=>x.cat===l.cat&&x.id!==l.id).concat(L.filter(x=>x.cat!==l.cat&&x.id!==l.id)).slice(0,6);
   const c=catOf(l.cat);
+  const gal=[[l.img,l.t],[c[1],'t5'],['📷','t1'],['📷','t6']];
   const actions=(cls)=>'<div class="'+cls+'">'
     +'<button type="button" class="btn primary" data-action="msg" data-id="'+l.id+'">'+I.chat+'Napísať</button>'
     +(l.price>0&&l.delivery?'<button type="button" class="btn sun" data-action="buy" data-id="'+l.id+'">'+I.shield+'Kúpiť bezpečne</button>':'<button type="button" class="btn secondary" data-action="phone">'+I.phone+(S.phone?'+421 9xx 123 456':'Zobraziť číslo')+'</button>')
     +'</div>';
   return '<div class="wrap">'+header('', '<div class="row"><button type="button" class="iconbtn" data-action="toast" data-msg="Odkaz skopírovaný" aria-label="Zdieľať">'+I.share+'</button></div>')
    +'<div class="detail"><div>'
-   +'<div class="gallery" style="background:var(--'+l.t+')"><span aria-hidden="true">'+l.img+'</span><button type="button" class="fav" data-action="fav" data-id="'+l.id+'" aria-pressed="'+fav+'" aria-label="Uložiť">'+(fav?I.heartF:I.heart)+'</button><div class="dots"><i class="on"></i><i></i><i></i><i></i></div></div>'
-   +'<div class="thumbs"><i class="on" style="background:var(--'+l.t+')">'+l.img+'</i><i style="background:var(--t5)">'+c[1]+'</i><i style="background:var(--t1)">📷</i><i style="background:var(--t6)">📷</i></div>'
+   +'<div class="gallery" style="background:var(--'+gal[S.galIdx][1]+')"><span aria-hidden="true" key="'+S.galIdx+'">'+gal[S.galIdx][0]+'</span><button type="button" class="fav'+(S.popId===l.id?' pop':'')+'" data-action="fav" data-id="'+l.id+'" aria-pressed="'+fav+'" aria-label="Uložiť">'+(fav?I.heartF:I.heart)+'</button><div class="dots">'+gal.map((g,i)=>'<i class="'+(i===S.galIdx?'on':'')+'"></i>').join('')+'</div></div>'
+   +'<div class="thumbs">'+gal.map((g,i)=>'<i class="'+(i===S.galIdx?'on':'')+'" style="background:var(--'+g[1]+')" data-action="gal" data-i="'+i+'" role="button" tabindex="0" aria-label="Fotka '+(i+1)+'">'+g[0]+'</i>').join('')+'</div>'
    +'<div class="sec"><h2>Popis</h2></div><p class="desc">'+esc(l.desc)+'</p>'
    +'<div class="sec"><h2>Kde</h2></div><div class="map"><span>'+esc(l.city)+' · '+km(l)+' od teba</span></div>'
    +'</div><div class="stack" style="gap:14px">'
@@ -594,7 +679,7 @@ function detail(){
    +'<button type="button" class="btn secondary sm" data-action="toast" data-msg="Profil predajcu">Profil</button></div></div>'
    +'<div class="row" style="gap:6px;flex-wrap:wrap"><button type="button" class="chip" data-action="toast" data-msg="Ďakujeme, inzerát preveríme">Nahlásiť</button><button type="button" class="chip" data-action="toast" data-msg="Tipy na bezpečný nákup">Ako nakupovať bezpečne</button></div>'
    +'</div></div>'
-   +'<div class="sec"><h2>Podobné</h2></div><div class="hscroll">'+similar.map(x=>card(x)).join('')+'</div>'
+   +'<div class="sec"><h2>Podobné</h2></div><div class="hscroll">'+similar.map((x,i)=>card(x,i)).join('')+'</div>'
    +actions('sticky-actions')
    +'</div>';
 }
@@ -604,6 +689,12 @@ function add(){
   if(a.step<4){
     html+='<div class="row between"><button type="button" class="back" data-action="back">'+I.back+'Zrušiť</button><span class="small muted num" id="addtimer">'+(a.started?elapsed():'0 s')+'</span></div>';
     html+='<div class="steps"><i class="'+(a.step>=1?'on':'')+'"></i><i class="'+(a.step>=2?'on':'')+'"></i><i class="'+(a.step>=3?'on':'')+'"></i></div>';
+  }
+  if(a.analyzing){
+    html+='<h2 style="font-size:24px;font-weight:800;margin-bottom:6px">Pozeráme sa na fotku</h2><p class="muted" style="margin-bottom:16px">Rozpoznávame, čo to je, a hľadáme podobné predané veci.</p>'
+    +'<div class="analyze"><span>'+a.photos[0][0]+'</span></div>'
+    +'<div class="analyze-lines"><div class="skel" style="width:70%"></div><div class="skel" style="width:45%"></div><div class="skel" style="width:85%"></div></div>';
+    return html+'</div>';
   }
   if(a.step===1){
     html+='<h2 style="font-size:24px;font-weight:800;margin-bottom:6px">Odfoť, čo predávaš</h2><p class="muted" style="margin-bottom:16px">Prvá fotka bude hlavná. Z fotiek rozpoznáme, čo to je, a predvyplníme inzerát.</p>';
@@ -628,13 +719,14 @@ function add(){
     +'</div>';
   }
   if(a.step===3){
-    html+='<div class="done"><span class="check">'+I.check+'</span><h2>Inzerát je online</h2><p class="muted">Trvalo ti to</p><div class="timer num">'+a.done+'</div><p class="muted" style="max-width:34ch">Uvidí ho každý v okruhu 30 km a ľudia s uloženým hľadaním „bicykel“ dostanú notifikáciu.</p>'
+    html+='<div class="done"><span class="check">'+I.check+burst()+'</span><h2>Inzerát je online</h2><p class="muted">Trvalo ti to</p><div class="timer num" id="doneTimer" data-final="'+esc(a.done)+'">0 s</div><p class="muted" style="max-width:34ch">Uvidí ho každý v okruhu 30 km a ľudia s uloženým hľadaním „bicykel“ dostanú notifikáciu.</p>'
     +'<div class="card" style="width:100%;max-width:340px;text-align:left;cursor:default"><div class="thumb" style="background:var(--t3);aspect-ratio:16/9;font-size:44px">🚲</div><div class="card-body"><span class="price num">'+fmtN(Number(a.price)||420)+'&nbsp;€</span><h3>'+esc(a.title)+'</h3><div class="meta"><span>Bratislava · 0 km</span><span>práve teraz</span></div><div class="tags"><span class="tag ok">'+I.shield+'Overený</span>'+(a.deliv?'<span class="tag">'+I.box+'Doručenie</span>':'')+'</div></div></div>'
     +'<div class="row" style="gap:10px;width:100%;max-width:340px"><button type="button" class="btn secondary" style="flex:1" data-action="toast" data-msg="Odkaz skopírovaný">'+I.share+'Zdieľať</button><button type="button" class="btn primary" style="flex:1" data-action="addreset">Hotovo</button></div>'
     +'<button type="button" class="chip" data-action="toast" data-msg="Topovanie na 7 dní za 2,90 €">Topovať na 7 dní za 2,90 €</button></div>';
   }
   return html+'</div>';
 }
+function burst(){const cols=['var(--sun)','var(--accent)','var(--ok)','var(--danger)','var(--warn)'];return Array.from({length:14},(_,i)=>'<i class="burst" style="--a:'+Math.round(i*(360/14)+(i%2?12:0))+'deg;--c:'+cols[i%cols.length]+';--d:'+(i%3)*60+'ms"></i>').join('');}
 function pricePos(p){const n=Number(p)||420;return Math.max(2,Math.min(98,((n-360)/(480-360))*100));}
 function elapsed(){if(!S.add.started)return '0 s';const s=Math.round((Date.now()-S.add.started)/1000);return s+' s';}
 function chat(){
@@ -643,7 +735,7 @@ function chat(){
   if(S.conv){
     const c=S.convs.find(x=>x.id===S.conv);const l=L.find(x=>x.id===c.item);
     thread='<div class="panel thread"><div class="thread-head"><button type="button" class="back" data-action="convclose" aria-label="Späť na správy">'+I.back+'</button><span class="item" style="background:var(--'+l.t+')">'+l.img+'</span><div style="flex:1;min-width:0"><b>'+esc(c.name)+'</b><div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(l.title)+' · '+price(l,false).replace(/<[^>]+>/g,'')+'</div></div><button type="button" class="chip" data-action="open" data-id="'+l.id+'">Inzerát</button></div>'
-    +'<div class="msgs" id="msgs">'+c.msgs.map(m=>'<div class="msg '+(m.me?'me':'them')+'">'+esc(m.t)+'<time>'+esc(m.at)+'</time></div>'+(m.scam?'<div class="scam">'+I.warn+'<span><b>Pozor, toto vyzerá ako podvod.</b> Odkaz vedie mimo Tržka a napodobňuje kuriéra. Nikdy nezadávaj kartu na cudzej stránke. Skutočná bezpečná platba beží len tu v aplikácii. <button type="button" data-action="toast" data-msg="Používateľ nahlásený a zablokovaný" style="text-decoration:underline;font-weight:700">Nahlásiť a zablokovať</button></span></div>':'')).join('')+'</div>'
+    +'<div class="msgs" id="msgs">'+c.msgs.map((m,i)=>'<div class="msg '+(m.me?'me':'them')+(S.newMsg&&i===c.msgs.length-1?' new':'')+'" style="--i:'+Math.max(0,i-(c.msgs.length-6))+'">'+esc(m.t)+'<time>'+esc(m.at)+'</time></div>'+(m.scam?'<div class="scam">'+I.warn+'<span><b>Pozor, toto vyzerá ako podvod.</b> Odkaz vedie mimo Tržka a napodobňuje kuriéra. Nikdy nezadávaj kartu na cudzej stránke. Skutočná bezpečná platba beží len tu v aplikácii. <button type="button" data-action="toast" data-msg="Používateľ nahlásený a zablokovaný" style="text-decoration:underline;font-weight:700">Nahlásiť a zablokovať</button></span></div>':'')).join('')+(S.typing?'<div class="typing" aria-label="Píše"><i></i><i></i><i></i></div>':'')+'</div>'
     +'<div class="quick">'+['Je to ešte dostupné?','Aká je posledná cena?','Môžem prísť dnes?','Pošlete cez box?'].map(q=>'<button type="button" class="chip" data-action="quick" data-q="'+esc(q)+'">'+esc(q)+'</button>').join('')+'</div>'
     +'<form class="composer" data-action="sendform"><input id="msgin" placeholder="Napíš správu" aria-label="Správa" autocomplete="off"><button type="submit" aria-label="Odoslať">'+I.send+'</button></form></div>';
   } else {
@@ -653,14 +745,14 @@ function chat(){
 }
 function saved(){
   const r=L.filter(l=>S.fav.has(l.id));
-  return '<div class="wrap">'+header('Uložené')+(r.length?'<div class="grid">'+r.map(l=>card(l)).join('')+'</div>':'<div class="empty"><b>Zatiaľ nič uložené</b>Klikni na srdiečko pri inzeráte a nájdeš ho tu.</div>')+'</div>';
+  return '<div class="wrap">'+header('Uložené')+(r.length?'<div class="grid">'+r.map((l,i)=>card(l,i)).join('')+'</div>':'<div class="empty"><b>Zatiaľ nič uložené</b>Klikni na srdiečko pri inzeráte a nájdeš ho tu.</div>')+'</div>';
 }
 function profile(){
   const mine=L.filter(l=>[1,9,12].includes(l.id));
   const dark=document.documentElement.getAttribute('data-theme')==='dark'||(!document.documentElement.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
   return '<div class="wrap"><div class="pgrid"><div>'
   +'<div class="phead"><span class="avatar">ĽK</span><div><h2>Ľubomír K.</h2><div class="small muted">'+stars(4.9)+' 4,9 · 12 hodnotení · na Tržku od 2026</div><span class="tag ok" style="margin-top:4px">'+I.shield+'Overený profil</span></div></div>'
-  +'<div class="stats"><div><b class="num">3</b><small>aktívne inzeráty</small></div><div><b class="num">12</b><small>predané</small></div><div><b class="num">1 240 €</b><small>utržené</small></div></div>'
+  +'<div class="stats"><div><b class="num" data-count="3">0</b><small>aktívne inzeráty</small></div><div><b class="num" data-count="12">0</b><small>predané</small></div><div><b class="num" data-count="1240" data-suffix=" €">0 €</b><small>utržené</small></div></div>'
   +'<div class="panel" style="margin-bottom:14px"><div class="row between" style="margin-bottom:10px"><b>Overenie</b><span class="small muted">3 z 3</span></div><div class="verify"><div>'+I.phone+'Telefón</div><div>'+I.chat+'E-mail</div><div>'+I.shield+'Banková identita</div></div></div>'
   +'<div class="panel menu" style="padding:4px 16px">'
   +'<button type="button" data-action="toast" data-msg="Moje inzeráty"><i>'+I.box+'</i><span>Moje inzeráty <small>3 aktívne · 1 koncept</small></span></button>'
@@ -671,27 +763,50 @@ function profile(){
   +'<div class="switch"><div><b>Jazyk</b><small>Inzeráty z CZ sa zobrazujú v pôvodnom znení</small></div><div class="seg"><button type="button" aria-pressed="true" data-action="toast" data-msg="Slovenčina">SK</button><button type="button" aria-pressed="false" data-action="toast" data-msg="Prepnutie na češtinu">CZ</button></div></div>'
   +'<button type="button" data-action="toast" data-msg="Nastavenia"><i>⚙️</i><span>Nastavenia a súkromie</span></button>'
   +'</div></div><div>'
-  +'<div class="sec" style="margin-top:0"><h2>Moje inzeráty</h2><button type="button" class="link" data-action="nav" data-screen="add">+ Pridať</button></div><div class="list stack">'+mine.map(l=>card(l)).join('')+'</div>'
+  +'<div class="sec" style="margin-top:0"><h2>Moje inzeráty</h2><button type="button" class="link" data-action="nav" data-screen="add">+ Pridať</button></div><div class="list stack">'+mine.map((l,i)=>card(l,i)).join('')+'</div>'
   +'</div></div></div>';
 }
 
 /* ---------- Render ---------- */
 const SCREENS={home,search,detail,add,chat,saved,profile};
-function render(){
+function render(soft){
+  content.classList.toggle('still',!!soft);
+  content.classList.toggle('back',!soft&&S.navBack);
   content.innerHTML=(SCREENS[S.screen]||home)();
-  content.scrollTop=0;
-  if(!(S.screen==='chat'&&S.conv)) window.scrollTo({top:0});
+  S.navBack=false; S.popId=null; S.newMsg=false;
+  if(!soft){ content.scrollTop=0; if(!(S.screen==='chat'&&S.conv)) window.scrollTo({top:0}); }
   const tabScreen={detail:'home',saved:'profile'}[S.screen]||S.screen;
   document.querySelectorAll('#tabbar .tab').forEach(t=>{ if(t.dataset.screen===tabScreen) t.setAttribute('aria-current','page'); else t.removeAttribute('aria-current'); });
   const unread=S.convs.filter(c=>c.unread).length;
   ['topBadge','tabBadge'].forEach(id=>{const el=document.getElementById(id); el.textContent=unread; el.hidden=!unread;});
   if(S.screen==='chat'&&S.conv){const m=$('#msgs'); if(m) m.scrollTop=m.scrollHeight;}
+  moveTabInd(); countUp();
 }
+function moveTabInd(){
+  const bar=$('#tabbar'); let ind=bar.querySelector('.tab-ind');
+  if(!ind){ind=document.createElement('i'); ind.className='tab-ind'; bar.appendChild(ind);}
+  const t=bar.querySelector('.tab[aria-current="page"]');
+  if(!t||!t.offsetWidth){ind.style.opacity='0';return;}
+  ind.style.opacity='1'; ind.style.width='28px'; ind.style.left=(t.offsetLeft+(t.offsetWidth-28)/2)+'px';
+}
+function countUp(){
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  content.querySelectorAll('[data-count]').forEach(el=>{
+    const to=Number(el.dataset.count), suf=el.dataset.suffix||''; if(reduce){el.textContent=fmtN(to)+suf;return;}
+    const t0=performance.now(); const dur=800;
+    const step=now=>{const k=Math.min(1,(now-t0)/dur); const e=1-Math.pow(1-k,3); el.textContent=fmtN(Math.round(to*e))+suf; if(k<1) requestAnimationFrame(step);};
+    requestAnimationFrame(step);
+  });
+  const dt=$('#doneTimer');
+  if(dt){const to=parseInt(dt.dataset.final,10)||0; if(reduce){dt.textContent=to+' s';return;} const t0=performance.now();
+    const step=now=>{const k=Math.min(1,(now-t0)/900); const e=1-Math.pow(1-k,3); dt.textContent=Math.round(to*e)+' s'; if(k<1) requestAnimationFrame(step);}; requestAnimationFrame(step);}
+}
+function startSearch(){ S.loading=true; go('search'); setTimeout(()=>{S.loading=false; render(true);},480); }
 function go(screen,push){
   if(push!==false&&screen!==S.screen) S.stack.push(S.screen);
   S.screen=screen; render();
 }
-function back(){ S.screen=S.stack.pop()||'home'; render(); }
+function back(){ S.navBack=true; S.screen=S.stack.pop()||'home'; render(); }
 function toast(msg){const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast.h); toast.h=setTimeout(()=>t.classList.remove('show'),2200);}
 
 /* ---------- Events ---------- */
@@ -700,41 +815,43 @@ document.addEventListener('click',e=>{
   const a=el.dataset.action, d=el.dataset;
   switch(a){
     case 'nav':
-      if(d.screen==='add'&&S.screen!=='add'){S.add={step:1,photos:[],started:null,done:null,title:'',price:'',cat:'',cond:'',deliv:true,safe:true};}
+      if(d.screen==='add'&&S.screen!=='add'){S.add={step:1,photos:[],started:null,done:null,title:'',price:'',cat:'',cond:'',deliv:true,safe:true,analyzing:false};}
       if(['home','search','chat','profile'].includes(d.screen)){S.stack=[];if(d.screen==='search'){S.q='';S.cat=null;}if(d.screen==='chat')S.conv=null;}
       go(d.screen); break;
     case 'back': back(); break;
-    case 'open': S.detail=Number(d.id); S.phone=false; go('detail'); break;
-    case 'fav': {const id=Number(d.id); if(S.fav.has(id)){S.fav.delete(id);toast('Odstránené z uložených');}else{S.fav.add(id);toast('Uložené. Dáme vedieť, keď klesne cena.');} render(); break;}
-    case 'cat': S.cat=d.cat||null; S.q=''; go('search'); break;
-    case 'runq': S.q=d.q; S.cat=null; go('search'); break;
+    case 'open': S.detail=Number(d.id); S.phone=false; S.galIdx=0; go('detail'); break;
+    case 'fav': {const id=Number(d.id); if(S.fav.has(id)){S.fav.delete(id);toast('Odstránené z uložených');}else{S.fav.add(id);S.popId=id;toast('Uložené. Dáme vedieť, keď klesne cena.');} render(true); break;}
+    case 'cat': S.cat=d.cat||null; S.q=''; if(S.cat) startSearch(); else render(true); break;
+    case 'runq': S.q=d.q; S.cat=null; startSearch(); break;
     case 'clearq': S.q=''; S.cat=null; render(); break;
-    case 'filter': S.f[d.key]=!S.f[d.key]; render(); break;
-    case 'cond': S.f.cond=S.f.cond===d.cond?null:d.cond; render(); break;
+    case 'filter': S.f[d.key]=!S.f[d.key]; render(true); break;
+    case 'cond': S.f.cond=S.f.cond===d.cond?null:d.cond; render(true); break;
+    case 'gal': S.galIdx=Number(d.i); render(true); break;
     case 'savesearch': toast('Hľadanie uložené, pošleme notifikáciu pri novom inzeráte'); break;
-    case 'phone': S.phone=true; toast('Číslo zobrazené. Radšej píš v aplikácii, je to bezpečnejšie.'); render(); break;
+    case 'phone': S.phone=true; toast('Číslo zobrazené. Radšej píš v aplikácii, je to bezpečnejšie.'); render(true); break;
     case 'msg': {const l=L.find(x=>x.id===Number(d.id)); let c=S.convs.find(x=>x.item===l.id); if(!c){c={id:'c'+Date.now(),name:l.seller,init:l.seller.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),item:l.id,last:'',time:'teraz',unread:false,msgs:[]}; S.convs.unshift(c);} S.conv=c.id; go('chat'); break;}
     case 'buy': toast('Bezpečná platba: suma sa zablokuje, predajca pošle tovar cez box'); break;
     case 'conv': S.conv=d.id; const c=S.convs.find(x=>x.id===d.id); if(c) c.unread=false; render(); break;
-    case 'convclose': S.conv=null; render(); break;
+    case 'convclose': S.conv=null; S.navBack=true; render(); break;
     case 'quick': sendMsg(d.q); break;
-    case 'photo': {const pool=[['🚲','t3'],['🔩','t5'],['🛞','t1'],['📏','t6']]; if(S.add.photos.length<12){ if(!S.add.started) S.add.started=Date.now(); S.add.photos.push(pool[S.add.photos.length%pool.length]); } render(); break;}
+    case 'photo': {const pool=[['🚲','t3'],['🔩','t5'],['🛞','t1'],['📏','t6']]; if(S.add.photos.length<12){ if(!S.add.started) S.add.started=Date.now(); S.add.photos.push(pool[S.add.photos.length%pool.length]); } render(true); break;}
     case 'addnext':
-      if(S.add.step===1){ if(!S.add.photos.length) return; S.add.title=S.add.title||'Horský bicykel Kross Level 5.0, rám L, 29"'; S.add.cat=S.add.cat||'Šport'; S.add.cond=S.add.cond||'Používané'; S.add.price=S.add.price||'420'; S.add.step=2; }
+      if(S.add.step===1){ if(!S.add.photos.length||S.add.analyzing) return; S.add.analyzing=true; render();
+        setTimeout(()=>{ S.add.analyzing=false; S.add.title=S.add.title||'Horský bicykel Kross Level 5.0, rám L, 29"'; S.add.cat=S.add.cat||'Šport'; S.add.cond=S.add.cond||'Používané'; S.add.price=S.add.price||'420'; S.add.step=2; render(); },1400); break; }
       else if(S.add.step===2){ S.add.done=elapsed(); S.add.step=3; }
       render(); break;
     case 'addprev': S.add.step=Math.max(1,S.add.step-1); render(); break;
-    case 'addreset': S.add={step:1,photos:[],started:null,done:null,title:'',price:'',cat:'',cond:'',deliv:true,safe:true}; S.stack=[]; go('profile'); break;
-    case 'tog': S.add[d.key]=!S.add[d.key]; render(); break;
+    case 'addreset': S.add={step:1,photos:[],started:null,done:null,title:'',price:'',cat:'',cond:'',deliv:true,safe:true,analyzing:false}; S.stack=[]; go('profile'); break;
+    case 'tog': S.add[d.key]=!S.add[d.key]; render(true); break;
     case 'mode': setMode(d.mode); break;
-    case 'theme': {const r=document.documentElement; const cur=r.getAttribute('data-theme'); const isDark=cur==='dark'||(!cur&&matchMedia('(prefers-color-scheme: dark)').matches); r.setAttribute('data-theme',isDark?'light':'dark'); $('#themeBtn').textContent=isDark?'Tmavý režim':'Svetlý režim'; if(S.screen==='profile') render(); break;}
+    case 'theme': {const r=document.documentElement; const cur=r.getAttribute('data-theme'); const isDark=cur==='dark'||(!cur&&matchMedia('(prefers-color-scheme: dark)').matches); r.setAttribute('data-theme',isDark?'light':'dark'); $('#themeBtn').textContent=isDark?'Tmavý režim':'Svetlý režim'; if(S.screen==='profile') render(true); break;}
     case 'info': {const p=$('#infoPanel'); p.hidden=!p.hidden; el.setAttribute('aria-expanded',String(!p.hidden)); break;}
     case 'toast': toast(d.msg||'Ukážka'); break;
   }
 });
 document.addEventListener('submit',e=>{
   const f=e.target.closest('form[data-action]'); if(!f) return; e.preventDefault();
-  if(f.dataset.action==='searchform'){ const inp=f.querySelector('input'); S.q=inp.value.trim(); S.cat=null; if(S.q) go('search'); else { S.stack=[]; go('search'); } const tq=$('#topq'); if(tq) tq.value=S.q; }
+  if(f.dataset.action==='searchform'){ const inp=f.querySelector('input'); S.q=inp.value.trim(); S.cat=null; if(S.q) startSearch(); else { S.stack=[]; go('search'); } const tq=$('#topq'); if(tq) tq.value=S.q; }
   if(f.dataset.action==='sendform'){ const inp=$('#msgin'); if(inp.value.trim()){ sendMsg(inp.value.trim()); } }
 });
 document.addEventListener('input',e=>{
@@ -742,13 +859,14 @@ document.addEventListener('input',e=>{
   S.add[b]=e.target.value;
   if(b==='price'){const bar=content.querySelector('.pricebar i'); if(bar) bar.style.left=pricePos(e.target.value)+'%';}
 });
-document.addEventListener('change',e=>{ if(e.target.id==='sortsel'){S.sort=e.target.value;render();} });
+document.addEventListener('change',e=>{ if(e.target.id==='sortsel'){S.sort=e.target.value;render(true);} });
 document.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.matches('.card[data-action="open"]')){e.preventDefault();e.target.click();} });
 function sendMsg(text){
   const c=S.convs.find(x=>x.id===S.conv); if(!c) return;
   const now=new Date(); const at=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
-  c.msgs.push({me:true,t:text,at}); c.last=text; c.time=at; render();
-  setTimeout(()=>{ if(S.conv!==c.id||c.scam) return; const reply=/cena|cenu/i.test(text)?'Viem ísť trochu dole pri osobnom odbere, napíšte sumu.':/dostupn/i.test(text)?'Áno, stále dostupné.':/box|pošl/i.test(text)?'Áno, pošlem cez box, cez bezpečnú platbu je to bez starostí.':'Dobre, dajte vedieť, kedy sa vám hodí.'; c.msgs.push({me:false,t:reply,at}); c.last=reply; render(); },900);
+  c.msgs.push({me:true,t:text,at}); c.last=text; c.time=at; S.newMsg=true; render(true);
+  if(!c.scam){ setTimeout(()=>{ if(S.conv!==c.id) return; S.typing=true; render(true); },350); }
+  setTimeout(()=>{ if(S.conv!==c.id||c.scam) return; S.typing=false; const reply=/cena|cenu/i.test(text)?'Viem ísť trochu dole pri osobnom odbere, napíšte sumu.':/dostupn/i.test(text)?'Áno, stále dostupné.':/box|pošl/i.test(text)?'Áno, pošlem cez box, cez bezpečnú platbu je to bez starostí.':'Dobre, dajte vedieť, kedy sa vám hodí.'; c.msgs.push({me:false,t:reply,at}); c.last=reply; S.newMsg=true; render(true); },1500);
 }
 let timerH=null;
 setInterval(()=>{ const t=document.getElementById('addtimer'); if(t&&S.add.started&&S.add.step<3) t.textContent=elapsed(); },1000);
@@ -760,7 +878,7 @@ function setMode(m){
   document.querySelectorAll('#modeSeg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));
   $('#modeSeg').hidden=small;
 }
-window.addEventListener('resize',()=>setMode(S.mode));
+window.addEventListener('resize',()=>{setMode(S.mode); moveTabInd();});
 setMode('phone');
 render();
 })();

@@ -1,4 +1,4 @@
-# Tržko – technické riešenie
+# Tržko (trzko.sk) – technické riešenie
 
 Návrh architektúry pre inzertný portál SK + CZ, ktorý beží ako web aj ako mobilná aplikácia.
 Nadväzuje na klikateľný prototyp v `prototyp/trzko.html`. Databázová schéma je v `db/schema.sql`.
@@ -135,7 +135,7 @@ Používateľ vidí návrh ako predvyplnený formulár a všetko môže zmeniť.
 
 ## 9. SEO
 
-- Každý inzerát má vlastnú URL `/sk/inzerat/{slug}-{id}` a `/cz/inzerat/{slug}-{id}` s `hreflang`.
+- Každý inzerát má vlastnú URL `trzko.sk/inzerat/{slug}-{id}` a `trzko.cz/inzerat/{slug}-{id}` s `hreflang` (do kúpy .cz domény slúži `trzko.sk/cz/…`).
 - Kategórie a kombinácie kategória + mesto majú statické stránky s textom a počtom inzerátov (`/sk/bicykle/bratislava`).
 - Štruktúrované dáta `Product` a `Offer` (JSON-LD) na detaile.
 - Sitemap generovaná denne, archivované inzeráty vracajú 410 s odkazom na podobné.
@@ -170,7 +170,7 @@ Vývoj je najväčší náklad. Minimálna verzia (web + PWA, bez natívnych apl
 
 ## 12. Čo treba rozhodnúť pred začiatkom
 
-1. Názov a doména (zoznam voľných je v predošlej analýze, odporúčané Tržko, Hupsni alebo Kupko).
+1. ~~Názov a doména~~ Rozhodnuté: **Tržko**, doména **trzko.sk** je kúpená. Odporúčam dokúpiť aj trzko.cz pre českú mutáciu a trzko.eu ako ochranu.
 2. Platobný partner: Mangopay má lepšiu podporu úschovy, Stripe jednoduchšiu integráciu. Treba si vyžiadať ponuky, oba vyžadujú firmu (s. r. o.) a overenie.
 3. Prvá kategória a región pre štart.
 4. Kto vyvíja: jeden vývojár na plný úväzok, alebo agentúra na základ a potom vlastný človek.
