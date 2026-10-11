@@ -1,6 +1,6 @@
 /* NazovPortalu – service worker (PWA): offline shell, cache statiky, HTML sieť-najprv */
-var VERSION = 'np-v3';
-var SHELL = ['/', '/index.html', '/css/style.css', '/js/config.js', '/js/app.js', '/js/native.js', '/js/supabase.js', '/vendor/supabase.js', '/img/favicon.svg', '/404.html'];
+var VERSION = 'np-v4';
+var SHELL = ['/', '/index.html', '/css/style.css', '/css/motion.css', '/js/config.js', '/js/app.js', '/js/motion.js', '/js/native.js', '/js/supabase.js', '/vendor/supabase.js', '/img/favicon.svg', '/404.html'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); }));
 });

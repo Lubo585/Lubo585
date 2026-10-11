@@ -23,6 +23,7 @@ Skript nahradí názov aj doménu vo všetkých HTML, JSON-LD, sitemap, robots, 
 | `podmienky.html`, `ochrana-sukromia.html`, `cookies.html` | Právne vzory (doplniť údaje prevádzkovateľa, nechať skontrolovať) |
 | `404.html` | Chybová stránka |
 | `css/style.css`, `js/app.js` | Štýly (farby v `:root`) a logika (brána 18+, filtre, menu, skryté číslo) |
+| `css/motion.css`, `js/motion.js` | Animácie: vstup pri scrollovaní, prechody stránok (View Transitions), ripple, hlavička, počítadlá, skeleton, toast; vypnuté pri „obmedziť pohyb“ |
 | `js/config.js`, `js/supabase.js` | Konfigurácia a napojenie na Supabase (výpis, detail, odhalenie čísla, nahlásenie, pridanie inzerátu, heartbeat) |
 | `supabase/` | Migrácie, úložisko, cron, Edge Function pre platby, lokálne testy |
 | `spravy.html`, `js/native.js`, `sw.js`, `.well-known/` | Správy v reálnom čase, natívna vrstva pre appku, PWA service worker, deep linky |

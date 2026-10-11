@@ -1,0 +1,161 @@
+/* ==========================================================================
+   NazovPortalu – pohyb a animácie
+   Zásady: len transform/opacity (60 fps), krátke trvania, pružné krivky,
+   všetko vypnuté pri prefers-reduced-motion.
+   ========================================================================== */
+:root{
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --ease-in-out:cubic-bezier(.65,0,.35,1);
+  --dur-fast:.18s;
+  --dur:.32s;
+  --dur-slow:.6s;
+}
+
+/* ---------- Prechody medzi stránkami (View Transitions API, kde je) ---------- */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:vt-out var(--dur) var(--ease-in-out) both}
+::view-transition-new(root){animation:vt-in var(--dur-slow) var(--ease-out) both}
+@keyframes vt-out{to{opacity:0;transform:translateY(-6px)}}
+@keyframes vt-in{from{opacity:0;transform:translateY(10px)}}
+/* Záložný prechod pre prehliadače bez View Transitions */
+body{animation:page-in var(--dur-slow) var(--ease-out) both}
+@keyframes page-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+body.is-leaving{animation:page-out var(--dur-fast) var(--ease-in-out) both}
+@keyframes page-out{to{opacity:0;transform:translateY(-6px)}}
+
+/* ---------- Vstup pri scrollovaní ---------- */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity var(--dur-slow) var(--ease-out),transform var(--dur-slow) var(--ease-out);will-change:opacity,transform}
+.reveal.is-in{opacity:1;transform:none}
+.reveal-stagger>*{opacity:0;transform:translateY(14px) scale(.98);transition:opacity var(--dur-slow) var(--ease-out),transform var(--dur-slow) var(--ease-out)}
+.reveal-stagger.is-in>*{opacity:1;transform:none}
+.reveal-stagger.is-in>:nth-child(1){transition-delay:.0s}
+.reveal-stagger.is-in>:nth-child(2){transition-delay:.05s}
+.reveal-stagger.is-in>:nth-child(3){transition-delay:.1s}
+.reveal-stagger.is-in>:nth-child(4){transition-delay:.15s}
+.reveal-stagger.is-in>:nth-child(5){transition-delay:.2s}
+.reveal-stagger.is-in>:nth-child(6){transition-delay:.25s}
+.reveal-stagger.is-in>:nth-child(7){transition-delay:.3s}
+.reveal-stagger.is-in>:nth-child(8){transition-delay:.35s}
+.reveal-stagger.is-in>:nth-child(n+9){transition-delay:.4s}
+
+/* ---------- Hero: postupný nástup ---------- */
+.hero h1,.hero .lead,.hero .trust-row,.hero .search{animation:rise var(--dur-slow) var(--ease-out) both}
+.hero .lead{animation-delay:.08s}.hero .trust-row{animation-delay:.16s}.hero .search{animation-delay:.24s}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.hero{position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-40% -20%;background:radial-gradient(500px 300px at 30% 30%,rgba(233,30,99,.22),transparent 60%),radial-gradient(400px 260px at 75% 20%,rgba(212,175,55,.14),transparent 60%);animation:drift 18s var(--ease-in-out) infinite alternate;pointer-events:none;z-index:0}
+.hero>.wrap{position:relative;z-index:1}
+@keyframes drift{from{transform:translate3d(-2%,-1%,0) rotate(0)}to{transform:translate3d(2%,2%,0) rotate(3deg)}}
+
+/* ---------- Tlačidlá, chipy, karty ---------- */
+.btn{transition:transform var(--dur-fast) var(--ease-spring),box-shadow var(--dur) var(--ease-out),background-color var(--dur),border-color var(--dur),color var(--dur);position:relative;overflow:hidden;transform:translateZ(0)}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.97);transition-duration:.08s}
+.btn-primary:hover{box-shadow:0 10px 26px rgba(233,30,99,.45)}
+.btn-gold:hover{box-shadow:0 10px 24px rgba(212,175,55,.35)}
+.btn .ripple{position:absolute;border-radius:50%;transform:scale(0);background:rgba(255,255,255,.35);pointer-events:none;animation:ripple .55s var(--ease-out) forwards}
+@keyframes ripple{to{transform:scale(2.6);opacity:0}}
+.chip{transition:transform var(--dur-fast) var(--ease-spring),border-color var(--dur),color var(--dur),background-color var(--dur)}
+.chip:hover{transform:translateY(-1px)}
+.chip:active{transform:scale(.95)}
+.chip.is-active{background:rgba(233,30,99,.14);animation:pop var(--dur) var(--ease-spring)}
+@keyframes pop{0%{transform:scale(.92)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
+.cat,.feature,.listing,.step,.panel{transition:transform var(--dur) var(--ease-out),border-color var(--dur),box-shadow var(--dur)}
+.cat:hover,.feature:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.3)}
+.listing:hover{transform:translateY(-4px);box-shadow:0 18px 36px rgba(0,0,0,.4)}
+.listing .photo{overflow:hidden}
+.listing .photo img,.listing .photo .blur{transition:transform var(--dur-slow) var(--ease-out)}
+.listing:hover .photo img,.listing:hover .photo .blur{transform:scale(1.06)}
+.listing .badges .badge{transition:transform var(--dur) var(--ease-spring)}
+.listing:hover .badges .badge{transform:translateY(-2px)}
+.badge.online::before{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.cities a{transition:transform var(--dur-fast) var(--ease-spring),border-color var(--dur),color var(--dur)}
+.cities a:hover{transform:translateY(-2px)}
+.section-head a{transition:transform var(--dur-fast) var(--ease-out);display:inline-block}
+.section-head a:hover{transform:translateX(4px)}
+.logo .mark{transition:transform var(--dur) var(--ease-spring)}
+.logo:hover .mark{transform:rotate(-8deg) scale(1.08)}
+.field input,.field select,textarea{transition:border-color var(--dur),box-shadow var(--dur),background-color var(--dur)}
+.field input:focus,.field select:focus,textarea:focus{outline:none;border-color:var(--accent-2);box-shadow:0 0 0 3px rgba(233,30,99,.22)}
+
+/* ---------- Hlavička a menu ---------- */
+.header{transition:box-shadow var(--dur),background-color var(--dur),transform var(--dur) var(--ease-out)}
+.header.is-scrolled{box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.header.is-hidden{transform:translateY(-100%)}
+.nav-links a{position:relative}
+.nav-links a::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--accent-2),var(--gold));transform:scaleX(0);transform-origin:left;transition:transform var(--dur) var(--ease-out)}
+.nav-links a:hover::after,.nav-links a[aria-current]::after{transform:scaleX(1)}
+.mobile-menu{overflow:hidden}
+.mobile-menu[aria-hidden="false"]{animation:menu-in var(--dur) var(--ease-out)}
+.mobile-menu[aria-hidden="false"] a{animation:rise var(--dur) var(--ease-out) both}
+.mobile-menu a:nth-child(2){animation-delay:.04s}.mobile-menu a:nth-child(3){animation-delay:.08s}.mobile-menu a:nth-child(4){animation-delay:.12s}.mobile-menu a:nth-child(5){animation-delay:.16s}.mobile-menu a:nth-child(6){animation-delay:.2s}
+@keyframes menu-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.burger{transition:transform var(--dur-fast) var(--ease-spring),background-color var(--dur)}
+.burger:active{transform:scale(.92)}
+.burger[aria-expanded="true"]{background:var(--card-2)}
+
+/* ---------- Spodná lišta ---------- */
+.bottom-bar a{transition:color var(--dur),transform var(--dur-fast) var(--ease-spring)}
+.bottom-bar a:active{transform:scale(.9)}
+.bottom-bar a span:first-child{transition:transform var(--dur) var(--ease-spring)}
+.bottom-bar a[aria-current] span:first-child{transform:translateY(-2px)}
+.bottom-bar a[aria-current]{color:var(--text)}
+.bottom-bar a.is-cta span:first-child{transition:transform var(--dur) var(--ease-spring),box-shadow var(--dur)}
+.bottom-bar a.is-cta:hover span:first-child{transform:translateY(-2px) scale(1.06);box-shadow:0 8px 18px rgba(233,30,99,.45)}
+
+/* ---------- Brána 18+ ---------- */
+.age-gate{animation:fade var(--dur) var(--ease-out) both}
+.age-gate .age-box{animation:gate-in .5s var(--ease-spring) both}
+.age-gate.is-closing{animation:fade-out var(--dur) var(--ease-in-out) both}
+.age-gate.is-closing .age-box{animation:gate-out var(--dur) var(--ease-in-out) both}
+@keyframes fade{from{opacity:0}}
+@keyframes fade-out{to{opacity:0}}
+@keyframes gate-in{from{opacity:0;transform:translateY(24px) scale(.94)}}
+@keyframes gate-out{to{opacity:0;transform:translateY(12px) scale(.96)}}
+
+/* ---------- FAQ ---------- */
+.faq details{transition:border-color var(--dur),background-color var(--dur)}
+.faq details[open]{border-color:#4a3440}
+.faq summary::after{transition:transform var(--dur) var(--ease-spring),color var(--dur)}
+.faq details[open] summary::after{transform:rotate(180deg)}
+.faq details[open] p{animation:rise var(--dur) var(--ease-out) both}
+
+/* ---------- Načítavanie: skeleton a jemné prekreslenie zoznamu ---------- */
+[aria-busy="true"] .listing{opacity:.5;pointer-events:none}
+.skeleton{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);overflow:hidden}
+.skeleton .ph{aspect-ratio:3/4;background:linear-gradient(90deg,var(--card) 25%,var(--card-2) 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.3s linear infinite}
+.skeleton .ln{height:12px;margin:12px;border-radius:6px;background:linear-gradient(90deg,var(--card-2) 25%,#2c2027 50%,var(--card-2) 75%);background-size:200% 100%;animation:shimmer 1.3s linear infinite}
+.skeleton .ln.short{width:50%}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+.grid.is-refreshing>*{animation:rise var(--dur) var(--ease-out) both}
+.grid.is-refreshing>:nth-child(2){animation-delay:.03s}.grid.is-refreshing>:nth-child(3){animation-delay:.06s}.grid.is-refreshing>:nth-child(4){animation-delay:.09s}
+.grid.is-refreshing>:nth-child(5){animation-delay:.12s}.grid.is-refreshing>:nth-child(6){animation-delay:.15s}.grid.is-refreshing>:nth-child(7){animation-delay:.18s}.grid.is-refreshing>:nth-child(8){animation-delay:.21s}
+
+/* ---------- Správy ---------- */
+[data-messages]>.review{animation:msg-in var(--dur) var(--ease-spring) both}
+@keyframes msg-in{from{opacity:0;transform:translateY(10px) scale(.96)}}
+[data-conv-list] .cat[aria-current]{border-color:var(--accent-2);background:rgba(233,30,99,.08)}
+
+/* ---------- Oznamy, banner aktualizácie, telefón ---------- */
+#np-update{animation:slide-up .5s var(--ease-spring) both}
+@keyframes slide-up{from{opacity:0;transform:translateY(24px)}}
+.notice{animation:fade var(--dur) var(--ease-out) both}
+a[href^="tel:"].btn{animation:pop var(--dur) var(--ease-spring)}
+
+/* ---------- Počítadlá kategórií ---------- */
+.cat small[data-count]{font-variant-numeric:tabular-nums}
+
+/* ---------- Toast ---------- */
+.toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);z-index:70;background:var(--card);border:1px solid var(--line);color:var(--text);padding:10px 16px;border-radius:999px;box-shadow:var(--shadow);opacity:0;transition:opacity var(--dur) var(--ease-out),transform var(--dur) var(--ease-spring);font-size:.92rem;max-width:min(92vw,420px);text-align:center}
+.toast.is-on{opacity:1;transform:translate(-50%,0)}
+@media(min-width:900px){.toast{bottom:28px}}
+
+/* ---------- Obmedzený pohyb: všetko okamžite ---------- */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .reveal,.reveal-stagger>*{opacity:1;transform:none}
+  .hero::before{animation:none}
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+}

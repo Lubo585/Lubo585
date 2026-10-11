@@ -3,7 +3,7 @@
 import re, pathlib
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 idx = (ROOT / 'index.html').read_text(encoding='utf-8')
-head_common = re.search(r'<link rel="manifest".*?<link rel="stylesheet" href="/css/style.css">', idx, re.S).group(0)
+head_common = re.search(r'<link rel="manifest".*?<link rel="stylesheet" href="/css/motion.css">', idx, re.S).group(0)
 age_gate = re.search(r'<!-- Brána 18\+ -->.*?</div>\n</div>\n', idx, re.S).group(0)
 header = re.search(r'<!-- Hlavička -->.*?</header>\n', idx, re.S).group(0)
 footer = re.search(r'<!-- Pätička -->.*?</nav>\n', idx, re.S).group(0)
@@ -51,6 +51,7 @@ def page(path, title, desc, body, canonical=None, extra_head='', robots='index, 
 <script src="/js/native.js"></script>
 <script src="/vendor/supabase.js" defer></script>
 <script src="/js/app.js" defer></script>
+<script src="/js/motion.js" defer></script>
 <script src="/js/supabase.js" defer></script>
 </body>
 </html>

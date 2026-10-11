@@ -70,8 +70,11 @@
         p_limit: Number(grid.dataset.limit || 24), p_offset: 0
       };
     }
+    function skeleton(n) { var out = ''; for (var i = 0; i < n; i++) out += '<div class="skeleton" aria-hidden="true"><div class="ph"></div><div class="ln"></div><div class="ln short"></div></div>'; return out; }
+    var firstLoad = true;
     function load() {
       grid.setAttribute('aria-busy', 'true');
+      if (firstLoad) { grid.innerHTML = skeleton(Number(grid.dataset.limit || 8)); firstLoad = false; }
       sb.rpc('search_listings', currentFilters()).then(function (r) {
         grid.removeAttribute('aria-busy');
         if (r.error) { console.error(r.error); return; }
@@ -117,7 +120,7 @@
           var body = prompt('Vaša správa pre ' + l.title + ' (diskrétne, cez portál):');
           if (!body) return;
           sb.rpc('start_conversation', { p_listing: l.id, p_body: body }).then(function (x) {
-            if (x.error) { alert('Chyba: ' + x.error.message); return; }
+            if (x.error) { (window.np.toast || alert)('Chyba: ' + x.error.message); return; }
             location.href = '/spravy.html?k=' + x.data;
           });
         });
@@ -131,7 +134,7 @@
         if (!reason) return;
         var details = prompt('Podrobnosti (nepovinné)') || null;
         sb.rpc('submit_report', { p_listing: l.id, p_reason: reason, p_details: details }).then(function (x) {
-          alert(x.error ? 'Chyba: ' + x.error.message : 'Ďakujeme, nahlásenie sme prijali a preveríme ho do 24 hodín.');
+          (window.np.toast || alert)(x.error ? 'Chyba: ' + x.error.message : 'Ďakujeme, nahlásenie sme prijali a preveríme ho do 24 hodín.');
         });
       });
     });
@@ -210,7 +213,7 @@
     }
     if (form) form.addEventListener('submit', function (e) {
       e.preventDefault(); var inp = form.querySelector('input,textarea'); var body = inp.value.trim(); if (!body || !current) return;
-      sb.from('messages').insert({ conversation_id: current, sender_id: me, body: body }).then(function (r) { if (r.error) alert('Chyba: ' + r.error.message); else inp.value = ''; });
+      sb.from('messages').insert({ conversation_id: current, sender_id: me, body: body }).then(function (r) { if (r.error) (window.np.toast || alert)('Chyba: ' + r.error.message); else inp.value = ''; });
     });
     var blk = inbox.querySelector('[data-block]');
     if (blk) blk.addEventListener('click', function (e) { e.preventDefault(); if (current && confirm('Zablokovať túto konverzáciu?')) sb.rpc('block_conversation', { p_conversation: current }).then(loadConvs); });
