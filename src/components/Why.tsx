@@ -3,6 +3,7 @@ import { why } from '../content/de'
 import { Icon } from '../lib/Icon'
 import { Container, SectionHeader } from '../lib/Section'
 import { fadeUp, stagger } from '../lib/variants'
+import { Reveal } from '../lib/Reveal'
 
 export default function Why() {
   const reduced = useReducedMotion()
@@ -10,7 +11,18 @@ export default function Why() {
     <section id="warum" className="relative overflow-hidden py-24 sm:py-32">
       <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-amber/[0.06] blur-[140px]" />
       <Container>
-        <SectionHeader eyebrow={why.eyebrow} title={why.title} subtitle={why.subtitle} align="center" />
+        <div className="grid items-center gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-6">
+            <SectionHeader eyebrow={why.eyebrow} title={why.title} subtitle={why.subtitle} />
+          </div>
+          <Reveal className="lg:col-span-6" delay={1}>
+            <div className="relative overflow-hidden rounded-[2rem] border border-line">
+              <img src={why.image} alt="Fabrika 48 in Košice" loading="lazy" className="aspect-[16/9] w-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/70 to-transparent" />
+              <p className="absolute bottom-5 left-6 text-sm font-medium text-paper/90">Fabrika 48, Košice – eigenes Projekt</p>
+            </div>
+          </Reveal>
+        </div>
         <motion.ul
           className="mt-14 grid gap-px overflow-hidden rounded-3xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3"
           initial={reduced ? undefined : 'hidden'}

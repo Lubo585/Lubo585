@@ -25,6 +25,7 @@ export const nav = {
   links: [
     { label: 'Leistungen', href: '#leistungen' },
     { label: 'Gewerke', href: '#gewerke' },
+    { label: 'Einblicke', href: '#einblicke' },
     { label: 'Ablauf', href: '#ablauf' },
     { label: 'Referenzen', href: '#referenzen' },
     { label: 'Kontakt', href: '#kontakt' },
@@ -41,6 +42,9 @@ export const hero = {
   primaryCta: 'Unverbindlich anfragen',
   secondaryCta: 'Unsere Leistungen',
   badges: ['A1-Bescheinigung', 'Deutschsprachige Vorarbeiter', 'Einsatzbereit in 14 Tagen'],
+  background: 'photos/betonage.jpg',
+  photoMain: 'photos/dachstuhl.jpg',
+  photoSmall: 'photos/rohbau-waende.jpg',
 }
 
 export const marquee = [
@@ -66,21 +70,25 @@ export const services = {
   items: [
     {
       icon: 'users',
+      image: 'photos/mauerwerk.jpg',
       title: 'Arbeitnehmerüberlassung',
       text: 'Geprüfte Fachkräfte zur zeitlich flexiblen Verstärkung Ihrer Kolonnen – mit allen Nachweisen, Versicherungen und A1-Bescheinigungen.',
     },
     {
       icon: 'hardhat',
+      image: 'photos/betonage.jpg',
       title: 'Werkverträge & Subunternehmen',
       text: 'Wir übernehmen abgegrenzte Gewerke als Nachunternehmer: Rohbau, Mauerwerk, Schalung, Trockenbau oder Ausbau – zum Festpreis oder nach Aufmaß.',
     },
     {
       icon: 'layers',
+      image: 'photos/dachstuhl.jpg',
       title: 'Komplette Montageteams',
       text: 'Eingespielte Kolonnen von 4 bis 30 Mann inklusive deutschsprachigem Vorarbeiter, Werkzeug und eigener Logistik.',
     },
     {
       icon: 'search',
+      image: 'photos/fassade-geruest.jpg',
       title: 'Rekrutierung & Vermittlung',
       text: 'Sie suchen Festpersonal? Wir rekrutieren in der Slowakei gezielt nach Ihrem Profil und begleiten die Einarbeitung vor Ort.',
     },
@@ -111,11 +119,30 @@ export const trades = {
   ],
 }
 
+export const gallery = {
+  eyebrow: 'Einblicke',
+  title: 'Unsere Baustellen. Unsere Leute.',
+  subtitle: 'Aufnahmen von eigenen Projekten in der Slowakei – vom Rohbau bis zur Übergabe.',
+  items: [
+    { src: 'photos/rohbau-luft.jpg', caption: 'Rohbau Mehrfamilienhaus', tag: 'Rohbau' },
+    { src: 'photos/mauerwerk.jpg', caption: 'Mauerwerk aus Porenbeton', tag: 'Maurer' },
+    { src: 'photos/dachstuhl.jpg', caption: 'Dachstuhl & Holzbau', tag: 'Zimmerer' },
+    { src: 'photos/villa.jpg', caption: 'Einfamilienhaus, schlüsselfertig', tag: 'Ausbau' },
+    { src: 'photos/fussbodenheizung.jpg', caption: 'Fußbodenheizung im Altbau', tag: 'Haustechnik' },
+    { src: 'photos/holzbau-halle.jpg', caption: 'Industriehalle, Holztragwerk', tag: 'Holzbau' },
+    { src: 'photos/lueftung.jpg', caption: 'Lüftungsanlage', tag: 'Lüftung' },
+    { src: 'photos/winterbau.jpg', caption: 'Rohbau im Winter', tag: 'Rohbau' },
+    { src: 'photos/einfamilienhaus.jpg', caption: 'Fassade & Fenster', tag: 'Ausbau' },
+    { src: 'photos/brownfield-silo.jpg', caption: 'Brownfield-Areal, Košice', tag: 'Revitalisierung' },
+  ],
+}
+
 export const why = {
   eyebrow: 'Warum PSPK',
   title: 'Wir kennen beide Seiten der Baustelle.',
   subtitle:
     'Als Bauunternehmen aus Košice wissen wir, was ein Polier von seiner Mannschaft erwartet – deshalb vermitteln wir nur Leute, die wir selbst einsetzen würden.',
+  image: 'photos/fabrika-tag.jpg',
   items: [
     {
       icon: 'clock',
@@ -195,14 +222,29 @@ export const references = {
     location: 'Košice, Slowakei',
     type: 'Revitalisierung eines Brownfield-Industriegebäudes',
     text: 'Komplette Sanierung und Umnutzung einer ehemaligen Fabrik – Statik, Rohbau, Haustechnik und Ausbau aus einer Hand. Ausgezeichnet mit dem Hall of Fame Award.',
-    image: '/fabrika-48.jpg',
+    image: 'fabrika-48.jpg',
     tags: ['Rohbau', 'Statik', 'Haustechnik', 'Ausbau'],
   },
-  // DOPLNIŤ – doplňte reálne nemecké referencie
+  // DOPLNIŤ – upresnite názvy, miesta a rozsah podľa skutočnosti
   others: [
-    { name: 'Wohnquartier', location: 'Bayern', scope: 'Mauerwerk & Betonbau, 12 Fachkräfte, 9 Monate' },
-    { name: 'Logistikhalle', location: 'Nordrhein-Westfalen', scope: 'Schalung & Bewehrung, 8 Fachkräfte, 5 Monate' },
-    { name: 'Bürosanierung', location: 'Hessen', scope: 'Trockenbau & Ausbau, 6 Fachkräfte, 4 Monate' },
+    {
+      name: 'Einfamilienhaus',
+      location: 'Košice, Slowakei',
+      scope: 'Rohbau, Dach, Fassade und schlüsselfertiger Ausbau',
+      image: 'photos/villa.jpg',
+    },
+    {
+      name: 'Dachstuhl & Holztragwerk',
+      location: 'Ostslowakei',
+      scope: 'Zimmererarbeiten, Dachsanierung, Holzrahmenbau',
+      image: 'photos/dachstuhl.jpg',
+    },
+    {
+      name: 'Industrie-Areal',
+      location: 'Košice, Slowakei',
+      scope: 'Revitalisierung einer Brownfield-Fläche, Rohbau und Haustechnik',
+      image: 'photos/brownfield-silo.jpg',
+    },
   ],
   note: 'Weitere Referenzen und Ansprechpartner nennen wir Ihnen gern auf Anfrage.',
 }

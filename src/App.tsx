@@ -4,6 +4,7 @@ import Hero from './components/Hero'
 import Marquee from './components/Marquee'
 import Services from './components/Services'
 import Trades from './components/Trades'
+import Gallery from './components/Gallery'
 import Why from './components/Why'
 import Process from './components/Process'
 import Stats from './components/Stats'
@@ -20,6 +21,7 @@ export default function App() {
         <Marquee />
         <Services />
         <Trades />
+        <Gallery />
         <Why />
         <Process />
         <Stats />

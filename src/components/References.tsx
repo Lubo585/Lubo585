@@ -63,13 +63,23 @@ export default function References() {
               key={r.name + r.location}
               variants={fadeUp}
               whileHover={reduced ? undefined : { y: -4 }}
-              className="rounded-3xl border border-line bg-ink-2/40 p-7 transition-colors hover:border-amber/50"
+              className="group overflow-hidden rounded-3xl border border-line bg-ink-2/40 transition-colors hover:border-amber/50"
             >
+              <div className="aspect-[4/3] overflow-hidden">
+                <img
+                  src={r.image}
+                  alt={r.name}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                />
+              </div>
+              <div className="p-7">
               <p className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-mist">
                 <MapPin size={14} className="text-amber" /> {r.location}
               </p>
               <h3 className="mt-3 font-display text-xl font-bold">{r.name}</h3>
               <p className="mt-2 text-sm text-mist">{r.scope}</p>
+              </div>
             </motion.li>
           ))}
         </motion.ul>

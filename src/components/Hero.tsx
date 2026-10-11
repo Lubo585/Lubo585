@@ -33,7 +33,21 @@ export default function Hero() {
 
   return (
     <section ref={ref} id="top" className="noise relative isolate min-h-[100svh] overflow-hidden pt-20">
-      <div className="grid-bg absolute inset-0 -z-10" />
+      <div className="absolute inset-0 -z-20">
+        <motion.img
+          src={hero.background}
+          alt=""
+          aria-hidden="true"
+          initial={{ scale: 1.12, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 2, ease }}
+          className="h-full w-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-ink/78" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/60" />
+      </div>
+      <div className="grid-bg absolute inset-0 -z-10 opacity-60" />
       <motion.div
         className="pointer-events-none absolute -z-10 h-[520px] w-[520px] rounded-full bg-amber/15 blur-[120px]"
         style={{ x: glowX, y: glowY, translateX: '-50%', translateY: '-50%' }}
@@ -148,93 +162,44 @@ function HeroArt() {
   const floatA = reduced ? {} : { y: [0, -14, 0] }
   const floatB = reduced ? {} : { y: [0, 12, 0] }
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-md">
+    <div className="relative mx-auto aspect-[4/5] w-full max-w-md sm:aspect-square">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, rotate: -4 }}
-        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        initial={{ opacity: 0, y: 40, rotate: -3 }}
+        animate={{ opacity: 1, y: 0, rotate: 0 }}
         transition={{ duration: 1.2, ease, delay: 0.4 }}
-        className="absolute inset-0 rounded-[2rem] border border-line bg-gradient-to-br from-ink-3 to-ink-2 p-6"
+        className="absolute inset-x-0 top-0 h-[72%] overflow-hidden rounded-[2rem] border border-line shadow-2xl"
       >
-        <svg viewBox="0 0 400 400" className="h-full w-full" aria-hidden="true">
-          <defs>
-            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#f5a524" />
-              <stop offset="1" stopColor="#ffc04d" />
-            </linearGradient>
-          </defs>
-          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-            <motion.line
-              key={i}
-              x1="40"
-              x2="360"
-              y1={60 + i * 48}
-              y2={60 + i * 48}
-              stroke="rgba(255,255,255,0.07)"
-              strokeWidth="1"
-            />
-          ))}
-          <motion.path
-            d="M60 320 L60 190 L130 150 L130 320 Z"
-            fill="rgba(255,255,255,0.06)"
-            stroke="rgba(255,255,255,0.25)"
-            strokeWidth="1.5"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 1.4, ease, delay: 0.7 }}
-          />
-          <motion.path
-            d="M150 320 L150 130 L240 80 L240 320 Z"
-            fill="rgba(255,255,255,0.08)"
-            stroke="rgba(255,255,255,0.3)"
-            strokeWidth="1.5"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 1.4, ease, delay: 0.9 }}
-          />
-          <motion.path
-            d="M260 320 L260 160 L340 120 L340 320 Z"
-            fill="url(#g1)"
-            fillOpacity="0.9"
-            initial={{ pathLength: 0, opacity: 0, y: 30 }}
-            animate={{ pathLength: 1, opacity: 1, y: 0 }}
-            transition={{ duration: 1.4, ease, delay: 1.1 }}
-          />
-          <motion.rect
-            x="40"
-            y="320"
-            width="320"
-            height="4"
-            fill="#f5a524"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 1, ease, delay: 0.6 }}
-            style={{ transformOrigin: '40px 322px' }}
-          />
-          <motion.g
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5, duration: 0.8 }}
-          >
-            <line x1="200" y1="40" x2="200" y2="80" stroke="#f5a524" strokeWidth="2" />
-            <line x1="120" y1="40" x2="330" y2="40" stroke="#f5a524" strokeWidth="2" />
-            <motion.line
-              x1="300"
-              y1="40"
-              x2="300"
-              y2="118"
-              stroke="#f5a524"
-              strokeWidth="1.5"
-              animate={reduced ? {} : { y2: [118, 100, 118] }}
-              transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-            />
-          </motion.g>
-        </svg>
+        <motion.img
+          src={hero.photoMain}
+          alt="Zimmerer bei Dachstuhlarbeiten"
+          initial={{ scale: 1.15 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1.8, ease, delay: 0.4 }}
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 to-transparent" />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 40, rotate: 3 }}
+        animate={{ opacity: 1, y: 0, rotate: 0 }}
+        transition={{ duration: 1.2, ease, delay: 0.65 }}
+        className="absolute bottom-0 right-0 h-[48%] w-[58%] overflow-hidden rounded-[1.5rem] border-4 border-ink shadow-2xl"
+      >
+        <motion.img
+          src={hero.photoSmall}
+          alt="Rohbau mit Porenbetonwänden"
+          initial={{ scale: 1.15 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1.8, ease, delay: 0.65 }}
+          className="h-full w-full object-cover"
+        />
       </motion.div>
 
       <motion.div
         animate={floatA}
         transition={{ repeat: Infinity, duration: 5, ease: 'easeInOut' }}
-        className="absolute -left-6 top-10 rounded-2xl border border-line bg-ink-2/90 p-4 shadow-2xl backdrop-blur"
+        className="absolute -left-4 top-8 rounded-2xl border border-line bg-ink-2/90 p-4 shadow-2xl backdrop-blur sm:-left-8"
       >
         <p className="text-[11px] uppercase tracking-[0.18em] text-mist">Einsatzbereit</p>
         <p className="mt-1 font-display text-2xl font-bold text-amber">10–14 Tage</p>
@@ -242,7 +207,7 @@ function HeroArt() {
       <motion.div
         animate={floatB}
         transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut', delay: 0.5 }}
-        className="absolute -right-4 bottom-10 rounded-2xl border border-line bg-ink-2/90 p-4 shadow-2xl backdrop-blur"
+        className="absolute bottom-[30%] left-0 rounded-2xl border border-line bg-ink-2/90 p-4 shadow-2xl backdrop-blur sm:-left-6"
       >
         <p className="text-[11px] uppercase tracking-[0.18em] text-mist">Teams</p>
         <p className="mt-1 font-display text-2xl font-bold">4 – 30 Mann</p>
