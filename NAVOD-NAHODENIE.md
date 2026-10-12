@@ -50,7 +50,7 @@ Otvorte stránku a skontrolujte:
 - odkazy Impressum a Datenschutz v pätičke fungujú,
 - neexistujúca adresa (napr. `/abc`) zobrazí vlastnú 404 stránku.
 
-Automatický test sa dá spustiť lokálne príkazom `node tests/check-site.mjs` (vyžaduje Node.js a Playwright).
+Automatický test sa dá spustiť lokálne príkazom `node tests/check-site.mjs` (vyžaduje Node.js a Playwright). Proti živej stránke: `SITE_URL=https://www.sxworkforce.de node tests/check-site.mjs`.
 
 ## 6. Lokálne zobrazenie bez hostingu
 

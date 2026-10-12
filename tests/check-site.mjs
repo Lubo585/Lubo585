@@ -42,7 +42,7 @@ const server = createServer(async (req, res) => {
   }
 });
 await new Promise((r) => server.listen(0, "127.0.0.1", r));
-const BASE = `http://127.0.0.1:${server.address().port}`;
+const BASE = process.env.SITE_URL ? process.env.SITE_URL.replace(/\/$/, "") : `http://127.0.0.1:${server.address().port}`;
 
 // --- Test-Helfer -------------------------------------------------------------
 const results = [];
