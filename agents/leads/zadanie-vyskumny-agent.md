@@ -28,5 +28,7 @@ Zdroje: Google/firemné weby, Stellenanzeigen (Indeed, StepStone, Arbeitsagentur
 ## Pravidlá
 - Zapisuj len overené údaje z webu firmy alebo inzerátu. Čo sa nedá overiť, nechaj prázdne, nevymýšľaj e-maily ani mená.
 - Všeobecné adresy (info@) sú v poriadku, ak ich firma uvádza.
+- Telefónne čísla zapisuj v národnom formáte (napr. `0661 9652-0`), nie s úvodným `+49`, inak ich tabuľka vyhodnotí ako vzorec.
+- Zapisuj priebežne po dávkach (po 5 firmách), nie až na konci; paralelne zapisujú aj ostatní agenti.
 - Nikomu nepíš a nikoho nekontaktuj. Len vyhľadávaš a zapisuješ.
 - Pracuj úsporne: po dosiahnutí {POCET} firiem skonči.
