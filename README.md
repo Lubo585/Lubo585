@@ -55,5 +55,25 @@ public/
 
 ## Nasadenie
 
-Výstup `npm run build` v priečinku `dist/` je statický a dá sa nahrať na
-ľubovoľný hosting (Netlify, Vercel, Cloudflare Pages, klasický webhosting).
+Web sa automaticky nasadzuje na GitHub Pages cez `.github/workflows/deploy.yml`
+pri každom pushi na vetvu `main` alebo `claude/friendly-pascal-jghtrm`.
+Dočasná adresa: https://lubo585.github.io/Lubo585/
+
+### Pripojenie domény pspsk.de
+
+1. Zaregistrujte doménu pspsk.de u registrátora (IONOS, Strato, INWX, Websupport).
+2. V DNS nastavte:
+   - `A` záznamy pre `pspsk.de` na 185.199.108.153, 185.199.109.153,
+     185.199.110.153 a 185.199.111.153
+   - `CNAME` záznam pre `www` na `lubo585.github.io`
+3. V repozitári na GitHube: Settings → Pages → Custom domain → zadajte
+   `www.pspsk.de`, uložte a po overení zapnite „Enforce HTTPS“.
+4. Do priečinka `public/` pridajte súbor `CNAME` s obsahom `www.pspsk.de`
+   a pushnite (inak sa doména po ďalšom nasadení stratí).
+
+### E-mail info@pspsk.de
+
+Zriaďte poštovú schránku u registrátora alebo cez Google Workspace / Zoho Mail
+a pridajte do DNS príslušné `MX`, `SPF` a `DKIM` záznamy. Po prvom odoslaní
+kontaktného formulára príde na info@pspsk.de aktivačný e-mail od FormSubmit,
+ktorý treba potvrdiť.
