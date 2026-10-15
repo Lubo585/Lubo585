@@ -3,6 +3,7 @@ const { all, get, run, transaction, getSetting, log } = require('../db');
 const U = require('../utils');
 const INV = require('./invoices');
 const { parseStatement } = require('./bankparser');
+const RC = require('./receivables');
 
 const simplify = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\b(s\.?r\.?o\.?|a\.?s\.?|spol|sro|as)\b/g, '').replace(/[^a-z0-9]/g, '');
 
@@ -60,18 +61,54 @@ function findCandidates(tx) {
   return out.sort((a, b) => b.score - a.score);
 }
 
+// Kandidáti medzi starými pohľadávkami (faktúry z minulých rokov mimo aplikácie)
+function findOldReceivableCandidates(tx) {
+  const tol = Number(getSetting('match_amount_tolerance')) || 0.02;
+  const open = all(`SELECT * FROM old_receivables WHERE status IN (${RC.OPEN_STATUSES.map(() => '?').join(',')}) ORDER BY year, id`, RC.OPEN_STATUSES);
+  const out = [];
+  for (const r of open) {
+    const rem = RC.remaining(r);
+    if (rem <= 0) continue;
+    let score = 0; const reasons = [];
+    const vsMatch = tx.variable_symbol && String(r.variable_symbol || '').replace(/^0+/, '') && tx.variable_symbol.replace(/^0+/, '') === String(r.variable_symbol).replace(/^0+/, '');
+    const msgMatch = !vsMatch && tx.message && ((r.invoice_number && tx.message.includes(r.invoice_number)) || (r.variable_symbol && tx.message.includes(r.variable_symbol)));
+    if (vsMatch) { score += 60; reasons.push('VS'); }
+    if (msgMatch) { score += 40; reasons.push('číslo v správe'); }
+    if (tx.counterparty_name && simplify(tx.counterparty_name) && simplify(r.customer_name) && (simplify(tx.counterparty_name).includes(simplify(r.customer_name)) || simplify(r.customer_name).includes(simplify(tx.counterparty_name)))) { score += 20; reasons.push('názov zákazníka'); }
+    if (Math.abs(tx.amount - rem) <= tol) { score += 30; reasons.push('presná suma'); }
+    else if (tx.amount < rem) { score += 5; reasons.push('čiastočná úhrada'); }
+    else { score -= 10; reasons.push('suma vyššia ako zostatok'); }
+    if (score > 0) out.push({ receivable: r, score, reasons, remaining: rem });
+  }
+  return out.sort((a, b) => b.score - a.score);
+}
+
 // Automatické spárovanie: spáruje iba pri jednoznačnom kandidátovi
 function autoMatch(txId) {
   const tx = get('SELECT * FROM bank_transactions WHERE id = ?', [txId]);
   if (!tx || tx.amount <= 0 || tx.match_status !== 'unmatched') return false;
   const cands = findCandidates(tx);
-  if (!cands.length) return false;
-  const best = cands[0];
-  const second = cands[1];
-  const confident = best.score >= 80 || (best.score >= 60 && (!second || second.score < best.score - 20));
-  if (!confident) return false;
-  matchTransaction(txId, best.invoice.id, best.kind, 'auto', `Auto: ${best.reasons.join(', ')}`);
-  return true;
+  const isConfident = (list) => { if (!list.length) return false; const best = list[0], second = list[1]; return best.score >= 80 || (best.score >= 60 && (!second || second.score < best.score - 20)); };
+  if (isConfident(cands)) { matchTransaction(txId, cands[0].invoice.id, cands[0].kind, 'auto', `Auto: ${cands[0].reasons.join(', ')}`); return true; }
+  // žiadna jednoznačná faktúra → skús staré pohľadávky z minulých rokov
+  const olds = findOldReceivableCandidates(tx);
+  if (isConfident(olds) && (!cands.length || cands[0].score < olds[0].score)) { matchOldReceivable(txId, olds[0].receivable.id, 'auto', `Auto: ${olds[0].reasons.join(', ')}`); return true; }
+  return false;
+}
+
+// spárovanie so starou pohľadávkou (faktúra z minulých rokov)
+function matchOldReceivable(txId, receivableId, how = 'manual', note = '') {
+  const tx = get('SELECT * FROM bank_transactions WHERE id = ?', [txId]);
+  if (!tx) throw new Error('Transakcia neexistuje');
+  const r = get('SELECT * FROM old_receivables WHERE id = ?', [receivableId]);
+  if (!r) throw new Error('Pohľadávka neexistuje');
+  return transaction(() => {
+    unmatchTransaction(txId);
+    const out = RC.addPayment({ receivableId, date: tx.date, amount: tx.amount, bankTransactionId: txId, note: `Banka: ${tx.counterparty_name || ''} ${tx.message || ''}`.trim() });
+    run('UPDATE bank_transactions SET matched_invoice_id = NULL, matched_receivable_id = ?, match_status = ?, match_note = ? WHERE id = ?', [receivableId, how, note, txId]);
+    log('match', `${how === 'auto' ? 'Automaticky' : 'Ručne'} spárovaná platba ${U.money(tx.amount)} z ${U.fmtDate(tx.date)} so starou pohľadávkou ${r.customer_name} VS ${r.variable_symbol || '–'}`);
+    return out;
+  });
 }
 
 function matchTransaction(txId, invoiceId, kind = 'payment', how = 'manual', note = '') {
@@ -93,7 +130,8 @@ function unmatchTransaction(txId) {
   if (!tx) return;
   transaction(() => {
     run('DELETE FROM payments WHERE bank_transaction_id = ?', [txId]);
-    run("UPDATE bank_transactions SET matched_invoice_id = NULL, match_status = 'unmatched', match_note = NULL WHERE id = ?", [txId]);
+    RC.removePaymentsByTransaction(txId);
+    run("UPDATE bank_transactions SET matched_invoice_id = NULL, matched_receivable_id = NULL, match_status = 'unmatched', match_note = NULL WHERE id = ?", [txId]);
     if (tx.matched_invoice_id) INV.refreshStatus(tx.matched_invoice_id);
   });
 }
@@ -109,4 +147,4 @@ function rematchAll() {
   return n;
 }
 
-module.exports = { importTransactions, importStatementFile, findCandidates, autoMatch, matchTransaction, unmatchTransaction, ignoreTransaction, rematchAll };
+module.exports = { importTransactions, importStatementFile, findCandidates, findOldReceivableCandidates, autoMatch, matchTransaction, matchOldReceivable, unmatchTransaction, ignoreTransaction, rematchAll };

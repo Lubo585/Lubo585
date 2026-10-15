@@ -3,6 +3,7 @@ const multer = require('multer');
 const { all, get, run, getSettings, log } = require('../db');
 const U = require('../utils');
 const M = require('../services/matching');
+const RC = require('../services/receivables');
 const imap = require('../services/imap');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
@@ -14,7 +15,7 @@ router.get('/', (req, res) => {
   else if (f === 'matched') where = "b.match_status IN ('auto','manual')";
   else if (f === 'ignored') where = "b.match_status = 'ignored'";
   else if (f === 'debit') where = 'b.amount < 0';
-  const txs = all(`SELECT b.*, i.number AS invoice_number FROM bank_transactions b LEFT JOIN invoices i ON i.id=b.matched_invoice_id WHERE ${where} ORDER BY b.date DESC, b.id DESC LIMIT 300`);
+  const txs = all(`SELECT b.*, i.number AS invoice_number, r.customer_name AS receivable_name, r.variable_symbol AS receivable_vs FROM bank_transactions b LEFT JOIN invoices i ON i.id=b.matched_invoice_id LEFT JOIN old_receivables r ON r.id=b.matched_receivable_id WHERE ${where} ORDER BY b.date DESC, b.id DESC LIMIT 300`);
   const counts = { unmatched: get("SELECT COUNT(*) AS n FROM bank_transactions WHERE match_status='unmatched' AND amount > 0").n, matched: get("SELECT COUNT(*) AS n FROM bank_transactions WHERE match_status IN ('auto','manual')").n, ignored: get("SELECT COUNT(*) AS n FROM bank_transactions WHERE match_status='ignored'").n, debit: get('SELECT COUNT(*) AS n FROM bank_transactions WHERE amount < 0').n, all: get('SELECT COUNT(*) AS n FROM bank_transactions').n };
   const imports = all('SELECT * FROM bank_imports ORDER BY id DESC LIMIT 10');
   const s = getSettings();
@@ -41,14 +42,21 @@ router.post('/check-mail', async (req, res) => {
 });
 router.post('/rematch', (req, res) => { const n = M.rematchAll(); req.flash('ok', `Automaticky spárovaných: ${n}.`); res.redirect('/bank'); });
 router.get('/:id', (req, res) => {
-  const tx = get('SELECT b.*, i.number AS invoice_number FROM bank_transactions b LEFT JOIN invoices i ON i.id=b.matched_invoice_id WHERE b.id = ?', [req.params.id]);
+  const tx = get('SELECT b.*, i.number AS invoice_number, r.customer_name AS receivable_name, r.variable_symbol AS receivable_vs FROM bank_transactions b LEFT JOIN invoices i ON i.id=b.matched_invoice_id LEFT JOIN old_receivables r ON r.id=b.matched_receivable_id WHERE b.id = ?', [req.params.id]);
   if (!tx) return res.status(404).render('error', { title: 'Chyba', message: 'Transakcia neexistuje' });
   const candidates = M.findCandidates(tx).slice(0, 10);
   const open = all("SELECT i.id, i.number, i.amount_due, i.paid_amount, i.retention_amount, i.retention_paid, c.name AS client_name FROM invoices i JOIN clients c ON c.id=i.client_id WHERE i.status IN ('issued','partial') OR (i.status='paid' AND i.retention_amount > i.retention_paid + 0.005) ORDER BY i.issue_date DESC");
-  res.render('bank/detail', { title: 'Transakcia', tx, candidates, open });
+  const oldCandidates = M.findOldReceivableCandidates(tx).slice(0, 10);
+  const oldOpen = all(`SELECT id, customer_name, variable_symbol, year, amount, paid_amount FROM old_receivables WHERE status IN (${RC.OPEN_STATUSES.map(() => '?').join(',')}) ORDER BY customer_name, year`, RC.OPEN_STATUSES);
+  res.render('bank/detail', { title: 'Transakcia', tx, candidates, open, oldCandidates, oldOpen });
 });
 router.post('/:id/match', (req, res) => {
   try { M.matchTransaction(Number(req.params.id), Number(req.body.invoice_id), req.body.kind || 'payment', 'manual', 'Ručne spárované'); req.flash('ok', 'Platba spárovaná.'); }
+  catch (e) { req.flash('err', e.message); }
+  res.redirect('/bank');
+});
+router.post('/:id/match-old', (req, res) => {
+  try { M.matchOldReceivable(Number(req.params.id), Number(req.body.receivable_id), 'manual', 'Ručne spárované (stará pohľadávka)'); req.flash('ok', 'Platba priradená k starej pohľadávke.'); }
   catch (e) { req.flash('err', e.message); }
   res.redirect('/bank');
 });

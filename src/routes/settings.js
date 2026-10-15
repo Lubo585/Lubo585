@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
   const tab = req.query.tab || 'company';
   const due = tab === 'reminders' ? reminders.dueReminders() : [];
   const logs = tab === 'log' ? all('SELECT * FROM activity_log ORDER BY id DESC LIMIT 200') : [];
-  const users = tab === 'account' ? all('SELECT u.*, w.first_name, w.last_name FROM users u LEFT JOIN workers w ON w.id = u.worker_id ORDER BY u.active DESC, u.role, u.username') : [];
+  const users = tab === 'account' ? all('SELECT u.*, w.first_name, w.last_name FROM users u LEFT JOIN workers w ON w.id = u.worker_id ORDER BY u.active DESC, COALESCE(u.sort_order, 100), u.role, u.username') : [];
   const invites = tab === 'account' ? all("SELECT * FROM invites WHERE used_at IS NULL AND (expires_at IS NULL OR expires_at > datetime('now')) ORDER BY id DESC") : [];
   const workers = tab === 'account' ? all('SELECT id, first_name, last_name FROM workers WHERE active = 1 ORDER BY last_name') : [];
   const backups = tab === 'backup' ? (() => { try { const fs = require('fs'); const dir = require('path').join(require('path').dirname(require('../db').DB_PATH), 'backups'); return fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith('.db')).sort().reverse().map((f) => ({ name: f, size: fs.statSync(require('path').join(dir, f)).size })) : []; } catch (e) { return []; } })() : [];
@@ -83,6 +83,7 @@ router.post('/users/:id/update', (req, res) => {
   else if (a === 'activate') run('UPDATE users SET active = 1 WHERE id = ?', [u.id]);
   else if (a === 'role' && ROLES[req.body.role] && u.id !== req.session.user.id) run('UPDATE users SET role = ?, worker_id = ? WHERE id = ?', [req.body.role, req.body.role === 'worker' ? (req.body.worker_id || null) : null, u.id]);
   else if (a === 'password' && (req.body.password || '').length >= 8) run('UPDATE users SET password_hash = ? WHERE id = ?', [hashPassword(req.body.password), u.id]);
+  else if (a === 'order') run('UPDATE users SET sort_order = ? WHERE id = ?', [Math.max(1, Math.min(999, parseInt(req.body.sort_order, 10) || 100)), u.id]);
   else if (a === 'delete' && u.id !== req.session.user.id) run('DELETE FROM users WHERE id = ?', [u.id]);
   log('user', `Používateľ ${u.username}: ${a}`);
   req.flash('ok', 'Používateľ upravený.');
@@ -150,7 +151,7 @@ router.post('/reset-data', (req, res) => {
   const b = backupDatabase('before-reset');
   const { transaction } = require('../db');
   transaction(() => {
-    for (const t of ['task_comments', 'tasks', 'reminders', 'payments', 'bank_transactions', 'bank_imports', 'invoice_fees', 'invoice_items', 'invoices', 'quote_items', 'quotes', 'timesheet_rows', 'timesheets', 'assignments', 'postings', 'worker_documents', 'worker_transactions', 'settlements', 'expenses', 'client_rates', 'contracts', 'sites', 'clients', 'workers', 'attachments', 'activity_log']) run(`DELETE FROM ${t}`);
+    for (const t of ['task_comments', 'tasks', 'reminders', 'payments', 'bank_transactions', 'bank_imports', 'invoice_fees', 'invoice_items', 'invoices', 'quote_items', 'quotes', 'timesheet_rows', 'timesheets', 'assignments', 'postings', 'worker_documents', 'worker_transactions', 'settlements', 'expenses', 'client_rates', 'contracts', 'old_receivable_payments', 'old_receivable_notes', 'old_receivables', 'sites', 'clients', 'workers', 'attachments', 'activity_log']) run(`DELETE FROM ${t}`);
     run("DELETE FROM users WHERE id != ? AND username IN ('kancelaria','dispecer','uctovnik') AND email LIKE '%@sxworkforce.sk'", [req.session.user.id]);
     run("DELETE FROM sqlite_sequence WHERE name NOT IN ('users','settings')");
     setSetting('demo_data', '0');

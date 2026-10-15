@@ -7,7 +7,7 @@ const PRIORITIES = { low: ['Nízka', 'muted'], normal: ['Bežná', ''], high: ['
 
 function formData() {
   return {
-    users: all('SELECT id, username, name FROM users ORDER BY name, username'),
+    users: all("SELECT id, username, name FROM users WHERE active = 1 AND role != 'worker' ORDER BY COALESCE(sort_order, 100), name, username"),
     clients: all('SELECT id, name FROM clients WHERE active = 1 ORDER BY name'),
     sites: all("SELECT id, client_id, name FROM sites WHERE status != 'finished' ORDER BY name"),
     workers: all('SELECT id, first_name, last_name FROM workers WHERE active = 1 ORDER BY last_name'),

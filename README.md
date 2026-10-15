@@ -7,7 +7,7 @@ Webová a mobilná aplikácia pre personálnu agentúru, ktorá poskytuje (prena
 | Modul | Čo robí |
 |---|---|
 | **Prehľad** | KPI za mesiac, faktúry po splatnosti, nespárované platby, zádržné, moje úlohy, compliance upozornenia |
-| **Úlohy** | kto komu čo zadal, stav, priorita, termín, komentáre a história |
+| **Úlohy** | riešitelia v pevnom poradí **Stxxz → Adam → Luca** (poradie a ďalší používatelia v Nastavenia → Účet), kto komu čo zadal, stav, priorita, termín, komentáre a história |
 | **Zákazky** | stavby klientov: voľná / rozpracovaná / ukončená, termíny, potrebný počet pracovníkov, SOKA-BAU, krajina |
 | **Plánovanie** | kalendár nasadení kto-kde-kedy (nasadenie, doma, dovolenka, PN), obsadenosť zákaziek, voľní pracovníci; z plánu sa predvyplnia hodinové lístky |
 | **Hodinové lístky** | týždenný lístok podľa zákazky, pracovníci ako riadky, hodiny alebo časy od–do s prestávkami (MiLoG § 17), nočné hodiny, kontrola ArbZG (10 h/deň), nemecký **Stundenzettel** na tlač, **podpis vedúceho stavby na obrazovke**, fotky papierových lístkov |
@@ -16,6 +16,7 @@ Webová a mobilná aplikácia pre personálnu agentúru, ktorá poskytuje (prena
 | **Klienti** | IČO/HRB, USt-IdNr., Handelsregister, jazyk dokladov, **režim DPH** (prenesenie v EÚ, tuzemské, štandard), SOKA-BAU, Bauabzugsteuer, splatnosť, zádržné, skonto; **cenníky podľa profesie s príplatkami** (nadčas, sobota, nedeľa, noc); **zmluvy** (AÜG, Werkvertrag) s prílohami |
 | **Ponuky** | cenové ponuky SK/DE, PDF, odoslanie e-mailom, prevod na faktúru |
 | **Fakturácia** | faktúra zo schválených hodín s automatickými príplatkami podľa cenníka, ručné faktúry, **DE/SK faktúra v PDF**, odoslanie e-mailom, **XRechnung** (UBL, EN 16931) pre nemeckých odberateľov, prenesenie DPH v EÚ s povinnými textami, zádržné, skonto, **Bauabzugsteuer 15 %** (ak nie je platná Freistellungsbescheinigung), **súhrnný výkaz DPH** po štvrťrokoch, prehľad úhrad |
+| **Staré pohľadávky** | otvorené faktúry a doplatky z minulých rokov (mimo fakturácie v aplikácii): zákazník, VS, suma, **za čo to bolo** a **prečo nebolo uhradené**, stav (otvorená, prisľúbená, sporná, vymáhanie, uhradená, odpísaná), ďalší krok s termínom, úhrady a história; platby z bankového výpisu sa k nim **párujú podľa VS** rovnako ako k faktúram; export CSV |
 | **Upomienky** | automaticky denne, 3 stupne, v jazyku klienta; nemecká Mahnung s úrokom z omeškania a paušálom 40 € (§ 288 BGB), s PDF faktúry |
 | **Banka a platby** | import výpisov camt.053 XML, CSV, **MT940** ručne alebo automaticky z e-mailovej schránky (IMAP), párovanie podľa VS, sumy, skonta, zádržného a názvu klienta |
 | **Vyúčtovanie pracovníkov** | mesačne: hodiny × mzda + diéty (DE) + bonusy − zálohy − zrážky, výplatná páska **SK / UA / DE**, stav koncept → schválené → vyplatené (zapíše sa do nákladov) |

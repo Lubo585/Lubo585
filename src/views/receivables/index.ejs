@@ -1,0 +1,44 @@
+<%- include('../partials/header') %>
+<div class="topbar"><h1>Staré pohľadávky</h1><div class="actions"><a href="/receivables/new" class="btn">+ Zaevidovať pohľadávku</a><a href="/receivables/export.csv" class="btn secondary">Export CSV</a></div></div>
+<p class="muted">Otvorené faktúry a doplatky z minulých rokov, ktoré neboli vystavené v tejto aplikácii. Pri každej je zapísané, za čo bola a prečo nebola uhradená. Platby z bankových výpisov sa k nim párujú podľa VS.</p>
+<div class="grid grid-4">
+  <div class="kpi <%= kpi.openSum > 0 ? 'danger' : 'ok' %>"><div class="label">Neuhradené z minulých rokov</div><div class="value"><%= U.money(kpi.openSum) %></div><div class="sub"><%= kpi.openCount %> položiek · <%= kpi.customers %> zákazníkov</div></div>
+  <div class="kpi <%= kpi.disputedSum > 0 ? 'warn' : '' %>"><div class="label">Sporné / vymáhané</div><div class="value"><%= U.money(kpi.disputedSum) %></div><div class="sub">reklamácie, právnik, exekúcia</div></div>
+  <div class="kpi <%= kpi.promisedSum > 0 ? 'info' : '' %>"><div class="label">Prisľúbené úhrady</div><div class="value"><%= U.money(kpi.promisedSum) %></div><div class="sub">zákazník prisľúbil zaplatiť</div></div>
+  <div class="kpi"><div class="label">Uhradené / odpísané</div><div class="value"><%= (counts.paid || 0) + (counts.written_off || 0) %></div><div class="sub">uhradené <%= counts.paid || 0 %> · odpísané <%= counts.written_off || 0 %></div></div>
+</div>
+<div class="tabs mt">
+  <% for (const [k, l, n] of [['open', 'Otvorené', counts.open_all], ['promised', 'Prisľúbené', counts.promised || 0], ['disputed', 'Sporné', counts.disputed || 0], ['legal', 'Vymáhanie', counts.legal || 0], ['paid', 'Uhradené', counts.paid || 0], ['written_off', 'Odpísané', counts.written_off || 0], ['all', 'Všetky', '']]) { %><a href="/receivables?filter=<%= k %>" class="<%= f===k?'active':'' %>"><%= l %><%= n !== '' ? ' (' + n + ')' : '' %></a><% } %>
+</div>
+<div class="grid" style="grid-template-columns: 3fr 1fr; gap:16px">
+<div class="card">
+  <form method="get" class="row" style="align-items:flex-end;margin-bottom:12px"><input type="hidden" name="filter" value="<%= f %>">
+    <div class="field" style="max-width:260px"><label>Hľadať (zákazník, VS, číslo, text)</label><input type="text" name="q" value="<%= q %>"></div>
+    <div class="field" style="max-width:240px"><label>Zákazník</label><select name="customer"><option value="">všetci</option><% for (const c of customers) { %><option value="<%= c.name %>" <%= customer===c.name?'selected':'' %>><%= c.name %></option><% } %></select></div>
+    <div class="field" style="max-width:120px"><label>Rok</label><select name="year"><option value="">všetky</option><% for (const y of years) { %><option value="<%= y %>" <%= String(year)===String(y)?'selected':'' %>><%= y %></option><% } %></select></div>
+    <div class="field" style="flex:0"><button class="btn secondary">Filtrovať</button></div></form>
+  <% if (!rows.length) { %><p class="muted">Žiadne pohľadávky v tomto výbere. Novú zaevidujete tlačidlom <b>+ Zaevidovať pohľadávku</b>.</p><% } else { %>
+  <table class="inv-list"><tr><th>Zákazník</th><th>VS / faktúra</th><th>Rok</th><th>Splatnosť</th><th class="num">Suma</th><th class="num">Zostáva</th><th>Stav</th><th>Za čo to bolo</th><th>Prečo nebolo uhradené</th></tr>
+  <% const today = U.today(); for (const r of rows) { const st = STATUSES[r.status] || STATUSES.open; const rem = r.status === 'paid' || r.status === 'written_off' ? 0 : Math.max(0, r.amount - r.paid_amount);
+       const border = st[1] === 'ok' ? 'var(--ok)' : st[1] === 'danger' ? 'var(--danger)' : st[1] === 'warn' ? '#f59e0b' : st[1] === 'info' ? '#3b82f6' : '#d1d5db'; %>
+  <tr style="border-left:4px solid <%= border %>">
+    <td><a href="/receivables/<%= r.id %>"><b><%= r.customer_name %></b></a><% if (r.client_name && r.client_name !== r.customer_name) { %><br><span class="small muted"><%= r.client_name %></span><% } %></td>
+    <td><b><%= r.variable_symbol || '–' %></b><% if (r.invoice_number) { %><br><span class="small muted"><%= r.invoice_number %></span><% } %></td>
+    <td><%= r.year || '' %></td>
+    <td class="nowrap" style="<%= r.due_date && r.due_date < today && rem > 0 ? 'color:var(--danger);font-weight:700' : '' %>"><%= r.due_date ? U.fmtDate(r.due_date) : '–' %></td>
+    <td class="num"><%= U.money(r.amount) %><% if (r.paid_amount > 0) { %><br><span class="small muted">uhr. <%= U.money(r.paid_amount) %></span><% } %></td>
+    <td class="num"><b><%= U.money(rem) %></b></td>
+    <td><span class="badge <%= st[1] %>" style="font-size:12px;padding:4px 10px"><%= st[0].toUpperCase() %></span><% if (r.next_action) { %><br><span class="small muted"><%= r.next_action %><%= r.next_action_date ? ' · ' + U.fmtDate(r.next_action_date) : '' %></span><% } %></td>
+    <td class="small"><%= r.description || '–' %></td>
+    <td class="small"><%= r.reason || '–' %></td>
+  </tr><% } %>
+  <tr class="total"><td colspan="4">Spolu (<%= rows.length %>)</td><td class="num"><%= U.money(sums.amount) %></td><td class="num">zostáva <%= U.money(sums.remaining) %></td><td colspan="3">uhradené <%= U.money(sums.paid) %></td></tr></table><% } %>
+</div>
+<div class="card">
+  <h2>Podľa zákazníka</h2>
+  <% if (!byCustomer.length) { %><p class="muted">Žiadne otvorené pohľadávky.</p><% } else { %>
+  <table class="compact"><tr><th>Zákazník</th><th class="num">Zostáva</th></tr>
+  <% for (const c of byCustomer) { %><tr><td><a href="/receivables?filter=open&customer=<%= encodeURIComponent(c.customer_name) %>"><%= c.customer_name %></a> <span class="small muted">(<%= c.n %>)</span></td><td class="num"><b><%= U.money(c.rem) %></b></td></tr><% } %></table><% } %>
+</div>
+</div>
+<%- include('../partials/footer') %>

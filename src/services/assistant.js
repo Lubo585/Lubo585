@@ -124,6 +124,23 @@ const TOOLS = [
     },
   },
   {
+    name: 'search_old_receivables',
+    description: 'Vyhľadá staré pohľadávky – otvorené faktúry a doplatky z minulých rokov (zákazník, VS, suma, zostatok, za čo to bolo, prečo nebolo uhradené, stav, ďalší krok). Použi na otázky „kto nám ešte dlhuje z minulosti“, „čo je s VS …“, „koľko dlhuje firma X z roku 2023“.',
+    input_schema: { type: 'object', properties: { query: { type: 'string', description: 'Zákazník, VS, číslo faktúry alebo text' }, status: { type: 'string', enum: ['all', 'open', 'paid', 'disputed', 'written_off'] }, year: { type: 'integer' }, limit: { type: 'integer' } } },
+    run: (a) => {
+      const RC = require('./receivables');
+      const params = []; let where = '1=1';
+      if (a.query) { where += ' AND (r.customer_name LIKE ? OR r.variable_symbol LIKE ? OR r.invoice_number LIKE ? OR r.description LIKE ? OR r.reason LIKE ?)'; for (let i = 0; i < 5; i++) params.push(like(a.query)); }
+      if (!a.status || a.status === 'open') { where += ` AND r.status IN (${RC.OPEN_STATUSES.map(() => '?').join(',')})`; params.push(...RC.OPEN_STATUSES); }
+      else if (a.status === 'disputed') where += " AND r.status IN ('disputed','legal')";
+      else if (a.status !== 'all') { where += ' AND r.status = ?'; params.push(a.status); }
+      if (a.year) { where += ' AND r.year = ?'; params.push(a.year); }
+      params.push(lim(a.limit));
+      return all(`SELECT r.* FROM old_receivables r WHERE ${where} ORDER BY r.customer_name, r.year, r.id LIMIT ?`, params)
+        .map((r) => ({ zakaznik: r.customer_name, vs: r.variable_symbol, cislo_faktury: r.invoice_number, rok: r.year, splatnost: r.due_date, suma: r.amount, uhradene: r.paid_amount, zostava: RC.isOpen(r) ? RC.remaining(r) : 0, stav: RC.STATUSES[r.status] ? RC.STATUSES[r.status][0] : r.status, za_co: r.description, preco_neuhradene: r.reason, dalsi_krok: r.next_action, termin_kroku: r.next_action_date, odkaz: '/receivables/' + r.id }));
+    },
+  },
+  {
     name: 'search_bank_transactions',
     description: 'Vyhľadá bankové transakcie z importovaných výpisov (spárované / nespárované platby).',
     input_schema: { type: 'object', properties: { query: { type: 'string', description: 'Protistrana, VS alebo text správy' }, status: { type: 'string', enum: ['all', 'unmatched', 'matched', 'ignored'] }, limit: { type: 'integer' } } },
@@ -154,6 +171,7 @@ const TOOLS = [
         nesparovane_platby: get("SELECT COUNT(*) AS n FROM bank_transactions WHERE match_status='unmatched' AND amount > 0").n,
         nevyfakturovane_hodiny: get("SELECT COALESCE(SUM(r.d1+r.d2+r.d3+r.d4+r.d5+r.d6+r.d7),0) AS h FROM timesheet_rows r JOIN timesheets t ON t.id=r.timesheet_id WHERE t.status='approved' AND r.invoice_id IS NULL").h,
         neschvalene_listky: get("SELECT COUNT(*) AS n FROM timesheets WHERE status='draft'").n,
+        stare_pohladavky_z_minulych_rokov: require('./receivables').summary().openSum,
         otvorene_ulohy: get("SELECT COUNT(*) AS n FROM tasks WHERE status IN ('new','progress','waiting')").n,
         zakazky_volne: get("SELECT COUNT(*) AS n FROM sites WHERE status='open'").n, zakazky_rozpracovane: get("SELECT COUNT(*) AS n FROM sites WHERE status='active'").n,
         aktivni_pracovnici: get('SELECT COUNT(*) AS n FROM workers WHERE active=1').n,
@@ -173,12 +191,13 @@ const APP_GUIDE = `Si AI asistent firemnej aplikácie personálnej agentúry v s
 
 Sekcie aplikácie a ich adresy:
 - /  Prehľad: KPI za mesiac, faktúry po splatnosti, nespárované platby, zádržné, moje úlohy.
-- /tasks  Úlohy: kto komu čo zadal, stav (nová, rozpracovaná, čaká sa, hotová), termín, komentáre. Nová úloha: /tasks/new.
+- /tasks  Úlohy: riešitelia v poradí Stxxz, Adam, Luca (poradie sa nastavuje v Nastavenia → Účet, stĺpec Poradie); kto komu čo zadal, stav (nová, rozpracovaná, čaká sa, hotová), termín, komentáre. Nová úloha: /tasks/new.
 - /orders  Zákazky (stavby): stav voľná / rozpracovaná / ukončená, sadzba €/h, potrebný počet pracovníkov. Nová: /orders/new.
 - /timesheets  Hodinové lístky: jeden lístok = zákazka + týždeň (Po–Ne), pracovníci ako riadky. Postup: vybrať stavbu a dátum → Otvoriť/vytvoriť lístok → pridať pracovníkov → zapísať hodiny → Uložiť a schváliť. Schválené hodiny sa dajú fakturovať; vyfakturovaný lístok sa nedá upravovať.
 - /workers  Pracovníci: nákladová sadzba (mzda+odvody) a voliteľná fakturačná sadzba.
 - /clients  Klienti: IČO, e-mail, splatnosť, zádržné %, skonto %, prenesenie daňovej povinnosti. Zákazky klienta sú v detaile klienta.
 - /invoices  Fakturácia: zoznam faktúr so stavom úhrady a zádržným. Fakturovať hodiny: /invoices/from-timesheets (vyberie schválené nevyfakturované lístky klienta za obdobie). Ručná faktúra: /invoices/new. Detail faktúry: tlač/PDF, ručná úhrada, upomienka, storno.
+- /receivables  Staré pohľadávky: otvorené faktúry a doplatky z minulých rokov (mimo fakturácie v aplikácii): zákazník, VS, suma, za čo to bolo, prečo nebolo uhradené, stav (otvorená, prisľúbená, sporná, vymáhanie, uhradená, odpísaná), ďalší krok, úhrady a poznámky. Nová: /receivables/new. Platby z banky sa k nim párujú podľa VS.
 - /bank  Banka a platby: import výpisov (camt.053 XML alebo CSV) ručne alebo automaticky z e-mailu (IMAP), automatické párovanie podľa VS a sumy, ručné párovanie, ignorovanie, náklad z odchádzajúcej platby.
 - /expenses  Náklady: kategórie, DPH, opakujúce sa mesačné náklady.
 - /reports  Zisk a prehľady: mesačný zisk = tržby bez DPH − náklady − mzdy z hodín; ziskovosť podľa zákaziek a pracovníkov.
@@ -194,7 +213,7 @@ Sekcie aplikácie a ich adresy:
 Pojmy: skonto = zľava za úhradu v lehote (uzná sa automaticky pri úhrade v lehote). Zádržné = časť faktúry, ktorú klient zadrží a vyplatí neskôr (sleduje sa jeho splatnosť). Upomienky sa posielajú po X dňoch po splatnosti (predvolene 3, 14, 30), každý stupeň raz.
 
 Pravidlá odpovedí:
-- Na otázky o konkrétnych dátach (faktúry, zákazky, týždne, pracovníci, úlohy, platby, prehľad) VŽDY použi nástroje; nehádaj. Ak nástroj nič nenájde, povedz to.
+- Na otázky o konkrétnych dátach (faktúry, staré pohľadávky, zákazky, týždne, pracovníci, úlohy, platby, prehľad) VŽDY použi nástroje; nehádaj. Ak nástroj nič nenájde, povedz to.
 - Odkazy uvádzaj vo formáte markdown [text](/cesta) presne tak, ako ich vrátil nástroj. Sumy píš v eurách s dvoma desatinnými miestami, dátumy vo formáte DD.MM.RRRR.
 - Pri návode na používanie popíš kroky v číslovanom zozname a uveď odkaz na sekciu.
 - Nemeníš dáta, iba vyhľadávaš a radíš. Ak používateľ chce niečo zmeniť, povedz, kde to v aplikácii urobí.

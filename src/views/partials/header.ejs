@@ -17,7 +17,7 @@
 <% if (user) { %>
 <nav class="sidebar">
   <div class="brand"><%= settings.company_name %><small>Firemná aplikácia</small></div>
-  <% const nav = user.role === 'worker' ? [['/portal', 'Môj portál']] : [['/', 'Prehľad'], ['/tasks', 'Úlohy'], ['/orders', 'Zákazky'], ['/planning', 'Plánovanie'], ['/timesheets', 'Hodinové lístky'], ['/workers', 'Pracovníci'], ['/compliance', 'Compliance DE'], ['/clients', 'Klienti'], ['/quotes', 'Ponuky'], ['/invoices', 'Fakturácia'], ['/bank', 'Banka a platby'], ['/settlements', 'Vyúčtovanie'], ['/expenses', 'Náklady'], ['/reports', 'Zisk a prehľady'], ['/finance', 'Financie'], ['/assistant', 'AI asistent'], ['/settings', 'Nastavenia']].filter(([h]) => allowed(h)); %>
+  <% const nav = user.role === 'worker' ? [['/portal', 'Môj portál']] : [['/', 'Prehľad'], ['/tasks', 'Úlohy'], ['/orders', 'Zákazky'], ['/planning', 'Plánovanie'], ['/timesheets', 'Hodinové lístky'], ['/workers', 'Pracovníci'], ['/compliance', 'Compliance DE'], ['/clients', 'Klienti'], ['/quotes', 'Ponuky'], ['/invoices', 'Fakturácia'], ['/receivables', 'Staré pohľadávky'], ['/bank', 'Banka a platby'], ['/settlements', 'Vyúčtovanie'], ['/expenses', 'Náklady'], ['/reports', 'Zisk a prehľady'], ['/finance', 'Financie'], ['/assistant', 'AI asistent'], ['/settings', 'Nastavenia']].filter(([h]) => allowed(h)); %>
   <% for (const [href, label] of nav) { const active = href === '/' ? path === '/' : path.startsWith(href); %>
     <a href="<%= href %>" class="<%= active ? 'active' : '' %>"><%= label %></a>
   <% } %>

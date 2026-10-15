@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+<h1><%= title %></h1>
+<form method="post" action="/receivables/save" class="card" style="max-width:900px">
+  <input type="hidden" name="id" value="<%= r.id || '' %>">
+  <h3>Zákazník</h3>
+  <div class="row">
+    <div class="field"><label>Zákazník (názov) *</label><input type="text" name="customer_name" list="customer-list" value="<%= r.customer_name || '' %>" required autofocus placeholder="napr. Bau Müller GmbH"><datalist id="customer-list"><% for (const c of customers) { %><option value="<%= c.name %>"><% } %><% for (const c of clients) { %><option value="<%= c.name %>"><% } %></datalist></div>
+    <div class="field"><label>Prepojiť s klientom v aplikácii (voliteľné)</label><select name="client_id" onchange="if(this.value&&!this.form.customer_name.value)this.form.customer_name.value=this.options[this.selectedIndex].text"><option value="">– nie je v zozname klientov –</option><% for (const c of clients) { %><option value="<%= c.id %>" <%= r.client_id==c.id?'selected':'' %>><%= c.name %></option><% } %></select></div>
+  </div>
+  <h3 class="mt">Faktúra / doplatok</h3>
+  <div class="row">
+    <div class="field"><label>Variabilný symbol (VS)</label><input type="text" name="variable_symbol" value="<%= r.variable_symbol || '' %>" placeholder="napr. 20230017"><div class="help">Podľa VS sa automaticky spárujú platby z bankového výpisu.</div></div>
+    <div class="field"><label>Číslo faktúry</label><input type="text" name="invoice_number" value="<%= r.invoice_number || '' %>" placeholder="napr. FA2023/0017"></div>
+    <div class="field" style="max-width:120px"><label>Rok</label><input type="number" name="year" min="2000" max="2100" value="<%= r.year || '' %>" placeholder="2023"></div>
+  </div>
+  <div class="row">
+    <div class="field"><label>Dátum vystavenia</label><input type="date" name="issue_date" value="<%= r.issue_date || '' %>"></div>
+    <div class="field"><label>Splatnosť</label><input type="date" name="due_date" value="<%= r.due_date || '' %>"></div>
+    <div class="field"><label>Suma *</label><input type="number" step="0.01" min="0.01" name="amount" value="<%= r.amount || '' %>" required></div>
+    <div class="field" style="max-width:100px"><label>Mena</label><input type="text" name="currency" value="<%= r.currency || 'EUR' %>"></div>
+  </div>
+  <% if (!r.id) { %>
+  <div class="row">
+    <div class="field"><label>Už uhradené (ak bola časť zaplatená)</label><input type="number" step="0.01" min="0" name="paid_amount" value="" placeholder="0,00"></div>
+    <div class="field"><label>Dátum tejto úhrady</label><input type="date" name="paid_date" value=""></div>
+  </div>
+  <% } %>
+  <h3 class="mt">Dôvody</h3>
+  <div class="field"><label>Za čo to bolo</label><textarea name="description" style="min-height:70px" placeholder="napr. prenájom 4 pracovníkov, stavba Mníchov, 09–10/2023"><%= r.description || '' %></textarea></div>
+  <div class="field"><label>Prečo to nebolo uhradené</label><textarea name="reason" style="min-height:70px" placeholder="napr. klient reklamoval hodiny, čaká sa na dobropis / klient v insolvencii / zádržné nevyplatené"><%= r.reason || '' %></textarea></div>
+  <h3 class="mt">Stav a ďalší krok</h3>
+  <div class="row">
+    <div class="field"><label>Stav</label><select name="status"><% for (const [k, v] of Object.entries(STATUSES)) { %><option value="<%= k %>" <%= (r.status||'open')===k?'selected':'' %>><%= v[0] %></option><% } %></select><div class="help">Uhradená / čiastočne uhradená sa nastaví automaticky podľa zaevidovaných úhrad.</div></div>
+    <div class="field"><label>Ďalší krok</label><input type="text" name="next_action" value="<%= r.next_action || '' %>" placeholder="napr. zavolať konateľovi, poslať upomienku, odovzdať právnikovi"></div>
+    <div class="field"><label>Termín kroku</label><input type="date" name="next_action_date" value="<%= r.next_action_date || '' %>"></div>
+  </div>
+  <div class="field"><label>Poznámka</label><textarea name="note" style="min-height:60px"><%= r.note || '' %></textarea></div>
+  <div class="actions mt"><button class="btn" type="submit">Uložiť</button><a href="<%= r.id ? '/receivables/' + r.id : '/receivables' %>" class="btn secondary">Zrušiť</a></div>
+</form>
+<%- include('../partials/footer') %>

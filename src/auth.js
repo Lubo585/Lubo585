@@ -9,6 +9,7 @@ const ACCESS = [
   ['/assistant', ['admin', 'office', 'dispatcher', 'accountant']],
   ['/invoices', ['admin', 'office', 'accountant']],
   ['/quotes', ['admin', 'office', 'accountant']],
+  ['/receivables', ['admin', 'office', 'accountant']],
   ['/bank', ['admin', 'accountant']],
   ['/expenses', ['admin', 'office', 'accountant']],
   ['/reports', ['admin', 'accountant']],

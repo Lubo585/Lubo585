@@ -315,6 +315,20 @@ const MIGRATIONS = [
       CREATE TABLE IF NOT EXISTS worker_transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, worker_id INTEGER NOT NULL REFERENCES workers(id) ON DELETE CASCADE, date TEXT NOT NULL, type TEXT NOT NULL, description TEXT, amount REAL NOT NULL DEFAULT 0, settlement_id INTEGER, created_by INTEGER, created_at TEXT DEFAULT (datetime('now')));
       CREATE TABLE IF NOT EXISTS settlements (id INTEGER PRIMARY KEY AUTOINCREMENT, worker_id INTEGER NOT NULL REFERENCES workers(id) ON DELETE CASCADE, month TEXT NOT NULL, hours REAL DEFAULT 0, overtime_hours REAL DEFAULT 0, wage_rate REAL DEFAULT 0, wage_total REAL DEFAULT 0, per_diem_days INTEGER DEFAULT 0, per_diem_rate REAL DEFAULT 0, per_diem_total REAL DEFAULT 0, advances_total REAL DEFAULT 0, deductions_total REAL DEFAULT 0, bonus_total REAL DEFAULT 0, total_due REAL DEFAULT 0, status TEXT DEFAULT 'draft', paid_at TEXT, note TEXT, created_at TEXT DEFAULT (datetime('now')), UNIQUE(worker_id, month));`);
   } },
+  { version: 9, name: 'riešitelia úloh (Stxxz, Adam, Luca), staré pohľadávky z minulých rokov', up: () => {
+    addColumn('users', 'sort_order', 'INTEGER DEFAULT 100');
+    // pevné poradie riešiteľov v Úlohách: Stxxz → Adam → Luca (prihlásenie si zapnete nastavením hesla v Nastavenia → Účet)
+    [['stxxz', 'Stxxz', 1], ['adam', 'Adam', 2], ['luca', 'Luca', 3]].forEach(([u, n, o]) => {
+      const ex = db.prepare('SELECT id FROM users WHERE lower(username) = ? OR lower(name) = ?').get(u, u);
+      if (ex) db.prepare('UPDATE users SET sort_order = ? WHERE id = ?').run(o, ex.id);
+      else db.prepare("INSERT INTO users(username, password_hash, name, role, sort_order, active) VALUES (?,?,?,'office',?,1)").run(u, hashPassword(crypto.randomBytes(24).toString('hex')), n, o);
+    });
+    db.exec(`CREATE TABLE IF NOT EXISTS old_receivables (id INTEGER PRIMARY KEY AUTOINCREMENT, client_id INTEGER REFERENCES clients(id) ON DELETE SET NULL, customer_name TEXT NOT NULL, variable_symbol TEXT, invoice_number TEXT, year INTEGER, issue_date TEXT, due_date TEXT, amount REAL NOT NULL DEFAULT 0, paid_amount REAL NOT NULL DEFAULT 0, currency TEXT DEFAULT 'EUR', description TEXT, reason TEXT, status TEXT DEFAULT 'open', next_action TEXT, next_action_date TEXT, note TEXT, created_by INTEGER, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')));
+      CREATE TABLE IF NOT EXISTS old_receivable_payments (id INTEGER PRIMARY KEY AUTOINCREMENT, receivable_id INTEGER NOT NULL REFERENCES old_receivables(id) ON DELETE CASCADE, date TEXT NOT NULL, amount REAL NOT NULL DEFAULT 0, note TEXT, bank_transaction_id INTEGER, created_at TEXT DEFAULT (datetime('now')));
+      CREATE TABLE IF NOT EXISTS old_receivable_notes (id INTEGER PRIMARY KEY AUTOINCREMENT, receivable_id INTEGER NOT NULL REFERENCES old_receivables(id) ON DELETE CASCADE, user_id INTEGER, type TEXT DEFAULT 'comment', text TEXT NOT NULL, created_at TEXT DEFAULT (datetime('now')));
+      CREATE INDEX IF NOT EXISTS idx_oldrec_vs ON old_receivables(variable_symbol);`);
+    addColumn('bank_transactions', 'matched_receivable_id', 'INTEGER');
+  } },
 ];
 const SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;
 function backupDatabase(label) {
@@ -456,7 +470,7 @@ function verifyPassword(password, stored) {
 }
 
 // prvý používateľ
-if (!get('SELECT id FROM users LIMIT 1')) {
+if (!get("SELECT id FROM users WHERE role = 'admin' LIMIT 1")) {
   const pw = process.env.ADMIN_PASSWORD || 'admin';
   run('INSERT INTO users(username, password_hash, name, role) VALUES (?, ?, ?, ?)', ['admin', hashPassword(pw), 'Administrátor', 'admin']);
   console.log('Vytvorený prvý používateľ: admin / ' + pw + ' (zmeňte heslo v Nastaveniach)');

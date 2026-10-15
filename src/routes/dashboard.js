@@ -20,6 +20,7 @@ router.get('/', (req, res) => {
   const thisWeek = U.weekStart(today);
   const weekHours = get(`SELECT COALESCE(SUM(r.d1+r.d2+r.d3+r.d4+r.d5+r.d6+r.d7),0) AS hours, COUNT(DISTINCT r.worker_id) AS workers FROM timesheet_rows r JOIN timesheets t ON t.id=r.timesheet_id WHERE t.week_start = ?`, [thisWeek]);
   const receivables = get(`SELECT COALESCE(SUM(amount_due - paid_amount),0) AS s FROM invoices WHERE status IN ('issued','partial')`).s;
+  const oldReceivables = require('../services/receivables').summary();
   const overdueSum = overdue.reduce((s, i) => s + INV.remaining(i), 0);
   const myTasks = all(`SELECT t.*, u.name AS by_name, u.username AS by_user FROM tasks t LEFT JOIN users u ON u.id=t.assigned_by WHERE t.status IN ('new','progress','waiting') AND t.assigned_to = ? ORDER BY COALESCE(t.due_date,'9999'), t.id DESC LIMIT 8`, [req.session.user.id]);
   const openTasks = get("SELECT COUNT(*) AS n FROM tasks WHERE status IN ('new','progress','waiting')").n;
@@ -27,6 +28,6 @@ router.get('/', (req, res) => {
   const compliance = { expiring: C.expiringDocuments().slice(0, 6), missing: C.missingDocuments().length, postings: C.postingsMissing().length, aug: C.augStatus().filter((a) => a.active && a.level !== 'ok').slice(0, 5), permits: C.companyPermits().filter((p) => p.status !== 'ok') };
   const activity = all('SELECT * FROM activity_log ORDER BY id DESC LIMIT 12');
   const monthly = R.monthly(6);
-  res.render('dashboard', { title: 'Prehľad', rev, exp, lab, laborEffective, profit: U.round2(rev.net - exp.net - laborEffective), overdue, dueSoon, retention, unmatched, unmatchedCount, draftSheets, uninvoiced, weekHours, receivables, overdueSum, activity, monthly, from, to, myTasks, openTasks, orders, compliance });
+  res.render('dashboard', { title: 'Prehľad', rev, exp, lab, laborEffective, profit: U.round2(rev.net - exp.net - laborEffective), overdue, dueSoon, retention, unmatched, unmatchedCount, draftSheets, uninvoiced, weekHours, receivables, oldReceivables, overdueSum, activity, monthly, from, to, myTasks, openTasks, orders, compliance });
 });
 module.exports = router;

@@ -1,0 +1,53 @@
+<%- include('../partials/header') %>
+<% const st = STATUSES[r.status] || STATUSES.open; const closed = st[2]; %>
+<div class="topbar"><h1><%= r.customer_name %> <span class="muted">· VS <%= r.variable_symbol || '–' %></span> <span class="badge <%= st[1] %>" style="font-size:13px;padding:4px 10px;vertical-align:middle"><%= st[0] %></span></h1>
+  <div class="actions"><a href="/receivables/<%= r.id %>/edit" class="btn secondary">Upraviť</a><a href="/receivables" class="btn secondary">← Zoznam</a>
+  <form method="post" action="/receivables/<%= r.id %>/delete" class="inline" onsubmit="return confirm('Odstrániť pohľadávku vrátane úhrad a poznámok?')"><button class="btn danger">Odstrániť</button></form></div></div>
+<div class="grid grid-3">
+  <div class="kpi"><div class="label">Suma</div><div class="value"><%= U.money(r.amount) %></div><div class="sub"><%= r.currency %><%= r.year ? ' · rok ' + r.year : '' %></div></div>
+  <div class="kpi <%= r.paid_amount > 0 ? 'ok' : '' %>"><div class="label">Uhradené</div><div class="value"><%= U.money(r.paid_amount) %></div><div class="sub"><%= payments.length %> úhrad</div></div>
+  <div class="kpi <%= closed ? '' : (remaining > 0 ? 'danger' : 'ok') %>"><div class="label">Zostáva</div><div class="value"><%= U.money(closed ? 0 : remaining) %></div><div class="sub"><% if (r.due_date) { %>splatnosť <%= U.fmtDate(r.due_date) %><% if (!closed && remaining > 0 && r.due_date < U.today()) { %> · <b style="color:var(--danger)"><%= U.diffDays(U.today(), r.due_date) %> dní po splatnosti</b><% } %><% } else { %>splatnosť neuvedená<% } %></div></div>
+</div>
+<div class="grid grid-2 mt">
+  <div class="card">
+    <h2>Údaje</h2>
+    <table class="compact">
+      <tr><td class="muted">Zákazník</td><td><b><%= r.customer_name %></b><% if (r.client_id) { %> · <a href="/clients/<%= r.client_id %>">karta klienta</a><% } %></td></tr>
+      <tr><td class="muted">VS / číslo faktúry</td><td><%= r.variable_symbol || '–' %><%= r.invoice_number ? ' / ' + r.invoice_number : '' %></td></tr>
+      <tr><td class="muted">Vystavená / splatná</td><td><%= r.issue_date ? U.fmtDate(r.issue_date) : '–' %> / <%= r.due_date ? U.fmtDate(r.due_date) : '–' %></td></tr>
+      <tr><td class="muted">Za čo to bolo</td><td><%= r.description || '–' %></td></tr>
+      <tr><td class="muted">Prečo nebolo uhradené</td><td style="<%= r.reason ? 'color:var(--danger)' : '' %>"><%= r.reason || '–' %></td></tr>
+      <tr><td class="muted">Ďalší krok</td><td><%= r.next_action || '–' %><%= r.next_action_date ? ' · do ' + U.fmtDate(r.next_action_date) : '' %></td></tr>
+      <% if (r.note) { %><tr><td class="muted">Poznámka</td><td><%= r.note %></td></tr><% } %>
+      <tr><td class="muted">Zaevidoval</td><td><%= r.created_by_name || r.created_by_user || '–' %> · <%= U.fmtDate(r.created_at) %></td></tr>
+    </table>
+    <h3 class="mt">Zmeniť stav</h3>
+    <form method="post" action="/receivables/<%= r.id %>/status" class="row" style="align-items:flex-end">
+      <div class="field"><select name="status"><% for (const [k, v] of Object.entries(STATUSES)) { %><option value="<%= k %>" <%= r.status===k?'selected':'' %>><%= v[0] %></option><% } %></select></div>
+      <div class="field" style="flex:2"><input type="text" name="text" placeholder="dôvod / poznámka k zmene (voliteľné)"></div>
+      <div class="field" style="flex:0"><button class="btn secondary">Zmeniť</button></div>
+    </form>
+    <% if (others.length) { %><h3 class="mt">Ďalšie pohľadávky tohto zákazníka</h3>
+    <table class="compact"><tr><th>VS</th><th>Rok</th><th class="num">Zostáva</th><th>Stav</th></tr>
+    <% for (const o of others) { const os = STATUSES[o.status] || STATUSES.open; %><tr><td><a href="/receivables/<%= o.id %>"><%= o.variable_symbol || o.invoice_number || '#' + o.id %></a></td><td><%= o.year || '' %></td><td class="num"><%= U.money(os[2] ? 0 : Math.max(0, o.amount - o.paid_amount)) %></td><td><span class="badge <%= os[1] %>"><%= os[0] %></span></td></tr><% } %></table><% } %>
+  </div>
+  <div class="card">
+    <h2>Úhrady</h2>
+    <% if (!payments.length) { %><p class="muted">Zatiaľ žiadna úhrada. Platba z bankového výpisu s VS <b><%= r.variable_symbol || '–' %></b> sa sem priradí automaticky (Banka a platby).</p><% } else { %>
+    <table class="compact"><tr><th>Dátum</th><th class="num">Suma</th><th>Poznámka</th><th></th></tr>
+    <% for (const p of payments) { %><tr><td><%= U.fmtDate(p.date) %></td><td class="num"><b><%= U.money(p.amount) %></b></td><td class="small"><% if (p.bank_transaction_id) { %><a href="/bank/<%= p.bank_transaction_id %>">banka</a> <%= p.counterparty_name || '' %> · <% } %><%= p.note || '' %></td>
+      <td class="right"><% if (!p.bank_transaction_id) { %><form method="post" action="/receivables/<%= r.id %>/payment/<%= p.id %>/delete" class="inline" onsubmit="return confirm('Odstrániť úhradu?')"><button class="btn sm danger">×</button></form><% } %></td></tr><% } %></table><% } %>
+    <% if (!closed) { %>
+    <h3 class="mt">Zaevidovať úhradu ručne</h3>
+    <form method="post" action="/receivables/<%= r.id %>/payment" class="row" style="align-items:flex-end">
+      <div class="field"><label>Dátum</label><input type="date" name="date" value="<%= U.today() %>"></div>
+      <div class="field"><label>Suma</label><input type="number" step="0.01" min="0.01" name="amount" value="<%= remaining > 0 ? remaining.toFixed(2) : '' %>" required></div>
+      <div class="field" style="flex:2"><label>Poznámka</label><input type="text" name="note" placeholder="napr. hotovosť, zápočet, dobropis"></div>
+      <div class="field" style="flex:0"><button class="btn">Zaevidovať</button></div>
+    </form><% } %>
+    <h2 class="mt">História a poznámky</h2>
+    <% for (const n of notes) { %><div class="small" style="padding:6px 0;border-bottom:1px solid #eee"><span class="muted"><%= U.fmtDate(n.created_at) %> · <%= n.name || n.username || 'systém' %></span><% if (n.type === 'status') { %> <span class="badge muted">stav</span><% } else if (n.type === 'payment') { %> <span class="badge ok">úhrada</span><% } %><br><%= n.text %></div><% } %>
+    <form method="post" action="/receivables/<%= r.id %>/note" class="row mt" style="align-items:flex-end"><div class="field" style="flex:3"><input type="text" name="text" placeholder="napr. volal som konateľovi, sľúbil úhradu do konca mesiaca" required></div><div class="field" style="flex:0"><button class="btn secondary">Pridať poznámku</button></div></form>
+  </div>
+</div>
+<%- include('../partials/footer') %>

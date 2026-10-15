@@ -107,11 +107,27 @@ for (const w of [wid[0], wid[1], wid[2], wid[3], wid[4], wid[5]]) { const id = S
 
 // úlohy
 const admin = get("SELECT id FROM users WHERE username='admin'").id, disp = get("SELECT id FROM users WHERE username='dispecer'").id, acc = get("SELECT id FROM users WHERE username='uctovnik'").id;
-for (const [t, desc, to, pr, due, st, site, w] of [['Predĺžiť A1 pre Melnyka', 'Končí o 2 týždne, podať na Sociálnu poisťovňu', disp, 'high', U.addDays(today, 5), 'progress', null, wid[2]], ['Nahlásiť vyslanie Bondara na Meldeportal', 'Zatiaľ bez hlásenia, stavba Stuttgart', disp, 'high', U.addDays(today, 1), 'new', s2, wid[3]], ['Poslať upomienku Hochtief – čiastočná úhrada', 'Zostáva 40 % faktúry', acc, 'normal', U.addDays(today, 3), 'new', null, null], ['Zabezpečiť 2 murárov pre Freiham od budúceho mesiaca', 'Klient potvrdil ponuku CP ústne', disp, 'normal', U.addDays(today, 14), 'new', s3, null], ['Objednať zimné pracovné bundy', '7 ks podľa veľkostí v kartách', disp, 'low', U.addDays(today, 20), 'waiting', null, null], ['Pripraviť podklady pre SOKA-BAU za minulý mesiac', '', acc, 'normal', U.addDays(today, -2), 'done', null, null]]) {
+const uid = (u, fb) => { const r = get('SELECT id FROM users WHERE username = ?', [u]); return r ? r.id : fb; };
+const stxxz = uid('stxxz', disp), adam = uid('adam', acc), luca = uid('luca', disp);
+for (const [t, desc, to, pr, due, st, site, w] of [['Predĺžiť A1 pre Melnyka', 'Končí o 2 týždne, podať na Sociálnu poisťovňu', stxxz, 'high', U.addDays(today, 5), 'progress', null, wid[2]], ['Nahlásiť vyslanie Bondara na Meldeportal', 'Zatiaľ bez hlásenia, stavba Stuttgart', disp, 'high', U.addDays(today, 1), 'new', s2, wid[3]], ['Poslať upomienku Hochtief – čiastočná úhrada', 'Zostáva 40 % faktúry', adam, 'normal', U.addDays(today, 3), 'new', null, null], ['Zabezpečiť 2 murárov pre Freiham od budúceho mesiaca', 'Klient potvrdil ponuku CP ústne', disp, 'normal', U.addDays(today, 14), 'new', s3, null], ['Objednať zimné pracovné bundy', '7 ks podľa veľkostí v kartách', luca, 'low', U.addDays(today, 20), 'waiting', null, null], ['Pripraviť podklady pre SOKA-BAU za minulý mesiac', '', acc, 'normal', U.addDays(today, -2), 'done', null, null]]) {
   const id = ins('INSERT INTO tasks(title, description, assigned_by, assigned_to, priority, due_date, status, site_id, worker_id, done_at) VALUES (?,?,?,?,?,?,?,?,?,?)', [t, desc, admin, to, pr, due, st, site, w, st === 'done' ? U.addDays(today, -3) : null]);
   run("INSERT INTO task_comments(task_id, user_id, type, text) VALUES (?,?,'assign','Úloha vytvorená')", [id, admin]);
 }
 run("INSERT INTO task_comments(task_id, user_id, type, text) VALUES (1, ?, 'comment', 'Formulár odoslaný, čakám na potvrdenie.')", [disp]);
+// staré pohľadávky z minulých rokov (faktúry mimo aplikácie)
+const y1 = Number(today.slice(0, 4)) - 1, y2 = Number(today.slice(0, 4)) - 2;
+for (const [cust, cid, vs, num, year, issue, due, amount, paid, desc, reason, status, next, nextDate] of [
+  ['Hochtief Süd AG', c2, String(y1) + '0031', 'FA' + y1 + '/0031', y1, y1 + '-11-05', y1 + '-12-05', 8460, 5000, 'Prenájom 5 pracovníkov, stavba Stuttgart, 10/' + y1, 'Klient reklamoval 48 hodín na lístkoch, dohodnutý dobropis, zvyšok mal uhradiť do konca roka', 'promised', 'Zavolať účtovníčke klienta', U.addDays(today, 7)],
+  ['Hochtief Süd AG', c2, String(y1) + '0038', 'FA' + y1 + '/0038', y1, y1 + '-12-20', y2 + '-01-19', 1250, 0, 'Zádržné 5 % z faktúr za ' + y1 + ' (stavba Stuttgart)', 'Zádržné má byť uvoľnené po odovzdaní stavby, klient ho ešte nevyplatil', 'open', 'Vyžiadať protokol o odovzdaní stavby', U.addDays(today, 14)],
+  ['Bau Müller & Söhne GmbH', null, String(y2) + '0012', 'FA' + y2 + '/0012', y2, y2 + '-06-10', y2 + '-07-10', 3980, 0, 'Prenájom 3 pracovníkov, stavba Augsburg, 05/' + y2, 'Firma vstúpila do insolvencie, pohľadávka prihlásená správcovi', 'legal', 'Sledovať insolvenčné konanie', null],
+  ['STAVBY BA s.r.o.', c3, String(y1) + '0007', 'FA' + y1 + '/0007', y1, y1 + '-03-15', y1 + '-04-14', 2160, 0, 'Doplatok príplatkov za soboty 02–03/' + y1, 'Klient tvrdí, že soboty neboli objednané; bez písomnej objednávky', 'disputed', 'Poslať kópie podpísaných hodinových lístkov', U.addDays(today, 3)],
+  ['Bau Müller & Söhne GmbH', null, String(y2) + '0004', 'FA' + y2 + '/0004', y2, y2 + '-02-01', y2 + '-03-03', 1500, 1500, 'Prenájom 2 pracovníkov, 01/' + y2, 'Uhradené oneskorene po 1. upomienke', 'paid', null, null],
+]) {
+  const id = ins('INSERT INTO old_receivables(client_id, customer_name, variable_symbol, invoice_number, year, issue_date, due_date, amount, currency, description, reason, status, next_action, next_action_date, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [cid, cust, vs, num, year, issue, due, amount, 'EUR', desc, reason, status, next, nextDate, admin]);
+  run("INSERT INTO old_receivable_notes(receivable_id, user_id, type, text) VALUES (?,?,'status','Pohľadávka zaevidovaná (prenos z minulých rokov)')", [id, admin]);
+  if (paid > 0) run('INSERT INTO old_receivable_payments(receivable_id, date, amount, note) VALUES (?,?,?,?)', [id, U.addDays(due, 20), paid, 'Úhrada pred zaevidovaním']);
+  run('UPDATE old_receivables SET paid_amount = ? WHERE id = ?', [paid, id]);
+}
 setSetting('demo_data', '1');
 log('demo', 'Načítané ukážkové dáta');
 console.log(`Hotovo. Ukážkové dáta: ${get('SELECT COUNT(*) n FROM workers').n} pracovníkov, ${get('SELECT COUNT(*) n FROM clients').n} klienti, ${get('SELECT COUNT(*) n FROM timesheets').n} lístkov, ${get('SELECT COUNT(*) n FROM invoices').n} faktúry, ${get('SELECT COUNT(*) n FROM bank_transactions').n} bankových transakcií.`);

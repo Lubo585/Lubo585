@@ -78,6 +78,7 @@ app.use('/compliance', require('./src/routes/compliance'));
 app.use('/expenses', require('./src/routes/expenses'));
 app.use('/invoices', require('./src/routes/invoices'));
 app.use('/quotes', require('./src/routes/quotes'));
+app.use('/receivables', require('./src/routes/receivables'));
 app.use('/bank', require('./src/routes/bank'));
 app.use('/settlements', require('./src/routes/settlements'));
 app.use('/reports', require('./src/routes/reports'));

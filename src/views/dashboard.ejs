@@ -4,7 +4,7 @@
   <div class="kpi"><div class="label">Fakturované tento mesiac (bez DPH)</div><div class="value"><%= U.money(rev.net) %></div><div class="sub"><%= rev.count %> faktúr</div></div>
   <div class="kpi"><div class="label">Náklady tento mesiac</div><div class="value"><%= U.money(exp.net + laborEffective) %></div><div class="sub">prevádzka <%= U.money(exp.net) %><%= laborEffective ? ' + mzdy z hodín ' + U.money(laborEffective) : '' %></div></div>
   <div class="kpi <%= profit >= 0 ? 'ok' : 'danger' %>"><div class="label">Zisk tento mesiac</div><div class="value"><%= U.money(profit) %></div><div class="sub"><%= U.hours(lab.hours) %> odpracovaných hodín</div></div>
-  <div class="kpi <%= overdueSum > 0 ? 'danger' : '' %>"><div class="label">Po splatnosti</div><div class="value"><%= U.money(overdueSum) %></div><div class="sub"><%= overdue.length %> faktúr · pohľadávky spolu <%= U.money(receivables) %></div></div>
+  <div class="kpi <%= overdueSum > 0 ? 'danger' : '' %>"><div class="label">Po splatnosti</div><div class="value"><%= U.money(overdueSum) %></div><div class="sub"><%= overdue.length %> faktúr · pohľadávky spolu <%= U.money(receivables) %><% if (oldReceivables.openCount) { %> · <a href="/receivables" style="color:inherit">z minulých rokov <b><%= U.money(oldReceivables.openSum) %></b></a><% } %></div></div>
 </div>
 <div class="grid grid-2 mt">
   <div class="card">

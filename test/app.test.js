@@ -114,7 +114,8 @@ test('AI asistent: nástroje vyhľadávajú v databáze bez volania API', () => 
   assert.ok(Array.isArray(A.runTool('search_timesheets', { query: 'x' })));
   assert.deepEqual(A.runTool('search_clients', { query: 'neexistuje-xyz' }), []);
   assert.ok(A.runTool('nope', {}).error);
-  assert.equal(A.TOOLS.length, 8);
+  assert.equal(A.TOOLS.length, 9);
+  assert.ok(Array.isArray(A.runTool('search_old_receivables', { status: 'all' })));
 });
 
 test('compliance a vyúčtovanie: AÜG, expirácie, MT940', () => {
@@ -154,4 +155,36 @@ test('PDF a XRechnung sa vygenerujú', async () => {
   assert.ok(buf.length > 2000 && buf.slice(0, 4).toString() === '%PDF');
   const xml = XR.invoiceXml(inv);
   assert.match(xml, /<cbc:ID>T1<\/cbc:ID>/); assert.match(xml, /xrechnung_3\.0/); assert.match(xml, /<cbc:ID>AE<\/cbc:ID>/);
+});
+
+test('staré pohľadávky: riešitelia úloh, úhrady, stav a párovanie z banky podľa VS', () => {
+  const RC = require('../src/services/receivables');
+  // migrácia v9 vytvorila riešiteľov v pevnom poradí
+  const names = all("SELECT name FROM users WHERE active = 1 AND role != 'worker' ORDER BY COALESCE(sort_order, 100), name, username").map((u) => u.name);
+  assert.deepEqual(names.slice(0, 3), ['Stxxz', 'Adam', 'Luca']);
+  assert.ok(get("SELECT id FROM users WHERE username = 'admin' AND role = 'admin'"));
+  // evidencia starej pohľadávky
+  const id = Number(run("INSERT INTO old_receivables(customer_name, variable_symbol, year, amount, description, reason) VALUES ('Alt Bau GmbH', '20230099', 2023, 1000, 'prenájom 2023', 'reklamácia hodín')").lastInsertRowid);
+  assert.equal(RC.remaining(get('SELECT * FROM old_receivables WHERE id = ?', [id])), 1000);
+  RC.addPayment({ receivableId: id, date: '2026-01-10', amount: 400, note: 'hotovosť' });
+  let r = get('SELECT * FROM old_receivables WHERE id = ?', [id]);
+  assert.equal(r.status, 'partial'); assert.equal(r.paid_amount, 400);
+  // platba z banky s rovnakým VS a presnou sumou sa spáruje automaticky
+  const res = M.importTransactions([{ hash: 'oldrec-1', date: '2026-02-01', amount: 600, currency: 'EUR', counterparty_name: 'Alt Bau GmbH', variable_symbol: '20230099', message: 'Rest FA 2023/0099' }], { source: 'test' });
+  assert.equal(res.matched, 1);
+  r = get('SELECT * FROM old_receivables WHERE id = ?', [id]);
+  assert.equal(r.status, 'paid'); assert.equal(r.paid_amount, 1000);
+  const tx = get("SELECT * FROM bank_transactions WHERE hash = 'oldrec-1'");
+  assert.equal(tx.matched_receivable_id, id); assert.equal(tx.match_status, 'auto');
+  // zrušenie spárovania vráti zostatok
+  M.unmatchTransaction(tx.id);
+  r = get('SELECT * FROM old_receivables WHERE id = ?', [id]);
+  assert.equal(r.status, 'partial'); assert.equal(r.paid_amount, 400);
+  // ručné stavy a odpísanie
+  RC.setStatus(id, 'disputed', 'klient nesúhlasí');
+  assert.equal(get('SELECT status FROM old_receivables WHERE id = ?', [id]).status, 'disputed');
+  assert.equal(RC.summary().openSum, 600);
+  RC.setStatus(id, 'written_off');
+  assert.equal(RC.summary().openSum, 0);
+  assert.deepEqual(RC.openByVs('0020230099'), []);
 });

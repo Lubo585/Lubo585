@@ -3,9 +3,9 @@
 <div class="grid grid-2">
   <div class="card"><h2>Údaje z banky</h2>
     <table class="compact"><tr><td class="muted">Dátum</td><td><%= U.fmtDate(tx.date) %></td></tr><tr><td class="muted">Suma</td><td><b><%= U.money(tx.amount) %></b> <%= tx.currency %></td></tr><tr><td class="muted">Protistrana</td><td><%= tx.counterparty_name || '–' %><br><span class="small"><%= tx.counterparty_iban || '' %></span></td></tr><tr><td class="muted">VS / SS / KS</td><td><%= tx.variable_symbol || '–' %> / <%= tx.specific_symbol || '–' %> / <%= tx.constant_symbol || '–' %></td></tr><tr><td class="muted">Správa</td><td><%= tx.message || '–' %></td></tr><tr><td class="muted">Referencia</td><td class="small"><%= tx.bank_reference || '–' %></td></tr>
-    <tr><td class="muted">Stav</td><td><% if (tx.matched_invoice_id) { %>spárované s <a href="/invoices/<%= tx.matched_invoice_id %>"><%= tx.invoice_number %></a> (<%= tx.match_status %>) <span class="muted small"><%= tx.match_note %></span><% } else { %><%= tx.match_status === 'ignored' ? 'ignorované' : 'nespárované' %><% } %></td></tr></table>
+    <tr><td class="muted">Stav</td><td><% if (tx.matched_receivable_id) { %>spárované so starou pohľadávkou <a href="/receivables/<%= tx.matched_receivable_id %>"><%= tx.receivable_name %> VS <%= tx.receivable_vs || '–' %></a> (<%= tx.match_status %>) <span class="muted small"><%= tx.match_note %></span><% } else if (tx.matched_invoice_id) { %>spárované s <a href="/invoices/<%= tx.matched_invoice_id %>"><%= tx.invoice_number %></a> (<%= tx.match_status %>) <span class="muted small"><%= tx.match_note %></span><% } else { %><%= tx.match_status === 'ignored' ? 'ignorované' : 'nespárované' %><% } %></td></tr></table>
     <div class="actions mt">
-      <% if (tx.matched_invoice_id || tx.match_status === 'ignored') { %><form method="post" action="/bank/<%= tx.id %>/unmatch"><button class="btn secondary">Zrušiť spárovanie / obnoviť</button></form><% } %>
+      <% if (tx.matched_invoice_id || tx.matched_receivable_id || tx.match_status === 'ignored') { %><form method="post" action="/bank/<%= tx.id %>/unmatch"><button class="btn secondary">Zrušiť spárovanie / obnoviť</button></form><% } %>
       <% if (tx.match_status === 'unmatched' && tx.amount > 0) { %><form method="post" action="/bank/<%= tx.id %>/ignore"><input type="hidden" name="note" value="Nesúvisí s faktúrami"><button class="btn secondary">Ignorovať (nesúvisí s faktúrami)</button></form><% } %>
     </div>
     <% if (tx.amount < 0 && tx.match_status === 'unmatched') { %>
@@ -25,6 +25,16 @@
       <div class="field" style="flex:2"><select name="invoice_id" required><option value="">– vyberte faktúru –</option><% for (const i of open) { %><option value="<%= i.id %>"><%= i.number %> – <%= i.client_name %> (zostáva <%= U.money(i.amount_due - i.paid_amount) %><%= i.retention_amount > i.retention_paid ? ', zádržné ' + U.money(i.retention_amount - i.retention_paid) : '' %>)</option><% } %></select></div>
       <div class="field"><select name="kind"><option value="payment">úhrada faktúry</option><option value="retention">vyplatenie zádržného</option></select></div>
       <div class="field" style="flex:0"><button class="btn">Spárovať</button></div>
+    </form><% } %>
+    <h2 class="mt">Staré pohľadávky (faktúry z minulých rokov)</h2>
+    <% if (!oldCandidates.length) { %><p class="muted small">Žiadna stará pohľadávka sa nezhoduje (VS, suma, názov zákazníka).</p><% } else { %>
+    <table class="compact"><tr><th>Zákazník</th><th>VS</th><th class="num">Zostáva</th><th>Zhoda</th><th></th></tr>
+    <% for (const c of oldCandidates) { %><tr><td><a href="/receivables/<%= c.receivable.id %>"><%= c.receivable.customer_name %></a></td><td><%= c.receivable.variable_symbol || '–' %><%= c.receivable.year ? ' (' + c.receivable.year + ')' : '' %></td><td class="num"><%= U.money(c.remaining) %></td><td><span class="badge <%= c.score >= 80 ? 'ok' : (c.score >= 50 ? 'warn' : 'muted') %>"><%= c.score %></span> <span class="small muted"><%= c.reasons.join(', ') %></span></td>
+    <td class="right"><% if (tx.match_status === 'unmatched') { %><form method="post" action="/bank/<%= tx.id %>/match-old"><input type="hidden" name="receivable_id" value="<%= c.receivable.id %>"><button class="btn sm">Priradiť</button></form><% } %></td></tr><% } %></table><% } %>
+    <% if (tx.match_status === 'unmatched' && oldOpen.length) { %>
+    <form method="post" action="/bank/<%= tx.id %>/match-old" class="row mt" style="align-items:flex-end">
+      <div class="field" style="flex:2"><select name="receivable_id" required><option value="">– vyberte starú pohľadávku –</option><% for (const o of oldOpen) { %><option value="<%= o.id %>"><%= o.customer_name %> – VS <%= o.variable_symbol || '–' %><%= o.year ? ' (' + o.year + ')' : '' %> (zostáva <%= U.money(o.amount - o.paid_amount) %>)</option><% } %></select></div>
+      <div class="field" style="flex:0"><button class="btn secondary">Priradiť</button></div>
     </form><% } %>
     <% } else { %><h2>Odchádzajúca platba</h2><p class="muted">Odchádzajúce platby sa nepárujú s vystavenými faktúrami. Môžete ich zaevidovať ako náklad.</p><% } %>
   </div>

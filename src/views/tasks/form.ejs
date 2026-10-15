@@ -5,7 +5,7 @@
   <div class="field"><label>Čo treba urobiť *</label><input type="text" name="title" value="<%= t.title || '' %>" required autofocus placeholder="napr. Zabezpečiť ubytovanie pre 4 pracovníkov od 15.10."></div>
   <div class="field"><label>Podrobnosti</label><textarea name="description" style="min-height:100px"><%= t.description || '' %></textarea></div>
   <div class="row">
-    <div class="field"><label>Rieši (komu je úloha zadaná) *</label><select name="assigned_to" required><% for (const u of users) { %><option value="<%= u.id %>" <%= t.assigned_to==u.id?'selected':'' %>><%= u.name || u.username %></option><% } %></select><div class="help">Zadávateľ = prihlásený používateľ (<%= user.name || user.username %>). Ďalších používateľov pridáte v Nastavenia → Účet.</div></div>
+    <div class="field"><label>Rieši (komu je úloha zadaná) *</label><select name="assigned_to" required><% for (const u of users) { %><option value="<%= u.id %>" <%= t.assigned_to==u.id?'selected':'' %>><%= u.name || u.username %></option><% } %></select><div class="help">Zadávateľ = prihlásený používateľ (<%= user.name || user.username %>). Poradie riešiteľov (Stxxz, Adam, Luca, …) a ďalších používateľov nastavíte v Nastavenia → Účet.</div></div>
     <div class="field"><label>Termín</label><input type="date" name="due_date" value="<%= t.due_date || '' %>"></div>
     <div class="field"><label>Priorita</label><select name="priority"><% for (const [k, v] of Object.entries(PRIORITIES)) { %><option value="<%= k %>" <%= (t.priority||'normal')===k?'selected':'' %>><%= v[0] %></option><% } %></select></div>
   </div>
