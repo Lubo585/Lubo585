@@ -12,26 +12,40 @@ const field =
 
 export default function Contact() {
   const reduced = useReducedMotion()
-  const [sent, setSent] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const fd = new FormData(e.currentTarget)
-    const lines = [
-      `Name: ${fd.get('name')}`,
-      `Unternehmen: ${fd.get('company')}`,
-      `E-Mail: ${fd.get('email')}`,
-      `Telefon: ${fd.get('phone')}`,
-      `Gewerk / Anzahl: ${fd.get('trade')}`,
-      '',
-      `${fd.get('message')}`,
-    ]
-    const url = `mailto:${company.email}?subject=${encodeURIComponent(contact.form.subject)}&body=${encodeURIComponent(
-      lines.join('\n'),
-    )}`
-    window.location.href = url
-    setSent(true)
+    const form = e.currentTarget
+    const fd = new FormData(form)
+    if (fd.get('_honey')) return
+    const payload = {
+      name: String(fd.get('name') ?? ''),
+      company: String(fd.get('company') ?? ''),
+      email: String(fd.get('email') ?? ''),
+      phone: String(fd.get('phone') ?? ''),
+      trade: String(fd.get('trade') ?? ''),
+      message: String(fd.get('message') ?? ''),
+      _subject: contact.form.subject,
+      _template: 'table',
+      _captcha: 'false',
+    }
+    setStatus('sending')
+    try {
+      const res = await fetch(`https://formsubmit.co/ajax/${company.email}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) throw new Error(String(res.status))
+      setStatus('sent')
+      form.reset()
+    } catch {
+      setStatus('error')
+    }
   }
+
+  const mailtoHref = `mailto:${company.email}?subject=${encodeURIComponent(contact.form.subject)}`
 
   return (
     <section id="kontakt" className="relative py-24 sm:py-32">
@@ -102,6 +116,7 @@ export default function Contact() {
               className="rounded-[2rem] border border-line bg-ink-2/60 p-6 sm:p-10"
               noValidate={false}
             >
+              <input type="text" name="_honey" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
               <div className="grid gap-4 sm:grid-cols-2">
                 <input name="name" required placeholder={contact.form.name} className={field} autoComplete="name" />
                 <input name="company" placeholder={contact.form.companyName} className={field} autoComplete="organization" />
@@ -117,16 +132,36 @@ export default function Contact() {
                 />
               </div>
               <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <p className="max-w-sm text-xs leading-relaxed text-mist">{contact.form.privacy}</p>
+                <p className="max-w-sm text-xs leading-relaxed text-mist">
+                  {contact.form.privacy}{' '}
+                  <a href="#datenschutz" className="underline decoration-line underline-offset-2 hover:text-amber">
+                    Datenschutzerklärung
+                  </a>
+                </p>
                 <Magnetic>
                   <button
                     type="submit"
-                    className="group inline-flex items-center gap-2 rounded-full bg-amber px-6 py-3.5 font-semibold text-ink transition-colors hover:bg-amber-2"
+                    disabled={status === 'sending' || status === 'sent'}
+                    className="group inline-flex items-center gap-2 rounded-full bg-amber px-6 py-3.5 font-semibold text-ink transition-colors hover:bg-amber-2 disabled:cursor-default disabled:opacity-80"
                   >
-                    {sent ? 'E-Mail-Programm geöffnet' : contact.form.submit}
+                    {status === 'sending' ? 'Wird gesendet …' : status === 'sent' ? 'Anfrage gesendet' : contact.form.submit}
                     <Send size={16} className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-0.5" />
                   </button>
                 </Magnetic>
+              </div>
+              <div aria-live="polite" className="mt-4 text-sm">
+                {status === 'sent' && (
+                  <p className="text-amber">Vielen Dank! Wir melden uns innerhalb eines Werktags bei Ihnen.</p>
+                )}
+                {status === 'error' && (
+                  <p className="text-mist">
+                    Die Anfrage konnte nicht gesendet werden. Bitte schreiben Sie uns direkt an{' '}
+                    <a href={mailtoHref} className="text-amber underline underline-offset-2">
+                      {company.email}
+                    </a>
+                    .
+                  </p>
+                )}
               </div>
             </form>
           </Reveal>

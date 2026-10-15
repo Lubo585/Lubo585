@@ -11,6 +11,7 @@ import Stats from './components/Stats'
 import References from './components/References'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
+import LegalModal from './components/LegalModal'
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
+      <LegalModal />
     </SmoothScroll>
   )
 }

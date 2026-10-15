@@ -33,12 +33,13 @@ Všetky texty sú v súbore `src/content/de.ts`. Položky označené komentárom
 - čísla v sekcii štatistík (počet pracovníkov, roky skúseností, projekty)
 - názvy, miesta a rozsah troch menších referencií
 
-Kontaktný formulár aktuálne otvára e-mailového klienta (mailto na info@pspsk.de).
-Ak chcete odosielanie bez e-mailového klienta, pripojte službu ako Formspree alebo
-Web3Forms v súbore `src/components/Contact.tsx`.
+Kontaktný formulár odosiela správy cez službu FormSubmit (formsubmit.co) na adresu
+info@pspsk.de. Po prvom odoslaní príde na túto adresu aktivačný e-mail, ktorý treba
+raz potvrdiť. Ak odoslanie zlyhá, formulár ponúkne priamy mailto odkaz.
 
-Stránky „Impressum“ a „Datenschutz“ v pätičke sú zatiaľ len kotvy. Pre nemecký trh
-je potrebné doplniť plné znenie Impressum a Datenschutzerklärung (DSGVO).
+Impressum a Datenschutzerklärung sú v súbore `src/content/legal.ts` a otvárajú sa
+z pätičky ako modálne okno (kotvy #impressum a #datenschutz). Pred spustením ich
+odporúčame nechať skontrolovať nemeckým právnikom.
 
 ## Štruktúra
 
