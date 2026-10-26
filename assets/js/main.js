@@ -141,7 +141,7 @@
         `Anliegen: ${data.get("anliegen")}\n\n` +
         `${data.get("nachricht")}`
       );
-      const mailto = `mailto:info@sxworkforce.de?subject=${betreff}&body=${body}`;
+      const mailto = `mailto:office@sxworkforce.de?subject=${betreff}&body=${body}`;
       form.dataset.lastMailto = mailto;
       window.location.href = mailto;
       const ok = form.querySelector(".form__success");

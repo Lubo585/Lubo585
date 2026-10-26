@@ -131,13 +131,13 @@ try {
   check(await p.isVisible("#datenschutz"), "Direktaufruf /#datenschutz öffnet das Overlay");
   await p.goto(BASE + "/", { waitUntil: "networkidle" });
   const telMail = links.filter((l) => l.startsWith("tel:") || l.startsWith("mailto:"));
-  check(telMail.some((l) => l.includes("+421952566014")) && telMail.some((l) => l.includes("info@sxworkforce.de")),
+  check(telMail.some((l) => l.includes("+4915510933689")) && telMail.some((l) => l.includes("office@sxworkforce.de")),
     "Telefon- und E-Mail-Links korrekt");
 
   // Pflichtinhalte
   const text = await p.evaluate(() => document.body.textContent);
   for (const must of ["Elektroinstallationen", "Heizung, Lüftung, Sanitär", "Trockenbau", "Gerüstbau", "Komplette Bauarbeiten", "Wer wir sind", "Nachunternehmer",
-    "Luca Schulz", "Peter Krško", "Büro & Recruiting", "Fuhrpark", "Häufige Fragen", "Impressum", "Datenschutz", "info@sxworkforce.de", "+421 952 566 014", "www.sxworkforce.de"]) {
+    "Luca Schulz", "Peter Krško", "Büro & Recruiting", "Fuhrpark", "Häufige Fragen", "Impressum", "Datenschutz", "office@sxworkforce.de", "+49 155 10933689", "www.sxworkforce.de"]) {
     check(text.includes(must), `Inhalt vorhanden: „${must}“`);
   }
   const brandImgs = imgs2.filter((i) => /hero|service-|project-(site|team|geruest)|team-|fleet|van|truck/.test(i.src)).length;
@@ -183,7 +183,7 @@ try {
   await p.click("#kontaktformular button[type=submit]");
   await p.waitForTimeout(300);
   const navTarget = await p.evaluate(() => document.querySelector("#kontaktformular").dataset.lastMailto);
-  check(typeof navTarget === "string" && navTarget.startsWith("mailto:info@sxworkforce.de") && navTarget.includes("Mustermann"),
+  check(typeof navTarget === "string" && navTarget.startsWith("mailto:office@sxworkforce.de") && navTarget.includes("Mustermann"),
     "Formular erzeugt korrekte mailto-Anfrage mit eingegebenen Daten", String(navTarget).slice(0, 80));
   check(await p.isVisible("#kontaktformular .form__success"), "Erfolgsmeldung nach dem Absenden sichtbar");
   await p.close();
