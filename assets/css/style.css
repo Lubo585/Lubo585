@@ -114,7 +114,7 @@ p { margin: 0 0 1em; }
 }
 .hero__bg {
   position: absolute; inset: 0;
-  background: url("../img/hero.jpg?v=20261026") center/cover no-repeat;
+  background: url("../img/hero.jpg?v=20261026b") center/cover no-repeat;
   transform: scale(1.02);
 }
 .hero__bg::after {
