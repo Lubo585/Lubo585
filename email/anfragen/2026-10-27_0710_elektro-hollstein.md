@@ -2,11 +2,11 @@ Odoslať: 27. 10. 2026 o 07:10 (Europe/Bratislava)
 Od: Luca Schulz <office@sxworkforce.de>
 Komu: info@elektro-hollstein.de
 Firma: Elektro Hollstein GmbH, Bernbrunner Straße 31, 74831 Gundelsheim (Baden-Württemberg), Tel. +49 7136 9649261
-Betreff: Zusammenarbeit Elektroinstallation – Monteure und Kolonnen mit Vorarbeiter, 32 €/Std. – wie heute telefonisch besprochen
+Betreff: Zusammenarbeit Elektroinstallation – Monteure und Kolonnen mit Vorarbeiter, 32 €/Std. – wie gestern telefonisch besprochen
 
 Sehr geehrte Damen und Herren,
 
-vielen Dank für das heutige Telefonat. Wie besprochen sende ich Ihnen unser Angebot für eine Zusammenarbeit im Bereich Elektroinstallation.
+vielen Dank für das gestrige Telefonat. Wie besprochen sende ich Ihnen unser Angebot für eine Zusammenarbeit im Bereich Elektroinstallation.
 
 Kurz zu uns: SX Workforce s.r.o. ist ein Bauunternehmen mit Sitz in Bratislava. Seit 2022 arbeiten unsere Monteure auf Baustellen in ganz Deutschland, aktuell sind rund 120 Leute im Einsatz, überwiegend für Elektro- und Haustechnikbetriebe. Wir sind keine Zeitarbeitsfirma: Wir übernehmen einen abgegrenzten Leistungsteil als Nachunternehmer, bringen unsere eigene Kolonne mit eigenem Vorarbeiter mit und sind für das Ergebnis verantwortlich.
 
