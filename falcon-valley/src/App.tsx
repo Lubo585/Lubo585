@@ -11,6 +11,7 @@ import Collection from './components/Collection'
 import Shop from './components/Shop'
 import Process from './components/Process'
 import Valley from './components/Valley'
+import Gallery from './components/Gallery'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import FalconModal from './components/FalconModal'
@@ -31,6 +32,7 @@ export default function App() {
           <Shop onOpen={setOpen} />
           <Process />
           <Valley />
+          <Gallery />
           <Contact />
         </main>
         <Footer />

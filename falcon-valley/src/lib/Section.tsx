@@ -21,10 +21,10 @@ export function SectionHeader({
       <Reveal>
         <span
           className={`inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] ${
-            light ? 'text-rust' : 'text-amber'
+            light ? 'text-brand-dark' : 'text-brand'
           }`}
         >
-          <span className={`h-px w-6 ${light ? 'bg-rust' : 'bg-amber'}`} />
+          <span className={`h-px w-6 ${light ? 'bg-brand-dark' : 'bg-brand'}`} />
           {eyebrow}
         </span>
       </Reveal>

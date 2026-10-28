@@ -3,6 +3,8 @@ import { useRef } from 'react'
 import { valley } from '../content/site'
 import { useLang } from '../lib/lang'
 import { FALCON_PATH, seededStars } from './Art'
+import { photos } from '../content/photos'
+import { usePhotoAvailable } from './Photo'
 
 const STARS = seededStars(70, 3)
 
@@ -24,11 +26,20 @@ export default function Valley() {
   const titleOpacity = useTransform(scrollYProgress, [0, 0.12, 0.85, 1], [0, 1, 1, 0])
   const falconX = useTransform(scrollYProgress, [0, 1], ['-10vw', '110vw'])
   const falconY = useTransform(scrollYProgress, [0, 0.5, 1], ['38vh', '22vh', '34vh'])
+  const hasPhoto = usePhotoAvailable(photos.valley.src)
+  const photoX = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '-12%'])
 
   return (
     <section ref={ref} id="valley" className="relative h-[260vh] bg-night">
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(100%_70%_at_50%_100%,#1f1a12_0%,#0d1420_45%,#06080c_80%)]" />
+        {hasPhoto && (
+          <motion.div style={{ x: photoX }} className="absolute inset-y-0 left-0 w-[125vw]" aria-hidden="true">
+            <img src={photos.valley.src} alt="" className="h-full w-full object-cover object-center" />
+            <div className="absolute inset-0 bg-night/55" />
+            <div className="absolute inset-0 bg-gradient-to-b from-night/80 via-night/20 to-night" />
+          </motion.div>
+        )}
         <svg viewBox="0 0 1440 320" preserveAspectRatio="xMidYMin slice" className="absolute inset-x-0 top-0 h-[45vh] w-full" aria-hidden="true">
           {STARS.map((s, i) => (
             <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="#f5f7fa" className="star" style={{ animationDelay: `${s.d}s` }} />
@@ -74,8 +85,8 @@ export default function Valley() {
         </motion.svg>
 
         <motion.div style={{ opacity: titleOpacity }} className="relative mx-auto flex h-full max-w-4xl flex-col items-center justify-start px-5 pt-24 text-center sm:px-8 sm:pt-28">
-          <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber">
-            <span className="h-px w-6 bg-amber" />
+          <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-brand">
+            <span className="h-px w-6 bg-brand" />
             {t(valley.eyebrow)}
           </span>
           <h2 className="gradient-text mt-5 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-balance sm:text-5xl lg:text-6xl">

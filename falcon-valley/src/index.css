@@ -13,9 +13,9 @@
   --color-snow-2: #e9edf2;
   --color-glacier: #8fc3ff;
   --color-glacier-2: #c7e1ff;
-  --color-amber: #e8a33d;
-  --color-amber-2: #ffc46b;
-  --color-rust: #b5651d;
+  --color-brand: #e3202b;
+  --color-brand-2: #ff4a54;
+  --color-brand-dark: #b3151e;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-display: "Outfit Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --ease-apple: cubic-bezier(0.22, 1, 0.36, 1);
@@ -50,8 +50,8 @@ body {
 }
 
 ::selection {
-  background: var(--color-amber);
-  color: var(--color-night);
+  background: var(--color-brand);
+  color: var(--color-snow);
 }
 
 .text-balance {
@@ -64,14 +64,14 @@ body {
 
 /* Apple-like gradient headline */
 .gradient-text {
-  background: linear-gradient(100deg, #ffffff 0%, #c7e1ff 45%, #ffc46b 100%);
+  background: linear-gradient(100deg, #ffffff 0%, #c7e1ff 45%, #ff8a90 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .gradient-text-dark {
-  background: linear-gradient(100deg, #06080c 0%, #2a3a52 55%, #b5651d 100%);
+  background: linear-gradient(100deg, #06080c 0%, #2a3a52 55%, #b3151e 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

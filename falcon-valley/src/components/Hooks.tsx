@@ -54,7 +54,7 @@ export default function Hooks() {
           {items.map((m, i) => (
             <span key={i} className="flex items-center gap-10 font-display text-sm font-medium uppercase tracking-[0.25em] text-mist/80">
               {t(m)}
-              <FalconSilhouette size={22} className="text-amber" />
+              <FalconSilhouette size={22} className="text-brand" />
             </span>
           ))}
         </div>

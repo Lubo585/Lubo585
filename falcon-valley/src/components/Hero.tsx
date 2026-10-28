@@ -7,6 +7,8 @@ import { SplitWords } from '../lib/Reveal'
 import { Magnetic } from '../lib/Magnetic'
 import { scrollTo } from '../lib/scroll'
 import { FALCON_PATH, LAYERS, seededStars } from './Art'
+import { photos } from '../content/photos'
+import { usePhotoAvailable } from './Photo'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -45,16 +47,33 @@ export default function Hero() {
   }, [mx, my, reduced])
 
   const stars = useMemo(() => seededStars(90), [])
+  const hasPhoto = usePhotoAvailable(photos.hero.src)
+  const yPhoto = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 120])
+  const scalePhoto = useTransform(scrollYProgress, [0, 1], [1.05, reduced ? 1.05 : 1.15])
 
   return (
     <section ref={ref} id="top" className="noise relative isolate min-h-[100svh] overflow-hidden">
       {/* sky */}
       <motion.div style={{ opacity: skyOpacity }} className="absolute inset-0 -z-30 bg-[radial-gradient(120%_80%_at_50%_100%,#2a1d12_0%,#0d1420_42%,#06080c_80%)]" />
+      {hasPhoto && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.6, ease }}
+          style={{ y: yPhoto, scale: scalePhoto }}
+          className="absolute inset-0 -z-[25]"
+          aria-hidden="true"
+        >
+          <img src={photos.hero.src} alt="" className="h-full w-full object-cover object-[50%_35%]" />
+          <div className="absolute inset-0 bg-night/45" />
+          <div className="absolute inset-0 bg-gradient-to-b from-night/70 via-night/20 to-night" />
+        </motion.div>
+      )}
 
-      <svg viewBox="0 0 1440 600" preserveAspectRatio="xMidYMax slice" className="absolute inset-0 -z-20 h-full w-full" aria-hidden="true">
+      <svg viewBox="0 0 1440 600" preserveAspectRatio="xMidYMax slice" className={`absolute inset-0 -z-20 h-full w-full transition-opacity duration-1000 ${hasPhoto ? 'opacity-70' : ''}`} aria-hidden="true">
         <defs>
           <linearGradient id="dawn" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stopColor="#e8a33d" stopOpacity="0.55" />
+            <stop offset="0" stopColor="#e3202b" stopOpacity="0.55" />
             <stop offset="0.5" stopColor="#8fc3ff" stopOpacity="0.12" />
             <stop offset="1" stopColor="#06080c" stopOpacity="0" />
           </linearGradient>
@@ -130,8 +149,9 @@ export default function Hero() {
           transition={{ duration: 0.7, ease, delay: 0.1 }}
           className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-mist backdrop-blur"
         >
-          <span className="h-1.5 w-1.5 rounded-full bg-amber" />
+          <span className="h-1.5 w-1.5 rounded-full bg-brand" />
           {t(hero.eyebrow)}
+          <span className="text-snow/80 normal-case tracking-normal" dir="rtl" lang="ar">وادي الصقور</span>
         </motion.span>
 
         <h1 className="gradient-text mt-7 font-display text-5xl font-semibold leading-[1.02] tracking-[-0.03em] text-balance sm:text-7xl lg:text-[6.5rem]">

@@ -4,6 +4,9 @@ import { story } from '../content/site'
 import { useLang } from '../lib/lang'
 import { SectionHeader, Container } from '../lib/Section'
 import { FALCON_PATH, LAYERS } from './Art'
+import { photos } from '../content/photos'
+import { usePhotoAvailable } from './Photo'
+import { AnimatePresence } from 'motion/react'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -16,7 +19,7 @@ function Step({ index, active, onActive, title, text }: { index: number; active:
   return (
     <div ref={ref} className="min-h-[60vh] flex flex-col justify-center py-10 lg:min-h-[70vh]">
       <motion.div animate={{ opacity: active ? 1 : 0.35, x: active ? 0 : -8 }} transition={{ duration: 0.6, ease }}>
-        <span className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-rust">0{index + 1}</span>
+        <span className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-brand-dark">0{index + 1}</span>
         <h3 className="mt-3 font-display text-3xl font-semibold tracking-tight text-night sm:text-4xl">{title}</h3>
         <p className="mt-4 max-w-md text-lg leading-relaxed text-stone/80 text-pretty">{text}</p>
       </motion.div>
@@ -26,7 +29,7 @@ function Step({ index, active, onActive, title, text }: { index: number; active:
 
 const scenes = [
   { sky: ['#dbe8f8', '#f5f7fa'], peak: '#8fc3ff', accent: '#2a3a52' },
-  { sky: ['#f7e7d2', '#f5f7fa'], peak: '#c7a67a', accent: '#b5651d' },
+  { sky: ['#f7e7d2', '#f5f7fa'], peak: '#c7a67a', accent: '#b3151e' },
   { sky: ['#dfe9f3', '#ffffff'], peak: '#9fb4cc', accent: '#1c2430' },
   { sky: ['#e9eef4', '#f5f7fa'], peak: '#6f8db3', accent: '#06080c' },
 ]
@@ -36,6 +39,7 @@ export default function Story() {
   const [active, setActive] = useState(0)
   const reduced = useReducedMotion()
   const scene = scenes[active]
+  const photoOk = usePhotoAvailable(photos.story[active]?.src)
 
   return (
     <section id="story" className="relative bg-snow text-night">
@@ -72,19 +76,34 @@ export default function Story() {
               </motion.g>
             </svg>
 
+            <AnimatePresence>
+              {photoOk && (
+                <motion.div
+                  key={photos.story[active].src}
+                  initial={{ opacity: 0, scale: 1.06 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1, ease }}
+                  className="absolute inset-0"
+                >
+                  <img src={photos.story[active].src} alt={t(photos.story[active].alt)} className="h-full w-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-night/70 via-transparent to-transparent" />
+                </motion.div>
+              )}
+            </AnimatePresence>
             <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-8">
               <div className="flex gap-1.5">
                 {story.steps.map((_, i) => (
-                  <span key={i} className={`h-1 rounded-full transition-all duration-500 ${active === i ? 'w-8 bg-night' : 'w-3 bg-night/25'}`} />
+                  <span key={i} className={`h-1 rounded-full transition-all duration-500 ${active === i ? `w-8 ${photoOk ? 'bg-snow' : 'bg-night'}` : `w-3 ${photoOk ? 'bg-snow/40' : 'bg-night/25'}`}`} />
                 ))}
               </div>
               <motion.span
                 key={active}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-night/60"
+                className={`font-display text-sm font-semibold uppercase tracking-[0.2em] ${photoOk ? 'text-snow/90' : 'text-night/60'}`}
               >
-                {t(story.steps[active].title)}
+                {photoOk ? t(photos.story[active].caption) : t(story.steps[active].title)}
               </motion.span>
             </div>
           </div>

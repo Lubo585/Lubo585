@@ -1,15 +1,16 @@
 import type { Localized } from '../lib/lang'
 
 export const company = {
-  name: 'Falcon Valley',
-  email: 'info@falconvalley.sk', // DOPLNIŤ
+  name: 'Falcons Valley',
+  arabic: 'وادي الصقور',
+  email: 'info@falconsvalley.sk', // DOPLNIŤ
   phone: '+421 900 000 000', // DOPLNIŤ
   phoneHref: 'tel:+421900000000', // DOPLNIŤ
-  instagram: 'https://instagram.com/falconvalley', // DOPLNIŤ
-  youtube: 'https://youtube.com/@falconvalley', // DOPLNIŤ
+  instagram: 'https://instagram.com/falconsvalley', // DOPLNIŤ
+  youtube: 'https://youtube.com/@falconsvalley', // DOPLNIŤ
   location: { sk: 'Dolina pod Vysokými Tatrami, Slovensko', en: 'Valley below the High Tatras, Slovakia' } as Localized,
   /** adresa, na ktorú FormSubmit doručí správy z formulára */
-  formEndpoint: 'https://formsubmit.co/ajax/info@falconvalley.sk', // DOPLNIŤ
+  formEndpoint: 'https://formsubmit.co/ajax/info@falconsvalley.sk', // DOPLNIŤ
 }
 
 export const nav = {
@@ -24,7 +25,7 @@ export const nav = {
 }
 
 export const hero = {
-  eyebrow: { sk: 'Falcon Valley · Vysoké Tatry', en: 'Falcon Valley · High Tatras' } as Localized,
+  eyebrow: { sk: 'Falcons Valley · Vysoké Tatry', en: 'Falcons Valley · High Tatras' } as Localized,
   title: { sk: 'Rýchlosť, ktorá sa rodí v doline.', en: 'Speed, born in the valley.' } as Localized,
   subtitle: {
     sk: 'Chovateľská stanica sokolov pod najvyššími štítmi Slovenska. Sokoly sťahovavé, rárohy a gyr hybridy z vlastného odchovu – s rodokmeňom, krúžkom a dokladmi CITES.',
@@ -59,8 +60,8 @@ export const story = {
     {
       title: { sk: 'Dolina', en: 'The valley' },
       text: {
-        sk: 'Falcon Valley leží v tichej doline pod Vysokými Tatrami. Čistý vzduch, studené rána a otvorené nebo – prostredie, v ktorom sokoly rastú tak, ako ich stvorila príroda.',
-        en: 'Falcon Valley sits in a quiet valley beneath the High Tatras. Clean air, cold mornings and open sky – the environment falcons were made for.',
+        sk: 'Falcons Valley leží v tichej doline pod Vysokými Tatrami. Čistý vzduch, studené rána a otvorené nebo – prostredie, v ktorom sokoly rastú tak, ako ich stvorila príroda.',
+        en: 'Falcons Valley sits in a quiet valley beneath the High Tatras. Clean air, cold mornings and open sky – the environment falcons were made for.',
       },
     },
     {
@@ -88,7 +89,7 @@ export const story = {
 }
 
 export const pillars = {
-  eyebrow: { sk: 'Prečo Falcon Valley', en: 'Why Falcon Valley' } as Localized,
+  eyebrow: { sk: 'Prečo Falcons Valley', en: 'Why Falcons Valley' } as Localized,
   title: { sk: 'Detail je rozdiel medzi dobrým a výnimočným sokolom.', en: 'Detail is the difference between a good falcon and an exceptional one.' } as Localized,
   items: [
     {
@@ -128,8 +129,8 @@ export const collection = {
   eyebrow: { sk: 'Naše sokoly', en: 'Our falcons' } as Localized,
   title: { sk: 'Chovné páry, ktoré píšu našu líniu.', en: 'The breeding pairs that write our line.' } as Localized,
   subtitle: {
-    sk: 'Zakladatelia chovu a ich potomkovia. Tieto sokoly nie sú na predaj – sú srdcom Falcon Valley.',
-    en: 'Our founders and their offspring. These falcons are not for sale – they are the heart of Falcon Valley.',
+    sk: 'Zakladatelia chovu a ich potomkovia. Tieto sokoly nie sú na predaj – sú srdcom Falcons Valley.',
+    en: 'Our founders and their offspring. These falcons are not for sale – they are the heart of Falcons Valley.',
   } as Localized,
 }
 
@@ -196,6 +197,15 @@ export const valley = {
   ],
 }
 
+export const gallery = {
+  eyebrow: { sk: 'Dolina v obrazoch', en: 'The valley in pictures' } as Localized,
+  title: { sk: 'Krása, ktorú sokoly vidia každý deň.', en: 'The beauty our falcons see every day.' } as Localized,
+  subtitle: {
+    sk: 'Štíty, plesá a doliny Vysokých Tatier – domov Falcons Valley.',
+    en: 'Peaks, tarns and valleys of the High Tatras – home of Falcons Valley.',
+  } as Localized,
+}
+
 export const contact = {
   eyebrow: { sk: 'Kontakt', en: 'Contact' } as Localized,
   title: { sk: 'Napíšte nám. Odpovedáme do 24 hodín.', en: 'Write to us. We reply within 24 hours.' } as Localized,
@@ -223,4 +233,5 @@ export const footer = {
   tagline: { sk: 'Sokoly z doliny pod Vysokými Tatrami.', en: 'Falcons from the valley below the High Tatras.' } as Localized,
   legal: { sk: 'Všetky sokoly pochádzajú z legálneho chovu s dokladmi CITES. Predaj len osobám s oprávnením držať dravce podľa platnej legislatívy.', en: 'All falcons come from legal breeding with CITES documents. Sold only to persons licensed to keep birds of prey under applicable law.' } as Localized,
   rights: { sk: 'Všetky práva vyhradené.', en: 'All rights reserved.' } as Localized,
+  photoCredits: { sk: 'Fotografie Tatier:', en: 'Tatras photos:' } as Localized,
 }

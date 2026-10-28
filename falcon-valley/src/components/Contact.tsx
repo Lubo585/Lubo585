@@ -20,7 +20,7 @@ export default function Contact() {
   }, [])
 
   const selected = falcons.find((f) => f.id === falconId)
-  const subject = selected ? `Falcon Valley – ${selected.name} (${selected.ringNumber})` : 'Falcon Valley'
+  const subject = selected ? `Falcons Valley – ${selected.name} (${selected.ringNumber})` : 'Falcons Valley'
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -47,17 +47,17 @@ export default function Contact() {
 
   return (
     <section id="contact" className="relative bg-night">
-      <div className="pointer-events-none absolute bottom-0 left-1/2 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-amber/10 blur-[140px]" />
+      <div className="pointer-events-none absolute bottom-0 left-1/2 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-brand/10 blur-[140px]" />
       <Container className="grid gap-14 py-24 sm:py-32 lg:grid-cols-2 lg:gap-24">
         <div>
           <SectionHeader eyebrow={t(contact.eyebrow)} title={t(contact.title)} subtitle={t(contact.subtitle)} />
           <Reveal delay={3} className="mt-10 space-y-3 text-mist">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-mist/70">{t(contact.direct)}</p>
-            <a href={mailto} className="flex items-center gap-3 text-lg text-snow transition hover:text-amber">
-              <Mail size={18} className="text-amber" /> {company.email}
+            <a href={mailto} className="flex items-center gap-3 text-lg text-snow transition hover:text-brand">
+              <Mail size={18} className="text-brand" /> {company.email}
             </a>
-            <a href={company.phoneHref} className="flex items-center gap-3 text-lg text-snow transition hover:text-amber">
-              <Phone size={18} className="text-amber" /> {company.phone}
+            <a href={company.phoneHref} className="flex items-center gap-3 text-lg text-snow transition hover:text-brand">
+              <Phone size={18} className="text-brand" /> {company.phone}
             </a>
             <div className="flex gap-3 pt-3">
               <a href={company.instagram} target="_blank" rel="noreferrer" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-snow transition hover:bg-white/5" aria-label="Instagram">
@@ -102,7 +102,7 @@ export default function Contact() {
             </button>
             {state === 'sent' && <p className="mt-4 text-sm text-emerald-300">{t(contact.form.sent)}</p>}
             {state === 'error' && (
-              <p className="mt-4 text-sm text-amber-2">
+              <p className="mt-4 text-sm text-brand-2">
                 {t(contact.form.error)}{' '}
                 <a href={mailto} className="underline">{company.email}</a>
               </p>

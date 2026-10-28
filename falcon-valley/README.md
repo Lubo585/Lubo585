@@ -1,7 +1,7 @@
-# Falcon Valley – prezentačná stránka a shop so sokolmi
+# Falcons Valley – prezentačná stránka a shop so sokolmi
 
 Jednostránkový web v štýle Apple (veľká typografia, plynulé animácie, sticky
-sekcie, parallax hôr) pre chovateľskú stanicu **Falcon Valley** pod Vysokými
+sekcie, parallax hôr) pre chovateľskú stanicu **Falcons Valley** pod Vysokými
 Tatrami. Dvojjazyčný (SK / EN), prepínač jazyka je v hornej lište.
 
 ## Sekcie
@@ -11,7 +11,7 @@ Tatrami. Dvojjazyčný (SK / EN), prepínač jazyka je v hornej lište.
 2. **Virálne hooky** – animované počítadlá (390 km/h, 8× ostrejší zrak,
    2 655 m Gerlach, 100 % vlastný odchov) a bežiaci pás.
 3. **Príbeh** – sticky ilustrácia, ktorá mení farby podľa kroku príbehu.
-4. **Prečo Falcon Valley** – 3D tilt karty.
+4. **Prečo Falcons Valley** – 3D tilt karty.
 5. **Naše sokoly** – chovné páry (nepredajné), horizontálny slider.
 6. **Shop – Sokoly na predaj** – filter podľa druhu, prepínač „len dostupné“,
    karty s hmotnosťou, pohlavím a číslom krúžku, detail v modálnom okne
@@ -19,7 +19,39 @@ Tatrami. Dvojjazyčný (SK / EN), prepínač jazyka je v hornej lište.
    rodičia, cena) a tlačidlo „Mám záujem“, ktoré predvyplní kontaktný formulár.
 7. **Ako prebieha kúpa** – 4 kroky s animovanou časovou osou.
 8. **Dolina** – scroll-driven panoráma Tatier s výškami štítov.
-9. **Kontakt** – formulár (FormSubmit) + priame kontakty.
+9. **Dolina v obrazoch** – galéria fotografií Tatier (po stiahnutí fotiek).
+10. **Kontakt** – formulár (FormSubmit) + priame kontakty.
+
+## Logo
+
+Logo je prekreslené do SVG podľa originálu (červené FV s rýchlostnými pruhmi,
+nápis FALCONS VALLEY™ a arabský podtitul وادي الصقور):
+
+- `src/components/Art.tsx` – komponenty `FVMark`, `Logo` (lišta) a `LogoFull` (pätička)
+- `public/logo.svg` – samostatné logo, `public/favicon.svg` – ikona
+
+Ak máte originálne logo vo vektore (SVG/AI/PDF), vložte ho do `public/` a
+v `Art.tsx` nahraďte vnútro `FVMark` jeho obsahom.
+
+## Fotografie Vysokých Tatier
+
+Stránka používa fotky z priečinka `public/tatry/` (hero pozadie, príbeh,
+sekcia Dolina, galéria „Dolina v obrazoch“ a kredity v pätičke). Kým fotky
+chýbajú, všetko funguje ďalej – zobrazia sa ilustrácie a galéria sa skryje.
+
+Voľne licencované fotky z Wikimedia Commons (CC BY-SA, Štrbské pleso, Popradské
+pleso, Gerlach, Kriváň, Mengusovská a Veľká Studená dolina) stiahnete jedným
+príkazom:
+
+```bash
+cd falcon-valley
+npm run photos
+```
+
+Zoznam súborov, autorov a licencií je v `public/tatry/CREDITS.md` a v
+`src/content/photos.ts`. Fotky môžete nahradiť vlastnými – stačí zachovať
+názvy súborov (napr. `hero.jpg`, `gerlach.jpg`) alebo upraviť cesty v
+`src/content/photos.ts`. Odporúčaná šírka 1920 px.
 
 ## Technológie
 
@@ -55,7 +87,7 @@ Všetky sokoly sú v súbore `src/content/falcons.ts` v poli `falcons`.
   hatched: '2026-04-18',
   weightGrams: 1040,
   wingspanCm: 112,             // voliteľné
-  origin: { sk: 'Vlastný odchov, Falcon Valley', en: 'Own breeding, Falcon Valley' },
+  origin: { sk: 'Vlastný odchov, Falcons Valley', en: 'Own breeding, Falcons Valley' },
   ringNumber: 'SK 26 FV 0412',
   cites: 'SK/CITES/26/0412',   // voliteľné
   microchip: '941000012345678',// voliteľné

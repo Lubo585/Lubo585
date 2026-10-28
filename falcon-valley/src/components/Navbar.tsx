@@ -46,7 +46,7 @@ export default function Navbar() {
             solid ? 'glass border-white/10' : 'border-transparent'
           }`}
         >
-          <a href="#top" onClick={(e) => { e.preventDefault(); go('top') }} aria-label="Falcon Valley">
+          <a href="#top" onClick={(e) => { e.preventDefault(); go('top') }} aria-label="Falcons Valley">
             <Logo />
           </a>
 
@@ -81,7 +81,7 @@ export default function Navbar() {
             </div>
             <button
               onClick={() => go('shop')}
-              className="hidden rounded-full bg-amber px-4 py-2 text-sm font-semibold text-night transition hover:bg-amber-2 sm:inline-flex"
+              className="hidden rounded-full bg-brand px-4 py-2 text-sm font-semibold text-night transition hover:bg-brand-2 sm:inline-flex"
             >
               {t(nav.cta)}
             </button>
@@ -127,7 +127,7 @@ export default function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease, delay: 0.4 }}
               onClick={() => go('shop')}
-              className="mt-10 self-start rounded-full bg-amber px-6 py-3 text-base font-semibold text-night"
+              className="mt-10 self-start rounded-full bg-brand px-6 py-3 text-base font-semibold text-night"
             >
               {t(nav.cta)}
             </motion.button>

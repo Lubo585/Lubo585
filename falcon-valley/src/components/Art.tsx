@@ -23,28 +23,54 @@ export function FalconSilhouette({ className = '', size = 64, color = 'currentCo
   )
 }
 
+/** Značka FV – červené šikmé písmená s rýchlostnými pruhmi (podľa originálneho loga). */
+export function FVMark({ size = 36, color = '#e3202b', className = '' }: { size?: number; color?: string; className?: string }) {
+  return (
+    <svg viewBox="0 0 230 110" width={size * 2.1} height={size} className={className} aria-hidden="true">
+      <g transform="skewX(-18) translate(60 0)" fill={color}>
+        {/* rýchlostné pruhy */}
+        <path d="M-8 110 L-8 46 Q-8 26 12 22 L12 36 Q6 38 6 48 L6 110 Z" />
+        <path d="M-24 110 L-24 56 Q-24 30 0 24 L0 38 Q-10 42 -10 58 L-10 110 Z" opacity="0.85" />
+        <path d="M-40 110 L-40 66 Q-40 38 -14 28 L-14 42 Q-26 48 -26 68 L-26 110 Z" opacity="0.7" />
+        {/* F */}
+        <rect x="18" y="0" width="26" height="110" />
+        <rect x="18" y="0" width="76" height="22" />
+        <rect x="18" y="44" width="62" height="20" />
+        {/* V */}
+        <polygon points="104,0 132,0 150,74 168,0 196,0 164,110 136,110" />
+      </g>
+    </svg>
+  )
+}
+
 export function Logo({ className = '', light = false }: { className?: string; light?: boolean }) {
   const ink = light ? '#06080c' : '#f5f7fa'
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true">
-        <defs>
-          <linearGradient id="fv-peak" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#c7e1ff" />
-            <stop offset="1" stopColor="#8fc3ff" />
-          </linearGradient>
-        </defs>
-        <circle cx="20" cy="20" r="19" fill="none" stroke={ink} strokeOpacity="0.18" />
-        <path d="M4 31 L13 17 L17.5 23 L23 13 L29 22 L32.5 18 L36 31 Z" fill="url(#fv-peak)" />
-        <path d="M4 31 L13 17 L17.5 23 L23 13 L29 22 L32.5 18 L36 31 Z" fill={ink} opacity="0.12" />
-        <g transform="translate(21 11) rotate(-90) scale(0.17)">
-          <path d={FALCON_PATH} fill="#e8a33d" />
-        </g>
-      </svg>
-      <span className="font-display text-[17px] font-semibold tracking-tight" style={{ color: ink }}>
-        Falcon<span className="text-amber">Valley</span>
+      <FVMark size={22} />
+      <span className="flex flex-col leading-none">
+        <span className="font-display text-[15px] font-bold uppercase tracking-[0.18em] text-brand">Falcons Valley</span>
+        <span className="mt-0.5 text-[11px] tracking-wide" style={{ color: ink, opacity: 0.75 }} dir="rtl" lang="ar">
+          وادي الصقور
+        </span>
       </span>
     </span>
+  )
+}
+
+/** Celé logo – značka, názov a arabský podtitul. */
+export function LogoFull({ className = '', light = false }: { className?: string; light?: boolean }) {
+  const ink = light ? '#06080c' : '#f5f7fa'
+  return (
+    <div className={`flex flex-col items-center ${className}`}>
+      <FVMark size={72} />
+      <span className="mt-3 font-display text-xl font-bold uppercase tracking-[0.28em] text-brand sm:text-2xl">
+        Falcons Valley<sup className="ml-0.5 text-[10px] tracking-normal">™</sup>
+      </span>
+      <span className="mt-1 text-lg tracking-wide sm:text-xl" style={{ color: ink, opacity: 0.85 }} dir="rtl" lang="ar">
+        وادي الصقور
+      </span>
+    </div>
   )
 }
 
@@ -61,10 +87,10 @@ export const LAYERS = {
 /** Ilustrácia sokola pre karty bez fotografie. */
 const palettes: Record<Species, [string, string, string]> = {
   peregrine: ['#1b2433', '#3a4a66', '#8fc3ff'],
-  saker: ['#2a2016', '#6b4a2a', '#e8a33d'],
+  saker: ['#2a2016', '#6b4a2a', '#e3202b'],
   gyr: ['#2b313a', '#8e98a8', '#f5f7fa'],
   'gyr-peregrine': ['#1e2733', '#5c6f8f', '#c7e1ff'],
-  'gyr-saker': ['#2a241c', '#7b6447', '#ffc46b'],
+  'gyr-saker': ['#2a241c', '#7b6447', '#ff8a90'],
   lanner: ['#2a1c14', '#7a4a2a', '#ffb98a'],
 }
 

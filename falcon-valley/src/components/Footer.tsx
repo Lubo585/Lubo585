@@ -4,10 +4,14 @@ const YEAR = new Date().getFullYear()
 import { useLang } from '../lib/lang'
 import { scrollTo } from '../lib/scroll'
 import { Container } from '../lib/Section'
-import { Logo, LAYERS } from './Art'
+import { LogoFull, LAYERS } from './Art'
+import { allPhotos } from '../content/photos'
+import { usePhotoAvailable } from './Photo'
 
 export default function Footer() {
   const { t } = useLang()
+  const hasPhotos = usePhotoAvailable(allPhotos[0].src)
+  const credits = Array.from(new Set(allPhotos.map((p) => p.credit).filter(Boolean))).join(' · ')
   return (
     <footer className="relative overflow-hidden border-t border-white/5 bg-night">
       <svg viewBox="0 0 1440 600" preserveAspectRatio="xMidYMax slice" className="pointer-events-none absolute inset-x-0 bottom-0 h-64 w-full opacity-40" aria-hidden="true">
@@ -17,8 +21,8 @@ export default function Footer() {
       <Container className="relative py-16">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
-            <Logo />
-            <p className="mt-4 text-sm leading-relaxed text-mist">{t(footer.tagline)}</p>
+            <LogoFull className="items-start text-left" />
+            <p className="mt-5 text-sm leading-relaxed text-mist">{t(footer.tagline)}</p>
             <p className="mt-2 text-sm text-mist/70">{t(company.location)}</p>
           </div>
           <nav className="grid grid-cols-2 gap-x-12 gap-y-3 text-sm">
@@ -32,6 +36,11 @@ export default function Footer() {
           </nav>
         </div>
         <p className="mt-12 max-w-3xl text-xs leading-relaxed text-mist/60">{t(footer.legal)}</p>
+        {hasPhotos && (
+          <p className="mt-3 max-w-3xl text-[11px] leading-relaxed text-mist/40">
+            {t(footer.photoCredits)} {credits}
+          </p>
+        )}
         <p className="mt-4 text-xs text-mist/50">
           © {YEAR} {company.name}. {t(footer.rights)}
         </p>

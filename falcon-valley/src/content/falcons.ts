@@ -71,7 +71,7 @@ export const statusLabel: Record<FalconStatus, Localized> = {
   breeding: { sk: 'Chovný', en: 'Breeding' },
 }
 
-const VALLEY: Localized = { sk: 'Vlastný odchov, Falcon Valley, Vysoké Tatry', en: 'Own breeding, Falcon Valley, High Tatras' }
+const VALLEY: Localized = { sk: 'Vlastný odchov, Falcons Valley, Vysoké Tatry', en: 'Own breeding, Falcons Valley, High Tatras' }
 
 /* ------------------------------------------------------------------ */
 /*  UKÁŽKOVÉ ÚDAJE – nahraďte vlastnými sokolmi                        */
@@ -206,7 +206,7 @@ export const falcons: Falcon[] = [
     hatched: '2025-05-06',
     weightGrams: 640,
     wingspanCm: 100,
-    origin: { sk: 'Vlastný odchov, Falcon Valley – ročiak', en: 'Own breeding, Falcon Valley – one year old' },
+    origin: { sk: 'Vlastný odchov, Falcons Valley – ročiak', en: 'Own breeding, Falcons Valley – one year old' },
     ringNumber: 'SK 25 FV 0307',
     cites: 'SK/CITES/25/0307',
     status: 'sold',
@@ -226,7 +226,7 @@ export const falcons: Falcon[] = [
     hatched: '2019-04-12',
     weightGrams: 720,
     wingspanCm: 98,
-    origin: { sk: 'Zakladateľ chovu, Falcon Valley', en: 'Foundation male, Falcon Valley' },
+    origin: { sk: 'Zakladateľ chovu, Falcons Valley', en: 'Foundation male, Falcons Valley' },
     ringNumber: 'SK 19 FV 0021',
     status: 'breeding',
     photos: [],
@@ -243,7 +243,7 @@ export const falcons: Falcon[] = [
     hatched: '2019-05-01',
     weightGrams: 1010,
     wingspanCm: 110,
-    origin: { sk: 'Zakladateľka chovu, Falcon Valley', en: 'Foundation female, Falcon Valley' },
+    origin: { sk: 'Zakladateľka chovu, Falcons Valley', en: 'Foundation female, Falcons Valley' },
     ringNumber: 'SK 19 FV 0034',
     status: 'breeding',
     photos: [],

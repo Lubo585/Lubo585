@@ -10,7 +10,7 @@ const ease = [0.22, 1, 0.36, 1] as const
 
 const statusTone: Record<Falcon['status'], string> = {
   available: 'bg-emerald-500/15 text-emerald-300 ring-emerald-400/30',
-  reserved: 'bg-amber/15 text-amber-2 ring-amber/40',
+  reserved: 'bg-brand/15 text-brand-2 ring-brand/40',
   sold: 'bg-white/10 text-mist ring-white/15',
   breeding: 'bg-glacier/15 text-glacier-2 ring-glacier/30',
 }
@@ -101,7 +101,7 @@ export default function FalconCard({ falcon, onOpen, light = false }: { falcon: 
           <span className="font-display text-lg font-semibold tracking-tight">
             {falcon.status === 'breeding' ? t(statusLabel.breeding) : falcon.price ? formatPrice(falcon.price, lang) : t(shop.priceOnRequest)}
           </span>
-          <span className={`inline-flex items-center gap-1 text-sm font-medium ${light ? 'text-rust' : 'text-amber'}`}>
+          <span className={`inline-flex items-center gap-1 text-sm font-medium ${light ? 'text-brand-dark' : 'text-brand'}`}>
             {t(shop.detail)}
             <ArrowUpRight size={16} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>

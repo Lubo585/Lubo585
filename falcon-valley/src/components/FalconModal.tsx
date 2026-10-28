@@ -171,7 +171,7 @@ export default function FalconModal({ falcon, onClose }: { falcon: Falcon | null
                         setIndex(i)
                       }}
                       className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl ring-2 transition ${
-                        !showVideo && index === i ? 'ring-amber' : 'ring-transparent opacity-70 hover:opacity-100'
+                        !showVideo && index === i ? 'ring-brand' : 'ring-transparent opacity-70 hover:opacity-100'
                       }`}
                     >
                       <img src={p} alt="" className="h-full w-full object-cover" />
@@ -181,10 +181,10 @@ export default function FalconModal({ falcon, onClose }: { falcon: Falcon | null
                     <button
                       onClick={() => setShowVideo(true)}
                       className={`inline-flex h-16 shrink-0 items-center gap-2 rounded-xl bg-white/5 px-4 text-sm font-medium ring-2 transition ${
-                        showVideo ? 'ring-amber' : 'ring-transparent hover:bg-white/10'
+                        showVideo ? 'ring-brand' : 'ring-transparent hover:bg-white/10'
                       }`}
                     >
-                      <Play size={16} className="text-amber" />
+                      <Play size={16} className="text-brand" />
                       {t(shop.labels.video)}
                     </button>
                   )}
@@ -231,7 +231,7 @@ export default function FalconModal({ falcon, onClose }: { falcon: Falcon | null
                       onClose()
                       inquire(falcon)
                     }}
-                    className="rounded-full bg-amber px-6 py-3 text-base font-semibold text-night transition hover:bg-amber-2"
+                    className="rounded-full bg-brand px-6 py-3 text-base font-semibold text-night transition hover:bg-brand-2"
                   >
                     {t(shop.inquire)}
                   </button>
