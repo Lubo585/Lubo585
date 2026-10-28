@@ -99,13 +99,18 @@ v shope. Sokol bez fotiek dostane automaticky ilustráciu.
 
 ## Čo doplniť pred spustením (označené `DOPLNIŤ`)
 
-V `src/content/site.ts`:
+Doména je **falconsvalley.com**, e-mail **info@falconsvalley.com** (nastavené
+v `src/content/site.ts`, `index.html`, `public/sitemap.xml`, `public/robots.txt`
+a `public/CNAME`).
 
-- e-mail, telefón, Instagram a YouTube,
-- `formEndpoint` – adresa FormSubmit s vaším e-mailom
-  (`https://formsubmit.co/ajax/vas@email.sk`); po prvom odoslaní príde
-  aktivačný e-mail, ktorý treba potvrdiť,
-- texty sekcií podľa potreby (všetky texty sú v tomto súbore, SK aj EN).
+V `src/content/site.ts` ešte doplňte:
+
+- telefón, Instagram a YouTube (položky označené `DOPLNIŤ`),
+- texty sekcií podľa potreby (všetky texty sú v tomto súbore v SK, EN aj AR).
+
+Kontaktný formulár posiela správy cez FormSubmit na info@falconsvalley.com.
+Po prvom odoslaní príde na túto adresu aktivačný e-mail, ktorý treba raz
+potvrdiť. Ak odoslanie zlyhá, formulár ponúkne priamy odkaz na e-mail.
 
 Ukážkové sokoly v `src/content/falcons.ts` nahraďte reálnymi.
 
@@ -114,3 +119,18 @@ Ukážkové sokoly v `src/content/falcons.ts` nahraďte reálnymi.
 `npm run build` vytvorí statický web v `dist/` – stačí nahrať na ľubovoľný
 hosting (Websupport FTP, GitHub Pages, Netlify, Vercel). Build používa relatívne
 cesty (`base: './'`), takže funguje aj v podpriečinku.
+
+### Doména falconsvalley.com
+
+1. Zaregistrujte doménu falconsvalley.com (Websupport, Namecheap, Cloudflare…).
+2. Pri GitHub Pages nastavte v DNS `A` záznamy na 185.199.108.153,
+   185.199.109.153, 185.199.110.153, 185.199.111.153 a `CNAME` pre `www`
+   na `lubo585.github.io`; súbor `public/CNAME` už obsahuje doménu.
+   Pri inom hostingu nasmerujte doménu podľa pokynov poskytovateľa.
+3. Zapnite HTTPS (Pages: Settings → Pages → Enforce HTTPS).
+
+### E-mail info@falconsvalley.com
+
+Zriaďte schránku u registrátora alebo cez Google Workspace / Zoho Mail a
+pridajte do DNS záznamy `MX`, `SPF` a `DKIM`. Až potom potvrďte aktivačný
+e-mail od FormSubmit.

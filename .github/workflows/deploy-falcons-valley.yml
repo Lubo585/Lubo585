@@ -1,0 +1,39 @@
+name: Deploy Falcons Valley (FTP)
+
+# Nasadí web falconsvalley.com na hosting cez FTP/FTPS.
+# Potrebné GitHub Secrets (Settings → Secrets and variables → Actions):
+#   FV_FTP_SERVER    – napr. ftp.falconsvalley.com alebo adresa od hostingu
+#   FV_FTP_USERNAME  – FTP používateľ
+#   FV_FTP_PASSWORD  – FTP heslo
+#   FV_FTP_DIR       – cieľový priečinok, napr. /web/ alebo /public_html/ (voliteľné, predvolené /)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['falcon-valley/**']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: falcon-valley
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: falcon-valley/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FV_FTP_SERVER }}
+          username: ${{ secrets.FV_FTP_USERNAME }}
+          password: ${{ secrets.FV_FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: falcon-valley/dist/
+          server-dir: ${{ secrets.FV_FTP_DIR || '/' }}

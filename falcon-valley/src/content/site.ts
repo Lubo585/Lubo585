@@ -5,14 +5,15 @@ const L = (sk: string, en: string, ar: string): Localized => ({ sk, en, ar })
 export const company = {
   name: 'Falcons Valley',
   arabic: 'وادي الصقور',
-  email: 'info@falconsvalley.sk', // DOPLNIŤ
+  email: 'info@falconsvalley.com',
+  website: 'https://falconsvalley.com',
   phone: '+421 900 000 000', // DOPLNIŤ
   phoneHref: 'tel:+421900000000', // DOPLNIŤ
   instagram: 'https://instagram.com/falconsvalley', // DOPLNIŤ
   youtube: 'https://youtube.com/@falconsvalley', // DOPLNIŤ
   location: L('Dolina pod Vysokými Tatrami, Slovensko', 'Valley below the High Tatras, Slovakia', 'وادٍ أسفل جبال تاترا العليا، سلوفاكيا'),
   /** adresa, na ktorú FormSubmit doručí správy z formulára */
-  formEndpoint: 'https://formsubmit.co/ajax/info@falconsvalley.sk', // DOPLNIŤ
+  formEndpoint: 'https://formsubmit.co/ajax/info@falconsvalley.com',
 }
 
 export const nav = {
