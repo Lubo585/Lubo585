@@ -1,4 +1,5 @@
 import type { Species } from '../content/falcons'
+import { asset } from '../lib/asset'
 
 export function seededStars(n: number, seed = 7) {
   const out: { x: number; y: number; r: number; d: number }[] = []
@@ -25,7 +26,7 @@ export function FalconSilhouette({ className = '', size = 64, color = 'currentCo
 
 /** Značka FV z originálneho loga (public/logo-mark.png, priehľadné pozadie). */
 export function FVMark({ size = 36, className = '' }: { size?: number; className?: string }) {
-  return <img src="/logo-mark.png" alt="" width={Math.round(size * 3.46)} height={size} className={`block select-none ${className}`} draggable={false} />
+  return <img src={asset('logo-mark.png')} alt="" width={Math.round(size * 3.46)} height={size} className={`block select-none ${className}`} draggable={false} />
 }
 
 /** Logo do lišty: značka + názov + arabský podtitul. */
@@ -47,8 +48,8 @@ export function Logo({ className = '' }: { className?: string }) {
 export function LogoFull({ className = '', width = 260 }: { className?: string; width?: number }) {
   return (
     <img
-      src="/logo-full.png"
-      srcSet="/logo-full.png 1x, /logo-full@2x.png 2x"
+      src={asset('logo-full.png')}
+      srcSet={`${asset('logo-full.png')} 1x, ${asset('logo-full@2x.png')} 2x`}
       alt="Falcons Valley – وادي الصقور"
       width={width}
       height={Math.round(width * (236 / 455))}
