@@ -77,3 +77,11 @@ Zriaďte poštovú schránku u registrátora alebo cez Google Workspace / Zoho M
 a pridajte do DNS príslušné `MX`, `SPF` a `DKIM` záznamy. Po prvom odoslaní
 kontaktného formulára príde na info@pspsk.de aktivačný e-mail od FormSubmit,
 ktorý treba potvrdiť.
+
+---
+
+## Falcon Valley
+
+V priečinku [`falcon-valley/`](falcon-valley/README.md) je samostatná stránka
+pre chovateľskú stanicu sokolov Falcon Valley (prezentácia firmy, chovné sokoly
+a shop so sokolmi na predaj). Má vlastný `package.json` a build, pozri jej README.

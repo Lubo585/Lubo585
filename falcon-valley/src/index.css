@@ -1,0 +1,203 @@
+@import "@fontsource-variable/inter/wght.css";
+@import "@fontsource-variable/outfit/wght.css";
+@import "@fontsource-variable/noto-sans-arabic/wght.css";
+@import "tailwindcss";
+
+@theme {
+  --color-night: #06080c;
+  --color-night-2: #0c1016;
+  --color-night-3: #141a23;
+  --color-stone: #1c2430;
+  --color-line: #232b37;
+  --color-mist: #9aa6b5;
+  --color-snow: #f5f7fa;
+  --color-snow-2: #e9edf2;
+  --color-glacier: #8fc3ff;
+  --color-glacier-2: #c7e1ff;
+  --color-brand: #e3202b;
+  --color-brand-2: #ff4a54;
+  --color-brand-dark: #b3151e;
+  --color-gold: #e6cf96;
+  --font-sans: "Inter Variable", "Noto Sans Arabic Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Outfit Variable", "Noto Sans Arabic Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --ease-apple: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  scroll-behavior: auto;
+  overflow-x: clip;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body {
+  @apply bg-night text-snow font-sans antialiased;
+  /* overflow-x: hidden na body by rozbilo position: sticky – clip na html stačí */
+  font-feature-settings: "cv11", "ss01", "ss03";
+}
+
+::selection {
+  background: var(--color-brand);
+  color: var(--color-snow);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
+
+/* Apple-like gradient headline */
+.gradient-text {
+  background: linear-gradient(100deg, #ffffff 0%, #c7e1ff 45%, #ff8a90 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-text-dark {
+  background: linear-gradient(100deg, #06080c 0%, #2a3a52 55%, #b3151e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.glass {
+  background: rgba(6, 8, 12, 0.55);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+.glass-light {
+  background: rgba(245, 247, 250, 0.7);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+.noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* drifting fog layers */
+@keyframes fog-drift {
+  0% { transform: translateX(-8%) }
+  50% { transform: translateX(8%) }
+  100% { transform: translateX(-8%) }
+}
+.fog {
+  animation: fog-drift 28s ease-in-out infinite;
+  will-change: transform;
+}
+.fog-slow {
+  animation-duration: 44s;
+  animation-direction: reverse;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.25 }
+  50% { opacity: 1 }
+}
+.star {
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+/* falcon gliding along a path */
+@keyframes glide {
+  0% { offset-distance: 0%; opacity: 0 }
+  6% { opacity: 1 }
+  94% { opacity: 1 }
+  100% { offset-distance: 100%; opacity: 0 }
+}
+.falcon-flight {
+  offset-path: path("M -120 220 C 300 80, 700 320, 1100 140 S 1700 60, 1700 60");
+  offset-rotate: auto;
+  animation: glide 26s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  will-change: offset-distance;
+}
+
+@keyframes wing {
+  0%, 100% { transform: scaleY(1) }
+  50% { transform: scaleY(0.72) }
+}
+.wing-flap {
+  transform-origin: center;
+  animation: wing 0.9s ease-in-out infinite;
+}
+
+/* marquee */
+@keyframes marquee {
+  from { transform: translateX(0) }
+  to { transform: translateX(-50%) }
+}
+.marquee-track {
+  animation: marquee 40s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.ring-glow {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 30px 80px -20px rgba(143, 195, 255, 0.25);
+}
+
+/* arabčina: bez rozpaľovania písmen, mierne väčšie riadkovanie */
+html[dir="rtl"] body {
+  font-feature-settings: normal;
+}
+html[dir="rtl"] .tracking-\[0\.2em\],
+html[dir="rtl"] .tracking-\[0\.22em\],
+html[dir="rtl"] .tracking-\[0\.18em\],
+html[dir="rtl"] .tracking-\[0\.16em\],
+html[dir="rtl"] .tracking-\[0\.14em\],
+html[dir="rtl"] .tracking-\[0\.25em\],
+html[dir="rtl"] .tracking-\[0\.28em\],
+html[dir="rtl"] .tracking-wide,
+html[dir="rtl"] .tracking-tight,
+html[dir="rtl"] .tracking-\[-0\.03em\] {
+  letter-spacing: 0 !important;
+}
+html[dir="rtl"] .font-display {
+  line-height: 1.25;
+}
+html[dir="rtl"] .marquee-track {
+  animation-direction: reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
