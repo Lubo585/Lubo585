@@ -4,7 +4,7 @@ import { story } from '../content/site'
 import { useLang } from '../lib/lang'
 import { SectionHeader, Container } from '../lib/Section'
 import { FALCON_PATH, LAYERS } from './Art'
-import { photos } from '../content/photos'
+import { photos, seasonLabel } from '../content/photos'
 import { usePhotoAvailable } from './Photo'
 import { AnimatePresence } from 'motion/react'
 
@@ -103,7 +103,7 @@ export default function Story() {
                 animate={{ opacity: 1, y: 0 }}
                 className={`font-display text-sm font-semibold uppercase tracking-[0.2em] ${photoOk ? 'text-snow/90' : 'text-night/60'}`}
               >
-                {photoOk ? t(photos.story[active].caption) : t(story.steps[active].title)}
+                {photoOk ? `${t(seasonLabel[photos.story[active].season])} · ${t(photos.story[active].caption)}` : t(story.steps[active].title)}
               </motion.span>
             </div>
           </div>

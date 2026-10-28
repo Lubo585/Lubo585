@@ -35,23 +35,16 @@ v `Art.tsx` nahraďte vnútro `FVMark` jeho obsahom.
 
 ## Fotografie Vysokých Tatier
 
-Stránka používa fotky z priečinka `public/tatry/` (hero pozadie, príbeh,
-sekcia Dolina, galéria „Dolina v obrazoch“ a kredity v pätičke). Kým fotky
-chýbajú, všetko funguje ďalej – zobrazia sa ilustrácie a galéria sa skryje.
+V priečinku `public/tatry/` je 13 voľne licencovaných fotiek (leto, jeseň, zima,
+večer) z Flickru – Popradské pleso, Kriváň, Skalnaté pleso, Východná Vysoká,
+podhorie. Používajú sa v hero sekcii, v Príbehu (každý krok iné ročné obdobie),
+v sekcii Dolina a v galérii „Dolina v obrazoch“. Autori a licencie sú v
+`public/tatry/CREDITS.md` a v `src/content/photos.ts`; pätička ich uvádza
+automaticky (CC BY to vyžaduje).
 
-Voľne licencované fotky z Wikimedia Commons (CC BY-SA, Štrbské pleso, Popradské
-pleso, Gerlach, Kriváň, Mengusovská a Veľká Studená dolina) stiahnete jedným
-príkazom:
-
-```bash
-cd falcon-valley
-npm run photos
-```
-
-Zoznam súborov, autorov a licencií je v `public/tatry/CREDITS.md` a v
-`src/content/photos.ts`. Fotky môžete nahradiť vlastnými – stačí zachovať
-názvy súborov (napr. `hero.jpg`, `gerlach.jpg`) alebo upraviť cesty v
-`src/content/photos.ts`. Odporúčaná šírka 1920 px.
+Fotky môžete nahradiť vlastnými – zachovajte názov súboru alebo upravte cestu
+v `src/content/photos.ts`. Odporúčaná šírka 1920 px. Ak súbor chýba, stránka
+ho preskočí a použije ilustráciu.
 
 ## Technológie
 

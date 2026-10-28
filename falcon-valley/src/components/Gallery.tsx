@@ -1,6 +1,6 @@
 import { motion } from 'motion/react'
 import { useEffect, useState } from 'react'
-import { photos } from '../content/photos'
+import { photos, seasonLabel } from '../content/photos'
 import { gallery } from '../content/site'
 import { useLang } from '../lib/lang'
 import { Reveal } from '../lib/Reveal'
@@ -50,9 +50,12 @@ export default function Gallery() {
                     className="h-full w-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-night/80 via-transparent to-transparent opacity-80 transition-opacity group-hover:opacity-100" />
+                  <span className="absolute left-4 top-4 rounded-full bg-night/55 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-snow backdrop-blur">
+                    {t(seasonLabel[p.season])}
+                  </span>
                   <figcaption className="absolute inset-x-0 bottom-0 p-5">
                     <span className="font-display text-lg font-semibold tracking-tight text-snow">{t(p.caption)}</span>
-                    {p.credit && <span className="mt-0.5 block text-[11px] text-snow/50">© {p.credit}</span>}
+                    <span className="mt-0.5 block text-[11px] text-snow/50">© {p.credit}</span>
                   </figcaption>
                 </motion.figure>
               </Reveal>

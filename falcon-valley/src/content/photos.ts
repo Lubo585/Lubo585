@@ -1,95 +1,151 @@
 import type { Localized } from '../lib/lang'
 
 /**
- * Fotografie Vysokých Tatier.
+ * Fotografie Vysokých Tatier (priečinok public/tatry/).
  *
- * Súbory patria do priečinka public/tatry/. Stiahnete ich príkazom `npm run photos`
- * (skript scripts/download-tatry-photos.sh) alebo nahradíte vlastnými fotkami
- * s rovnakými názvami. Ak súbor chýba, stránka ho ticho preskočí a použije ilustráciu.
+ * Všetky sú voľne licencované (CC BY, CC BY-SA alebo CC0) z Flickru – autori sú
+ * uvedení pri každej fotke a zobrazujú sa v pätičke. Fotky môžete kedykoľvek
+ * nahradiť vlastnými: zachovajte názov súboru alebo upravte cestu nižšie.
+ * Ak súbor chýba, stránka ho preskočí a použije ilustráciu.
  */
+export type Season = 'summer' | 'autumn' | 'winter' | 'evening'
+
 export type Photo = {
   src: string
   alt: Localized
   caption: Localized
-  /** autor a licencia – pri fotkách z Wikimedia Commons povinné (CC BY-SA) */
-  credit?: string
+  season: Season
+  /** autor a licencia (povinné pri CC BY / CC BY-SA) */
+  credit: string
+  /** odkaz na pôvodnú fotku */
+  source: string
 }
+
+export const seasonLabel: Record<Season, Localized> = {
+  summer: { sk: 'Leto', en: 'Summer' },
+  autumn: { sk: 'Jeseň', en: 'Autumn' },
+  winter: { sk: 'Zima', en: 'Winter' },
+  evening: { sk: 'Večer', en: 'Evening' },
+}
+
+const GOVISITY = 'Govisity / Tip na Trip, CC BY 2.0'
+const JUHELE = 'Juhele_CZ, CC0'
 
 export const photos = {
   hero: {
     src: '/tatry/hero.jpg',
-    alt: { sk: 'Štíty Vysokých Tatier nad Štrbským plesom', en: 'High Tatras peaks above Štrbské pleso' },
-    caption: { sk: 'Štrbské pleso', en: 'Štrbské pleso' },
-    credit: 'Ingo Mehling, CC BY-SA 4.0, Wikimedia Commons',
+    alt: { sk: 'Popradské pleso a štíty Vysokých Tatier v lete', en: 'Popradské pleso and High Tatras peaks in summer' },
+    caption: { sk: 'Popradské pleso', en: 'Popradské pleso' },
+    season: 'summer',
+    credit: 'Sjaak Kempe, CC BY 2.0',
+    source: 'https://www.flickr.com/photos/sjaakkempe/48537981191/',
   },
   valley: {
-    src: '/tatry/strbske-pleso-sunset.jpg',
-    alt: { sk: 'Štrbské pleso pri západe slnka', en: 'Štrbské pleso at sunset' },
-    caption: { sk: 'Štrbské pleso pri západe slnka', en: 'Štrbské pleso at sunset' },
-    credit: 'Timothy Langer, CC BY-SA 4.0, Wikimedia Commons',
+    src: '/tatry/valley.jpg',
+    alt: { sk: 'Zasnežené štíty z Kriváňa', en: 'Snow-covered peaks from Kriváň' },
+    caption: { sk: 'Pohľad z Kriváňa v zime', en: 'View from Kriváň in winter' },
+    season: 'winter',
+    credit: GOVISITY,
+    source: 'https://www.flickr.com/photos/53113704@N03/50527158783/',
   },
   story: [
     {
-      src: '/tatry/zabia-dolina.jpg',
-      alt: { sk: 'Žabia dolina Mengusovská', en: 'Žabia dolina valley' },
-      caption: { sk: 'Žabia dolina Mengusovská', en: 'Žabia dolina' },
-      credit: 'Adam Opioła, CC BY-SA 4.0, Wikimedia Commons',
+      src: '/tatry/story-leto.jpg',
+      alt: { sk: 'Letná dolina vo Vysokých Tatrách', en: 'Summer valley in the High Tatras' },
+      caption: { sk: 'Dolina v lete', en: 'The valley in summer' },
+      season: 'summer',
+      credit: 'young shanahan, CC BY 2.0',
+      source: 'https://www.flickr.com/photos/youngshanahan/50087442817/',
     },
     {
-      src: '/tatry/popradske-pleso.jpg',
-      alt: { sk: 'Popradské pleso', en: 'Popradské pleso lake' },
-      caption: { sk: 'Popradské pleso', en: 'Popradské pleso' },
-      credit: 'Michal Klajban, CC BY-SA 3.0, Wikimedia Commons',
+      src: '/tatry/story-jesen.jpg',
+      alt: { sk: 'Skalnaté pleso s prvým snehom na jeseň', en: 'Skalnaté pleso with the first autumn snow' },
+      caption: { sk: 'Skalnaté pleso, prvý sneh', en: 'Skalnaté pleso, first snow' },
+      season: 'autumn',
+      credit: JUHELE,
+      source: 'https://www.flickr.com/photos/96541566@N06/52425709601/',
     },
     {
-      src: '/tatry/velka-studena-dolina.jpg',
-      alt: { sk: 'Veľká Studená dolina', en: 'Veľká Studená dolina valley' },
-      caption: { sk: 'Veľká Studená dolina', en: 'Veľká Studená dolina' },
-      credit: 'Marcin Białek, CC BY-SA 4.0, Wikimedia Commons',
+      src: '/tatry/story-zima.jpg',
+      alt: { sk: 'Zasnežený hrebeň Kriváňa', en: 'Snow-covered ridge of Kriváň' },
+      caption: { sk: 'Kriváň v zime', en: 'Kriváň in winter' },
+      season: 'winter',
+      credit: GOVISITY,
+      source: 'https://www.flickr.com/photos/53113704@N03/50527144098/',
     },
     {
-      src: '/tatry/gerlach.jpg',
-      alt: { sk: 'Gerlachovský štít od Tatranskej Polianky', en: 'Gerlachovský štít from Tatranská Polianka' },
-      caption: { sk: 'Gerlachovský štít, 2 655 m', en: 'Gerlachovský štít, 2,655 m' },
-      credit: 'Pavol Svetoň, CC BY-SA 4.0, Wikimedia Commons',
+      src: '/tatry/story-vecer.jpg',
+      alt: { sk: 'Popradské pleso za súmraku', en: 'Popradské pleso at dusk' },
+      caption: { sk: 'Popradské pleso za súmraku', en: 'Popradské pleso at dusk' },
+      season: 'evening',
+      credit: 'rhysbter33, CC BY-SA 2.0',
+      source: 'https://www.flickr.com/photos/190185145@N06/50348073318/',
     },
   ],
   gallery: [
     {
-      src: '/tatry/krivan.jpg',
-      alt: { sk: 'Kriváň', en: 'Kriváň peak' },
-      caption: { sk: 'Kriváň, 2 494 m', en: 'Kriváň, 2,494 m' },
-      credit: 'Jozef Kotulič, CC BY-SA 4.0, Wikimedia Commons',
+      src: '/tatry/g-vychodna-vysoka.jpg',
+      alt: { sk: 'Panoráma z Východnej Vysokej', en: 'Panorama from Východná Vysoká' },
+      caption: { sk: 'Východná Vysoká, 2 428 m', en: 'Východná Vysoká, 2,428 m' },
+      season: 'summer',
+      credit: GOVISITY,
+      source: 'https://www.flickr.com/photos/53113704@N03/50384413863/',
     },
     {
-      src: '/tatry/strbske-pleso-aerial.jpg',
-      alt: { sk: 'Štrbské pleso z výšky', en: 'Štrbské pleso from above' },
-      caption: { sk: 'Štrbské pleso', en: 'Štrbské pleso' },
-      credit: 'VargaA, CC BY-SA 4.0, Wikimedia Commons',
+      src: '/tatry/g-zima-panorama.jpg',
+      alt: { sk: 'Zimná panoráma Tatier so zasneženým lesom', en: 'Winter panorama of the Tatras with snowy forest' },
+      caption: { sk: 'Zimná panoráma Tatier', en: 'Winter panorama of the Tatras' },
+      season: 'winter',
+      credit: 'WDnet Studio Creation, CC BY 4.0',
+      source: 'https://www.flickr.com/photos/andrewsiwiec/55032519201/',
     },
     {
-      src: '/tatry/mengusovska-dolina.jpg',
-      alt: { sk: 'Mengusovská dolina', en: 'Mengusovská dolina valley' },
-      caption: { sk: 'Mengusovská dolina', en: 'Mengusovská dolina' },
-      credit: 'Michal Klajban, CC BY-SA 3.0, Wikimedia Commons',
+      src: '/tatry/g-jesen-les.jpg',
+      alt: { sk: 'Jesenné podhorie Tatier', en: 'Autumn foothills of the Tatras' },
+      caption: { sk: 'Jesenné podhorie', en: 'Autumn foothills' },
+      season: 'autumn',
+      credit: JUHELE,
+      source: 'https://www.flickr.com/photos/96541566@N06/52407174041/',
     },
     {
-      src: '/tatry/gerlach-panorama.jpg',
-      alt: { sk: 'Panoráma Gerlachovského štítu', en: 'Gerlachovský štít panorama' },
-      caption: { sk: 'Gerlachovský štít', en: 'Gerlachovský štít' },
-      credit: 'Paweł Opioła, CC BY-SA 4.0, Wikimedia Commons',
+      src: '/tatry/g-popradske-zima.jpg',
+      alt: { sk: 'Zamrznuté Popradské pleso', en: 'Frozen Popradské pleso' },
+      caption: { sk: 'Popradské pleso v zime', en: 'Popradské pleso in winter' },
+      season: 'winter',
+      credit: 'VicunaR, CC BY-SA 2.0',
+      source: 'https://www.flickr.com/photos/144510328@N03/54279941021/',
     },
     {
-      src: '/tatry/velka-studena-dolina.jpg',
-      alt: { sk: 'Veľká Studená dolina', en: 'Veľká Studená dolina valley' },
-      caption: { sk: 'Veľká Studená dolina', en: 'Veľká Studená dolina' },
-      credit: 'Marcin Białek, CC BY-SA 4.0, Wikimedia Commons',
+      src: '/tatry/g-popradske-leto.jpg',
+      alt: { sk: 'Popradské pleso v lete', en: 'Popradské pleso in summer' },
+      caption: { sk: 'Popradské pleso, 1 494 m', en: 'Popradské pleso, 1,494 m' },
+      season: 'summer',
+      credit: GOVISITY,
+      source: 'https://www.flickr.com/photos/53113704@N03/33438367106/',
     },
     {
-      src: '/tatry/zabia-dolina.jpg',
-      alt: { sk: 'Žabia dolina Mengusovská', en: 'Žabia dolina valley' },
-      caption: { sk: 'Žabia dolina', en: 'Žabia dolina' },
-      credit: 'Adam Opioła, CC BY-SA 4.0, Wikimedia Commons',
+      src: '/tatry/g-luka-jesen.jpg',
+      alt: { sk: 'Lúka pod Tatrami na jeseň', en: 'Meadow below the Tatras in autumn' },
+      caption: { sk: 'Lúky pod Tatrami', en: 'Meadows below the Tatras' },
+      season: 'autumn',
+      credit: JUHELE,
+      source: 'https://www.flickr.com/photos/96541566@N06/52402274504/',
+    },
+    {
+      src: '/tatry/g-krivan-oblaky.jpg',
+      alt: { sk: 'Zasnežený hrebeň nad morom oblakov', en: 'Snowy ridge above a sea of clouds' },
+      caption: { sk: 'Kriváň nad oblakmi', en: 'Kriváň above the clouds' },
+      season: 'winter',
+      credit: GOVISITY,
+      source: 'https://www.flickr.com/photos/53113704@N03/50528040077/',
+    },
+    {
+      src: '/tatry/story-jesen.jpg',
+      alt: { sk: 'Skalnaté pleso s prvým snehom', en: 'Skalnaté pleso with first snow' },
+      caption: { sk: 'Skalnaté pleso, 1 751 m', en: 'Skalnaté pleso, 1,751 m' },
+      season: 'autumn',
+      credit: JUHELE,
+      source: 'https://www.flickr.com/photos/96541566@N06/52425709601/',
     },
   ],
 } satisfies { hero: Photo; valley: Photo; story: Photo[]; gallery: Photo[] }
