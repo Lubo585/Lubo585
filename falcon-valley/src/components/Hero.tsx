@@ -151,7 +151,7 @@ export default function Hero() {
         >
           <span className="h-1.5 w-1.5 rounded-full bg-brand" />
           {t(hero.eyebrow)}
-          <span className="text-snow/80 normal-case tracking-normal" dir="rtl" lang="ar">وادي الصقور</span>
+          <span className="text-gold normal-case tracking-normal" dir="rtl" lang="ar">وادي الصقور</span>
         </motion.span>
 
         <h1 className="gradient-text mt-7 font-display text-5xl font-semibold leading-[1.02] tracking-[-0.03em] text-balance sm:text-7xl lg:text-[6.5rem]">

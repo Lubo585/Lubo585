@@ -24,14 +24,13 @@ Tatrami. Dvojjazyčný (SK / EN), prepínač jazyka je v hornej lište.
 
 ## Logo
 
-Logo je prekreslené do SVG podľa originálu (červené FV s rýchlostnými pruhmi,
-nápis FALCONS VALLEY™ a arabský podtitul وادي الصقور):
+Použité je originálne logo (červené FV, FALCONS VALLEY™, وادي الصقور):
 
-- `src/components/Art.tsx` – komponenty `FVMark`, `Logo` (lišta) a `LogoFull` (pätička)
-- `public/logo.svg` – samostatné logo, `public/favicon.svg` – ikona
+- `public/logo-full.png` (+ `@2x`) – celé logo s priehľadným pozadím (pätička)
+- `public/logo-mark.png` – samotná značka FV (lišta)
+- `public/favicon.png`, `apple-touch-icon.png`, `icon-512.png` – ikony
 
-Ak máte originálne logo vo vektore (SVG/AI/PDF), vložte ho do `public/` a
-v `Art.tsx` nahraďte vnútro `FVMark` jeho obsahom.
+Ak dostanete logo vo vektore (SVG), stačí ním nahradiť tieto súbory.
 
 ## Fotografie Vysokých Tatier
 

@@ -21,7 +21,7 @@ export default function Footer() {
       <Container className="relative py-16">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
-            <LogoFull className="items-start text-left" />
+            <LogoFull width={240} />
             <p className="mt-5 text-sm leading-relaxed text-mist">{t(footer.tagline)}</p>
             <p className="mt-2 text-sm text-mist/70">{t(company.location)}</p>
           </div>
