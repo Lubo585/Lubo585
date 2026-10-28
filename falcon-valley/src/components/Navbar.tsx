@@ -2,7 +2,7 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'motion/
 import { Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { nav } from '../content/site'
-import { useLang } from '../lib/lang'
+import { LANGS, useLang } from '../lib/lang'
 import { scrollTo } from '../lib/scroll'
 import { Logo } from './Art'
 
@@ -65,7 +65,7 @@ export default function Navbar() {
 
           <div className="flex items-center gap-2">
             <div className="flex rounded-full border border-white/10 p-0.5 text-xs font-semibold">
-              {(['sk', 'en'] as const).map((l) => (
+              {LANGS.map((l) => (
                 <button
                   key={l}
                   onClick={() => setLang(l)}

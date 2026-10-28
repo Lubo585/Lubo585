@@ -46,7 +46,7 @@ export default function Contact() {
   const input = 'w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-base text-snow placeholder:text-mist/60 outline-none transition focus:border-glacier/60 focus:bg-white/[0.07]'
 
   return (
-    <section id="contact" className="relative bg-night">
+    <section id="contact" className="relative overflow-hidden bg-night">
       <div className="pointer-events-none absolute bottom-0 left-1/2 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-brand/10 blur-[140px]" />
       <Container className="grid gap-14 py-24 sm:py-32 lg:grid-cols-2 lg:gap-24">
         <div>
@@ -57,7 +57,7 @@ export default function Contact() {
               <Mail size={18} className="text-brand" /> {company.email}
             </a>
             <a href={company.phoneHref} className="flex items-center gap-3 text-lg text-snow transition hover:text-brand">
-              <Phone size={18} className="text-brand" /> {company.phone}
+              <Phone size={18} className="text-brand" /> <span dir="ltr">{company.phone}</span>
             </a>
             <div className="flex gap-3 pt-3">
               <a href={company.instagram} target="_blank" rel="noreferrer" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-snow transition hover:bg-white/5" aria-label="Instagram">

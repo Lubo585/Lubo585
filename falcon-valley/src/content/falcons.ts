@@ -56,22 +56,22 @@ export type Falcon = {
 }
 
 export const speciesLabel: Record<Species, Localized & { latin: string }> = {
-  peregrine: { sk: 'Sokol sťahovavý', en: 'Peregrine falcon', latin: 'Falco peregrinus' },
-  saker: { sk: 'Sokol rároh', en: 'Saker falcon', latin: 'Falco cherrug' },
-  gyr: { sk: 'Sokol poľovnícky', en: 'Gyrfalcon', latin: 'Falco rusticolus' },
-  'gyr-peregrine': { sk: 'Gyr × sťahovavý', en: 'Gyr × Peregrine', latin: 'F. rusticolus × F. peregrinus' },
-  'gyr-saker': { sk: 'Gyr × rároh', en: 'Gyr × Saker', latin: 'F. rusticolus × F. cherrug' },
-  lanner: { sk: 'Sokol lanner', en: 'Lanner falcon', latin: 'Falco biarmicus' },
+  peregrine: { sk: 'Sokol sťahovavý', en: 'Peregrine falcon', ar: 'الشاهين', latin: 'Falco peregrinus' },
+  saker: { sk: 'Sokol rároh', en: 'Saker falcon', ar: 'الصقر الحر', latin: 'Falco cherrug' },
+  gyr: { sk: 'Sokol poľovnícky', en: 'Gyrfalcon', ar: 'صقر الجير', latin: 'Falco rusticolus' },
+  'gyr-peregrine': { sk: 'Gyr × sťahovavý', en: 'Gyr × Peregrine', ar: 'جير × شاهين', latin: 'F. rusticolus × F. peregrinus' },
+  'gyr-saker': { sk: 'Gyr × rároh', en: 'Gyr × Saker', ar: 'جير × حر', latin: 'F. rusticolus × F. cherrug' },
+  lanner: { sk: 'Sokol lanner', en: 'Lanner falcon', ar: 'الصقر الوكري', latin: 'Falco biarmicus' },
 }
 
 export const statusLabel: Record<FalconStatus, Localized> = {
-  available: { sk: 'Na predaj', en: 'Available' },
-  reserved: { sk: 'Rezervovaný', en: 'Reserved' },
-  sold: { sk: 'Predaný', en: 'Sold' },
-  breeding: { sk: 'Chovný', en: 'Breeding' },
+  available: { sk: 'Na predaj', en: 'Available', ar: 'متاح' },
+  reserved: { sk: 'Rezervovaný', en: 'Reserved', ar: 'محجوز' },
+  sold: { sk: 'Predaný', en: 'Sold', ar: 'مُباع' },
+  breeding: { sk: 'Chovný', en: 'Breeding', ar: 'للتربية' },
 }
 
-const VALLEY: Localized = { sk: 'Vlastný odchov, Falcons Valley, Vysoké Tatry', en: 'Own breeding, Falcons Valley, High Tatras' }
+const VALLEY: Localized = { sk: 'Vlastný odchov, Falcons Valley, Vysoké Tatry', en: 'Own breeding, Falcons Valley, High Tatras', ar: 'إنتاج خاص، وادي الصقور، جبال تاترا العليا' }
 
 /* ------------------------------------------------------------------ */
 /*  UKÁŽKOVÉ ÚDAJE – nahraďte vlastnými sokolmi                        */
@@ -96,11 +96,12 @@ export const falcons: Falcon[] = [
     description: {
       sk: 'Silná samica z línie Kriváň × Bystrá. Pokojný temperament, výborný apetít, pravidelne vážená a manipulovaná od prvého týždňa. Ideálna pre lov na pole aj na sokoliarske ukážky.',
       en: 'Strong female from the Kriváň × Bystrá line. Calm temperament, excellent appetite, weighed and handled weekly since hatching. Ideal for field hawking and falconry displays.',
+      ar: 'أنثى قوية من سلالة كريفان × بيسترا. طباع هادئة وشهية ممتازة، تُوزن وتُعامل أسبوعيًا منذ الفقس. مثالية للصيد الميداني وعروض الصقارة.',
     },
     traits: [
-      { sk: 'Pokojná povaha', en: 'Calm temperament' },
-      { sk: 'Odchov pod rodičmi', en: 'Parent-reared' },
-      { sk: 'Uzavretý krúžok', en: 'Closed ring' },
+      { sk: 'Pokojná povaha', en: 'Calm temperament', ar: 'طباع هادئة' },
+      { sk: 'Odchov pod rodičmi', en: 'Parent-reared', ar: 'تربية تحت الوالدين' },
+      { sk: 'Uzavretý krúžok', en: 'Closed ring', ar: 'حلقة مغلقة' },
     ],
   },
   {
@@ -121,11 +122,12 @@ export const falcons: Falcon[] = [
     description: {
       sk: 'Hybrid gyr × sťahovavý so striebristým sfarbením. Rýchly, vytrvalý, s prirodzenou výškou letu. Z našej najúspešnejšej chovnej dvojice.',
       en: 'Gyr × Peregrine hybrid with silvery plumage. Fast, enduring, with a natural high pitch. From our most successful breeding pair.',
+      ar: 'هجين جير × شاهين بريش فضي. سريع وقوي التحمل مع ارتفاع طيران طبيعي. من أنجح أزواج التربية لدينا.',
     },
     traits: [
-      { sk: 'Striebristé sfarbenie', en: 'Silver plumage' },
-      { sk: 'Vysoký let', en: 'High pitch' },
-      { sk: 'Mikročip', en: 'Microchipped' },
+      { sk: 'Striebristé sfarbenie', en: 'Silver plumage', ar: 'ريش فضي' },
+      { sk: 'Vysoký let', en: 'High pitch', ar: 'طيران عالٍ' },
+      { sk: 'Mikročip', en: 'Microchipped', ar: 'شريحة إلكترونية' },
     ],
   },
   {
@@ -145,10 +147,11 @@ export const falcons: Falcon[] = [
     description: {
       sk: 'Rároh s klasickým svetlým sfarbením hlavy. Odvážna, sebavedomá samica, vhodná na lov zajacov a bažantov.',
       en: 'Saker with a classic pale head. Bold, confident female suited to hare and pheasant hawking.',
+      ar: 'صقر حر برأس فاتح كلاسيكي. أنثى جريئة وواثقة، مناسبة لصيد الأرانب والحجل.',
     },
     traits: [
-      { sk: 'Svetlá hlava', en: 'Pale head' },
-      { sk: 'Odvážna', en: 'Bold' },
+      { sk: 'Svetlá hlava', en: 'Pale head', ar: 'رأس فاتح' },
+      { sk: 'Odvážna', en: 'Bold', ar: 'جريئة' },
     ],
   },
   {
@@ -169,10 +172,11 @@ export const falcons: Falcon[] = [
     description: {
       sk: 'Samec z rovnakého hniezda ako Tatra. Ľahký, obratný, extrémne rýchly v strmhlavom lete.',
       en: 'Tiercel from the same clutch as Tatra. Light, agile, extremely fast in the stoop.',
+      ar: 'ذكر من نفس العش الذي خرجت منه تاترا. خفيف ورشيق وسريع للغاية في الانقضاض.',
     },
     traits: [
-      { sk: 'Obratný', en: 'Agile' },
-      { sk: 'Odchov pod rodičmi', en: 'Parent-reared' },
+      { sk: 'Obratný', en: 'Agile', ar: 'رشيق' },
+      { sk: 'Odchov pod rodičmi', en: 'Parent-reared', ar: 'تربية تحت الوالدين' },
     ],
   },
   {
@@ -192,10 +196,11 @@ export const falcons: Falcon[] = [
     description: {
       sk: 'Veľká, silná samica gyr × rároh. Stvorená pre otvorené pláne a lov väčšej koristi.',
       en: 'Large, powerful Gyr × Saker female. Built for open plains and larger quarry.',
+      ar: 'أنثى جير × حر كبيرة وقوية. خُلقت للسهول المفتوحة وصيد الطرائد الأكبر.',
     },
     traits: [
-      { sk: 'Veľký rámec', en: 'Large frame' },
-      { sk: 'Vytrvalá', en: 'Enduring' },
+      { sk: 'Veľký rámec', en: 'Large frame', ar: 'بنية كبيرة' },
+      { sk: 'Vytrvalá', en: 'Enduring', ar: 'قوية التحمل' },
     ],
   },
   {
@@ -206,7 +211,7 @@ export const falcons: Falcon[] = [
     hatched: '2025-05-06',
     weightGrams: 640,
     wingspanCm: 100,
-    origin: { sk: 'Vlastný odchov, Falcons Valley – ročiak', en: 'Own breeding, Falcons Valley – one year old' },
+    origin: { sk: 'Vlastný odchov, Falcons Valley – ročiak', en: 'Own breeding, Falcons Valley – one year old', ar: 'إنتاج خاص، وادي الصقور – بعمر سنة' },
     ringNumber: 'SK 25 FV 0307',
     cites: 'SK/CITES/25/0307',
     status: 'sold',
@@ -214,6 +219,7 @@ export const falcons: Falcon[] = [
     description: {
       sk: 'Lanner s výbornou manipulovateľnosťou. Už našla nový domov.',
       en: 'Lanner with excellent manners. Already found a new home.',
+      ar: 'وكري سهل التعامل ممتاز. وجدت بيتها الجديد بالفعل.',
     },
   },
 
@@ -226,13 +232,14 @@ export const falcons: Falcon[] = [
     hatched: '2019-04-12',
     weightGrams: 720,
     wingspanCm: 98,
-    origin: { sk: 'Zakladateľ chovu, Falcons Valley', en: 'Foundation male, Falcons Valley' },
+    origin: { sk: 'Zakladateľ chovu, Falcons Valley', en: 'Foundation male, Falcons Valley', ar: 'الذكر المؤسس، وادي الصقور' },
     ringNumber: 'SK 19 FV 0021',
     status: 'breeding',
     photos: [],
     description: {
       sk: 'Zakladateľ našej línie sokolov sťahovavých. Sedem sezón, desiatky úspešných mláďat.',
       en: 'Founder of our peregrine line. Seven seasons, dozens of successful offspring.',
+      ar: 'مؤسس سلالة الشواهين لدينا. سبعة مواسم وعشرات الفراخ الناجحة.',
     },
   },
   {
@@ -243,13 +250,14 @@ export const falcons: Falcon[] = [
     hatched: '2019-05-01',
     weightGrams: 1010,
     wingspanCm: 110,
-    origin: { sk: 'Zakladateľka chovu, Falcons Valley', en: 'Foundation female, Falcons Valley' },
+    origin: { sk: 'Zakladateľka chovu, Falcons Valley', en: 'Foundation female, Falcons Valley', ar: 'الأنثى المؤسسة، وادي الصقور' },
     ringNumber: 'SK 19 FV 0034',
     status: 'breeding',
     photos: [],
     description: {
       sk: 'Starostlivá matka s výnimočným pokojom pri hniezdení.',
       en: 'Attentive mother with exceptional calm on the nest.',
+      ar: 'أم حنون بهدوء استثنائي على العش.',
     },
   },
   {
@@ -260,13 +268,14 @@ export const falcons: Falcon[] = [
     hatched: '2018-04-20',
     weightGrams: 1150,
     wingspanCm: 120,
-    origin: { sk: 'Chovný samec, import z Nemecka', en: 'Breeding male, imported from Germany' },
+    origin: { sk: 'Chovný samec, import z Nemecka', en: 'Breeding male, imported from Germany', ar: 'ذكر تربية، مستورد من ألمانيا' },
     ringNumber: 'DE 18 GYR 1183',
     status: 'breeding',
     photos: [],
     description: {
       sk: 'Biely gyr s dokonalou stavbou tela. Otec našich hybridov.',
       en: 'White gyrfalcon with perfect conformation. Sire of our hybrids.',
+      ar: 'جير أبيض ببنية جسم مثالية. أبو هجائننا.',
     },
   },
   {
@@ -284,6 +293,7 @@ export const falcons: Falcon[] = [
     description: {
       sk: 'Dcéra Kriváňa a Bystrej, dnes matka našich najrýchlejších hybridov.',
       en: 'Daughter of Kriváň and Bystrá, now dam of our fastest hybrids.',
+      ar: 'ابنة كريفان وبيسترا، واليوم أم أسرع هجائننا.',
     },
   },
 ]

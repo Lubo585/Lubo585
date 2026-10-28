@@ -32,7 +32,7 @@ export default function Footer() {
               </a>
             ))}
             <a href={`mailto:${company.email}`} className="text-mist transition hover:text-snow">{company.email}</a>
-            <a href={company.phoneHref} className="text-mist transition hover:text-snow">{company.phone}</a>
+            <a href={company.phoneHref} dir="ltr" className="text-mist transition hover:text-snow">{company.phone}</a>
           </nav>
         </div>
         <p className="mt-12 max-w-3xl text-xs leading-relaxed text-mist/60">{t(footer.legal)}</p>

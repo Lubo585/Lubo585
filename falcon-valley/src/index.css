@@ -1,5 +1,6 @@
 @import "@fontsource-variable/inter/wght.css";
 @import "@fontsource-variable/outfit/wght.css";
+@import "@fontsource-variable/noto-sans-arabic/wght.css";
 @import "tailwindcss";
 
 @theme {
@@ -17,8 +18,8 @@
   --color-brand-2: #ff4a54;
   --color-brand-dark: #b3151e;
   --color-gold: #e6cf96;
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: "Outfit Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", "Noto Sans Arabic Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Outfit Variable", "Noto Sans Arabic Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --ease-apple: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -166,6 +167,29 @@ body {
 
 .ring-glow {
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 30px 80px -20px rgba(143, 195, 255, 0.25);
+}
+
+/* arabčina: bez rozpaľovania písmen, mierne väčšie riadkovanie */
+html[dir="rtl"] body {
+  font-feature-settings: normal;
+}
+html[dir="rtl"] .tracking-\[0\.2em\],
+html[dir="rtl"] .tracking-\[0\.22em\],
+html[dir="rtl"] .tracking-\[0\.18em\],
+html[dir="rtl"] .tracking-\[0\.16em\],
+html[dir="rtl"] .tracking-\[0\.14em\],
+html[dir="rtl"] .tracking-\[0\.25em\],
+html[dir="rtl"] .tracking-\[0\.28em\],
+html[dir="rtl"] .tracking-wide,
+html[dir="rtl"] .tracking-tight,
+html[dir="rtl"] .tracking-\[-0\.03em\] {
+  letter-spacing: 0 !important;
+}
+html[dir="rtl"] .font-display {
+  line-height: 1.25;
+}
+html[dir="rtl"] .marquee-track {
+  animation-direction: reverse;
 }
 
 @media (prefers-reduced-motion: reduce) {
