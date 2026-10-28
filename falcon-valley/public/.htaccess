@@ -1,3 +1,5 @@
+DirectoryIndex index.html index.php
+
 # Apache hosting (napr. Websupport): presmerovanie na HTTPS a www → bez www
 RewriteEngine On
 RewriteCond %{HTTPS} off [OR]
