@@ -5,6 +5,7 @@ import { shop } from '../content/site'
 import { useLang } from '../lib/lang'
 import { formatPrice, formatWeight } from '../lib/format'
 import { FalconArt } from './Art'
+import { asset } from '../lib/asset'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -26,7 +27,7 @@ export function StatusBadge({ status, className = '' }: { status: Falcon['status
 }
 
 export function FalconPhoto({ falcon, className = '' }: { falcon: Falcon; className?: string }) {
-  const src = falcon.photos[0]
+  const src = falcon.photos[0] ? asset(falcon.photos[0]) : undefined
   return (
     <motion.div layoutId={`photo-${falcon.id}`} className={`relative overflow-hidden ${className}`}>
       {src ? (
