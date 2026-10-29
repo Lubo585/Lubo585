@@ -131,9 +131,10 @@ body {
   100% { offset-distance: 100%; opacity: 0 }
 }
 .falcon-flight {
-  offset-path: path("M -120 220 C 300 80, 700 320, 1100 140 S 1700 60, 1700 60");
+  offset-path: path("M -140 160 C 300 60, 700 260, 1100 120 S 1700 40, 1700 40");
   offset-rotate: auto;
-  animation: glide 26s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation: glide 30s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation-delay: 6s;
   will-change: offset-distance;
 }
 
