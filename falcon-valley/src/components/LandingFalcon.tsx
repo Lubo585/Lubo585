@@ -72,7 +72,7 @@ export default function LandingFalcon({ y, opacity }: { y: MotionValue<number>; 
 
       {/* sokol – prílet po krivke, spomalenie, roztiahnutie, dosadnutie */}
       <motion.img
-        src={asset('falcon-landing.png')}
+        src={asset('falcon-landing-2.png')}
         alt=""
         draggable={false}
         initial={
