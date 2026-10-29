@@ -2,25 +2,32 @@ import { motion, useReducedMotion, type MotionValue } from 'motion/react'
 import { useEffect, useState } from 'react'
 import { asset } from '../lib/asset'
 
-const ease = [0.16, 1, 0.3, 1] as const
-
 /**
- * Zlatý saker priletí z diaľky, spomalí, roztiahne sa a pristane na skale
- * v pravom dolnom rohu úvodnej sekcie. Potom jemne dýcha a reaguje na scroll.
+ * Pristátie v dvoch fázach: sokol s roztiahnutými krídlami priletí z diaľky,
+ * spomalí, roztiahne sa pred dosadnutím a v momente dotyku sa prelne do
+ * pózy so zloženými krídlami na skalnom výbežku. Rešpektuje reduced motion.
  */
+const FLIGHT_MS = 3600
+const LAND_AT = 0.86 // podiel trvania letu, kedy začne prelínanie
+
 export default function LandingFalcon({ y, opacity }: { y: MotionValue<number>; opacity: MotionValue<number> }) {
   const reduced = useReducedMotion()
   const [landed, setLanded] = useState(!!reduced)
+  const [touch, setTouch] = useState(!!reduced)
 
   useEffect(() => {
     if (reduced) return
-    const t = setTimeout(() => setLanded(true), 4100)
-    return () => clearTimeout(t)
+    const t1 = setTimeout(() => setTouch(true), 500 + FLIGHT_MS * LAND_AT)
+    const t2 = setTimeout(() => setLanded(true), 500 + FLIGHT_MS + 200)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+    }
   }, [reduced])
 
-  const dust = Array.from({ length: 14 }, (_, i) => ({
-    dx: (i % 2 ? 1 : -1) * (20 + ((i * 37) % 90)),
-    dy: -(10 + ((i * 53) % 50)),
+  const dust = Array.from({ length: 16 }, (_, i) => ({
+    dx: (i % 2 ? 1 : -1) * (20 + ((i * 37) % 110)),
+    dy: -(8 + ((i * 53) % 60)),
     size: 2 + ((i * 7) % 4),
     delay: (i % 5) * 0.05,
   }))
@@ -47,14 +54,14 @@ export default function LandingFalcon({ y, opacity }: { y: MotionValue<number>; 
       </svg>
 
       {/* prach a sneh pri dosadnutí */}
-      {landed && !reduced && (
+      {touch && !reduced && (
         <div className="absolute bottom-[17%] left-1/2">
           {dust.map((p, i) => (
             <motion.span
               key={i}
               initial={{ x: 0, y: 0, opacity: 0.9, scale: 1 }}
               animate={{ x: p.dx, y: p.dy, opacity: 0, scale: 0.4 }}
-              transition={{ duration: 1.1, ease: 'easeOut', delay: p.delay }}
+              transition={{ duration: 1.2, ease: 'easeOut', delay: p.delay }}
               className="absolute rounded-full bg-snow/80"
               style={{ width: p.size, height: p.size }}
             />
@@ -65,37 +72,47 @@ export default function LandingFalcon({ y, opacity }: { y: MotionValue<number>; 
       {/* tieň */}
       <motion.div
         initial={reduced ? { opacity: 0.55, scaleX: 1 } : { opacity: 0, scaleX: 0.3 }}
-        animate={{ opacity: 0.55, scaleX: 1 }}
-        transition={{ duration: 0.9, ease, delay: reduced ? 0 : 3.4 }}
+        animate={touch ? { opacity: 0.55, scaleX: 1 } : {}}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="absolute bottom-[14%] left-1/2 h-[6%] w-[46%] -translate-x-1/2 rounded-[100%] bg-night blur-xl"
       />
 
-      {/* sokol – prílet po krivke, spomalenie, roztiahnutie, dosadnutie */}
+      {/* fáza 1: let s roztiahnutými krídlami */}
+      {!reduced && !landed && (
+        <motion.img
+          src={asset('falcon-flight.png')}
+          alt=""
+          draggable={false}
+          initial={{ x: '150%', y: '-170%', scale: 0.12, rotate: 22, opacity: 0, filter: 'blur(4px)' }}
+          animate={{
+            x: ['150%', '95%', '45%', '12%', '-2%', '0%'],
+            y: ['-170%', '-130%', '-80%', '-32%', '-6%', '0%'],
+            scale: [0.12, 0.22, 0.45, 0.82, 1.05, 1.02],
+            rotate: [22, 16, 6, -10, -4, 0],
+            opacity: [0, 1, 1, 1, 1, touch ? 0 : 1],
+            filter: ['blur(4px)', 'blur(3px)', 'blur(1.5px)', 'blur(0px)', 'blur(0px)', 'blur(0px)'],
+          }}
+          transition={{
+            duration: FLIGHT_MS / 1000,
+            ease: [0.22, 0.9, 0.3, 1],
+            times: [0, 0.16, 0.4, 0.66, LAND_AT, 1],
+            delay: 0.5,
+            opacity: { duration: FLIGHT_MS / 1000, times: [0, 0.16, 0.4, 0.66, LAND_AT, 1], delay: 0.5 },
+          }}
+          className="absolute bottom-[15%] left-1/2 w-[92%] origin-bottom -translate-x-1/2 drop-shadow-[0_18px_30px_rgba(0,0,0,0.55)]"
+        />
+      )}
+
+      {/* fáza 2: dosadnutie so zloženými krídlami */}
       <motion.img
         src={asset('falcon-landing-2.png')}
         alt=""
         draggable={false}
-        initial={
-          reduced
-            ? { x: 0, y: 0, scale: 1, rotate: 0, opacity: 1, filter: 'blur(0px)' }
-            : { x: '120%', y: '-150%', scale: 0.14, rotate: 18, opacity: 0, filter: 'blur(4px)' }
-        }
-        animate={
-          reduced
-            ? {}
-            : {
-                x: ['120%', '80%', '38%', '8%', '-4%', '1%', '0%'],
-                y: ['-150%', '-118%', '-72%', '-30%', '-6%', '2%', '0%'],
-                scale: [0.14, 0.24, 0.46, 0.8, 1.03, 0.99, 1],
-                rotate: [18, 14, 6, -8, -3, 1, 0],
-                opacity: [0, 1, 1, 1, 1, 1, 1],
-                filter: ['blur(4px)', 'blur(3px)', 'blur(1.5px)', 'blur(0px)', 'blur(0px)', 'blur(0px)', 'blur(0px)'],
-              }
-        }
-        transition={{ duration: 4.2, ease: [0.22, 0.9, 0.3, 1], times: [0, 0.16, 0.38, 0.64, 0.84, 0.94, 1], delay: 0.5 }}
+        initial={reduced ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -14, scale: 1.04 }}
+        animate={touch ? { opacity: 1, y: [ -14, 4, 0 ], scale: [1.04, 0.98, 1] } : {}}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="absolute bottom-[16%] left-1/2 w-[54%] origin-bottom -translate-x-1/2 drop-shadow-[0_18px_30px_rgba(0,0,0,0.55)]"
       />
-
     </motion.div>
   )
 }
