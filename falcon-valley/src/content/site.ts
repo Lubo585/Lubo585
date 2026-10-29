@@ -7,10 +7,21 @@ export const company = {
   arabic: 'وادي الصقور',
   email: 'info@falconsvalley.com',
   website: 'https://falconsvalley.com',
-  phone: '+421 900 000 000', // DOPLNIŤ
-  phoneHref: 'tel:+421900000000', // DOPLNIŤ
+  phone: '+421 904 027 703',
+  phoneHref: 'tel:+421904027703',
   instagram: 'https://instagram.com/falconsvalley', // DOPLNIŤ
   youtube: 'https://youtube.com/@falconsvalley', // DOPLNIŤ
+  legal: {
+    name: 'Falcon Valley s. r. o.',
+    ico: '57 709 343',
+    address: 'Levočská 345/11, 064 01 Stará Ľubovňa',
+    register: L(
+      'Zapísaná v Obchodnom registri Okresného súdu Prešov, oddiel Sro, vložka č. 52952/P',
+      'Registered in the Commercial Register of the District Court Prešov, section Sro, insert no. 52952/P',
+      'مسجلة في السجل التجاري لمحكمة مقاطعة بريشوف، القسم Sro، الإدراج رقم 52952/P',
+    ),
+    representative: L('Konateľ: Ľubomír Kruk', 'Managing director: Ľubomír Kruk', 'المدير التنفيذي: لوبومير كروك'),
+  },
   location: L('Dolina pod Vysokými Tatrami, Slovensko', 'Valley below the High Tatras, Slovakia', 'وادٍ أسفل جبال تاترا العليا، سلوفاكيا'),
   /** adresa, na ktorú FormSubmit doručí správy z formulára */
   formEndpoint: 'https://formsubmit.co/ajax/info@falconsvalley.com',
@@ -254,5 +265,6 @@ export const footer = {
     'جميع الصقور من تربية قانونية مع وثائق سايتس. البيع فقط للأشخاص المرخص لهم بحيازة الطيور الجارحة وفق القانون المعمول به.',
   ),
   rights: L('Všetky práva vyhradené.', 'All rights reserved.', 'جميع الحقوق محفوظة.'),
+  ico: L('IČO', 'Company ID', 'رقم الشركة'),
   photoCredits: L('Fotografie Tatier:', 'Tatras photos:', 'صور تاترا:'),
 }

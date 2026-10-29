@@ -105,7 +105,8 @@ a `public/CNAME`).
 
 V `src/content/site.ts` ešte doplňte:
 
-- telefón, Instagram a YouTube (položky označené `DOPLNIŤ`),
+- Instagram a YouTube (položky označené `DOPLNIŤ`); telefón +421 904 027 703 a údaje
+  firmy Falcon Valley s. r. o. (IČO 57 709 343, Stará Ľubovňa) sú doplnené,
 - texty sekcií podľa potreby (všetky texty sú v tomto súbore v SK, EN aj AR).
 
 Kontaktný formulár posiela správy cez FormSubmit na info@falconsvalley.com.
