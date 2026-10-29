@@ -14,7 +14,7 @@ export default function LandingFalcon({ y, opacity }: { y: MotionValue<number>; 
 
   useEffect(() => {
     if (reduced) return
-    const t = setTimeout(() => setLanded(true), 3300)
+    const t = setTimeout(() => setLanded(true), 4100)
     return () => clearTimeout(t)
   }, [reduced])
 
@@ -66,7 +66,7 @@ export default function LandingFalcon({ y, opacity }: { y: MotionValue<number>; 
       <motion.div
         initial={reduced ? { opacity: 0.55, scaleX: 1 } : { opacity: 0, scaleX: 0.3 }}
         animate={{ opacity: 0.55, scaleX: 1 }}
-        transition={{ duration: 0.9, ease, delay: reduced ? 0 : 2.6 }}
+        transition={{ duration: 0.9, ease, delay: reduced ? 0 : 3.4 }}
         className="absolute bottom-[14%] left-1/2 h-[6%] w-[46%] -translate-x-1/2 rounded-[100%] bg-night blur-xl"
       />
 
@@ -78,22 +78,22 @@ export default function LandingFalcon({ y, opacity }: { y: MotionValue<number>; 
         initial={
           reduced
             ? { x: 0, y: 0, scale: 1, rotate: 0, opacity: 1, filter: 'blur(0px)' }
-            : { x: '-140%', y: '-120%', scale: 0.18, rotate: -28, opacity: 0, filter: 'blur(3px)' }
+            : { x: '120%', y: '-150%', scale: 0.14, rotate: 18, opacity: 0, filter: 'blur(4px)' }
         }
         animate={
           reduced
             ? {}
             : {
-                x: ['-140%', '-90%', '-40%', '-8%', '2%', '0%'],
-                y: ['-120%', '-95%', '-55%', '-18%', '3%', '0%'],
-                scale: [0.18, 0.3, 0.55, 0.9, 1.04, 1],
-                rotate: [-28, -22, -12, 6, -2, 0],
-                opacity: [0, 1, 1, 1, 1, 1],
-                filter: ['blur(3px)', 'blur(2px)', 'blur(1px)', 'blur(0px)', 'blur(0px)', 'blur(0px)'],
+                x: ['120%', '80%', '38%', '8%', '-4%', '1%', '0%'],
+                y: ['-150%', '-118%', '-72%', '-30%', '-6%', '2%', '0%'],
+                scale: [0.14, 0.24, 0.46, 0.8, 1.03, 0.99, 1],
+                rotate: [18, 14, 6, -8, -3, 1, 0],
+                opacity: [0, 1, 1, 1, 1, 1, 1],
+                filter: ['blur(4px)', 'blur(3px)', 'blur(1.5px)', 'blur(0px)', 'blur(0px)', 'blur(0px)', 'blur(0px)'],
               }
         }
-        transition={{ duration: 3.2, ease, times: [0, 0.18, 0.42, 0.72, 0.9, 1], delay: 0.6 }}
-        className="absolute bottom-[16%] left-1/2 w-[62%] origin-bottom -translate-x-1/2 drop-shadow-[0_18px_30px_rgba(0,0,0,0.55)]"
+        transition={{ duration: 4.2, ease: [0.22, 0.9, 0.3, 1], times: [0, 0.16, 0.38, 0.64, 0.84, 0.94, 1], delay: 0.5 }}
+        className="absolute bottom-[16%] left-1/2 w-[54%] origin-bottom -translate-x-1/2 drop-shadow-[0_18px_30px_rgba(0,0,0,0.55)]"
       />
 
     </motion.div>
