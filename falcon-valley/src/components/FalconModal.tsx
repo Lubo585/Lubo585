@@ -7,6 +7,7 @@ import { useLang } from '../lib/lang'
 import { formatDate, formatPrice, formatWeight, youtubeId } from '../lib/format'
 import { getLenis, scrollTo } from '../lib/scroll'
 import { FalconArt } from './Art'
+import { asset } from '../lib/asset'
 import { StatusBadge } from './FalconCard'
 
 const ease = [0.22, 1, 0.36, 1] as const
@@ -63,7 +64,7 @@ export default function FalconModal({ falcon, onClose }: { falcon: Falcon | null
   }, [falcon, onClose])
 
   const sp = falcon ? speciesLabel[falcon.species] : null
-  const photos = falcon?.photos ?? []
+  const photos = (falcon?.photos ?? []).map(asset)
   const hasPhotos = photos.length > 0
 
   const rows = falcon
