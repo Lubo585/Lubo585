@@ -35,7 +35,15 @@ export default function Footer() {
             <a href={company.phoneHref} dir="ltr" className="text-mist transition hover:text-snow">{company.phone}</a>
           </nav>
         </div>
-        <p className="mt-12 max-w-3xl text-xs leading-relaxed text-mist/60">{t(footer.legal)}</p>
+        <div className="mt-12 max-w-3xl text-xs leading-relaxed text-mist/70">
+          <p className="font-medium text-mist">
+            {company.legal.name} · {t(footer.ico)} <span dir="ltr">{company.legal.ico}</span> · {company.legal.address}
+          </p>
+          <p className="mt-1 text-mist/60">
+            {t(company.legal.register)}. {t(company.legal.representative)}.
+          </p>
+        </div>
+        <p className="mt-4 max-w-3xl text-xs leading-relaxed text-mist/60">{t(footer.legal)}</p>
         {hasPhotos && (
           <p className="mt-3 max-w-3xl text-[11px] leading-relaxed text-mist/40">
             {t(footer.photoCredits)} {credits}
