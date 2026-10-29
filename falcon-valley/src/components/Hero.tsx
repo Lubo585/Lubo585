@@ -9,6 +9,7 @@ import { scrollTo } from '../lib/scroll'
 import { FALCON_PATH, LAYERS, seededStars } from './Art'
 import { photos } from '../content/photos'
 import { usePhotoAvailable } from './Photo'
+import LandingFalcon from './LandingFalcon'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -24,6 +25,7 @@ export default function Hero() {
   const yText = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : -120])
   const scaleText = useTransform(scrollYProgress, [0, 1], [1, reduced ? 1 : 0.92])
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
+  const yFalcon = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 60])
   const skyOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.4])
 
   const mx = useMotionValue(0)
@@ -139,9 +141,11 @@ export default function Hero() {
 
       <div className="absolute inset-x-0 bottom-0 -z-10 h-56 bg-gradient-to-t from-night to-transparent" />
 
+      <LandingFalcon y={yFalcon} opacity={opacity} />
+
       <motion.div
         style={{ y: yText, scale: scaleText, opacity }}
-        className="mx-auto flex min-h-[100svh] w-full max-w-5xl flex-col items-center justify-center px-5 pb-28 pt-32 text-center sm:px-8"
+        className="mx-auto flex min-h-[100svh] w-full max-w-5xl flex-col items-center justify-center px-5 pb-[32svh] pt-28 text-center sm:px-8 sm:pb-28 sm:pt-32"
       >
         <motion.span
           initial={{ opacity: 0, y: 12 }}
