@@ -6,7 +6,8 @@ import { useLang } from '../lib/lang'
 import { SplitWords } from '../lib/Reveal'
 import { Magnetic } from '../lib/Magnetic'
 import { scrollTo } from '../lib/scroll'
-import { FALCON_PATH, LAYERS, seededStars } from './Art'
+import { LAYERS, seededStars } from './Art'
+import { asset } from '../lib/asset'
 import { photos } from '../content/photos'
 import { usePhotoAvailable } from './Photo'
 import LandingFalcon from './LandingFalcon'
@@ -128,14 +129,14 @@ export default function Hero() {
         </motion.g>
       </svg>
 
-      {/* gliding falcon */}
+      {/* vzdialený sokol plachtiaci po oblohe */}
       {!reduced && (
         <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-          <div className="absolute left-0 top-0 h-full w-full">
-            <svg viewBox="-42 -64 84 128" width="54" className="falcon-flight absolute drop-shadow-[0_6px_14px_rgba(0,0,0,0.5)]">
-              <path d={FALCON_PATH} fill="#0b0f15" className="wing-flap" />
-            </svg>
-          </div>
+          <img
+            src={asset('falcon-flight.png')}
+            alt=""
+            className="falcon-flight absolute w-[72px] opacity-80 blur-[0.6px] drop-shadow-[0_6px_14px_rgba(0,0,0,0.5)] sm:w-[96px]"
+          />
         </div>
       )}
 
@@ -145,7 +146,7 @@ export default function Hero() {
 
       <motion.div
         style={{ y: yText, scale: scaleText, opacity }}
-        className="mx-auto flex min-h-[100svh] w-full max-w-5xl flex-col items-center justify-center px-5 pb-[32svh] pt-28 text-center sm:px-8 sm:pb-28 sm:pt-32"
+        className="mx-auto flex min-h-[100svh] w-full max-w-5xl flex-col items-center justify-center px-5 pb-[36svh] pt-28 text-center sm:px-8 sm:pb-[48svh] sm:pt-32 lg:ml-[44vw] lg:mr-[5vw] lg:max-w-[52vw] lg:items-start lg:pb-28 lg:text-left"
       >
         <motion.span
           initial={{ opacity: 0, y: 12 }}
@@ -166,7 +167,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease, delay: 0.9 }}
-          className="mt-7 max-w-2xl text-lg leading-relaxed text-mist text-pretty sm:text-xl"
+          className="mt-7 max-w-2xl text-lg leading-relaxed text-mist text-pretty sm:text-xl lg:max-w-xl"
         >
           {t(hero.subtitle)}
         </motion.p>
@@ -175,7 +176,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease, delay: 1.1 }}
-          className="mt-10 flex flex-wrap items-center justify-center gap-3"
+          className="mt-10 flex flex-wrap items-center justify-center gap-3 lg:justify-start"
         >
           <Magnetic>
             <button
