@@ -157,7 +157,7 @@ export const falcons: Falcon[] = [
   {
     id: 'kriva',
     name: 'Krivá',
-    species: 'peregrine',
+    species: 'gyr',
     sex: 'male',
     hatched: '2026-04-18',
     weightGrams: 690,
@@ -168,11 +168,11 @@ export const falcons: Falcon[] = [
     parents: { sire: 'Kriváň', dam: 'Bystrá' },
     price: 2200,
     status: 'reserved',
-    photos: [],
+    photos: ['/falcons/kriva/01.jpg'],
     description: {
-      sk: 'Samec z rovnakého hniezda ako Tatra. Ľahký, obratný, extrémne rýchly v strmhlavom lete.',
-      en: 'Tiercel from the same clutch as Tatra. Light, agile, extremely fast in the stoop.',
-      ar: 'ذكر من نفس العش الذي خرجت منه تاترا. خفيف ورشيق وسريع للغاية في الانقضاض.',
+      sk: 'Čisto biely samec gyra z rovnakého hniezda ako Tatra. Ľahký, obratný, extrémne rýchly v strmhlavom lete.',
+      en: 'Pure white gyr tiercel from the same clutch as Tatra. Light, agile, extremely fast in the stoop.',
+      ar: 'ذكر جير أبيض ناصع من نفس العش الذي خرجت منه تاترا. خفيف ورشيق وسريع للغاية في الانقضاض.',
     },
     traits: [
       { sk: 'Obratný', en: 'Agile', ar: 'رشيق' },
@@ -206,7 +206,7 @@ export const falcons: Falcon[] = [
   {
     id: 'mlynica',
     name: 'Mlynica',
-    species: 'lanner',
+    species: 'gyr',
     sex: 'female',
     hatched: '2025-05-06',
     weightGrams: 640,
@@ -215,11 +215,11 @@ export const falcons: Falcon[] = [
     ringNumber: 'SK 25 FV 0307',
     cites: 'SK/CITES/25/0307',
     status: 'sold',
-    photos: [],
+    photos: ['/falcons/mlynica/01.jpg'],
     description: {
-      sk: 'Lanner s výbornou manipulovateľnosťou. Už našla nový domov.',
-      en: 'Lanner with excellent manners. Already found a new home.',
-      ar: 'وكري سهل التعامل ممتاز. وجدت بيتها الجديد بالفعل.',
+      sk: 'Biela samica gyra s výbornou manipulovateľnosťou. Už našla nový domov.',
+      en: 'White gyr female with excellent manners. Already found a new home.',
+      ar: 'أنثى جير بيضاء سهلة التعامل. وجدت بيتها الجديد بالفعل.',
     },
   },
 
@@ -227,7 +227,7 @@ export const falcons: Falcon[] = [
   {
     id: 'krivan',
     name: 'Kriváň',
-    species: 'peregrine',
+    species: 'saker',
     sex: 'male',
     hatched: '2019-04-12',
     weightGrams: 720,
@@ -235,17 +235,17 @@ export const falcons: Falcon[] = [
     origin: { sk: 'Zakladateľ chovu, Falcons Valley', en: 'Foundation male, Falcons Valley', ar: 'الذكر المؤسس، وادي الصقور' },
     ringNumber: 'SK 19 FV 0021',
     status: 'breeding',
-    photos: [],
+    photos: ['/falcons/krivan/01.jpg'],
     description: {
-      sk: 'Zakladateľ našej línie sokolov sťahovavých. Sedem sezón, desiatky úspešných mláďat.',
-      en: 'Founder of our peregrine line. Seven seasons, dozens of successful offspring.',
-      ar: 'مؤسس سلالة الشواهين لدينا. سبعة مواسم وعشرات الفراخ الناجحة.',
+      sk: 'Zakladateľ našej línie rárohov. Sedem sezón, desiatky úspešných mláďat.',
+      en: 'Founder of our saker line. Seven seasons, dozens of successful offspring.',
+      ar: 'مؤسس سلالة الصقور الحرة لدينا. سبعة مواسم وعشرات الفراخ الناجحة.',
     },
   },
   {
     id: 'bystra',
     name: 'Bystrá',
-    species: 'peregrine',
+    species: 'saker',
     sex: 'female',
     hatched: '2019-05-01',
     weightGrams: 1010,
@@ -253,7 +253,7 @@ export const falcons: Falcon[] = [
     origin: { sk: 'Zakladateľka chovu, Falcons Valley', en: 'Foundation female, Falcons Valley', ar: 'الأنثى المؤسسة، وادي الصقور' },
     ringNumber: 'SK 19 FV 0034',
     status: 'breeding',
-    photos: [],
+    photos: ['/falcons/bystra/01.jpg'],
     description: {
       sk: 'Starostlivá matka s výnimočným pokojom pri hniezdení.',
       en: 'Attentive mother with exceptional calm on the nest.',
@@ -281,7 +281,7 @@ export const falcons: Falcon[] = [
   {
     id: 'poprad',
     name: 'Poprad',
-    species: 'peregrine',
+    species: 'saker',
     sex: 'female',
     hatched: '2020-04-28',
     weightGrams: 1060,
@@ -289,7 +289,7 @@ export const falcons: Falcon[] = [
     origin: VALLEY,
     ringNumber: 'SK 20 FV 0077',
     status: 'breeding',
-    photos: [],
+    photos: ['/falcons/poprad/01.jpg'],
     description: {
       sk: 'Dcéra Kriváňa a Bystrej, dnes matka našich najrýchlejších hybridov.',
       en: 'Daughter of Kriváň and Bystrá, now dam of our fastest hybrids.',
