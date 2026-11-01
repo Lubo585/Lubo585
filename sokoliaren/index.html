@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sokoliareň Falcons Valley – Spišská Stará Ves · štúdia a vizualizácia</title>
+<title>Sokoliareň Falcons Valley · Falconry Centre – Spišská Stará Ves</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Noto+Naskh+Arabic:wght@500&display=swap" rel="stylesheet">
@@ -15,6 +15,8 @@
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
+html[lang="sk"] .en{display:none !important}
+html[lang="en"] .sk{display:none !important}
 body{margin:0;background:var(--night);color:var(--snow);font-family:Inter,system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4{font-family:Outfit,Inter,sans-serif;letter-spacing:-.01em;margin:0 0 .4em}
 h1{font-size:clamp(2.4rem,6vw,4.6rem);line-height:1.02;font-weight:800}
@@ -25,22 +27,19 @@ a{color:var(--glacier)}
 .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
 .eyebrow{font-family:Outfit,sans-serif;text-transform:uppercase;letter-spacing:.18em;font-size:.78rem;color:var(--gold);font-weight:600;margin-bottom:14px}
 .eyebrow .ar{font-family:"Noto Naskh Arabic",serif;letter-spacing:0;text-transform:none;font-size:1rem;margin-left:10px;color:var(--snow2)}
-.lead{font-size:1.15rem;color:var(--snow2);max-width:60ch}
+.lead{font-size:1.15rem;color:var(--snow2);max-width:62ch}
 .muted{color:var(--mist)}
 section{padding:88px 0;border-top:1px solid var(--line)}
 section.alt{background:var(--night2)}
-/* hero */
 .hero{position:relative;min-height:92vh;display:flex;align-items:flex-end;overflow:hidden;border-top:0}
 .hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,8,12,.25) 0%,rgba(6,8,12,.35) 40%,rgba(6,8,12,.96) 100%)}
 .hero .wrap{position:relative;z-index:2;padding-bottom:64px;padding-top:120px}
-.hero h1 span{background:linear-gradient(100deg,#fff 0%,#c7e1ff 45%,#ff8a90 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1 span.grad{background:linear-gradient(100deg,#fff 0%,#c7e1ff 45%,#ff8a90 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:38px}
 .stat{background:rgba(12,16,22,.72);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
 .stat b{display:block;font-family:Outfit,sans-serif;font-size:1.9rem;font-weight:800;color:var(--snow)}
 .stat span{color:var(--mist);font-size:.9rem}
-.badge{display:inline-block;background:var(--brand);color:#fff;font-family:Outfit,sans-serif;font-weight:700;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:999px;margin-bottom:16px}
-/* grids */
 .grid{display:grid;gap:22px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
@@ -48,6 +47,7 @@ figure{margin:0;background:var(--night3);border:1px solid var(--line);border-rad
 figure img,figure svg{display:block;width:100%;height:auto}
 figcaption{padding:12px 16px;font-size:.88rem;color:var(--mist)}
 figcaption b{color:var(--snow2)}
+figcaption .credit{display:block;font-size:.75rem;color:#6f7a88;margin-top:4px}
 .card{background:var(--night3);border:1px solid var(--line);border-radius:18px;padding:26px}
 .card h3{margin-top:0}
 .card ul{padding-left:20px;margin:0}
@@ -73,35 +73,54 @@ td b{color:var(--snow)}
 .step p{margin:0;color:var(--mist);font-size:.92rem}
 .diagram{background:#0c1016;border:1px solid var(--line);border-radius:18px;padding:10px}
 .diagram svg{width:100%;height:auto;display:block}
+.timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:18px}
+.tl{background:var(--night3);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:.88rem}
+.tl b{display:block;font-family:Outfit,sans-serif;color:var(--gold);font-size:1rem;margin-bottom:4px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.placeholder{border:2px dashed var(--line);border-radius:18px;padding:30px;text-align:center;color:var(--mist)}
 footer{padding:48px 0 70px;border-top:1px solid var(--line);color:var(--mist);font-size:.9rem}
 footer .brand{font-family:Outfit,sans-serif;font-weight:800;color:var(--snow);font-size:1.3rem}
 footer .brand em{color:var(--brand);font-style:normal}
 .toc{position:sticky;top:0;z-index:20;background:rgba(6,8,12,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.toc .wrap{display:flex;gap:6px 22px;flex-wrap:wrap;align-items:center;padding-top:12px;padding-bottom:12px;font-size:.85rem}
+.toc .wrap{display:flex;gap:6px 18px;flex-wrap:wrap;align-items:center;padding-top:12px;padding-bottom:12px;font-size:.85rem}
 .toc a{color:var(--snow2);text-decoration:none;font-weight:500}
 .toc a:hover{color:var(--gold)}
 .toc .fv{font-family:Outfit,sans-serif;font-weight:800;color:var(--brand);margin-right:auto;font-size:1rem}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-left:10px}
+.lang button{background:transparent;border:0;color:var(--mist);font:600 .8rem Outfit,sans-serif;padding:6px 12px;cursor:pointer;letter-spacing:.08em}
+.lang button.on{background:var(--brand);color:#fff}
 @media print{.toc{display:none}section{padding:40px 0}.hero{min-height:70vh}}
 </style>
 </head>
 <body>
 
 <nav class="toc"><div class="wrap">
-  <span class="fv">FV · Sokoliareň</span>
-  <a href="#lokalita">Lokalita</a><a href="#situacia">Situačný plán</a><a href="#hala">Chovná hala</a><a href="#voliery">Voliéry</a><a href="#loza">Loža</a><a href="#sokoly">Sokoly</a><a href="#etapy">Etapy</a>
+  <span class="fv">FV · <span class="sk">Sokoliareň</span><span class="en">Falconry Centre</span></span>
+  <a href="#lokalita"><span class="sk">Lokalita</span><span class="en">Location</span></a>
+  <a href="#pieniny">Pieniny</a>
+  <a href="#situacia"><span class="sk">Situačný plán</span><span class="en">Site plan</span></a>
+  <a href="#hala"><span class="sk">Chovná hala</span><span class="en">Breeding hall</span></a>
+  <a href="#voliery"><span class="sk">Voliéry</span><span class="en">Aviaries</span></a>
+  <a href="#loza"><span class="sk">Loža</span><span class="en">Lounge</span></a>
+  <a href="#hacking">Wild hacking</a>
+  <a href="#sokoly"><span class="sk">Sokoly</span><span class="en">Falcons</span></a>
+  <a href="#etapy"><span class="sk">Etapy</span><span class="en">Next steps</span></a>
+  <span class="lang"><button id="btn-sk" onclick="setLang('sk')">SK</button><button id="btn-en" onclick="setLang('en')">EN</button></span>
 </div></nav>
 
 <header class="hero">
-  <img class="bg" src="img/koncept-letecky.jpg" alt="Koncept: letecký pohľad na sokoliareň">
+  <img class="bg" src="img/koncept-letecky.jpg" alt="Koncept: letecký pohľad na sokoliareň / concept aerial view">
   <div class="wrap">
     <div class="eyebrow">Falcons Valley · Spišská Stará Ves <span class="ar">وادي الصقور</span></div>
-    <h1><span>Sokoliareň pod Tatrami.</span><br>Chovná stanica, letové voliéry a loža.</h1>
-    <p class="lead">Štúdia a vizualizácia chovnej stanice sokolov na pozemku pri hale č. 98 (parcela 4930/15) v Spišskej Starej Vsi: dvojpodlažná chovná hala, tri letové sekcie po 2 400 – 2 600 m² a centrálna presklená loža v štýle arabského majlisu, z ktorej vidieť lietajúce sokoly.</p>
+    <h1 class="sk"><span class="grad">Sokoliareň pod Tatrami.</span><br>Chovná stanica, letové voliéry a loža.</h1>
+    <h1 class="en"><span class="grad">A falconry centre below the Tatras.</span><br>Breeding hall, flight aviaries and a lounge.</h1>
+    <p class="lead sk">Štúdia a vizualizácia chovnej stanice sokolov pri hale č. 98 (parcela 4930/15) v Spišskej Starej Vsi: dvojpodlažná chovná hala, tri letové sekcie po 2 400 – 2 700 m², centrálna presklená loža v štýle arabského majlisu a wild hacking mláďat v Pieninách.</p>
+    <p class="lead en">Concept study and visualisation of a falcon breeding centre at hall no. 98 (parcel 4930/15) in Spišská Stará Ves, Slovakia: a two-storey breeding hall, three flight aviaries of 2,400 – 2,700 m² each, a central glazed majlis-style lounge and wild hacking of young falcons in the Pieniny mountains.</p>
     <div class="stats">
-      <div class="stat"><b>≈ 4 000 m²</b><span>chovná hala · 2 podlažia · ~50 chovných komôr</span></div>
-      <div class="stat"><b>3 × ≈ 2 500 m²</b><span>letové voliéry · siete 6 – 8 m · 7 460 m² spolu</span></div>
-      <div class="stat"><b>∅ 22 m</b><span>centrálna loža · tónované sklo do troch sekcií</span></div>
-      <div class="stat"><b>3 línie</b><span>Gyr pure · Golden Saker · Gyr × Shaheen</span></div>
+      <div class="stat"><b>53 × 60 m</b><span class="sk">chovná hala ≈ 3 200 m² / podlažie · 2 podlažia</span><span class="en">breeding hall ≈ 3 200 m² per floor · 2 floors</span></div>
+      <div class="stat"><b>3 × ≈ 2 500 m²</b><span class="sk">letové voliéry · siete 6 – 8 m · 7 290 m² spolu</span><span class="en">flight aviaries · nets 6 – 8 m · 7 290 m² in total</span></div>
+      <div class="stat"><b>∅ 22 m</b><span class="sk">centrálna loža · tónované sklo do troch sekcií</span><span class="en">central lounge · tinted glass into all three sections</span></div>
+      <div class="stat"><b>2 – 4 <span class="sk">týždne</span><span class="en">weeks</span></b><span class="sk">wild hacking mláďat vo voľnej prírode</span><span class="en">wild hacking of fledglings in the open</span></div>
     </div>
   </div>
 </header>
@@ -109,186 +128,251 @@ footer .brand em{color:var(--brand);font-style:normal}
 <!-- LOKALITA -->
 <section id="lokalita">
   <div class="wrap">
-    <div class="eyebrow">01 · Lokalita</div>
-    <h2>Spišská Stará Ves, areál pri ulici SNP</h2>
-    <p class="lead">Areál leží na severnom okraji mesta medzi cestou SNP a potokom Rieka, asi 1 km od Dunajca a poľskej hranice, na dohľad od Pienin. Existujúca dvojpodlažná priemyselná hala (súp. č. 98, parcela 4930/15) má pevnú železobetónovú konštrukciu vhodnú na prestavbu na chovné komory. Pozemok pre voliéry je rovinatá lúka za halou so stranami 90 / 89 / 92 / 91 m (≈ 7 850 m² podľa katastra).</p>
+    <div class="eyebrow">01 · <span class="sk">Lokalita</span><span class="en">Location</span></div>
+    <h2 class="sk">Spišská Stará Ves, areál pri ulici SNP</h2>
+    <h2 class="en">Spišská Stará Ves, the site on SNP street</h2>
+    <p class="lead sk">Areál leží na severnom okraji mesta medzi cestou SNP a potokom Rieka, asi 1 km od Dunajca a poľskej hranice, na dohľad od Pienin. Existujúca dvojpodlažná priemyselná hala (súp. č. 98, parcela 4930/15) má pevnú železobetónovú konštrukciu vhodnú na prestavbu na chovné komory. Pozemok pre voliéry je rovinatá lúka za halou so stranami 90 / 89 / 92 / 91 m (≈ 7 850 m² podľa katastra). Existujúci dom č. 439 na pozemku sa zbúra – uvoľní celú plochu pre voliéry.</p>
+    <p class="lead en">The site sits on the northern edge of the town between SNP street and the Rieka stream, about 1 km from the Dunajec river and the Polish border, within sight of the Pieniny mountains. The existing two-storey industrial hall (no. 98, parcel 4930/15) has a solid reinforced-concrete frame suitable for conversion into breeding chambers. The aviary plot is a flat meadow behind the hall with sides of 90 / 89 / 92 / 91 m (≈ 7 850 m² per the cadastre). The existing house no. 439 on the plot will be demolished to free the whole area for the aviaries.</p>
     <div class="grid g2">
-      <figure><img src="img/google-satelit-obec.jpg" alt="Google Maps – Spišská Stará Ves a okolie"><figcaption><b>Google Maps · širšie okolie.</b> Spišská Stará Ves pri Dunajci; mesto je prirodzenou bránou do Pienin a Zamaguria. Letisko Poprad-Tatry ≈ 50 km, Krakov ≈ 110 km.</figcaption></figure>
-      <figure><img src="img/google-satelit-okolie.jpg" alt="Google Maps – satelitný pohľad na areál a okolie"><figcaption><b>Google Maps · satelit.</b> Hala pri ceste SNP, za ňou lúka pozemku ohraničená stromoradím pri potoku Rieka. Vpravo hore plocha „Drift Zone“ a polia smerom k Dunajcu.</figcaption></figure>
-      <figure><img src="img/google-satelit-pozemok.jpg" alt="Google Maps – detail pozemku s číslami budov"><figcaption><b>Google Maps · detail pozemku.</b> Čísla budov 433, 434, 436 (dvor haly), 439 (existujúci dom na pozemku) a 438 (prístrešok v juhovýchodnom rohu) sedia s katastrálnou mapou nižšie.</figcaption></figure>
-      <figure><img src="img/kataster.jpg" alt="Katastrálna mapa – parcela 4930/15 a pozemok pre voliéry"><figcaption><b>Kataster (ZBGIS).</b> Zelenou hala 4930/15 (98/188) a dvor 4930/5, oranžovou pozemok pre voliéry s rozmermi 90 × 89 × 92 × 91 m. Body 1 – 4 sú rohy pozemku použité v situačnom pláne.</figcaption></figure>
-      <figure><img src="img/streetview-hala.jpg" alt="Google Street View – čelná fasáda haly z ulice SNP"><figcaption><b>Google Street View · hala z ulice SNP.</b> Dvojpodlažný objekt s pásovými oknami – horné podlažie je ideálne pre chovné komory so strešnými svetlíkmi, prízemie pre liaheň, odchovňu a zázemie.</figcaption></figure>
-      <figure><img src="img/streetview-hala-2.jpg" alt="Google Street View – bočný pohľad na halu a predzáhradku"><figcaption><b>Google Street View · bočný pohľad.</b> Pred halou je trávnatý pás a spevnená plocha – priestor pre parkovanie návštev a reprezentatívny vstup.</figcaption></figure>
+      <figure><img src="img/google-satelit-obec.jpg" alt="Google Maps – Spišská Stará Ves"><figcaption><b class="sk">Google Maps · širšie okolie.</b><b class="en">Google Maps · wider area.</b> <span class="sk">Spišská Stará Ves pri Dunajci je bránou do Pienin a Zamaguria. Letisko Poprad-Tatry ≈ 50 km, Krakov ≈ 110 km.</span><span class="en">Spišská Stará Ves on the Dunajec is the gateway to the Pieniny and Zamagurie. Poprad-Tatry airport ≈ 50 km, Kraków ≈ 110 km.</span></figcaption></figure>
+      <figure><img src="img/google-satelit-okolie.jpg" alt="Google Maps – satellite view of the site"><figcaption><b class="sk">Google Maps · satelit.</b><b class="en">Google Maps · satellite.</b> <span class="sk">Hala pri ceste SNP, za ňou lúka pozemku ohraničená stromoradím pri potoku Rieka. Vpravo hore plocha „Drift Zone“ a polia smerom k Dunajcu.</span><span class="en">The hall on SNP street, behind it the meadow bounded by the tree line along the Rieka stream. Top right the “Drift Zone” area and fields towards the Dunajec.</span></figcaption></figure>
+      <figure><img src="img/google-satelit-pozemok.jpg" alt="Google Maps – plot detail with building numbers"><figcaption><b class="sk">Google Maps · detail pozemku.</b><b class="en">Google Maps · plot detail.</b> <span class="sk">Čísla budov 433, 434, 436 (dvor haly), 439 (dom na pozemku – bude zbúraný) a 438 (prístrešok v juhovýchodnom rohu) sedia s katastrálnou mapou.</span><span class="en">Building numbers 433, 434, 436 (hall yard), 439 (house on the plot, to be demolished) and 438 (shed in the south-east corner) match the cadastral map.</span></figcaption></figure>
+      <figure><img src="img/kataster.jpg" alt="Cadastral map"><figcaption><b class="sk">Kataster (ZBGIS).</b><b class="en">Cadastre (ZBGIS).</b> <span class="sk">Zelenou hala 4930/15 (98/188) a dvor 4930/5, oranžovou pozemok pre voliéry s rozmermi 90 × 89 × 92 × 91 m. Body 1 – 4 sú rohy pozemku použité v situačnom pláne.</span><span class="en">Green: hall 4930/15 (98/188) and yard 4930/5; orange: the aviary plot measuring 90 × 89 × 92 × 91 m. Points 1 – 4 are the plot corners used in the site plan.</span></figcaption></figure>
+      <figure><img src="img/streetview-hala.jpg" alt="Google Street View – hall front"><figcaption><b class="sk">Google Street View · hala z ulice SNP.</b><b class="en">Google Street View · the hall from SNP street.</b> <span class="sk">Dvojpodlažný objekt s pásovými oknami – horné podlažie je ideálne pre chovné komory so strešnými svetlíkmi, prízemie pre liaheň, odchovňu a zázemie.</span><span class="en">A two-storey building with ribbon windows – the upper floor is ideal for skylit breeding chambers, the ground floor for the hatchery, rearing rooms and services.</span></figcaption></figure>
+      <figure><img src="img/streetview-hala-2.jpg" alt="Google Street View – hall side view"><figcaption><b class="sk">Google Street View · bočný pohľad.</b><b class="en">Google Street View · side view.</b> <span class="sk">Pred halou je trávnatý pás a spevnená plocha – priestor pre parkovanie návštev a reprezentatívny vstup.</span><span class="en">A lawn strip and paved area in front of the hall – space for visitor parking and a representative entrance.</span></figcaption></figure>
     </div>
-    <p class="muted" style="margin-top:18px">GPS stredu pozemku ≈ 49.3938 N, 20.3570 E. Satelitné snímky © Google; katastrálna mapa © ÚGKK SR / ZBGIS.</p>
+    <p class="muted" style="margin-top:18px"><span class="sk">GPS stredu pozemku ≈ 49.3938 N, 20.3570 E. Satelitné snímky © Google; katastrálna mapa © ÚGKK SR / ZBGIS.</span><span class="en">Plot centre ≈ 49.3938 N, 20.3570 E. Satellite imagery © Google; cadastral map © ÚGKK SR / ZBGIS.</span></p>
+  </div>
+</section>
+
+<!-- PIENINY -->
+<section id="pieniny" class="alt">
+  <div class="wrap">
+    <div class="eyebrow">02 · <span class="sk">Okolie</span><span class="en">Surroundings</span></div>
+    <h2 class="sk">Pieniny, Tri koruny a Dunajec</h2>
+    <h2 class="en">Pieniny, the Three Crowns and the Dunajec</h2>
+    <p class="lead sk">Sokoliareň stojí na hranici dvoch národných parkov. Pieninský národný park (PIENAP, SR) a Pieniński Park Narodowy (PL) chránia vápencové bralá nad prielomom Dunajca; najznámejší masív Tri koruny (Trzy Korony, 982 m) je od areálu vzdušnou čiarou asi 8 km, Červený Kláštor s pltníctvom 5 km. Skalné steny Pienin sú prirodzeným hniezdiskom sokola sťahovavého – rovnaké prostredie, v ktorom budeme mláďatá vypúšťať pri wild hackingu.</p>
+    <p class="lead en">The falconry centre sits on the border of two national parks. The Pieniny National Park (PIENAP, Slovakia) and Pieniński Park Narodowy (Poland) protect the limestone crags above the Dunajec gorge; the best-known massif, the Three Crowns (Trzy Korony, 982 m), is about 8 km from the site as the falcon flies, and Červený Kláštor with its traditional rafting 5 km. The Pieniny cliffs are natural peregrine nesting habitat – the same landscape in which our fledglings will be hacked.</p>
+    <div class="gallery">
+      <figure><img src="img/pieniny-tri-koruny.jpg" alt="Tri koruny nad Dunajcom / Three Crowns above the Dunajec"><figcaption><b><span class="sk">Tri koruny (982 m) nad Dunajcom – najznámejší masív Pienin, asi 8 km od sokoliarne.</span><span class="en">The Three Crowns (982 m) above the Dunajec – the best-known massif of the Pieniny, about 8 km from the centre.</span></b> <span class="credit">Foto: Pixabay · Pixabay Content License</span></figcaption></figure>
+<figure><img src="img/pieniny-prielom-jesen.jpg" alt="Prielom Dunajca na jeseň / Dunajec gorge in autumn"><figcaption><b><span class="sk">Prielom Dunajca medzi Červeným Kláštorom a Szczawnicou – vápencové bralá sú hniezdiskom sokola sťahovavého.</span><span class="en">The Dunajec gorge between Červený Kláštor and Szczawnica – the limestone cliffs are peregrine nesting habitat.</span></b> <span class="credit">Foto: Pixabay · Pixabay Content License</span></figcaption></figure>
+<figure><img src="img/pieniny-prielom-leto.jpg" alt="Dunajec v lete / the Dunajec in summer"><figcaption><b><span class="sk">Dunajec v lete – trasa tradičných pltí z Červeného Kláštora, obľúbený program pre hostí sokoliarne.</span><span class="en">The Dunajec in summer – the route of the traditional rafts from Červený Kláštor, a favourite programme for the centre’s guests.</span></b> <span class="credit">Foto: Pixabay · Pixabay Content License</span></figcaption></figure>
+<figure><img src="img/pieniny-hrebene.jpg" alt="Hrebene Pienin pri západe slnka / Pieniny ridges at sunset"><figcaption><b><span class="sk">Hrebene Pienin pri západe slnka – otvorená krajina lúk a brál, v ktorej budú mláďatá lietať počas hackingu.</span><span class="en">Pieniny ridges at sunset – the open landscape of meadows and crags where the fledglings will fly during hacking.</span></b> <span class="credit">Foto: Pixabay · Pixabay Content License</span></figcaption></figure>
+<figure><img src="img/pieniny-dunajec-brala.jpg" alt="Bralá nad Dunajcom / cliffs above the Dunajec"><figcaption><b><span class="sk">Bralá nad Dunajcom v jesenných farbách – hranica dvoch národných parkov, slovenského PIENAP a poľského PPN.</span><span class="en">Cliffs above the Dunajec in autumn colours – the border of two national parks, the Slovak PIENAP and the Polish PPN.</span></b> <span class="credit">Foto: Pixabay · Pixabay Content License</span></figcaption></figure>
+<figure><img src="img/pieniny-niedzica.jpg" alt="Hrad Niedzica / Niedzica castle"><figcaption><b><span class="sk">Hrad Niedzica nad Czorsztynským jazerom – 12 km od areálu, výlet pre klientov medzi dvoma návštevami lože.</span><span class="en">Niedzica castle above Lake Czorsztyn – 12 km from the site, a client excursion between two visits to the lounge.</span></b> <span class="credit">Foto: Pixabay · Pixabay Content License</span></figcaption></figure>
+
+    </div>
+    <div class="grid g3" style="margin-top:22px">
+      <div class="card"><h3 class="sk">Pre klientov</h3><h3 class="en">For clients</h3><ul>
+        <li class="sk">plte na Dunajci, Tri koruny, kúpele Smerdžonka, Ľubovniansky hrad</li><li class="en">Dunajec rafting, the Three Crowns, Smerdžonka spa, Ľubovňa castle</li>
+        <li class="sk">Vysoké Tatry a Zakopane do hodiny autom</li><li class="en">High Tatras and Zakopane within an hour’s drive</li>
+        <li class="sk">ubytovanie v penziónoch v Červenom Kláštore a Spišskej Starej Vsi</li><li class="en">guesthouses in Červený Kláštor and Spišská Stará Ves</li>
+      </ul></div>
+      <div class="card"><h3 class="sk">Pre sokoly</h3><h3 class="en">For the falcons</h3><ul>
+        <li class="sk">čistý horský vzduch, chladné noci – ideálne pre gyry</li><li class="en">clean mountain air and cool nights – ideal for gyrs</li>
+        <li class="sk">otvorené lúky a pasienky okolo areálu pre hacking a tréning</li><li class="en">open meadows and pastures around the site for hacking and training</li>
+        <li class="sk">bralá Pienin: prirodzené hniezdiská sokola sťahovavého</li><li class="en">Pieniny cliffs: natural peregrine eyries</li>
+      </ul></div>
+      <div class="card"><h3 class="sk">Vzdialenosti</h3><h3 class="en">Distances</h3><ul>
+        <li>Červený Kláštor · 5 km</li><li>Trzy Korony · 8 km</li><li>Niedzica · 12 km</li><li>Kežmarok · 30 km</li><li>Poprad-Tatry (<span class="sk">letisko</span><span class="en">airport</span>) · 50 km</li><li>Kraków · 110 km</li>
+      </ul></div>
+    </div>
+    <div class="placeholder" style="margin-top:22px"><span class="sk">Sem doplníme vaše fotografie z lokality a okolia (z telefónu) – stačí ich poslať a zaradíme ich do galérie.</span><span class="en">Your own photos of the site and surroundings (from your phone) will be added here – just send them and they go into the gallery.</span></div>
   </div>
 </section>
 
 <!-- SITUACIA -->
-<section id="situacia" class="alt">
+<section id="situacia">
   <div class="wrap">
-    <div class="eyebrow">02 · Situačný plán</div>
-    <h2>Hala, tri letové sekcie a loža v strede</h2>
-    <p class="lead">Pozemok delíme z jedného stredu na tri výseče po 120°. Každá sekcia má vlastný vstup cez bezpečnostnú predsieň, vlastný prístrešok a kúpeľ. V strede stojí kruhová loža, ktorej tri presklené steny smerujú do troch voliér – z jedného miesta vidno všetky tri línie sokolov. Loža je krytou chodbou prepojená s existujúcim domom č. 439, ktorý slúži ako recepcia a zázemie pre hostí.</p>
+    <div class="eyebrow">03 · <span class="sk">Situačný plán</span><span class="en">Site plan</span></div>
+    <h2 class="sk">Hala, tri letové sekcie a loža v strede</h2>
+    <h2 class="en">The hall, three flight sections and the lounge in the centre</h2>
+    <p class="lead sk">Pozemok delíme z jedného stredu na tri výseče po 120°. Každá sekcia má vlastný vstup cez bezpečnostnú predsieň, vlastný prístrešok a kúpeľ. V strede stojí kruhová loža, ktorej tri presklené steny smerujú do troch voliér – z jedného miesta vidno všetky tri línie sokolov. Hostia prichádzajú z recepcie v hale krytou chodbou (≈ 70 m), ktorá vedie po severnej hranici pozemku a potom medzi sekciami A a C priamo do lože.</p>
+    <p class="lead en">The plot is divided from a single centre into three 120° sectors. Each section has its own entrance through a safety porch, its own shelter and bath. In the centre stands a circular lounge whose three glazed walls face the three aviaries – all three falcon lines can be watched from one spot. Guests arrive from the reception in the hall along a covered walkway (≈ 70 m) that runs along the northern boundary and then between sections A and C straight into the lounge.</p>
     <figure>
-      <svg viewBox="0 0 1900 1870" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="siteplan" role="img" aria-label="Situačný plán areálu">
+      <svg viewBox="0 0 1900 1870" xmlns="http://www.w3.org/2000/svg" class="siteplan" role="img" aria-label="Situačný plán / site plan">
 <defs><clipPath id="parcelClip"><polygon points="623,804 1505,560 1759,1422 867,1676"/></clipPath></defs>
 <image href="img/satelit-z20-areal.jpg" x="0" y="0" width="1900" height="1870"/>
 <rect x="0" y="0" width="1900" height="1870" fill="#06080c" fill-opacity="0.18"/>
-<polygon points="170,280 760,190 860,700 300,870" fill="#8fc3ff" fill-opacity="0.22" stroke="#8fc3ff" stroke-width="6"/><g font-family="Outfit, Inter, sans-serif" text-anchor="middle"><rect x="300" y="430" width="470" height="150" rx="14" fill="#06080c" fill-opacity="0.8"/><text x="535" y="485" font-size="40" font-weight="700" fill="#8fc3ff">Chovná hala · 4930/15</text><text x="535" y="535" font-size="32" fill="#f5f7fa">2 podlažia · chovné komory</text><text x="535" y="568" font-size="26" fill="#9aa6b5">liaheň · odchovňa · veterina · sklady</text></g><g font-family="Outfit, Inter, sans-serif"><rect x="880" y="560" width="300" height="60" rx="10" fill="#06080c" fill-opacity="0.7"/><text x="1030" y="600" font-size="26" fill="#f5f7fa" text-anchor="middle">Dvor · zásobovanie · parkovanie</text></g>
-<polygon points="1730,1430 1759,1422 1505,560 1188,647 1188,1003 1199,1004 1210,1005 1221,1008 1232,1012 1242,1017 1251,1022 1260,1029 1268,1036 1276,1045 1282,1054 1288,1063 1293,1073 1296,1084 1299,1094 1301,1105 1301,1116 1301,1128 1299,1138 1296,1149 1293,1160 1288,1170 1286,1173 1730,1430" fill="#e3202b" fill-opacity="0.32" stroke="#ffffff" stroke-width="4"/>
-<g font-family="Outfit, Inter, sans-serif" text-anchor="middle"><rect x="1278" y="914" width="340" height="104" rx="14" fill="#06080c" fill-opacity="0.78"/><text x="1448" y="956" font-size="38" font-weight="700" fill="#e3202b">Sekcia A · Gyr pure</text><text x="1448" y="1000" font-size="32" fill="#f5f7fa">≈ 2 590 m² · východ</text></g>
-<polygon points="777,1354 867,1676 1730,1430 1286,1173 1282,1179 1276,1188 1268,1196 1260,1204 1251,1210 1242,1216 1232,1221 1221,1225 1210,1227 1199,1229 1188,1230 1177,1229 1166,1227 1155,1225 1145,1221 1135,1216 1125,1210 1116,1204 1108,1196 1101,1188 1094,1179 1090,1173 777,1354" fill="#e6cf96" fill-opacity="0.32" stroke="#ffffff" stroke-width="4"/>
-<g font-family="Outfit, Inter, sans-serif" text-anchor="middle"><rect x="1018" y="1364" width="340" height="104" rx="14" fill="#06080c" fill-opacity="0.78"/><text x="1188" y="1406" font-size="38" font-weight="700" fill="#e6cf96">Sekcia B · Golden Saker</text><text x="1188" y="1450" font-size="32" fill="#f5f7fa">≈ 2 510 m² · juh</text></g>
-<polygon points="1188,647 623,804 777,1354 1090,1173 1088,1170 1084,1160 1080,1149 1077,1138 1076,1128 1075,1116 1076,1105 1077,1094 1080,1084 1084,1073 1088,1063 1094,1054 1101,1045 1108,1036 1116,1029 1125,1022 1135,1017 1145,1012 1155,1008 1166,1005 1177,1004 1188,1003 1188,647" fill="#8fc3ff" fill-opacity="0.32" stroke="#ffffff" stroke-width="4"/>
-<g font-family="Outfit, Inter, sans-serif" text-anchor="middle"><rect x="758" y="914" width="340" height="104" rx="14" fill="#06080c" fill-opacity="0.78"/><text x="928" y="956" font-size="38" font-weight="700" fill="#8fc3ff">Sekcia C · Gyr × Shaheen</text><text x="928" y="1000" font-size="32" fill="#f5f7fa">≈ 2 360 m² · západ</text></g>
-<line x1="1188" y1="1003" x2="1188" y2="-884" stroke="#ffffff" stroke-width="10" stroke-dasharray="26 18" clip-path="url(#parcelClip)"/><line x1="1286" y1="1173" x2="2920" y2="2116" stroke="#ffffff" stroke-width="10" stroke-dasharray="26 18" clip-path="url(#parcelClip)"/><line x1="1090" y1="1173" x2="-544" y2="2116" stroke="#ffffff" stroke-width="10" stroke-dasharray="26 18" clip-path="url(#parcelClip)"/><circle cx="623" cy="804" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="721" cy="777" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="819" cy="750" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="917" cy="722" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1015" cy="695" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1113" cy="668" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1211" cy="641" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1309" cy="614" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1407" cy="587" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1505" cy="560" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1505" cy="560" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1533" cy="655" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1562" cy="751" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1590" cy="847" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1618" cy="943" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1646" cy="1038" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1674" cy="1134" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1702" cy="1230" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1730" cy="1326" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1759" cy="1422" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1759" cy="1422" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1669" cy="1447" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1580" cy="1472" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1491" cy="1498" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1402" cy="1523" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1313" cy="1549" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1224" cy="1574" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1135" cy="1600" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1046" cy="1625" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="956" cy="1651" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="867" cy="1676" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="867" cy="1676" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="840" cy="1579" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="813" cy="1482" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="786" cy="1385" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="759" cy="1289" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="732" cy="1192" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="705" cy="1095" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="677" cy="998" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="650" cy="901" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="623" cy="804" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><polygon points="623,804 1505,560 1759,1422 867,1676" fill="none" stroke="#ff8a1f" stroke-width="7"/><circle cx="623" cy="804" r="22" fill="#ff8a1f" stroke="#06080c" stroke-width="3"/><text x="623" y="815" font-family="Inter, sans-serif" font-size="30" font-weight="700" fill="#06080c" text-anchor="middle">4</text><circle cx="1505" cy="560" r="22" fill="#ff8a1f" stroke="#06080c" stroke-width="3"/><text x="1505" y="570" font-family="Inter, sans-serif" font-size="30" font-weight="700" fill="#06080c" text-anchor="middle">1</text><circle cx="1759" cy="1422" r="22" fill="#ff8a1f" stroke="#06080c" stroke-width="3"/><text x="1759" y="1432" font-family="Inter, sans-serif" font-size="30" font-weight="700" fill="#06080c" text-anchor="middle">3</text><circle cx="867" cy="1676" r="22" fill="#ff8a1f" stroke="#06080c" stroke-width="3"/><text x="867" y="1687" font-family="Inter, sans-serif" font-size="30" font-weight="700" fill="#06080c" text-anchor="middle">2</text>
-<line x1="1159" y1="852" x2="1188" y2="1003" stroke="#e6cf96" stroke-width="22" stroke-linecap="round" opacity="0.9"/><line x1="1159" y1="852" x2="1188" y2="1003" stroke="#06080c" stroke-width="6" stroke-dasharray="20 20" stroke-linecap="round"/><rect x="1034" y="712" width="160" height="200" rx="8" fill="#e6cf96" fill-opacity="0.85" stroke="#06080c" stroke-width="3" transform="rotate(-12 1114 812)"/><text x="964" y="687" font-family="Outfit, Inter, sans-serif" font-size="30" font-weight="700" fill="#f5f7fa" text-anchor="middle">Recepcia · dom č. 439</text><circle cx="1188.2" cy="1116.4" r="113" fill="#0c1016" stroke="#e6cf96" stroke-width="5"/><circle cx="1188.2" cy="1116.4" r="82" fill="#1c2430" stroke="#f5f7fa" stroke-width="3"/><circle cx="1188.2" cy="1116.4" r="27" fill="#06080c" stroke="#9aa6b5" stroke-width="2"/><path d="M 1211 1037 A 82 82 0 0 1 1268 1136" fill="none" stroke="#8fc3ff" stroke-width="12" stroke-linecap="round"/><path d="M 1245 1176 A 82 82 0 0 1 1131 1176" fill="none" stroke="#8fc3ff" stroke-width="12" stroke-linecap="round"/><path d="M 1108 1136 A 82 82 0 0 1 1166 1037" fill="none" stroke="#8fc3ff" stroke-width="12" stroke-linecap="round"/><text x="1188.2" y="1278" font-family="Outfit, Inter, sans-serif" font-size="34" font-weight="700" fill="#e6cf96" text-anchor="middle">Loža · majlis ∅ 22 m</text><g font-family="Inter, sans-serif"><rect x="60" y="1760" width="514" height="14" fill="#f5f7fa"/><rect x="60" y="1760" width="257" height="14" fill="#e3202b"/><text x="60" y="1745" font-size="30" fill="#f5f7fa">0</text><text x="534" y="1745" font-size="30" fill="#f5f7fa">50 m</text></g><g transform="translate(1800 120)"><polygon points="0,-60 22,30 0,15 -22,30" fill="#f5f7fa" stroke="#06080c" stroke-width="3"/><text x="0" y="70" font-family="Outfit, sans-serif" font-size="40" font-weight="700" fill="#f5f7fa" text-anchor="middle">S</text></g>
+<polygon points="165,290 700,165 840,765 305,890" fill="#8fc3ff" fill-opacity="0.22" stroke="#8fc3ff" stroke-width="6"/><g font-family="Outfit, Inter, sans-serif" text-anchor="middle"><rect x="270" y="430" width="500" height="150" rx="14" fill="#06080c" fill-opacity="0.8"/><text x="520" y="485" font-size="40" font-weight="700" fill="#8fc3ff"><tspan class="sk">Chovná hala · 4930/15</tspan><tspan class="en">Breeding hall · 4930/15</tspan></text><text x="520" y="535" font-size="32" fill="#f5f7fa">53 × 60 m · <tspan class="sk">2 podlažia · chovné komory</tspan><tspan class="en">2 floors · breeding chambers</tspan></text><text x="520" y="568" font-size="26" fill="#9aa6b5"><tspan class="sk">recepcia · liaheň · odchovňa · veterina</tspan><tspan class="en">reception · hatchery · rearing · vet</tspan></text></g><g font-family="Outfit, Inter, sans-serif"><rect x="880" y="560" width="300" height="60" rx="10" fill="#06080c" fill-opacity="0.7"/><text x="1030" y="600" font-size="26" fill="#f5f7fa" text-anchor="middle"><tspan class="sk">Dvor · zásobovanie · parkovanie</tspan><tspan class="en">Yard · deliveries · parking</tspan></text></g>
+<polygon points="1759,1422 1505,560 1224,637 1224,639 1225,640 1225,642 1225,1013 1208,1013 1219,1014 1230,1015 1241,1018 1252,1022 1262,1027 1271,1032 1280,1039 1288,1046 1296,1055 1302,1064 1308,1073 1313,1083 1317,1094 1319,1104 1321,1115 1321,1126 1321,1137 1319,1148 1317,1159 1313,1170 1308,1180 1306,1183 1732,1429 1759,1422" fill="#e3202b" fill-opacity="0.32" stroke="#ffffff" stroke-width="4"/>
+<g font-family="Outfit, Inter, sans-serif" text-anchor="middle"><rect x="1223" y="824" width="350" height="104" rx="14" fill="#06080c" fill-opacity="0.78"/><text x="1398" y="866" font-size="38" font-weight="700" fill="#e3202b"><tspan class="sk">Sekcia A · Gyr pure</tspan><tspan class="en">Section A · Pure Gyr</tspan></text><text x="1398" y="910" font-size="32" fill="#f5f7fa">≈ 2 440 m² · <tspan class="sk">východ</tspan><tspan class="en">east</tspan></text></g>
+<polygon points="867,1676 1732,1429 1306,1183 1302,1189 1296,1198 1288,1206 1280,1214 1271,1221 1262,1226 1252,1231 1241,1235 1230,1237 1219,1239 1208,1240 1197,1239 1186,1237 1175,1235 1165,1231 1155,1226 1145,1221 1136,1214 1128,1206 1121,1198 1114,1189 1110,1183 782,1372 867,1676" fill="#e6cf96" fill-opacity="0.32" stroke="#ffffff" stroke-width="4"/>
+<g font-family="Outfit, Inter, sans-serif" text-anchor="middle"><rect x="1033" y="1374" width="350" height="104" rx="14" fill="#06080c" fill-opacity="0.78"/><text x="1208" y="1416" font-size="38" font-weight="700" fill="#e6cf96"><tspan class="sk">Sekcia B · Golden Saker</tspan><tspan class="en">Section B · Golden Saker</tspan></text><text x="1208" y="1460" font-size="32" fill="#f5f7fa">≈ 2 430 m² · <tspan class="sk">juh</tspan><tspan class="en">south</tspan></text></g>
+<polygon points="623,804 782,1372 1110,1183 1108,1180 1104,1170 1100,1159 1097,1148 1096,1137 1095,1126 1096,1115 1097,1104 1100,1094 1104,1083 1108,1073 1114,1064 1121,1055 1128,1046 1136,1039 1145,1032 1155,1027 1165,1022 1175,1018 1186,1015 1197,1014 1208,1013 1192,1013 1192,663 855,757 856,761 824,769 819,750 623,804" fill="#8fc3ff" fill-opacity="0.32" stroke="#ffffff" stroke-width="4"/>
+<g font-family="Outfit, Inter, sans-serif" text-anchor="middle"><rect x="753" y="934" width="350" height="104" rx="14" fill="#06080c" fill-opacity="0.78"/><text x="928" y="976" font-size="38" font-weight="700" fill="#8fc3ff"><tspan class="sk">Sekcia C · Gyr × Shaheen</tspan><tspan class="en">Section C · Gyr × Shaheen</tspan></text><text x="928" y="1020" font-size="32" fill="#f5f7fa">≈ 2 420 m² · <tspan class="sk">západ</tspan><tspan class="en">west</tspan></text></g>
+<line x1="1208" y1="1013" x2="3207" y2="1072" stroke="#ffffff" stroke-width="10" stroke-dasharray="26 18" clip-path="url(#parcelClip)"/><line x1="1306" y1="1183" x2="3208" y2="1145" stroke="#ffffff" stroke-width="10" stroke-dasharray="26 18" clip-path="url(#parcelClip)"/><line x1="1110" y1="1183" x2="3206" y2="1218" stroke="#ffffff" stroke-width="10" stroke-dasharray="26 18" clip-path="url(#parcelClip)"/><circle cx="623" cy="804" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="721" cy="777" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="819" cy="750" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="917" cy="722" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1015" cy="695" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1113" cy="668" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1211" cy="641" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1309" cy="614" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1407" cy="587" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1505" cy="560" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1505" cy="560" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1533" cy="655" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1562" cy="751" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1590" cy="847" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1618" cy="943" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1646" cy="1038" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1674" cy="1134" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1702" cy="1230" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1730" cy="1326" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1759" cy="1422" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1759" cy="1422" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1669" cy="1447" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1580" cy="1472" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1491" cy="1498" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1402" cy="1523" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1313" cy="1549" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1224" cy="1574" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1135" cy="1600" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="1046" cy="1625" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="956" cy="1651" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="867" cy="1676" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="867" cy="1676" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="840" cy="1579" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="813" cy="1482" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="786" cy="1385" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="759" cy="1289" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="732" cy="1192" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="705" cy="1095" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="677" cy="998" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="650" cy="901" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/><circle cx="623" cy="804" r="7" fill="#f5f7fa" stroke="#06080c" stroke-width="2"/>
+<polygon points="623,804 1505,560 1759,1422 867,1676" fill="none" stroke="#ff8a1f" stroke-width="7"/><circle cx="623" cy="804" r="22" fill="#ff8a1f" stroke="#06080c" stroke-width="3"/><text x="623" y="815" font-family="Inter, sans-serif" font-size="30" font-weight="700" fill="#06080c" text-anchor="middle">4</text><circle cx="1505" cy="560" r="22" fill="#ff8a1f" stroke="#06080c" stroke-width="3"/><text x="1505" y="570" font-family="Inter, sans-serif" font-size="30" font-weight="700" fill="#06080c" text-anchor="middle">1</text><circle cx="1759" cy="1422" r="22" fill="#ff8a1f" stroke="#06080c" stroke-width="3"/><text x="1759" y="1432" font-family="Inter, sans-serif" font-size="30" font-weight="700" fill="#06080c" text-anchor="middle">3</text><circle cx="867" cy="1676" r="22" fill="#ff8a1f" stroke="#06080c" stroke-width="3"/><text x="867" y="1687" font-family="Inter, sans-serif" font-size="30" font-weight="700" fill="#06080c" text-anchor="middle">2</text>
+<polygon points="855,757 1192,663 1192,1013 1225,1013 1225,642 1225,640 1224,639 1224,637 1223,636 1223,634 1222,633 1221,632 1220,630 1219,629 1218,628 1216,627 1215,627 1213,626 1212,626 1210,625 1209,625 1207,625 1205,626 1204,626 830,730 829,730 827,731 826,732 824,732 823,733 822,735 821,736 820,737 820,739 819,740 819,742 818,743 818,745 818,747 818,748 819,750 824,769 856,761 855,757" fill="#e6cf96" fill-opacity="0.9" stroke="#06080c" stroke-width="3"/><polyline points="840,765 835,745 1208,642 1208,1013" fill="none" stroke="#06080c" stroke-width="5" stroke-dasharray="20 20"/><g font-family="Outfit, Inter, sans-serif"><rect x="1238" y="632" width="520" height="54" rx="10" fill="#06080c" fill-opacity="0.75"/><text x="1498" y="670" font-size="28" fill="#e6cf96" text-anchor="middle"><tspan class="sk">krytá chodba pre hostí z haly · 70 m</tspan><tspan class="en">covered guest walkway from the hall · 70 m</tspan></text></g><circle cx="1208" cy="642" r="18" fill="#e6cf96" stroke="#06080c" stroke-width="3"/><circle cx="1208.2" cy="1126.4" r="113" fill="#0c1016" stroke="#e6cf96" stroke-width="5"/><circle cx="1208.2" cy="1126.4" r="82" fill="#1c2430" stroke="#f5f7fa" stroke-width="3"/><circle cx="1208.2" cy="1126.4" r="27" fill="#06080c" stroke="#9aa6b5" stroke-width="2"/><path d="M 1231 1047 A 82 82 0 0 1 1288 1146" fill="none" stroke="#8fc3ff" stroke-width="12" stroke-linecap="round"/><path d="M 1265 1186 A 82 82 0 0 1 1151 1186" fill="none" stroke="#8fc3ff" stroke-width="12" stroke-linecap="round"/><path d="M 1128 1146 A 82 82 0 0 1 1186 1047" fill="none" stroke="#8fc3ff" stroke-width="12" stroke-linecap="round"/><text x="1208.2" y="1288" font-family="Outfit, Inter, sans-serif" font-size="34" font-weight="700" fill="#e6cf96" text-anchor="middle"><tspan class="sk">Loža · majlis ∅ 22 m</tspan><tspan class="en">Lounge · majlis ∅ 22 m</tspan></text><g font-family="Inter, sans-serif"><rect x="60" y="1760" width="514" height="14" fill="#f5f7fa"/><rect x="60" y="1760" width="257" height="14" fill="#e3202b"/><text x="60" y="1745" font-size="30" fill="#f5f7fa">0</text><text x="534" y="1745" font-size="30" fill="#f5f7fa">50 m</text></g><g transform="translate(1800 120)"><polygon points="0,-60 22,30 0,15 -22,30" fill="#f5f7fa" stroke="#06080c" stroke-width="3"/><text x="0" y="70" font-family="Outfit, Inter, sans-serif" font-size="40" font-weight="700" fill="#f5f7fa" text-anchor="middle"><tspan class="sk">S</tspan><tspan class="en">N</tspan></text></g>
 </svg>
-      <figcaption><b>Situačný plán na satelitnej snímke Google (sever hore).</b> Oranžová čiara je obvod pozemku podľa katastra (orientačné zakreslenie, presné vytýčenie urobí geodet). Biele body sú stĺpy sietí po ≈ 9 m, prerušované čiary deliace dvojité sieťové steny medzi sekciami.</figcaption>
+      <figcaption><b class="sk">Situačný plán na satelitnej snímke Google (sever hore).</b><b class="en">Site plan on Google satellite imagery (north up).</b> <span class="sk">Oranžová čiara je obvod pozemku podľa katastra (orientačné zakreslenie, presné vytýčenie urobí geodet). Obrys haly je prevzatý zo satelitnej snímky (53 × 60 m). Biele body sú stĺpy sietí po ≈ 9 m, prerušované čiary dvojité sieťové steny medzi sekciami, žltý pás krytá chodba pre hostí.</span><span class="en">The orange line is the plot boundary from the cadastre (indicative; a surveyor will set out the exact corners). The hall outline is traced from the satellite image (53 × 60 m). White dots are net masts every ≈ 9 m, dashed lines the double net walls between sections, the yellow strip the covered guest walkway.</span></figcaption>
     </figure>
     <div class="legend">
-      <span><i style="background:#8fc3ff;opacity:.6"></i>Chovná hala 4930/15</span>
-      <span><i style="background:#e3202b;opacity:.6"></i>Sekcia A – Gyr pure</span>
-      <span><i style="background:#e6cf96;opacity:.6"></i>Sekcia B – Golden Saker</span>
-      <span><i style="background:#8fc3ff;opacity:.6;border:1px solid #fff"></i>Sekcia C – Gyr × Shaheen</span>
-      <span><i style="background:#0c1016;border:2px solid #e6cf96"></i>Loža · majlis</span>
-      <span><i style="background:#e6cf96"></i>Recepcia (dom 439) a krytá chodba</span>
-      <span><i style="background:#ff8a1f"></i>Hranica pozemku</span>
+      <span><i style="background:#8fc3ff;opacity:.6"></i><span class="sk">Chovná hala 4930/15</span><span class="en">Breeding hall 4930/15</span></span>
+      <span><i style="background:#e3202b;opacity:.6"></i><span class="sk">Sekcia A – Gyr pure</span><span class="en">Section A – pure Gyr</span></span>
+      <span><i style="background:#e6cf96;opacity:.6"></i><span class="sk">Sekcia B – Golden Saker</span><span class="en">Section B – Golden Saker</span></span>
+      <span><i style="background:#8fc3ff;opacity:.6;border:1px solid #fff"></i><span class="sk">Sekcia C – Gyr × Shaheen</span><span class="en">Section C – Gyr × Shaheen</span></span>
+      <span><i style="background:#0c1016;border:2px solid #e6cf96"></i><span class="sk">Loža · majlis</span><span class="en">Lounge · majlis</span></span>
+      <span><i style="background:#e6cf96"></i><span class="sk">Krytá chodba pre hostí</span><span class="en">Covered guest walkway</span></span>
+      <span><i style="background:#ff8a1f"></i><span class="sk">Hranica pozemku</span><span class="en">Plot boundary</span></span>
     </div>
     <div class="tableWrap" style="margin-top:26px">
       <table>
-        <thead><tr><th>Objekt</th><th>Plocha</th><th>Funkcia</th><th>Poznámka</th></tr></thead>
+        <thead><tr><th><span class="sk">Objekt</span><span class="en">Object</span></th><th><span class="sk">Plocha</span><span class="en">Area</span></th><th><span class="sk">Funkcia</span><span class="en">Function</span></th><th><span class="sk">Poznámka</span><span class="en">Note</span></th></tr></thead>
         <tbody>
-          <tr><td><b>Chovná hala</b> (4930/15)</td><td>≈ 4 000 m² / podlažie</td><td>chovné komory, liaheň, odchovňa, veterina, sklady</td><td>existujúca 2-podlažná hala, prestavba</td></tr>
-          <tr><td><b>Sekcia A</b> – východ</td><td>≈ 2 590 m²</td><td>letová voliéra · Gyr pure</td><td>najtienistejšia strana pri stromoradí – vyhovuje gyrom</td></tr>
-          <tr><td><b>Sekcia B</b> – juh</td><td>≈ 2 510 m²</td><td>letová voliéra · Golden Saker</td><td>najslnečnejšia časť pozemku</td></tr>
-          <tr><td><b>Sekcia C</b> – západ</td><td>≈ 2 360 m²</td><td>letová voliéra · Gyr × Shaheen</td><td>pri dvore haly – krátka cesta z komôr</td></tr>
-          <tr><td><b>Loža · majlis</b></td><td>∅ 22 m · ≈ 200 m² interiér + terasa</td><td>posedenie, čaj, pozorovanie sokolov cez tónované sklo</td><td>kruhový pavilón v strede pozemku</td></tr>
-          <tr><td><b>Recepcia</b> (dom 439)</td><td>≈ 120 m²</td><td>vstup hostí, kuchynka, WC, kancelária</td><td>existujúci dom, prepojený krytou chodbou (≈ 35 m)</td></tr>
-          <tr><td><b>Spolu voliéry</b></td><td><b>≈ 7 460 m²</b></td><td colspan="2">každá sekcia nad požadovaným minimom 2 000 m²</td></tr>
+          <tr><td><b class="sk">Chovná hala</b><b class="en">Breeding hall</b> (4930/15)</td><td>53 × 60 m · ≈ 3 200 m² / <span class="sk">podlažie</span><span class="en">floor</span></td><td><span class="sk">recepcia, chovné komory, liaheň, odchovňa, veterina, sklady</span><span class="en">reception, breeding chambers, hatchery, rearing, vet, storage</span></td><td><span class="sk">existujúca 2-podlažná hala, prestavba</span><span class="en">existing 2-storey hall, conversion</span></td></tr>
+          <tr><td><b class="sk">Sekcia A</b><b class="en">Section A</b> – <span class="sk">východ</span><span class="en">east</span></td><td>≈ 2 440 m²</td><td><span class="sk">letová voliéra · Gyr pure</span><span class="en">flight aviary · pure Gyr</span></td><td><span class="sk">najtienistejšia strana pri stromoradí – vyhovuje gyrom</span><span class="en">the shadiest side by the tree line – suits gyrs</span></td></tr>
+          <tr><td><b class="sk">Sekcia B</b><b class="en">Section B</b> – <span class="sk">juh</span><span class="en">south</span></td><td>≈ 2 430 m²</td><td><span class="sk">letová voliéra · Golden Saker</span><span class="en">flight aviary · Golden Saker</span></td><td><span class="sk">najslnečnejšia časť pozemku</span><span class="en">the sunniest part of the plot</span></td></tr>
+          <tr><td><b class="sk">Sekcia C</b><b class="en">Section C</b> – <span class="sk">západ</span><span class="en">west</span></td><td>≈ 2 420 m²</td><td><span class="sk">letová voliéra · Gyr × Shaheen</span><span class="en">flight aviary · Gyr × Shaheen</span></td><td><span class="sk">pri dvore haly – krátka cesta z komôr</span><span class="en">next to the hall yard – short route from the chambers</span></td></tr>
+          <tr><td><b class="sk">Loža · majlis</b><b class="en">Lounge · majlis</b></td><td>∅ 22 m · ≈ 200 m² <span class="sk">interiér + terasa</span><span class="en">interior + terrace</span></td><td><span class="sk">posedenie, čaj, pozorovanie sokolov cez tónované sklo</span><span class="en">seating, tea, watching the falcons through tinted glass</span></td><td><span class="sk">kruhový pavilón v strede pozemku</span><span class="en">circular pavilion in the centre of the plot</span></td></tr>
+          <tr><td><b class="sk">Krytá chodba</b><b class="en">Covered walkway</b></td><td>≈ 70 m · 3 m</td><td><span class="sk">vstup hostí z recepcie v hale do lože</span><span class="en">guest access from the hall reception to the lounge</span></td><td><span class="sk">po severnej hranici a medzi sekciami A / C</span><span class="en">along the north boundary and between sections A / C</span></td></tr>
+          <tr><td><b class="sk">Spolu voliéry</b><b class="en">Aviaries total</b></td><td><b>≈ 7 290 m²</b></td><td colspan="2"><span class="sk">každá sekcia nad požadovaným minimom 2 000 m²</span><span class="en">each section above the required minimum of 2,000 m²</span></td></tr>
         </tbody>
       </table>
     </div>
-    <p class="note" style="margin-top:18px"><b>Prečo kruh a tri výseče?</b> Delenie z jedného stredu dáva každej sekcii približne rovnakú plochu, najdlhšiu možnú letovú dráhu (uhlopriečka výseče 55 – 70 m) a loži výhľad do všetkých troch voliér bez toho, aby sa hostia museli presúvať. Sokoly rôznych línií sa navzájom nevidia cez dvojité sieťové steny s medzerou 1 m, takže nedochádza k stresu ani k útokom cez sieť.</p>
+    <p class="note" style="margin-top:18px"><b class="sk">Prečo kruh a tri výseče?</b><b class="en">Why a circle and three sectors?</b> <span class="sk">Delenie z jedného stredu dáva každej sekcii približne rovnakú plochu, najdlhšiu možnú letovú dráhu (uhlopriečka výseče 55 – 70 m) a loži výhľad do všetkých troch voliér bez toho, aby sa hostia museli presúvať. Sokoly rôznych línií sa navzájom nevidia cez dvojité sieťové steny s medzerou 1 m, takže nedochádza k stresu ani k útokom cez sieť.</span><span class="en">Dividing from one centre gives each section a similar area, the longest possible flight line (sector diagonal 55 – 70 m) and gives the lounge a view into all three aviaries without guests having to move. Falcons of different lines cannot see each other through the double net walls with a 1 m gap, so there is no stress and no attacks through the net.</span></p>
   </div>
 </section>
 
 <!-- HALA -->
-<section id="hala">
+<section id="hala" class="alt">
   <div class="wrap">
-    <div class="eyebrow">03 · Chovná hala</div>
-    <h2>Dve podlažia: zázemie dole, chovné komory hore</h2>
-    <p class="lead">Hala sa prestavia na uzavretú chovnú stanicu s kontrolovaným prístupom. Prízemie preberie všetko, čo potrebuje liaheň a personál; celé horné podlažie tvoria chovné komory so strešnými svetlíkmi, v ktorých páry hniezdia v pokoji a bez kontaktu s ľuďmi.</p>
+    <div class="eyebrow">04 · <span class="sk">Chovná hala</span><span class="en">Breeding hall</span></div>
+    <h2 class="sk">Dve podlažia: zázemie dole, chovné komory hore</h2>
+    <h2 class="en">Two floors: services below, breeding chambers above</h2>
+    <p class="lead sk">Hala (53 × 60 m) sa prestavia na uzavretú chovnú stanicu s kontrolovaným prístupom. Prízemie preberie recepciu pre hostí a všetko, čo potrebuje liaheň a personál; celé horné podlažie tvoria chovné komory so strešnými svetlíkmi, v ktorých páry hniezdia v pokoji a bez kontaktu s ľuďmi.</p>
+    <p class="lead en">The hall (53 × 60 m) will be converted into a closed breeding station with controlled access. The ground floor takes the guest reception and everything the hatchery and staff need; the whole upper floor is made up of skylit breeding chambers where the pairs nest undisturbed and without human contact.</p>
     <div class="grid g2" style="align-items:start">
-      <figure><img src="img/koncept-hala.jpg" alt="Koncept interiéru chovnej haly"><figcaption><b>Koncept interiéru.</b> Centrálna servisná chodba, dva rady komôr s drevenými latovými stenami, denné svetlo zo svetlíkov, galéria horného podlažia.</figcaption></figure>
+      <figure><img src="img/koncept-hala.jpg" alt="Concept interior of the breeding hall"><figcaption><b class="sk">Koncept interiéru.</b><b class="en">Interior concept.</b> <span class="sk">Centrálna servisná chodba, dva rady komôr s drevenými latovými stenami, denné svetlo zo svetlíkov, galéria horného podlažia.</span><span class="en">Central service corridor, two rows of chambers with timber slat walls, daylight from skylights, upper-floor gallery.</span></figcaption></figure>
       <div class="card">
-        <h3>Chovná komora – štandard</h3>
+        <h3 class="sk">Chovná komora – štandard</h3><h3 class="en">Breeding chamber – standard</h3>
         <ul>
-          <li>rozmer <b>4 × 6 m</b>, výška 3,5 m, drevené latové steny (bez ostrých hrán)</li>
-          <li>strešný svetlík / sieťová strecha na 1/3 plochy – denné svetlo a dážď</li>
-          <li>hniezdna polica 1 × 1 m s riečnym štrkom, 2 – 3 bidlá, kúpeľ</li>
-          <li>kŕmny otvor so šmýkačkou z chodby – pár nevidí ošetrovateľa</li>
-          <li>dvojité dvere (predsieň), jednosmerný priezor a IP kamera v každej komore</li>
-          <li>podlaha so spádom a odtokom, umývateľná; vetranie bez prievanu</li>
-          <li>pre gyry: chladnejšia severná strana haly, filtrované suché vetranie (prevencia aspergilózy)</li>
+          <li class="sk">rozmer <b>4 × 6 m</b>, výška 3,5 m, drevené latové steny (bez ostrých hrán)</li><li class="en"><b>4 × 6 m</b>, 3.5 m high, timber slat walls (no sharp edges)</li>
+          <li class="sk">strešný svetlík / sieťová strecha na 1/3 plochy – denné svetlo a dážď</li><li class="en">skylight / netted roof over 1/3 of the area – daylight and rain</li>
+          <li class="sk">hniezdna polica 1 × 1 m s riečnym štrkom, 2 – 3 bidlá, kúpeľ</li><li class="en">1 × 1 m nest ledge with river gravel, 2 – 3 perches, bath</li>
+          <li class="sk">kŕmny otvor so šmýkačkou z chodby – pár nevidí ošetrovateľa</li><li class="en">feeding chute from the corridor – the pair never sees the keeper</li>
+          <li class="sk">dvojité dvere (predsieň), jednosmerný priezor a IP kamera v každej komore</li><li class="en">double doors (porch), one-way viewing hatch and IP camera in every chamber</li>
+          <li class="sk">podlaha so spádom a odtokom, umývateľná; vetranie bez prievanu</li><li class="en">sloped washable floor with drain; draught-free ventilation</li>
+          <li class="sk">pre gyry: chladnejšia severná strana haly, filtrované suché vetranie (prevencia aspergilózy)</li><li class="en">for gyrs: the cooler north side of the hall, filtered dry ventilation (aspergillosis prevention)</li>
         </ul>
       </div>
     </div>
     <div class="grid g2" style="margin-top:22px">
       <div class="diagram">
         <svg viewBox="0 0 640 520" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
-          <text x="20" y="34" font-family="Outfit, sans-serif" font-size="22" font-weight="700" fill="#e6cf96">1. NP · prízemie – zázemie a liaheň</text>
+          <text x="20" y="34" font-family="Outfit, sans-serif" font-size="22" font-weight="700" fill="#e6cf96"><tspan class="sk">1. NP · prízemie – recepcia, zázemie a liaheň</tspan><tspan class="en">Ground floor – reception, services and hatchery</tspan></text>
           <rect x="20" y="52" width="600" height="440" fill="#141a23" stroke="#8fc3ff" stroke-width="3"/>
-          <!-- vstup -->
-          <rect x="20" y="52" width="130" height="90" fill="#1c2430" stroke="#232b37"/><text x="30" y="80" font-size="13" fill="#f5f7fa">Vstup · recepcia</text><text x="30" y="98" font-size="12" fill="#9aa6b5">kancelária, šatne</text>
-          <rect x="150" y="52" width="150" height="90" fill="#1c2430" stroke="#232b37"/><text x="160" y="80" font-size="13" fill="#f5f7fa">Veterinárna miestnosť</text><text x="160" y="98" font-size="12" fill="#9aa6b5">ošetrovňa, RTG, lab</text>
-          <rect x="300" y="52" width="110" height="90" fill="#2a1a1c" stroke="#e3202b"/><text x="310" y="80" font-size="13" fill="#f5f7fa">Karanténa</text><text x="310" y="98" font-size="12" fill="#9aa6b5">samostatný vstup</text>
-          <rect x="410" y="52" width="210" height="90" fill="#1c2430" stroke="#232b37"/><text x="420" y="80" font-size="13" fill="#f5f7fa">Kuchyňa krmiva · mraziarne −20 °C</text><text x="420" y="98" font-size="12" fill="#9aa6b5">prepelice, kurčatá, holuby · sklad</text>
-          <!-- liahen -->
-          <rect x="20" y="142" width="200" height="120" fill="#1a2330" stroke="#8fc3ff"/><text x="30" y="170" font-size="13" fill="#f5f7fa">Liaheň</text><text x="30" y="188" font-size="12" fill="#9aa6b5">inkubátory, liahňové boxy,</text><text x="30" y="204" font-size="12" fill="#9aa6b5">HEPA filtrácia, pretlak</text>
-          <rect x="220" y="142" width="190" height="120" fill="#1a2330" stroke="#8fc3ff"/><text x="230" y="170" font-size="13" fill="#f5f7fa">Odchovňa mláďat</text><text x="230" y="188" font-size="12" fill="#9aa6b5">brooder boxy, kŕmenie,</text><text x="230" y="204" font-size="12" fill="#9aa6b5">váženie, krúžkovanie</text>
-          <rect x="410" y="142" width="210" height="120" fill="#1c2430" stroke="#232b37"/><text x="420" y="170" font-size="13" fill="#f5f7fa">Technika · sklad</text><text x="420" y="188" font-size="12" fill="#9aa6b5">VZT, kotolňa, záložný zdroj,</text><text x="420" y="204" font-size="12" fill="#9aa6b5">prepravky, výstroj</text>
-          <!-- chodba -->
-          <rect x="20" y="262" width="600" height="40" fill="#0c1016" stroke="#232b37"/><text x="250" y="287" font-size="13" fill="#e6cf96">servisná chodba · výťah / schody na 2. NP</text>
-          <!-- komory prizemie -->
-          <g id="k1">
-            <rect x="20" y="302" width="75" height="190" fill="#1c2430" stroke="#232b37"/>
-          </g>
+          <rect x="20" y="52" width="130" height="90" fill="#2a2416" stroke="#e6cf96"/><text x="30" y="80" font-size="13" fill="#f5f7fa"><tspan class="sk">Vstup · recepcia</tspan><tspan class="en">Entrance · reception</tspan></text><text x="30" y="98" font-size="12" fill="#9aa6b5"><tspan class="sk">hostia, kancelária, šatne</tspan><tspan class="en">guests, office, lockers</tspan></text>
+          <rect x="150" y="52" width="150" height="90" fill="#1c2430" stroke="#232b37"/><text x="160" y="80" font-size="13" fill="#f5f7fa"><tspan class="sk">Veterinárna miestnosť</tspan><tspan class="en">Veterinary room</tspan></text><text x="160" y="98" font-size="12" fill="#9aa6b5"><tspan class="sk">ošetrovňa, RTG, lab</tspan><tspan class="en">treatment, X-ray, lab</tspan></text>
+          <rect x="300" y="52" width="110" height="90" fill="#2a1a1c" stroke="#e3202b"/><text x="310" y="80" font-size="13" fill="#f5f7fa"><tspan class="sk">Karanténa</tspan><tspan class="en">Quarantine</tspan></text><text x="310" y="98" font-size="12" fill="#9aa6b5"><tspan class="sk">samostatný vstup</tspan><tspan class="en">separate entrance</tspan></text>
+          <rect x="410" y="52" width="210" height="90" fill="#1c2430" stroke="#232b37"/><text x="420" y="80" font-size="13" fill="#f5f7fa"><tspan class="sk">Kuchyňa krmiva · mraziarne −20 °C</tspan><tspan class="en">Food kitchen · freezers −20 °C</tspan></text><text x="420" y="98" font-size="12" fill="#9aa6b5"><tspan class="sk">prepelice, kurčatá, holuby · sklad</tspan><tspan class="en">quail, chicks, pigeons · storage</tspan></text>
+          <rect x="20" y="142" width="200" height="120" fill="#1a2330" stroke="#8fc3ff"/><text x="30" y="170" font-size="13" fill="#f5f7fa"><tspan class="sk">Liaheň</tspan><tspan class="en">Hatchery</tspan></text><text x="30" y="188" font-size="12" fill="#9aa6b5"><tspan class="sk">inkubátory, liahňové boxy,</tspan><tspan class="en">incubators, hatchers,</tspan></text><text x="30" y="204" font-size="12" fill="#9aa6b5"><tspan class="sk">HEPA filtrácia, pretlak</tspan><tspan class="en">HEPA filtration, positive pressure</tspan></text>
+          <rect x="220" y="142" width="190" height="120" fill="#1a2330" stroke="#8fc3ff"/><text x="230" y="170" font-size="13" fill="#f5f7fa"><tspan class="sk">Odchovňa mláďat</tspan><tspan class="en">Rearing room</tspan></text><text x="230" y="188" font-size="12" fill="#9aa6b5"><tspan class="sk">brooder boxy, kŕmenie,</tspan><tspan class="en">brooder boxes, feeding,</tspan></text><text x="230" y="204" font-size="12" fill="#9aa6b5"><tspan class="sk">váženie, krúžkovanie</tspan><tspan class="en">weighing, ringing</tspan></text>
+          <rect x="410" y="142" width="210" height="120" fill="#1c2430" stroke="#232b37"/><text x="420" y="170" font-size="13" fill="#f5f7fa"><tspan class="sk">Technika · sklad</tspan><tspan class="en">Plant room · storage</tspan></text><text x="420" y="188" font-size="12" fill="#9aa6b5"><tspan class="sk">VZT, kotolňa, záložný zdroj,</tspan><tspan class="en">HVAC, boiler, backup power,</tspan></text><text x="420" y="204" font-size="12" fill="#9aa6b5"><tspan class="sk">prepravky, výstroj</tspan><tspan class="en">transport boxes, equipment</tspan></text>
+          <rect x="20" y="262" width="600" height="40" fill="#0c1016" stroke="#232b37"/><text x="250" y="287" font-size="13" fill="#e6cf96"><tspan class="sk">servisná chodba · výťah / schody na 2. NP</tspan><tspan class="en">service corridor · lift / stairs to the upper floor</tspan></text>
+          <g id="k1"><rect x="20" y="302" width="75" height="190" fill="#1c2430" stroke="#232b37"/></g>
           <use href="#k1" x="75"/><use href="#k1" x="150"/><use href="#k1" x="225"/><use href="#k1" x="300"/><use href="#k1" x="375"/><use href="#k1" x="450"/><use href="#k1" x="525"/>
-          <text x="40" y="400" font-size="13" fill="#f5f7fa">8 × chovné / tréningové komory 4 × 6 m s oknami do exteriéru</text>
-          <text x="40" y="420" font-size="12" fill="#9aa6b5">imprint komory, privykanie na rukavicu, manning, krátkodobé ustajnenie predaných sokolov</text>
+          <text x="40" y="400" font-size="13" fill="#f5f7fa"><tspan class="sk">8 × chovné / tréningové komory 4 × 6 m s oknami do exteriéru</tspan><tspan class="en">8 × breeding / training chambers 4 × 6 m with exterior windows</tspan></text>
+          <text x="40" y="420" font-size="12" fill="#9aa6b5"><tspan class="sk">imprint komory, privykanie na rukavicu, krátkodobé ustajnenie predaných sokolov</tspan><tspan class="en">imprint chambers, manning to the glove, short-term housing of sold falcons</tspan></text>
         </svg>
       </div>
       <div class="diagram">
         <svg viewBox="0 0 640 520" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
-          <text x="20" y="34" font-family="Outfit, sans-serif" font-size="22" font-weight="700" fill="#e6cf96">2. NP · poschodie – chovné komory so svetlíkmi</text>
+          <text x="20" y="34" font-family="Outfit, sans-serif" font-size="22" font-weight="700" fill="#e6cf96"><tspan class="sk">2. NP · poschodie – chovné komory so svetlíkmi</tspan><tspan class="en">Upper floor – skylit breeding chambers</tspan></text>
           <rect x="20" y="52" width="600" height="440" fill="#141a23" stroke="#8fc3ff" stroke-width="3"/>
           <g id="k2"><rect x="20" y="52" width="60" height="150" fill="#1c2430" stroke="#232b37"/><rect x="30" y="60" width="40" height="40" fill="#8fc3ff" fill-opacity=".35" stroke="#8fc3ff" stroke-dasharray="3 3"/><rect x="28" y="170" width="44" height="12" fill="#3a2f22"/></g>
           <use href="#k2" x="60"/><use href="#k2" x="120"/><use href="#k2" x="180"/><use href="#k2" x="240"/><use href="#k2" x="300"/><use href="#k2" x="360"/><use href="#k2" x="420"/><use href="#k2" x="480"/><use href="#k2" x="540"/>
           <rect x="20" y="202" width="600" height="80" fill="#0c1016" stroke="#232b37"/>
-          <text x="40" y="236" font-size="13" fill="#e6cf96">servisná chodba so šmýkačkami na krmivo a priezormi · kamerová miestnosť · sklad podstielky</text>
-          <text x="40" y="258" font-size="12" fill="#9aa6b5">ošetrovateľ prejde celé podlažie bez otvorenia jedinej komory</text>
+          <text x="40" y="236" font-size="13" fill="#e6cf96"><tspan class="sk">servisná chodba so šmýkačkami na krmivo a priezormi · kamerová miestnosť · sklad podstielky</tspan><tspan class="en">service corridor with feeding chutes and viewing hatches · camera room · bedding store</tspan></text>
+          <text x="40" y="258" font-size="12" fill="#9aa6b5"><tspan class="sk">ošetrovateľ prejde celé podlažie bez otvorenia jedinej komory</tspan><tspan class="en">the keeper services the whole floor without opening a single chamber</tspan></text>
           <g id="k3"><rect x="20" y="282" width="60" height="150" fill="#1c2430" stroke="#232b37"/><rect x="30" y="382" width="40" height="40" fill="#8fc3ff" fill-opacity=".35" stroke="#8fc3ff" stroke-dasharray="3 3"/><rect x="28" y="300" width="44" height="12" fill="#3a2f22"/></g>
           <use href="#k3" x="60"/><use href="#k3" x="120"/><use href="#k3" x="180"/><use href="#k3" x="240"/><use href="#k3" x="300"/><use href="#k3" x="360"/><use href="#k3" x="420"/><use href="#k3" x="480"/><use href="#k3" x="540"/>
           <rect x="20" y="432" width="600" height="60" fill="#141a23" stroke="#232b37"/>
-          <text x="40" y="456" font-size="13" fill="#f5f7fa">20 + 20 chovných komôr 4 × 6 m · modrý štvorec = strešný svetlík / sieťová strecha, hnedá = hniezdna polica</text>
-          <text x="40" y="476" font-size="12" fill="#9aa6b5">severná strana (chladnejšia) pre Gyr pure, južná pre Saker a hybridy · rezerva 10 komôr</text>
+          <text x="40" y="456" font-size="13" fill="#f5f7fa"><tspan class="sk">20 + 20 chovných komôr 4 × 6 m · modrý štvorec = strešný svetlík, hnedá = hniezdna polica</tspan><tspan class="en">20 + 20 breeding chambers 4 × 6 m · blue square = skylight, brown = nest ledge</tspan></text>
+          <text x="40" y="476" font-size="12" fill="#9aa6b5"><tspan class="sk">severná strana (chladnejšia) pre Gyr pure, južná pre Saker a hybridy · rezerva 10 komôr</tspan><tspan class="en">north side (cooler) for pure Gyrs, south side for Sakers and hybrids · 10 chambers in reserve</tspan></text>
         </svg>
       </div>
     </div>
     <div class="grid g3" style="margin-top:22px">
-      <div class="card"><h3>Biosecurity</h3><ul><li>jednosmerný tok: vstup → šatňa → dezinfekcia → čistá zóna</li><li>karanténa s vlastným vchodom a vetraním</li><li>liaheň v pretlaku s HEPA filtráciou</li><li>hostia len do pozorovacej galérie a lože, nie ku komorám</li></ul></div>
-      <div class="card"><h3>Klíma a svetlo</h3><ul><li>komory bez kúrenia, ale bez prievanu; tieň a chlad pre gyry</li><li>prirodzená fotoperióda cez svetlíky riadi hniezdny cyklus</li><li>pre skoré znášky možnosť doplnkového osvetlenia (LED, stmievanie)</li><li>monitoring teploty a vlhkosti v každej komore</li></ul></div>
-      <div class="card"><h3>Technológie</h3><ul><li>IP kamery s nočným videním v komorách, záznam 30 dní</li><li>záložný zdroj pre liaheň a mraziarne</li><li>evidencia krúžkov, mikročipov, CITES a rodokmeňov v jednom systéme</li><li>možnosť živého prenosu z komôr pre klientov (ako na falconsvalley.com)</li></ul></div>
+      <div class="card"><h3>Biosecurity</h3><ul>
+        <li class="sk">jednosmerný tok: vstup → šatňa → dezinfekcia → čistá zóna</li><li class="en">one-way flow: entrance → changing room → disinfection → clean zone</li>
+        <li class="sk">karanténa s vlastným vchodom a vetraním</li><li class="en">quarantine with its own entrance and ventilation</li>
+        <li class="sk">liaheň v pretlaku s HEPA filtráciou</li><li class="en">hatchery under positive pressure with HEPA filtration</li>
+        <li class="sk">hostia len do recepcie, pozorovacej galérie a lože, nie ku komorám</li><li class="en">guests only in the reception, viewing gallery and lounge, never at the chambers</li>
+      </ul></div>
+      <div class="card"><h3 class="sk">Klíma a svetlo</h3><h3 class="en">Climate and light</h3><ul>
+        <li class="sk">komory bez kúrenia, ale bez prievanu; tieň a chlad pre gyry</li><li class="en">unheated but draught-free chambers; shade and cool for gyrs</li>
+        <li class="sk">prirodzená fotoperióda cez svetlíky riadi hniezdny cyklus</li><li class="en">natural photoperiod through the skylights drives the breeding cycle</li>
+        <li class="sk">pre skoré znášky možnosť doplnkového osvetlenia (LED, stmievanie)</li><li class="en">optional supplementary LED lighting for early clutches</li>
+        <li class="sk">monitoring teploty a vlhkosti v každej komore</li><li class="en">temperature and humidity monitoring in every chamber</li>
+      </ul></div>
+      <div class="card"><h3 class="sk">Technológie</h3><h3 class="en">Technology</h3><ul>
+        <li class="sk">IP kamery s nočným videním v komorách, záznam 30 dní</li><li class="en">IP cameras with night vision in the chambers, 30-day recording</li>
+        <li class="sk">záložný zdroj pre liaheň a mraziarne</li><li class="en">backup power for the hatchery and freezers</li>
+        <li class="sk">evidencia krúžkov, mikročipov, CITES a rodokmeňov v jednom systéme</li><li class="en">rings, microchips, CITES and pedigrees in one database</li>
+        <li class="sk">živý prenos z komôr pre klientov (ako na falconsvalley.com)</li><li class="en">live stream from the chambers for clients (as on falconsvalley.com)</li>
+      </ul></div>
     </div>
   </div>
 </section>
 
 <!-- VOLIERY -->
-<section id="voliery" class="alt">
+<section id="voliery">
   <div class="wrap">
-    <div class="eyebrow">04 · Letové voliéry</div>
-    <h2>Tri sekcie, každá nad 2 300 m²</h2>
-    <p class="lead">Voľný let je to, čo odlišuje špičkového sokola od priemerného. Každá línia má vlastnú sekciu s letovou dráhou 55 – 70 m, aby si mladé sokoly vybudovali svaly, vytrvalosť a istotu v lete ešte pred predajom a výcvikom.</p>
-    <figure><img src="img/koncept-voliera.jpg" alt="Koncept letovej voliéry so sieťou na oceľových stĺpoch"><figcaption><b>Koncept letovej voliéry.</b> Čierna bezuzlová sieť na štíhlych pozinkovaných stĺpoch, trávnatý povrch, skalné a drevené bidlá, v pozadí pavilón lože.</figcaption></figure>
+    <div class="eyebrow">05 · <span class="sk">Letové voliéry</span><span class="en">Flight aviaries</span></div>
+    <h2 class="sk">Tri sekcie, každá nad 2 300 m²</h2>
+    <h2 class="en">Three sections, each over 2,300 m²</h2>
+    <p class="lead sk">Voľný let je to, čo odlišuje špičkového sokola od priemerného. Každá línia má vlastnú sekciu s letovou dráhou 55 – 70 m, aby si mladé sokoly vybudovali svaly, vytrvalosť a istotu v lete ešte pred hackingom, predajom a výcvikom.</p>
+    <p class="lead en">Free flight is what separates a top falcon from an average one. Each line has its own section with a 55 – 70 m flight line so that young falcons build muscle, stamina and confidence in the air before hacking, sale and training.</p>
+    <figure><img src="img/koncept-voliera.jpg" alt="Concept flight aviary"><figcaption><b class="sk">Koncept letovej voliéry.</b><b class="en">Flight aviary concept.</b> <span class="sk">Čierna bezuzlová sieť na štíhlych pozinkovaných stĺpoch, trávnatý povrch, skalné a drevené bidlá, v pozadí pavilón lože.</span><span class="en">Black knotless netting on slim galvanised masts, grass floor, rock and timber perches, the lounge pavilion in the background.</span></figcaption></figure>
     <div class="grid g3" style="margin-top:22px">
-      <div class="card"><div class="kicker"><span class="dot" style="background:#e3202b"></span><h3>Sekcia A · Gyr pure</h3></div><p class="muted">≈ 2 590 m² · východ, pri stromoradí</p><ul><li>najchladnejšia a najtienistejšia časť pozemku</li><li>viac skalných bidiel a plochý štrk – gyry sedia radi nízko</li><li>veľký plytký kúpeľ 3 × 3 m, hĺbka 15 cm</li><li>prístrešok 4 × 6 m na severnej strane</li></ul></div>
-      <div class="card"><div class="kicker"><span class="dot" style="background:#e6cf96"></span><h3>Sekcia B · Golden Saker</h3></div><p class="muted">≈ 2 510 m² · juh, najslnečnejšia</p><ul><li>otvorený, slnečný „stepný“ charakter</li><li>vyvýšené bidlá 2 – 3 m a zemné kopce</li><li>tieniaca pergola a kúpeľ pri loži</li><li>najdlhšia letová os ≈ 70 m</li></ul></div>
-      <div class="card"><div class="kicker"><span class="dot" style="background:#8fc3ff"></span><h3>Sekcia C · Gyr × Shaheen</h3></div><p class="muted">≈ 2 360 m² · západ, pri dvore haly</p><ul><li>najkratšia cesta z komôr v hale</li><li>kombinácia tieňa pri dome 439 a otvorenej lúky</li><li>vysoké bidlá pre rýchle hybridy</li><li>servisná brána z dvora haly (zásobovanie, technika)</li></ul></div>
+      <div class="card"><div class="kicker"><span class="dot" style="background:#e3202b"></span><h3><span class="sk">Sekcia A · Gyr pure</span><span class="en">Section A · pure Gyr</span></h3></div><p class="muted">≈ 2 440 m² · <span class="sk">východ, pri stromoradí</span><span class="en">east, by the tree line</span></p><ul>
+        <li class="sk">najchladnejšia a najtienistejšia časť pozemku</li><li class="en">the coolest and shadiest part of the plot</li>
+        <li class="sk">viac skalných bidiel a plochý štrk – gyry sedia radi nízko</li><li class="en">more rock perches and flat gravel – gyrs like to sit low</li>
+        <li class="sk">veľký plytký kúpeľ 3 × 3 m, hĺbka 15 cm</li><li class="en">large shallow bath 3 × 3 m, 15 cm deep</li>
+        <li class="sk">prístrešok 4 × 6 m na severnej strane</li><li class="en">4 × 6 m shelter on the north side</li>
+      </ul></div>
+      <div class="card"><div class="kicker"><span class="dot" style="background:#e6cf96"></span><h3><span class="sk">Sekcia B · Golden Saker</span><span class="en">Section B · Golden Saker</span></h3></div><p class="muted">≈ 2 430 m² · <span class="sk">juh, najslnečnejšia</span><span class="en">south, the sunniest</span></p><ul>
+        <li class="sk">otvorený, slnečný „stepný“ charakter</li><li class="en">open, sunny “steppe” character</li>
+        <li class="sk">vyvýšené bidlá 2 – 3 m a zemné kopce</li><li class="en">raised perches 2 – 3 m and earth mounds</li>
+        <li class="sk">tieniaca pergola a kúpeľ pri loži</li><li class="en">shade pergola and bath near the lounge</li>
+        <li class="sk">najdlhšia letová os ≈ 70 m</li><li class="en">the longest flight axis ≈ 70 m</li>
+      </ul></div>
+      <div class="card"><div class="kicker"><span class="dot" style="background:#8fc3ff"></span><h3><span class="sk">Sekcia C · Gyr × Shaheen</span><span class="en">Section C · Gyr × Shaheen</span></h3></div><p class="muted">≈ 2 420 m² · <span class="sk">západ, pri dvore haly</span><span class="en">west, by the hall yard</span></p><ul>
+        <li class="sk">najkratšia cesta z komôr v hale</li><li class="en">the shortest route from the chambers in the hall</li>
+        <li class="sk">otvorená lúka po zbúraní domu 439</li><li class="en">open meadow once house 439 is demolished</li>
+        <li class="sk">vysoké bidlá pre rýchle hybridy</li><li class="en">tall perches for the fast hybrids</li>
+        <li class="sk">servisná brána z dvora haly (zásobovanie, technika)</li><li class="en">service gate from the hall yard (deliveries, machinery)</li>
+      </ul></div>
     </div>
     <div class="grid g2" style="margin-top:22px;align-items:start">
       <div class="diagram">
         <svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
-          <text x="20" y="30" font-family="Outfit, sans-serif" font-size="20" font-weight="700" fill="#e6cf96">Rez letovou voliérou (schéma)</text>
-          <rect x="20" y="300" width="600" height="40" fill="#1f2a1c"/><text x="30" y="326" font-size="12" fill="#9aa6b5">trávnik + štrkové pásy · drenáž · základ proti podhrabaniu 60 cm</text>
-          <!-- masts -->
+          <text x="20" y="30" font-family="Outfit, sans-serif" font-size="20" font-weight="700" fill="#e6cf96"><tspan class="sk">Rez letovou voliérou (schéma)</tspan><tspan class="en">Flight aviary cross-section (schematic)</tspan></text>
+          <rect x="20" y="300" width="600" height="40" fill="#1f2a1c"/><text x="30" y="326" font-size="12" fill="#9aa6b5"><tspan class="sk">trávnik + štrkové pásy · drenáž · základ proti podhrabaniu 60 cm</tspan><tspan class="en">lawn + gravel strips · drainage · 60 cm anti-dig footing</tspan></text>
           <g stroke="#9aa6b5" stroke-width="4"><line x1="60" y1="300" x2="60" y2="140"/><line x1="200" y1="300" x2="200" y2="100"/><line x1="340" y1="300" x2="340" y2="90"/><line x1="480" y1="300" x2="480" y2="100"/><line x1="600" y1="300" x2="600" y2="140"/></g>
-          <!-- net -->
           <path d="M60 140 Q130 95 200 100 Q270 85 340 90 Q410 85 480 100 Q550 95 600 140" fill="none" stroke="#f5f7fa" stroke-width="2" stroke-dasharray="4 3"/>
-          <!-- side walls -->
           <rect x="52" y="240" width="16" height="60" fill="#3a2f22"/><rect x="592" y="240" width="16" height="60" fill="#3a2f22"/>
-          <text x="75" y="258" font-size="12" fill="#f5f7fa">plná drevená stena 2,2 m</text><text x="75" y="274" font-size="11" fill="#9aa6b5">vietor, súkromie, predátory</text>
-          <text x="250" y="70" font-size="12" fill="#f5f7fa">bezuzlová PE sieť 30 – 40 mm, čierna, UV-stabilná</text>
-          <text x="350" y="130" font-size="12" fill="#9aa6b5">výška 8 m v strede, 6 m po obvode</text>
+          <text x="75" y="258" font-size="12" fill="#f5f7fa"><tspan class="sk">plná drevená stena 2,2 m</tspan><tspan class="en">solid timber wall 2.2 m</tspan></text><text x="75" y="274" font-size="11" fill="#9aa6b5"><tspan class="sk">vietor, súkromie, predátory</tspan><tspan class="en">wind, privacy, predators</tspan></text>
+          <text x="250" y="70" font-size="12" fill="#f5f7fa"><tspan class="sk">bezuzlová PE sieť 30 – 40 mm, čierna, UV-stabilná</tspan><tspan class="en">knotless PE net 30 – 40 mm, black, UV-stable</tspan></text>
+          <text x="350" y="130" font-size="12" fill="#9aa6b5"><tspan class="sk">výška 8 m v strede, 6 m po obvode</tspan><tspan class="en">8 m high in the centre, 6 m at the perimeter</tspan></text>
           <line x1="340" y1="90" x2="340" y2="300" stroke="#e6cf96" stroke-width="1" stroke-dasharray="2 4"/><text x="346" y="200" font-size="12" fill="#e6cf96">8 m</text>
-          <!-- perches -->
           <g fill="#3a2f22"><rect x="120" y="270" width="40" height="30"/><rect x="420" y="250" width="6" height="50"/><rect x="405" y="246" width="36" height="6"/></g>
-          <text x="110" y="262" font-size="11" fill="#9aa6b5">skalné bidlo</text><text x="446" y="262" font-size="11" fill="#9aa6b5">T-bidlo 2,5 m</text>
-          <ellipse cx="280" cy="298" rx="40" ry="6" fill="#8fc3ff" fill-opacity=".6"/><text x="256" y="290" font-size="11" fill="#9aa6b5">kúpeľ</text>
-          <text x="20" y="355" font-size="11" fill="#9aa6b5">stĺpy Ø 114 mm pozink po 8 – 10 m, kotvené lanami · dvojité dvere (predsieň 2 × 2 m) v každej sekcii</text>
+          <text x="110" y="262" font-size="11" fill="#9aa6b5"><tspan class="sk">skalné bidlo</tspan><tspan class="en">rock perch</tspan></text><text x="446" y="262" font-size="11" fill="#9aa6b5"><tspan class="sk">T-bidlo 2,5 m</tspan><tspan class="en">T-perch 2.5 m</tspan></text>
+          <ellipse cx="280" cy="298" rx="40" ry="6" fill="#8fc3ff" fill-opacity=".6"/><text x="256" y="290" font-size="11" fill="#9aa6b5"><tspan class="sk">kúpeľ</tspan><tspan class="en">bath</tspan></text>
+          <text x="20" y="355" font-size="11" fill="#9aa6b5"><tspan class="sk">stĺpy Ø 114 mm pozink po 8 – 10 m, kotvené lanami · dvojité dvere (predsieň 2 × 2 m) v každej sekcii</tspan><tspan class="en">Ø 114 mm galvanised masts every 8 – 10 m, guyed · double doors (2 × 2 m porch) in every section</tspan></text>
         </svg>
       </div>
       <div class="card">
-        <h3>Technická špecifikácia voliér</h3>
+        <h3 class="sk">Technická špecifikácia voliér</h3><h3 class="en">Aviary technical specification</h3>
         <ul>
-          <li><b>Sieť:</b> bezuzlová polyetylénová, oko 30 – 40 mm, čierna (pre sokoly takmer neviditeľná, dobre viditeľná pre ne zblízka), UV stabilizovaná, mäkká – pri náraze pruží</li>
-          <li><b>Výška:</b> 8 m na stredových stĺpoch, 6 m po obvode; sieť zavesená na oceľových lanách, nie napnutá na doraz</li>
-          <li><b>Obvod:</b> plná stena z drevených lát 2,2 m (bez priehľadu, bez prievanu) + betónový základ 60 cm do zeme proti líškam a kunám; nad stenou sieť</li>
-          <li><b>Medzi sekciami:</b> dvojitá sieťová stena s medzerou 1 m (sokoly sa nevidia zblízka a nemôžu sa zraniť cez sieť)</li>
-          <li><b>Vstupy:</b> predsieň 2 × 2 m s dvojitými dverami v každej sekcii; servisná brána z dvora haly do sekcie C</li>
-          <li><b>Vybavenie:</b> 6 – 10 bidiel rôznych výšok, skalné bloky, kúpeľ s prítokom a odtokom, prístrešok 4 × 6 m s bidlami v suchu, zavlažovanie trávnika, kamery</li>
-          <li><b>Údržba:</b> kosenie, týždenná kontrola sietí, zimné zhadzovanie snehu zo sietí (preto zavesenie na lanách so spádom)</li>
+          <li class="sk"><b>Sieť:</b> bezuzlová polyetylénová, oko 30 – 40 mm, čierna, UV stabilizovaná, mäkká – pri náraze pruží</li><li class="en"><b>Net:</b> knotless polyethylene, 30 – 40 mm mesh, black, UV-stabilised, soft – it gives on impact</li>
+          <li class="sk"><b>Výška:</b> 8 m na stredových stĺpoch, 6 m po obvode; sieť zavesená na oceľových lanách, nie napnutá na doraz</li><li class="en"><b>Height:</b> 8 m on the central masts, 6 m at the perimeter; the net hangs on steel cables and is not pulled drum-tight</li>
+          <li class="sk"><b>Obvod:</b> plná stena z drevených lát 2,2 m (bez priehľadu, bez prievanu) + betónový základ 60 cm do zeme proti líškam a kunám; nad stenou sieť</li><li class="en"><b>Perimeter:</b> solid 2.2 m timber slat wall (no see-through, no draught) + 60 cm concrete footing against foxes and martens; net above the wall</li>
+          <li class="sk"><b>Medzi sekciami:</b> dvojitá sieťová stena s medzerou 1 m</li><li class="en"><b>Between sections:</b> double net wall with a 1 m gap</li>
+          <li class="sk"><b>Vstupy:</b> predsieň 2 × 2 m s dvojitými dverami v každej sekcii; servisná brána z dvora haly do sekcie C</li><li class="en"><b>Entrances:</b> 2 × 2 m porch with double doors in every section; service gate from the hall yard into section C</li>
+          <li class="sk"><b>Vybavenie:</b> 6 – 10 bidiel rôznych výšok, skalné bloky, kúpeľ s prítokom a odtokom, prístrešok 4 × 6 m, zavlažovanie trávnika, kamery</li><li class="en"><b>Equipment:</b> 6 – 10 perches of different heights, rock blocks, bath with inlet and drain, 4 × 6 m shelter, lawn irrigation, cameras</li>
+          <li class="sk"><b>Údržba:</b> kosenie, týždenná kontrola sietí, zimné zhadzovanie snehu zo sietí (preto zavesenie na lanách so spádom)</li><li class="en"><b>Maintenance:</b> mowing, weekly net inspection, clearing snow from the nets in winter (hence cables with a fall)</li>
         </ul>
       </div>
     </div>
@@ -296,92 +380,166 @@ footer .brand em{color:var(--brand);font-style:normal}
 </section>
 
 <!-- LOZA -->
-<section id="loza">
+<section id="loza" class="alt">
   <div class="wrap">
-    <div class="eyebrow">05 · Centrálna loža · majlis</div>
-    <h2>Čaj, ticho a sokoly za sklom</h2>
-    <p class="lead">Kruhový pavilón v strede pozemku je miesto, kde sa s klientmi z Perzského zálivu sedí tak, ako sú zvyknutí: nízke sedenie, dallah s kávou, čaj, datle – a za tónovaným sklom tri letové voliéry s gyrmi, sakermi a hybridmi. Sklo je z vnútra voliér tmavé a označené, aby sokoly nenarazili.</p>
-    <figure><img src="img/koncept-loza.jpg" alt="Koncept interiéru lože s výhľadom do voliéry"><figcaption><b>Koncept interiéru lože.</b> Arabský majlis s nízkym sedením, drevený strop, podlahové presklenie do voliéry s lietajúcimi sokolmi.</figcaption></figure>
+    <div class="eyebrow">06 · <span class="sk">Centrálna loža · majlis</span><span class="en">Central lounge · majlis</span></div>
+    <h2 class="sk">Čaj, ticho a sokoly za sklom</h2>
+    <h2 class="en">Tea, quiet and falcons behind the glass</h2>
+    <p class="lead sk">Kruhový pavilón v strede pozemku je miesto, kde sa s klientmi z Perzského zálivu sedí tak, ako sú zvyknutí: nízke sedenie, dallah s kávou, čaj, datle – a za tónovaným sklom tri letové voliéry s gyrmi, sakermi a hybridmi. Sklo je z vnútra voliér tmavé a označené, aby sokoly nenarazili.</p>
+    <p class="lead en">The circular pavilion in the centre of the plot is where clients from the Gulf are received the way they are used to: low seating, a dallah of coffee, tea, dates – and behind tinted glass the three flight aviaries with gyrs, sakers and hybrids. From inside the aviaries the glass is dark and marked so the falcons do not strike it.</p>
+    <figure><img src="img/koncept-loza.jpg" alt="Lounge interior concept"><figcaption><b class="sk">Koncept interiéru lože.</b><b class="en">Lounge interior concept.</b> <span class="sk">Arabský majlis s nízkym sedením, drevený strop, presklenie do voliéry s lietajúcimi sokolmi.</span><span class="en">Arabic majlis with low seating, timber ceiling, glazing into the aviary with falcons in flight.</span></figcaption></figure>
     <div class="grid g2" style="margin-top:22px;align-items:start">
       <div class="diagram">
         <svg viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
-          <text x="20" y="30" font-family="Outfit, sans-serif" font-size="20" font-weight="700" fill="#e6cf96">Pôdorys lože (∅ 22 m vrátane terasy)</text>
+          <text x="20" y="30" font-family="Outfit, sans-serif" font-size="20" font-weight="700" fill="#e6cf96"><tspan class="sk">Pôdorys lože (∅ 22 m vrátane terasy)</tspan><tspan class="en">Lounge floor plan (∅ 22 m incl. terrace)</tspan></text>
           <g transform="translate(320 350)">
-            <!-- sectors background -->
             <path d="M0 0 L0 -300 A300 300 0 0 1 260 150 Z" fill="#e3202b" fill-opacity=".18"/>
             <path d="M0 0 L260 150 A300 300 0 0 1 -260 150 Z" fill="#e6cf96" fill-opacity=".18"/>
             <path d="M0 0 L-260 150 A300 300 0 0 1 0 -300 Z" fill="#8fc3ff" fill-opacity=".18"/>
-            <text x="150" y="-190" font-size="13" fill="#ff8a90">sekcia A · Gyr</text><text x="-50" y="245" font-size="13" fill="#e6cf96">sekcia B · Saker</text><text x="-235" y="-190" font-size="13" fill="#c7e1ff">sekcia C · hybridy</text>
-            <!-- outer terrace ring -->
+            <text x="150" y="-190" font-size="13" fill="#ff8a90"><tspan class="sk">sekcia A · Gyr</tspan><tspan class="en">section A · Gyr</tspan></text><text x="-50" y="245" font-size="13" fill="#e6cf96"><tspan class="sk">sekcia B · Saker</tspan><tspan class="en">section B · Saker</tspan></text><text x="-235" y="-190" font-size="13" fill="#c7e1ff"><tspan class="sk">sekcia C · hybridy</tspan><tspan class="en">section C · hybrids</tspan></text>
             <circle r="220" fill="#0c1016" stroke="#e6cf96" stroke-width="3"/>
             <circle r="160" fill="#1c2430" stroke="#f5f7fa" stroke-width="2"/>
-            <!-- glass bays -->
             <g stroke="#8fc3ff" stroke-width="10" fill="none" stroke-linecap="round">
               <path d="M 160 0 A 160 160 0 0 1 -0 160" transform="rotate(-105)"/>
               <path d="M 160 0 A 160 160 0 0 1 -0 160" transform="rotate(15)"/>
               <path d="M 160 0 A 160 160 0 0 1 -0 160" transform="rotate(135)"/>
             </g>
-            <!-- core -->
             <circle r="52" fill="#06080c" stroke="#9aa6b5" stroke-width="2"/>
-            <text x="0" y="-8" font-size="11" fill="#f5f7fa" text-anchor="middle">jadro ∅ 5 m</text><text x="0" y="8" font-size="10" fill="#9aa6b5" text-anchor="middle">čajová kuchynka</text><text x="0" y="22" font-size="10" fill="#9aa6b5" text-anchor="middle">WC · sklad · technika</text>
-            <!-- seating -->
+            <text x="0" y="-8" font-size="11" fill="#f5f7fa" text-anchor="middle"><tspan class="sk">jadro ∅ 5 m</tspan><tspan class="en">core ∅ 5 m</tspan></text><text x="0" y="8" font-size="10" fill="#9aa6b5" text-anchor="middle"><tspan class="sk">čajová kuchynka</tspan><tspan class="en">tea kitchen</tspan></text><text x="0" y="22" font-size="10" fill="#9aa6b5" text-anchor="middle"><tspan class="sk">WC · sklad · technika</tspan><tspan class="en">WC · store · plant</tspan></text>
             <g fill="#3a2f22" stroke="#e6cf96" stroke-width="1">
               <path d="M 110 -40 A 118 118 0 0 1 110 40 L 85 32 A 90 90 0 0 0 85 -32 Z" transform="rotate(-60)"/>
               <path d="M 110 -40 A 118 118 0 0 1 110 40 L 85 32 A 90 90 0 0 0 85 -32 Z" transform="rotate(60)"/>
               <path d="M 110 -40 A 118 118 0 0 1 110 40 L 85 32 A 90 90 0 0 0 85 -32 Z" transform="rotate(180)"/>
             </g>
             <g fill="#e6cf96"><circle cx="75" cy="-45" r="8"/><circle cx="75" cy="45" r="8"/><circle cx="-88" cy="0" r="8"/></g>
-            <text x="92" y="-95" font-size="11" fill="#f5f7fa" text-anchor="middle">majlis 6 – 8 osôb</text>
-            <text x="92" y="105" font-size="11" fill="#f5f7fa" text-anchor="middle">majlis 6 – 8 osôb</text>
-            <text x="-95" y="-70" font-size="11" fill="#f5f7fa" text-anchor="middle">majlis 6 – 8 osôb</text>
-            <!-- entrance corridor from north -->
-            <rect x="-14" y="-300" width="28" height="82" fill="#e6cf96"/><text x="30" y="-262" font-size="11" fill="#e6cf96">krytá chodba od recepcie (dom 439)</text>
-            <!-- glass label -->
-            <text x="0" y="195" font-size="11" fill="#8fc3ff" text-anchor="middle">modré oblúky = tónované bezpečnostné sklo, 3 × 9 m, výška 2,6 m</text>
-            <text x="0" y="-232" font-size="11" fill="#9aa6b5" text-anchor="middle">vonkajší kruh = krytá terasa / obslužný ochoz medzi loží a sieťami</text>
+            <text x="92" y="-95" font-size="11" fill="#f5f7fa" text-anchor="middle"><tspan class="sk">majlis 6 – 8 osôb</tspan><tspan class="en">majlis 6 – 8 guests</tspan></text>
+            <text x="92" y="105" font-size="11" fill="#f5f7fa" text-anchor="middle"><tspan class="sk">majlis 6 – 8 osôb</tspan><tspan class="en">majlis 6 – 8 guests</tspan></text>
+            <text x="-95" y="-70" font-size="11" fill="#f5f7fa" text-anchor="middle"><tspan class="sk">majlis 6 – 8 osôb</tspan><tspan class="en">majlis 6 – 8 guests</tspan></text>
+            <rect x="-14" y="-300" width="28" height="82" fill="#e6cf96"/><text x="30" y="-262" font-size="11" fill="#e6cf96"><tspan class="sk">krytá chodba od recepcie v hale</tspan><tspan class="en">covered walkway from the hall reception</tspan></text>
+            <text x="0" y="195" font-size="11" fill="#8fc3ff" text-anchor="middle"><tspan class="sk">modré oblúky = tónované bezpečnostné sklo, 3 × 9 m, výška 2,6 m</tspan><tspan class="en">blue arcs = tinted safety glass, 3 × 9 m, 2.6 m high</tspan></text>
+            <text x="0" y="-232" font-size="11" fill="#9aa6b5" text-anchor="middle"><tspan class="sk">vonkajší kruh = krytá terasa / obslužný ochoz medzi loží a sieťami</tspan><tspan class="en">outer ring = covered terrace / service walkway between lounge and nets</tspan></text>
           </g>
         </svg>
       </div>
       <div class="diagram">
         <svg viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
-          <text x="20" y="30" font-family="Outfit, sans-serif" font-size="20" font-weight="700" fill="#e6cf96">Rez sklom: ako sokol sklo „vidí“</text>
-          <!-- ground -->
+          <text x="20" y="30" font-family="Outfit, sans-serif" font-size="20" font-weight="700" fill="#e6cf96"><tspan class="sk">Rez sklom: ako sokol sklo „vidí“</tspan><tspan class="en">Glass section: how the falcon “sees” it</tspan></text>
           <rect x="20" y="470" width="600" height="30" fill="#1f2a1c"/>
-          <!-- lounge interior -->
           <rect x="20" y="230" width="250" height="240" fill="#1c2430"/>
           <path d="M20 230 L270 200 L270 230 Z" fill="#3a2f22"/>
           <rect x="20" y="200" width="250" height="30" fill="#3a2f22"/>
-          <text x="40" y="260" font-size="13" fill="#f5f7fa">interiér lože</text><text x="40" y="278" font-size="11" fill="#9aa6b5">tlmené svetlo, tmavšie</text><text x="40" y="292" font-size="11" fill="#9aa6b5">než exteriér → sklo pôsobí</text><text x="40" y="306" font-size="11" fill="#9aa6b5">zvonku ako tmavá stena</text>
+          <text x="40" y="260" font-size="13" fill="#f5f7fa"><tspan class="sk">interiér lože</tspan><tspan class="en">lounge interior</tspan></text><text x="40" y="278" font-size="11" fill="#9aa6b5"><tspan class="sk">tlmené svetlo, tmavšie</tspan><tspan class="en">dim light, darker</tspan></text><text x="40" y="292" font-size="11" fill="#9aa6b5"><tspan class="sk">než exteriér → sklo pôsobí</tspan><tspan class="en">than outside → the glass reads</tspan></text><text x="40" y="306" font-size="11" fill="#9aa6b5"><tspan class="sk">zvonku ako tmavá stena</tspan><tspan class="en">from outside as a dark wall</tspan></text>
           <g fill="#3a2f22"><rect x="40" y="420" width="120" height="30" rx="6"/><rect x="60" y="400" width="80" height="20" rx="4"/></g>
-          <!-- glass tilted -->
           <line x1="270" y1="470" x2="300" y2="230" stroke="#8fc3ff" stroke-width="10" stroke-linecap="round"/>
-          <text x="306" y="260" font-size="12" fill="#8fc3ff">sklo naklonené 15 – 20° (hore von)</text>
-          <text x="306" y="276" font-size="11" fill="#9aa6b5">odráža zem, nie oblohu</text>
-          <!-- dot pattern -->
+          <text x="306" y="260" font-size="12" fill="#8fc3ff"><tspan class="sk">sklo naklonené 15 – 20° (hore von)</tspan><tspan class="en">glass tilted 15 – 20° (top outwards)</tspan></text>
+          <text x="306" y="276" font-size="11" fill="#9aa6b5"><tspan class="sk">odráža zem, nie oblohu</tspan><tspan class="en">reflects the ground, not the sky</tspan></text>
           <g fill="#f5f7fa"><circle cx="279" cy="420" r="2"/><circle cx="283" cy="380" r="2"/><circle cx="288" cy="340" r="2"/><circle cx="293" cy="300" r="2"/></g>
-          <text x="306" y="340" font-size="12" fill="#f5f7fa">vonkajší bodkový / UV vzor</text><text x="306" y="356" font-size="11" fill="#9aa6b5">raster 5 × 5 cm, pre vtáky viditeľný</text>
-          <!-- buffer net -->
+          <text x="306" y="340" font-size="12" fill="#f5f7fa"><tspan class="sk">vonkajší bodkový / UV vzor</tspan><tspan class="en">external dot / UV pattern</tspan></text><text x="306" y="356" font-size="11" fill="#9aa6b5"><tspan class="sk">raster 5 × 5 cm, pre vtáky viditeľný</tspan><tspan class="en">5 × 5 cm grid, visible to birds</tspan></text>
           <line x1="345" y1="470" x2="345" y2="150" stroke="#f5f7fa" stroke-width="1.5" stroke-dasharray="3 3"/>
-          <text x="352" y="170" font-size="12" fill="#f5f7fa">mäkká jemná sieť 1,5 m pred sklom</text><text x="352" y="186" font-size="11" fill="#9aa6b5">oko 12 mm, čierna – z lože takmer neviditeľná,</text><text x="352" y="200" font-size="11" fill="#9aa6b5">sokola zachytí skôr, než sa dotkne skla</text>
-          <!-- aviary -->
-          <text x="420" y="440" font-size="13" fill="#f5f7fa">voliéra</text><text x="420" y="456" font-size="11" fill="#9aa6b5">bez bidiel do 5 m od skla</text>
-          <path d="M345 150 Q480 110 620 140" fill="none" stroke="#f5f7fa" stroke-width="2" stroke-dasharray="4 3"/><text x="470" y="105" font-size="11" fill="#9aa6b5">sieť voliéry</text>
-          <!-- falcon -->
+          <text x="352" y="170" font-size="12" fill="#f5f7fa"><tspan class="sk">mäkká jemná sieť 1,5 m pred sklom</tspan><tspan class="en">soft fine net 1.5 m in front of the glass</tspan></text><text x="352" y="186" font-size="11" fill="#9aa6b5"><tspan class="sk">oko 12 mm, čierna – z lože takmer neviditeľná,</tspan><tspan class="en">12 mm mesh, black – almost invisible from the lounge,</tspan></text><text x="352" y="200" font-size="11" fill="#9aa6b5"><tspan class="sk">sokola zachytí skôr, než sa dotkne skla</tspan><tspan class="en">catches the falcon before it touches the glass</tspan></text>
+          <text x="420" y="440" font-size="13" fill="#f5f7fa"><tspan class="sk">voliéra</tspan><tspan class="en">aviary</tspan></text><text x="420" y="456" font-size="11" fill="#9aa6b5"><tspan class="sk">bez bidiel do 5 m od skla</tspan><tspan class="en">no perches within 5 m of the glass</tspan></text>
+          <path d="M345 150 Q480 110 620 140" fill="none" stroke="#f5f7fa" stroke-width="2" stroke-dasharray="4 3"/><text x="470" y="105" font-size="11" fill="#9aa6b5"><tspan class="sk">sieť voliéry</tspan><tspan class="en">aviary net</tspan></text>
           <path d="M520 300 q-20 -25 -45 -5 q20 0 30 15 q10 -15 30 -15 q-25 -20 -15 5" fill="#f5f7fa"/>
-          <!-- specs -->
           <g font-size="11.5" fill="#f5f7fa">
-            <text x="20" y="540">Sklo: lepené bezpečnostné 66.2 (2 × 6 mm + fólia), tónované na priepustnosť 15 – 20 %,</text>
-            <text x="20" y="558">zvonku s nízkou odrazivosťou. Večer automatické rolety – v noci žiadne svetlo z lože do voliéry.</text>
-            <text x="20" y="576">Výsledok: z lože vidíte sokoly v plnom svetle, sokol vidí tmavú, označenú stenu s mäkkou sieťou pred ňou.</text>
-            <text x="20" y="600" fill="#9aa6b5">Rovnaké opatrenia používajú voliéry v zoo a sokoliarske centrá v Zálive; kombinácia troch vrstiev (sklon + vzor + sieť) je bezpečnejšia než len tónovanie.</text>
+            <text x="20" y="540"><tspan class="sk">Sklo: lepené bezpečnostné 66.2 (2 × 6 mm + fólia), tónované na priepustnosť 15 – 20 %,</tspan><tspan class="en">Glass: laminated safety 66.2 (2 × 6 mm + interlayer), tinted to 15 – 20 % transmission,</tspan></text>
+            <text x="20" y="558"><tspan class="sk">zvonku s nízkou odrazivosťou. Večer automatické rolety – v noci žiadne svetlo z lože do voliéry.</tspan><tspan class="en">low external reflectance. Automatic blinds at dusk – no light from the lounge into the aviary at night.</tspan></text>
+            <text x="20" y="576"><tspan class="sk">Výsledok: z lože vidíte sokoly v plnom svetle, sokol vidí tmavú, označenú stenu s mäkkou sieťou pred ňou.</tspan><tspan class="en">Result: from the lounge you see the falcons in full light; the falcon sees a dark, marked wall with a soft net in front of it.</tspan></text>
+            <text x="20" y="600" fill="#9aa6b5"><tspan class="sk">Kombinácia troch vrstiev (sklon + vzor + sieť) je bezpečnejšia než len tónovanie.</tspan><tspan class="en">The three-layer combination (tilt + pattern + net) is safer than tinting alone.</tspan></text>
           </g>
         </svg>
       </div>
     </div>
     <div class="grid g3" style="margin-top:22px">
-      <div class="card"><h3>Program lože</h3><ul><li>3 sedacie bay-e (majlis) po 6 – 8 osôb, každý s výhľadom do inej sekcie</li><li>centrálne jadro: čajová kuchynka (gahwa, čaj, datle), WC, sklad, technika</li><li>ohnisko / krb v strede alebo na terase pre chladné večery</li><li>obrazovky s prenosom z chovných komôr – klient vidí aj rodičov sokola</li></ul></div>
-      <div class="card"><h3>Materiály a atmosféra</h3><ul><li>lepené drevené radiálne nosníky, drevený strop, kamenná podlaha s podlahovým kúrením</li><li>farby: tmavé drevo, krémová a tmavočervená látka (farby Falcons Valley), mosadz</li><li>tlmené nepriame svetlo, akusticky tichý priestor</li><li>vonkajšia krytá terasa po obvode – prechod k sieťam a servis</li></ul></div>
-      <div class="card"><h3>Prevádzka</h3><ul><li>vstup hostí len cez recepciu (dom 439) a krytú chodbu – nikdy cez voliéry</li><li>kŕmenie sokolov pred sklom v dohodnutom čase = „show“ pre klientov</li><li>loža môže slúžiť na podpis zmlúv, odovzdanie sokola a dokladov CITES</li><li>bezbariérová, kúrená, celoročne použiteľná</li></ul></div>
+      <div class="card"><h3 class="sk">Program lože</h3><h3 class="en">Lounge programme</h3><ul>
+        <li class="sk">3 sedacie zóny (majlis) po 6 – 8 osôb, každá s výhľadom do inej sekcie</li><li class="en">3 seating bays (majlis) for 6 – 8 guests, each looking into a different section</li>
+        <li class="sk">centrálne jadro: čajová kuchynka (gahwa, čaj, datle), WC, sklad, technika</li><li class="en">central core: tea kitchen (gahwa, tea, dates), WC, store, plant</li>
+        <li class="sk">ohnisko / krb v strede alebo na terase pre chladné večery</li><li class="en">fire pit / fireplace in the centre or on the terrace for cool evenings</li>
+        <li class="sk">obrazovky s prenosom z chovných komôr – klient vidí aj rodičov sokola</li><li class="en">screens streaming the breeding chambers – the client also sees the falcon’s parents</li>
+      </ul></div>
+      <div class="card"><h3 class="sk">Materiály a atmosféra</h3><h3 class="en">Materials and atmosphere</h3><ul>
+        <li class="sk">lepené drevené radiálne nosníky, drevený strop, kamenná podlaha s podlahovým kúrením</li><li class="en">glulam radial beams, timber ceiling, stone floor with underfloor heating</li>
+        <li class="sk">farby: tmavé drevo, krémová a tmavočervená látka (farby Falcons Valley), mosadz</li><li class="en">colours: dark timber, cream and deep red fabric (Falcons Valley colours), brass</li>
+        <li class="sk">tlmené nepriame svetlo, akusticky tichý priestor</li><li class="en">dim indirect light, acoustically quiet space</li>
+        <li class="sk">vonkajšia krytá terasa po obvode – prechod k sieťam a servis</li><li class="en">covered terrace around the perimeter – access to the nets and servicing</li>
+      </ul></div>
+      <div class="card"><h3 class="sk">Prevádzka</h3><h3 class="en">Operation</h3><ul>
+        <li class="sk">vstup hostí len cez recepciu v hale a krytú chodbu – nikdy cez voliéry</li><li class="en">guests enter only via the hall reception and the covered walkway – never through the aviaries</li>
+        <li class="sk">kŕmenie sokolov pred sklom v dohodnutom čase = „show“ pre klientov</li><li class="en">feeding the falcons in front of the glass at set times = a “show” for clients</li>
+        <li class="sk">loža slúži na podpis zmlúv, odovzdanie sokola a dokladov CITES</li><li class="en">the lounge is where contracts are signed and the falcon and its CITES papers handed over</li>
+        <li class="sk">bezbariérová, kúrená, celoročne použiteľná</li><li class="en">step-free, heated, usable all year round</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- HACKING -->
+<section id="hacking">
+  <div class="wrap">
+    <div class="eyebrow">07 · Wild hacking</div>
+    <h2 class="sk">Mláďatá 2 – 4 týždne vo voľnej prírode</h2>
+    <h2 class="en">Fledglings 2 – 4 weeks in the wild</h2>
+    <p class="lead sk">Hacking je stará sokoliarska metóda: mláďatá sa krátko pred prvým vzlietnutím umiestnia do hackovacej búdky na vyvýšenom mieste, po niekoľkých dňoch sa búdka otvorí a mladé sokoly lietajú voľne, no každý deň sa vracajú ku kŕmnemu stolu. Dva až štyri týždne voľného lietania nad lúkami a bralami Pienin im dajú to, čo žiadna voliéra nedokáže: silu, orientáciu, vzdušné súboje so súrodencami a prvé pokusy o lov. Potom sa odchytia a vrátia do stanice na výcvik.</p>
+    <p class="lead en">Hacking is an old falconry method: shortly before their first flight the young are placed in a hack box on a raised site; after a few days the box is opened and the young falcons fly free but return every day to the feeding board. Two to four weeks of free flight over the meadows and crags of the Pieniny give them what no aviary can: strength, orientation, aerial play with their siblings and first hunting attempts. They are then recaptured and returned to the centre for training.</p>
+    <div class="grid g2" style="align-items:start">
+      <div class="diagram">
+        <svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+          <text x="20" y="30" font-family="Outfit, sans-serif" font-size="20" font-weight="700" fill="#e6cf96"><tspan class="sk">Hackovacia veža (schéma)</tspan><tspan class="en">Hack tower (schematic)</tspan></text>
+          <rect x="20" y="340" width="600" height="40" fill="#1f2a1c"/>
+          <path d="M20 345 Q200 300 400 330 T620 320 L620 340 L20 340 Z" fill="#243320"/>
+          <g stroke="#9aa6b5" stroke-width="6"><line x1="300" y1="340" x2="300" y2="150"/><line x1="340" y1="340" x2="340" y2="150"/><line x1="300" y1="300" x2="340" y2="260"/><line x1="340" y1="300" x2="300" y2="260"/><line x1="300" y1="230" x2="340" y2="190"/><line x1="340" y1="230" x2="300" y2="190"/></g>
+          <rect x="270" y="90" width="100" height="70" fill="#3a2f22" stroke="#e6cf96" stroke-width="2"/>
+          <g stroke="#e6cf96" stroke-width="1.5"><line x1="330" y1="90" x2="330" y2="160"/><line x1="340" y1="90" x2="340" y2="160"/><line x1="350" y1="90" x2="350" y2="160"/><line x1="360" y1="90" x2="360" y2="160"/></g>
+          <rect x="250" y="160" width="140" height="8" fill="#5a4a33"/>
+          <text x="380" y="110" font-size="12" fill="#f5f7fa"><tspan class="sk">hack box 2 × 2 × 1,5 m</tspan><tspan class="en">hack box 2 × 2 × 1.5 m</tspan></text>
+          <text x="380" y="126" font-size="11" fill="#9aa6b5"><tspan class="sk">latová predná stena, výhľad do krajiny</tspan><tspan class="en">slatted front, view over the landscape</tspan></text>
+          <text x="380" y="176" font-size="12" fill="#f5f7fa"><tspan class="sk">kŕmny stôl (hack board)</tspan><tspan class="en">feeding board (hack board)</tspan></text>
+          <text x="380" y="192" font-size="11" fill="#9aa6b5"><tspan class="sk">krmivo každé ráno, neskôr aj večer</tspan><tspan class="en">food every morning, later evenings too</tspan></text>
+          <text x="60" y="250" font-size="12" fill="#f5f7fa"><tspan class="sk">veža 5 – 6 m</tspan><tspan class="en">tower 5 – 6 m</tspan></text>
+          <text x="60" y="266" font-size="11" fill="#9aa6b5"><tspan class="sk">kovový plášť proti kunám</tspan><tspan class="en">metal sleeve against martens</tspan></text>
+          <path d="M120 120 q-18 -22 -40 -5 q18 0 27 13 q9 -13 27 -13 q-22 -18 -14 5" fill="#f5f7fa"/>
+          <path d="M520 70 q-18 -22 -40 -5 q18 0 27 13 q9 -13 27 -13 q-22 -18 -14 5" fill="#f5f7fa"/>
+          <text x="440" y="300" font-size="11" fill="#9aa6b5"><tspan class="sk">kamera + GPS/VHF vysielačky</tspan><tspan class="en">camera + GPS/VHF transmitters</tspan></text>
+          <text x="20" y="395" font-size="11" fill="#9aa6b5"><tspan class="sk">miesto: otvorená lúka s výhľadom, bez vedení VN, 300 – 500 m od lesa, pozorovateľňa pre obsluhu</tspan><tspan class="en">site: open meadow with a view, no HV lines, 300 – 500 m from forest, observation hide for staff</tspan></text>
+        </svg>
+      </div>
+      <div class="card">
+        <h3 class="sk">Ako to prebieha</h3><h3 class="en">How it works</h3>
+        <ul>
+          <li class="sk"><b>Vek 32 – 38 dní:</b> mláďatá (3 – 5 súrodencov naraz) dostanú vysielačky a presunú sa do hack boxu; 5 – 7 dní sa v ňom kŕmia a zvykajú si na krajinu</li><li class="en"><b>Age 32 – 38 days:</b> the young (3 – 5 siblings at a time) are fitted with transmitters and moved to the hack box; they are fed there for 5 – 7 days and learn the landscape</li>
+          <li class="sk"><b>Otvorenie:</b> ráno pri dobrom počasí; prvé dni lietajú krátko a sedia pri búdke</li><li class="en"><b>Release:</b> in the morning in good weather; the first days they fly briefly and sit near the box</li>
+          <li class="sk"><b>2 – 4 týždne:</b> krmivo stále na stole (prepelice, kurčatá), mláďatá lietajú čoraz ďalej, hrajú sa, naháňajú sa a skúšajú útoky na korisť</li><li class="en"><b>2 – 4 weeks:</b> food stays on the board (quail, chicks); the young range further, play, chase each other and try attacks on prey</li>
+          <li class="sk"><b>Odchyt:</b> keď prestanú pravidelne chodiť na stôl alebo prvýkrát ulovia – sklopka na kŕmnom stole alebo privolanie na vábidlo</li><li class="en"><b>Recapture:</b> when they stop coming to the board regularly or make a first kill – bow trap on the board or lure recall</li>
+          <li class="sk"><b>Dozor:</b> 2 ľudia, denný monitoring telemetriou, kamera na veži, evidencia hmotnosti a letov</li><li class="en"><b>Supervision:</b> 2 people, daily telemetry monitoring, camera on the tower, weight and flight records</li>
+        </ul>
+      </div>
+    </div>
+    <div class="timeline">
+      <div class="tl"><b><span class="sk">apríl</span><span class="en">April</span></b><span class="sk">liahnutie v hale</span><span class="en">hatching in the hall</span></div>
+      <div class="tl"><b><span class="sk">máj</span><span class="en">May</span></b><span class="sk">odchov pod rodičmi, krúžkovanie, čipovanie</span><span class="en">parent-rearing, ringing, microchipping</span></div>
+      <div class="tl"><b><span class="sk">jún</span><span class="en">June</span></b><span class="sk">presun do hack boxu, otvorenie</span><span class="en">move to the hack box, release</span></div>
+      <div class="tl"><b><span class="sk">jún – júl</span><span class="en">June – July</span></b><span class="sk">2 – 4 týždne voľného letu, odchyt</span><span class="en">2 – 4 weeks of free flight, recapture</span></div>
+      <div class="tl"><b><span class="sk">júl – august</span><span class="en">July – August</span></b><span class="sk">letové voliéry, manning, príprava na predaj</span><span class="en">flight aviaries, manning, preparation for sale</span></div>
+      <div class="tl"><b><span class="sk">od augusta</span><span class="en">from August</span></b><span class="sk">odovzdanie klientom, loža, CITES</span><span class="en">handover to clients, lounge, CITES</span></div>
+    </div>
+    <div class="grid g3" style="margin-top:22px">
+      <div class="card"><h3 class="sk">Prečo hacking</h3><h3 class="en">Why hack</h3><ul>
+        <li class="sk">lepšia kondícia a svalstvo než z voliéry – dôležité pre preteky a lov na hubaru</li><li class="en">better condition and muscle than from an aviary – key for racing and houbara hawking</li>
+        <li class="sk">prirodzená orientácia, výška a istota v lete</li><li class="en">natural orientation, pitch and confidence in flight</li>
+        <li class="sk">menej stereotypov a stresu v neskoršom výcviku</li><li class="en">fewer stereotypies and less stress in later training</li>
+        <li class="sk">silný predajný argument: „hacked in the Pieniny“</li><li class="en">a strong sales argument: “hacked in the Pieniny”</li>
+      </ul></div>
+      <div class="card"><h3 class="sk">Miesto a vybavenie</h3><h3 class="en">Site and equipment</h3><ul>
+        <li class="sk">hackovacia veža na lúkach pri Dunajci alebo na svahu nad mestom (dohoda s majiteľom pozemku)</li><li class="en">hack tower on the meadows by the Dunajec or on the slope above the town (agreement with the landowner)</li>
+        <li class="sk">2 hack boxy pre 3 – 5 mláďat, kŕmny stôl, sklopka</li><li class="en">2 hack boxes for 3 – 5 young each, feeding board, bow trap</li>
+        <li class="sk">GPS/VHF vysielačky (chrbtové alebo chvostové), prijímač, kamera 4G</li><li class="en">GPS/VHF transmitters (backpack or tail-mount), receiver, 4G camera</li>
+        <li class="sk">terénne auto, prepravky, kŕmny sklad pri veži</li><li class="en">4×4 vehicle, transport boxes, food store at the tower</li>
+      </ul></div>
+      <div class="card"><h3 class="sk">Riziká a povolenia</h3><h3 class="en">Risks and permits</h3><ul>
+        <li class="sk">predátory (výr, jastrab, kuna) – telemetria, kovový plášť veže, odchyt pri strate hmotnosti</li><li class="en">predators (eagle owl, goshawk, marten) – telemetry, metal tower sleeve, recapture on weight loss</li>
+        <li class="sk">elektrické vedenia a cesty – výber miesta bez VN, mimo hlavnej cesty</li><li class="en">power lines and roads – site without HV lines, away from the main road</li>
+        <li class="sk">dočasné vypustenie chovaných jedincov v prírode treba vopred prerokovať so Správou PIENAP a okresným úradom (ochrana prírody, CITES); mláďatá majú krúžok, čip a vysielačku</li><li class="en">temporary release of captive-bred birds must be agreed in advance with the PIENAP administration and the district authority (nature protection, CITES); every bird carries a ring, chip and transmitter</li>
+        <li class="sk">počasie: štart len v stabilnom období, nie v daždi</li><li class="en">weather: release only in a stable spell, never in rain</li>
+      </ul></div>
     </div>
   </div>
 </section>
@@ -389,32 +547,51 @@ footer .brand em{color:var(--brand);font-style:normal}
 <!-- SOKOLY -->
 <section id="sokoly" class="alt">
   <div class="wrap">
-    <div class="eyebrow">06 · Chovné línie</div>
+    <div class="eyebrow">08 · <span class="sk">Chovné línie</span><span class="en">Breeding lines</span></div>
     <h2>Gyr pure · Golden Saker · Gyr × Shaheen</h2>
-    <figure><img src="img/sokoly-tri-druhy.jpg" alt="Gyrfalcon, Golden Saker a hybrid Gyr × Shaheen"><figcaption><b>Tri línie Falcons Valley.</b> Zľava biely gyr, zlatý saker a hybrid gyr × shaheen (ilustračný render).</figcaption></figure>
+    <figure><img src="img/sokoly-tri-druhy.jpg" alt="Gyrfalcon, Golden Saker, Gyr × Shaheen"><figcaption><b class="sk">Tri línie Falcons Valley.</b><b class="en">The three Falcons Valley lines.</b> <span class="sk">Zľava biely gyr, zlatý saker a hybrid gyr × shaheen (ilustračný render).</span><span class="en">From left: white gyr, golden saker and a gyr × shaheen hybrid (illustrative render).</span></figcaption></figure>
     <div class="grid g3" style="margin-top:22px">
-      <div class="card"><div class="kicker"><span class="dot" style="background:#e3202b"></span><h3>Gyr pure</h3></div><p class="muted"><i>Falco rusticolus</i> · biela a strieborná forma</p><ul><li>najväčší sokol sveta, samice 1 300 – 2 000 g</li><li>vyžaduje chlad, sucho a čistý vzduch – severná strana haly, sekcia A v tieni stromov</li><li>citlivý na aspergilózu: filtrované vetranie, žiadna pleseň, žiadny prach</li><li>neskorá znáška (marec – apríl), 3 – 5 vajec</li><li>najvyššia hodnota pre klientov zo Zálivu (biele samice)</li></ul></div>
-      <div class="card"><div class="kicker"><span class="dot" style="background:#e6cf96"></span><h3>Golden Saker</h3></div><p class="muted"><i>Falco cherrug</i> · zlatá (svetlá) forma</p><ul><li>tradičný sokol arabskej sokoliarstva („hurr“)</li><li>odolný, nenáročný, znáša slnko aj teplo – sekcia B na juhu</li><li>skorá znáška (február – marec), 3 – 5 vajec</li><li>výborný pre lov na hubaru (dropa), ceneny pre farbu a veľkosť</li><li>základ pre hybridy s gyrom</li></ul></div>
-      <div class="card"><div class="kicker"><span class="dot" style="background:#8fc3ff"></span><h3>Gyr × Shaheen</h3></div><p class="muted"><i>F. rusticolus × F. peregrinus</i> (peregrinator / babylonicus)</p><ul><li>sila a veľkosť gyra, rýchlosť a manévrovateľnosť shaheena</li><li>odolnejší na teplo než čistý gyr – sekcia C</li><li>produkcia umelou insemináciou alebo imprint párom – imprint komory na 1. NP</li><li>najžiadanejší hybrid pre preteky (Fazza, King Abdulaziz Falconry Festival)</li><li>rôzne pomery 3/4 gyr, 1/2 gyr podľa požiadavky klienta</li></ul></div>
+      <div class="card"><div class="kicker"><span class="dot" style="background:#e3202b"></span><h3>Gyr pure</h3></div><p class="muted"><i>Falco rusticolus</i> · <span class="sk">biela a strieborná forma</span><span class="en">white and silver morphs</span></p><ul>
+        <li class="sk">najväčší sokol sveta, samice 1 300 – 2 000 g</li><li class="en">the largest falcon in the world, females 1,300 – 2,000 g</li>
+        <li class="sk">vyžaduje chlad, sucho a čistý vzduch – severná strana haly, sekcia A v tieni stromov</li><li class="en">needs cool, dry, clean air – north side of the hall, section A in the shade of the trees</li>
+        <li class="sk">citlivý na aspergilózu: filtrované vetranie, žiadna pleseň, žiadny prach</li><li class="en">prone to aspergillosis: filtered ventilation, no mould, no dust</li>
+        <li class="sk">neskorá znáška (marec – apríl), 3 – 5 vajec</li><li class="en">late clutch (March – April), 3 – 5 eggs</li>
+        <li class="sk">najvyššia hodnota pre klientov zo Zálivu (biele samice)</li><li class="en">highest value for Gulf clients (white females)</li>
+      </ul></div>
+      <div class="card"><div class="kicker"><span class="dot" style="background:#e6cf96"></span><h3>Golden Saker</h3></div><p class="muted"><i>Falco cherrug</i> · <span class="sk">zlatá (svetlá) forma</span><span class="en">golden (pale) morph</span></p><ul>
+        <li class="sk">tradičný sokol arabského sokoliarstva („hurr“)</li><li class="en">the traditional falcon of Arab falconry (“hurr”)</li>
+        <li class="sk">odolný, nenáročný, znáša slnko aj teplo – sekcia B na juhu</li><li class="en">hardy, undemanding, tolerates sun and heat – section B in the south</li>
+        <li class="sk">skorá znáška (február – marec), 3 – 5 vajec</li><li class="en">early clutch (February – March), 3 – 5 eggs</li>
+        <li class="sk">výborný pre lov na hubaru, cenený pre farbu a veľkosť</li><li class="en">excellent for houbara hawking, prized for colour and size</li>
+        <li class="sk">základ pre hybridy s gyrom</li><li class="en">the basis for gyr hybrids</li>
+      </ul></div>
+      <div class="card"><div class="kicker"><span class="dot" style="background:#8fc3ff"></span><h3>Gyr × Shaheen</h3></div><p class="muted"><i>F. rusticolus × F. peregrinus</i> (peregrinator / babylonicus)</p><ul>
+        <li class="sk">sila a veľkosť gyra, rýchlosť a manévrovateľnosť shaheena</li><li class="en">the power and size of the gyr, the speed and agility of the shaheen</li>
+        <li class="sk">odolnejší na teplo než čistý gyr – sekcia C</li><li class="en">more heat-tolerant than a pure gyr – section C</li>
+        <li class="sk">produkcia umelou insemináciou alebo imprint párom – imprint komory na 1. NP</li><li class="en">produced by artificial insemination or imprint pairs – imprint chambers on the ground floor</li>
+        <li class="sk">najžiadanejší hybrid pre preteky (Fazza, King Abdulaziz Falconry Festival)</li><li class="en">the most sought-after hybrid for racing (Fazza, King Abdulaziz Falconry Festival)</li>
+        <li class="sk">rôzne pomery 3/4 gyr, 1/2 gyr podľa požiadavky klienta</li><li class="en">different ratios 3/4 gyr, 1/2 gyr to the client’s wish</li>
+      </ul></div>
     </div>
-    <p class="note" style="margin-top:18px"><b>Kapacita:</b> 40 chovných komôr na 2. NP + 8 komôr na 1. NP umožňuje pri 25 – 30 obsadených pároch produkciu 60 – 100 mláďat ročne. Každé mláďa dostane uzavretý krúžok, mikročip, CITES doklad a rodokmeň – rovnaký štandard ako v e-shope na falconsvalley.com.</p>
+    <p class="note" style="margin-top:18px"><b class="sk">Kapacita:</b><b class="en">Capacity:</b> <span class="sk">40 chovných komôr na 2. NP + 8 komôr na 1. NP umožňuje pri 25 – 30 obsadených pároch produkciu 60 – 100 mláďat ročne. Každé mláďa dostane uzavretý krúžok, mikročip, CITES doklad a rodokmeň – rovnaký štandard ako v e-shope na falconsvalley.com.</span><span class="en">40 breeding chambers upstairs + 8 downstairs allow 60 – 100 young per year from 25 – 30 occupied pairs. Every chick receives a closed ring, microchip, CITES certificate and pedigree – the same standard as in the shop on falconsvalley.com.</span></p>
   </div>
 </section>
 
 <!-- ETAPY -->
 <section id="etapy">
   <div class="wrap">
-    <div class="eyebrow">07 · Ďalšie kroky</div>
-    <h2>Od štúdie k prvej znáške</h2>
+    <div class="eyebrow">09 · <span class="sk">Ďalšie kroky</span><span class="en">Next steps</span></div>
+    <h2 class="sk">Od štúdie k prvej znáške</h2>
+    <h2 class="en">From study to the first clutch</h2>
     <div class="steps">
-      <div class="step"><h4>Zameranie a projekt</h4><p>Geodetické vytýčenie pozemku, statický posudok haly, architektonická štúdia a projekt pre územné / stavebné konanie (zmena účelu stavby).</p></div>
-      <div class="step"><h4>Povolenia chovu</h4><p>Registrácia chovu a CITES (MŽP SR, ŠOP SR), schválenie RVPS / ŠVPS, evidencia chovných jedincov, karanténny režim.</p></div>
-      <div class="step"><h4>Prestavba haly</h4><p>1. NP: liaheň, odchovňa, veterina, kuchyňa krmiva, mraziarne. 2. NP: 40 chovných komôr so svetlíkmi, servisná chodba, kamery.</p></div>
-      <div class="step"><h4>Voliéry a loža</h4><p>Základy a stĺpy, drevené obvodové steny, siete, bidlá a kúpele; kruhový pavilón lože, tónované sklo, krytá chodba k domu 439.</p></div>
-      <div class="step"><h4>Zazverenie</h4><p>Presun chovných párov pred sezónou (október – december), aby si zvykli na komory pred znáškou vo februári až apríli.</p></div>
-      <div class="step"><h4>Prvá sezóna</h4><p>Odchov mláďat, voľný let vo voliérach od júna, prvé návštevy klientov v loži v júli – septembri, predaj od augusta.</p></div>
+      <div class="step"><h4 class="sk">Zameranie a projekt</h4><h4 class="en">Survey and design</h4><p class="sk">Geodetické vytýčenie pozemku, statický posudok haly, búracie povolenie pre dom 439, architektonická štúdia a projekt pre územné / stavebné konanie.</p><p class="en">Land survey, structural assessment of the hall, demolition permit for house 439, architectural study and planning / building permit documentation.</p></div>
+      <div class="step"><h4 class="sk">Povolenia chovu</h4><h4 class="en">Breeding permits</h4><p class="sk">Registrácia chovu a CITES (MŽP SR, ŠOP SR), schválenie RVPS / ŠVPS, evidencia chovných jedincov, karanténny režim, dohoda o hackingu so Správou PIENAP.</p><p class="en">Breeding and CITES registration (Ministry of Environment, State Nature Conservancy), veterinary approval, registration of breeding stock, quarantine regime, hacking agreement with the PIENAP administration.</p></div>
+      <div class="step"><h4 class="sk">Prestavba haly</h4><h4 class="en">Hall conversion</h4><p class="sk">1. NP: recepcia, liaheň, odchovňa, veterina, kuchyňa krmiva, mraziarne. 2. NP: 40 chovných komôr so svetlíkmi, servisná chodba, kamery.</p><p class="en">Ground floor: reception, hatchery, rearing, vet, food kitchen, freezers. Upper floor: 40 skylit breeding chambers, service corridor, cameras.</p></div>
+      <div class="step"><h4 class="sk">Voliéry a loža</h4><h4 class="en">Aviaries and lounge</h4><p class="sk">Zbúranie domu 439, základy a stĺpy, drevené obvodové steny, siete, bidlá a kúpele; kruhový pavilón lože, tónované sklo, krytá chodba z haly.</p><p class="en">Demolition of house 439, footings and masts, timber perimeter walls, nets, perches and baths; circular lounge pavilion, tinted glass, covered walkway from the hall.</p></div>
+      <div class="step"><h4 class="sk">Zazverenie</h4><h4 class="en">Stocking</h4><p class="sk">Presun chovných párov pred sezónou (október – december), aby si zvykli na komory pred znáškou vo februári až apríli.</p><p class="en">Move the breeding pairs in before the season (October – December) so they settle in the chambers before laying in February – April.</p></div>
+      <div class="step"><h4 class="sk">Prvá sezóna</h4><h4 class="en">First season</h4><p class="sk">Odchov mláďat, hacking v júni – júli, letové voliéry, prvé návštevy klientov v loži v júli – septembri, predaj od augusta.</p><p class="en">Rearing, hacking in June – July, flight aviaries, first client visits to the lounge in July – September, sales from August.</p></div>
     </div>
-    <p class="note warn" style="margin-top:22px"><b>Dôležité:</b> situačný plán je zakreslený orientačne podľa katastrálnej mapy a satelitnej snímky Google (odchýlka do ± 3 m). Vizualizácie interiérov a exteriérov sú koncepčné AI rendery pre predstavu o atmosfére, nie projektová dokumentácia. Plochy sekcií sa po geodetickom zameraní spresnia; všetky tri sekcie majú rezervu nad požadovaným minimom 2 000 m².</p>
+    <p class="note warn" style="margin-top:22px"><b class="sk">Dôležité:</b><b class="en">Important:</b> <span class="sk">situačný plán je zakreslený orientačne podľa katastrálnej mapy a satelitnej snímky Google (odchýlka do ± 3 m). Vizualizácie interiérov a exteriérov sú koncepčné AI rendery pre predstavu o atmosfére, nie projektová dokumentácia. Plochy sekcií sa po geodetickom zameraní spresnia; všetky tri sekcie majú rezervu nad požadovaným minimom 2 000 m².</span><span class="en">the site plan is drawn indicatively from the cadastral map and Google satellite imagery (deviation up to ± 3 m). The interior and exterior visualisations are AI concept renders to convey the atmosphere, not design documentation. Section areas will be refined after the land survey; all three sections have a margin above the required minimum of 2,000 m².</span></p>
   </div>
 </section>
 
@@ -422,8 +599,18 @@ footer .brand em{color:var(--brand);font-style:normal}
   <div class="wrap">
     <div class="brand"><em>FV</em> Falcons Valley <span style="font-family:'Noto Naskh Arabic',serif;font-weight:500;color:var(--mist)">· وادي الصقور</span></div>
     <p style="margin-top:8px">Falcon Valley s. r. o. · Levočská 345/11, 064 01 Stará Ľubovňa · info@falconsvalley.com · +421 904 027 703 · <a href="https://falconsvalley.com">falconsvalley.com</a></p>
-    <p>Sokoliareň Spišská Stará Ves · štúdia a vizualizácia · november 2026. Satelitné snímky a Street View © Google; katastrálna mapa © ÚGKK SR (ZBGIS); koncepčné rendery vygenerované pre túto štúdiu.</p>
+    <p class="sk">Sokoliareň Spišská Stará Ves · štúdia a vizualizácia · november 2026. Satelitné snímky a Street View © Google; katastrálna mapa © ÚGKK SR (ZBGIS); fotografie Pienin z Pixabay (Pixabay Content License); koncepčné rendery vygenerované pre túto štúdiu.</p>
+    <p class="en">Falconry centre Spišská Stará Ves · concept study and visualisation · November 2026. Satellite imagery and Street View © Google; cadastral map © ÚGKK SR (ZBGIS); Pieniny photographs from Pixabay (Pixabay Content License); concept renders generated for this study.</p>
   </div>
 </footer>
+<script>
+function setLang(l){
+  document.documentElement.lang=l;
+  document.getElementById('btn-sk').classList.toggle('on',l==='sk');
+  document.getElementById('btn-en').classList.toggle('on',l==='en');
+  try{localStorage.setItem('fv-lang',l)}catch(e){}
+}
+(function(){var l='sk';try{l=localStorage.getItem('fv-lang')||'sk'}catch(e){}setLang(l==='en'?'en':'sk');})();
+</script>
 </body>
 </html>
