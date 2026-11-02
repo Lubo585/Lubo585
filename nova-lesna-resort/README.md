@@ -39,12 +39,13 @@ A ≈ 166 m² (12,8 × 12,9 m), B ≈ 96 m² (8,8 × 10,9 m), C ≈ 104 m² (14,
 | Projekčné práce, inžiniering, dozor (6 %) | 729 000 |
 | Marketing, provízie (2,5 % tržieb) | 461 000 |
 | Rezerva (5 %) | 608 000 |
-| Poplatky, právne | 200 000 |
-| Finančné náklady (5 %) | 685 000 |
-| **Náklady spolu bez ceny projektu** | **14 838 000** |
-| **Hrubá marža pred cenou projektu** | **3 588 000** |
+| Poplatok za rozvoj (10 €/m² × 5 621 m² podlahovej plochy) | 56 000 |
+| Ostatné poplatky, právne, správne | 100 000 |
+| Finančné náklady (5 %) | 682 000 |
+| **Náklady spolu bez ceny projektu** | **14 792 000** |
+| **Hrubá marža pred cenou projektu** | **3 634 000** |
 | Požadovaný developerský zisk 18 % tržieb | 3 317 000 |
-| **Reziduálna hodnota = max. cena za postúpenie** | **≈ 270 000** |
+| **Reziduálna hodnota = max. cena za postúpenie** | **≈ 320 000** |
 
 Scenáre (hárok Citlivosť):
 
@@ -55,7 +56,7 @@ Scenáre (hárok Citlivosť):
 | Optimistický | 4 600 €/m² | 1 650 €/m² | +2,0 až 2,8 mil. |
 | Nutné pre 4 mil. | 5 000 €/m² | 1 500 €/m² | +4,1 mil. |
 
-Pri kúpe za 4 000 000 €: zisk v základnom scenári **–0,4 mil. € (strata)**, v optimistickom +1,8 mil. € (9 % tržieb) – pod úrovňou rizika projektu.
+Pri kúpe za 4 000 000 €: zisk v základnom scenári **–0,37 mil. € (strata)**, v optimistickom +1,8 mil. € (9 % tržieb) – pod úrovňou rizika projektu.
 
 Alternatíva bez výstavby (predaj zasieťovaných pozemkov za 165 €/m² s DPH): tržby 1,9 mil. bez DPH, po infraštruktúre a zisku zostáva na pozemok ≈ 0,2 mil. €.
 
@@ -71,7 +72,7 @@ Alternatíva bez výstavby (predaj zasieťovaných pozemkov za 165 €/m² s DPH
 1. Právny stav povolení: existuje právoplatné územné rozhodnutie a stavebné povolenie (PD Koliby je iba pre ÚR z roku 2020)? Platnosť, prevoditeľnosť na nového stavebníka.
 2. Pás 702 m² (2231/37–59) a cesta 2231/1 – musia byť súčasťou prevodu, inak je rezort bez prístupu/kontroly.
 3. Kapacity sietí v obci (vodovod, kanalizácia, NN/trafostanica) – pre 32 chalet + apartmánový dom; prípadný príspevok obci.
-4. Poplatok za rozvoj podľa VZN obce Nová Lesná (môže byť až 35 €/m² podlahovej plochy = 150–250 tis. €).
+4. Poplatok za rozvoj podľa VZN obce Nová Lesná: 10 €/m² podlahovej plochy, v modeli ≈ 56 tis. € (zmení sa s upresnením plôch chalet).
 5. Svahovitosť terénu (3D model) – oporné múry, zakladanie; geologický prieskum.
 6. Absorpcia trhu: 32 chalet po 480–780 tis. € – predpoklad predaja 3–4 roky, treba etapizovať.
 7. DPH: ak predávajúci predáva stavebný pozemok ako platiteľ, k cene sa pripočíta 23 % DPH (cash-flow).
