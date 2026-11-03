@@ -26,47 +26,49 @@ A ≈ 166 m² (12,8 × 12,9 m), B ≈ 96 m² (8,8 × 10,9 m), C ≈ 104 m² (14,
 - Stavebné pozemky Nová Lesná so sieťami: 139–184 €/m² s DPH; investičné pozemky 2–5 tis. m² 41 €/m², 2,8–7 ha 75 €/m² + DPH.
 - Stavebné náklady domu na kľúč SR 2026: 1 500–2 500 €/m² (stredný štandard ≈ 1 640 €/m²).
 
-## 3. Základný scenár (vstupy investora: chalet 1 400 €/m², Koliba 1 900 €/m², provízia 2 %, projekčné práce 3 %)
+## 3. Základný scenár (vstupy investora: predaj chalet 3 500 €/m² a apartmány 3 800 €/m² s DPH, náklady chalet 1 400 €/m², Koliba 1 900 €/m², provízia 2 %, projekčné práce 3 %)
 
 | | € |
 |---|---|
-| Tržby chalety (4 680 m² × 4 200 €/m² s DPH) | 15 980 000 |
-| Tržby Koliba (apartmány 4 500 €/m² s DPH, balkóny 50 %, komerčné 3 000, 1.PP 1 200) | 2 446 000 |
-| **Tržby spolu bez DPH** | **18 426 000** |
+| Tržby chalety (4 680 m² × 3 500 €/m² s DPH; A 647 500 €, B 402 500 €, C 437 500 €) | 13 317 000 |
+| Tržby Koliba (apartmány 3 800 €/m² s DPH, balkóny 50 %, komerčné 3 000, 1.PP 1 200) | 2 121 000 |
+| **Tržby spolu bez DPH** | **15 438 000** |
 | Stavebné náklady chalety (1 400 €/m² + 20 000 €/ks vonkajšie úpravy) | 7 192 000 |
 | Stavebné náklady Koliba (1 900 €/m² + 150 000 €) | 1 938 000 |
 | Infraštruktúra – cesta, siete, VO | 1 200 000 |
 | Projekčné práce, inžiniering, dozor (3 %) | 310 000 |
-| Marketing a provízie realitných kancelárií (2 % tržieb) | 369 000 |
+| Marketing a provízie realitných kancelárií (2 % tržieb) | 309 000 |
 | Rezerva (5 %) | 516 000 |
 | Poplatok za rozvoj (10 €/m² × 5 621 m² podlahovej plochy) | 56 000 |
 | Ostatné poplatky, právne, správne | 100 000 |
 | Finančné náklady (5 %) | 566 000 |
-| **Náklady spolu bez ceny projektu** | **12 246 000** |
-| **Hrubá marža pred cenou projektu** | **6 180 000** |
-| Požadovaný developerský zisk 18 % tržieb | 3 317 000 |
-| **Reziduálna hodnota = max. cena za postúpenie** | **≈ 2 860 000** |
+| **Náklady spolu bez ceny projektu** | **12 187 000** |
+| **Hrubá marža pred cenou projektu** | **3 251 000** |
+| Požadovaný developerský zisk 18 % tržieb | 2 779 000 |
+| **Reziduálna hodnota = max. cena za postúpenie** | **≈ 470 000** |
 
-Pri kúpe za 4 000 000 €: zisk 2,18 mil. € = 12 % tržieb, návratnosť 13 % z investície 16,2 mil. € za 3–4 roky. To je pod obvyklou hranicou rizika developerského projektu (15–20 %).
-Pri kúpe za 1 800 000 €: zisk 4,38 mil. € = 24 % tržieb, návratnosť 31 %.
+Pri kúpe za 4 000 000 €: **strata 0,75 mil. €** (–5 % tržieb).
+Pri kúpe za 1 800 000 €: zisk 1,45 mil. € = 9 % tržieb, návratnosť 10 % – pod hranicou rizika.
+Pri kúpe za 1 000 000 €: zisk 2,25 mil. € = 15 % tržieb, návratnosť 17 %.
 
 Citlivosť (max. cena za projekt v mil. €, hárok Citlivosť):
 
 | Cena chalet s DPH \ náklad chalet bez DPH | 1 300 | 1 400 | 1 500 | 1 650 |
 |---|---|---|---|---|
-| 3 800 €/m² | 2,2 | 1,7 | 1,1 | 0,3 |
-| 4 200 €/m² | 3,4 | 2,9 | 2,3 | 1,5 |
-| 4 600 €/m² | 4,6 | 4,1 | 3,6 | 2,8 |
+| 3 500 €/m² | 1,0 | 0,5 | –0,1 | –0,9 |
+| 3 800 €/m² | 1,9 | 1,4 | 0,9 | 0,1 |
+| 4 200 €/m² | 3,1 | 2,6 | 2,1 | 1,3 |
+| 4 400 €/m² | 3,7 | 3,2 | 2,7 | 1,9 |
 
 Alternatíva bez výstavby (predaj zasieťovaných pozemkov za 165 €/m² s DPH): tržby 1,9 mil. bez DPH, po infraštruktúre a zisku zostáva na pozemok ≈ 0,2 mil. €.
 
 ## 4. Záver k cene
 
-- Pri stavebných nákladoch 1 400 €/m² a projekčných prácach 3 % je reziduálna hodnota projektu ≈ 2,9 mil. €. Požiadavka 4 000 000 € bez DPH je o 1,1 mil. € nad touto hodnotou a ospravedlnila by ju až predajná cena chalet ≈ 4 600 €/m² s DPH (porovnateľné s Tatranským zrubom 4 340–4 440 €/m²) pri potvrdených nákladoch 1 400 €/m².
-- Náklad 1 400 €/m² bez DPH je pod spodnou hranicou trhu (1 500–2 500 €/m² na kľúč). Ak sa nepotvrdí pevnou cenou od zhotoviteľa, každých +100 €/m² znižuje reziduál o cca 0,55 mil. €.
+- Pri predajných cenách 3 500 / 3 800 €/m² s DPH je hrubá marža pred cenou projektu len 3,25 mil. € (21 % tržieb). Po odpočítaní primeraného zisku 18 % zostáva na projekt ≈ 0,5 mil. €. Požiadavka 4 000 000 € znamená pri týchto cenách stratu.
+- Cenu 4 mil. € by pokryl až predaj chalet za cca 4 500 €/m² s DPH pri nákladoch 1 400 €/m² (hárok Citlivosť).
 - 4 mil. € = 204 €/m² celej výmery, resp. 282 €/m² predajných parciel, čo je nad cenou hotových zasieťovaných pozemkov v Novej Lesnej (140–185 €/m² s DPH).
-- **Odporúčaná otváracia ponuka: 1 800 000 – 2 000 000 € bez DPH. Horná hranica: 2 800 000 €** (len pri potvrdení povolení, kapacít sietí, pevnej ceny výstavby 1 400 €/m² a plôch chalet).
-- Alternatívne štruktúry: 2,0 mil. € pri podpise + 25–30 tis. € za každý predaný chalet (earn-out, max. +0,9 mil. €); alebo JV – predávajúci vloží pozemok, podiel na zisku.
+- **Odporúčaná otváracia ponuka: 700 000 – 1 000 000 € bez DPH. Horná hranica: 1 500 000 €** (pri 1,5 mil. € zisk 1,75 mil. € = 11 % tržieb, čo je už tesné).
+- Alternatívne štruktúry: 0,8 mil. € pri podpise + 30 tis. € za každý predaný chalet (earn-out, max. +0,96 mil. €); alebo JV – predávajúci vloží pozemok, podiel na zisku; alebo etapový odkup parciel po skupinách (3 333 / 3 151 / 3 404 / 2 908 m²).
 
 ## 5. Podmienky / riziká, ktoré treba overiť pred ponukou
 
