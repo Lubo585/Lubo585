@@ -60,6 +60,17 @@ Citlivosť (max. cena za projekt v mil. €, hárok Citlivosť):
 | 4 200 €/m² | 3,1 | 2,6 | 2,1 | 1,3 |
 | 4 400 €/m² | 3,7 | 3,2 | 2,7 | 1,9 |
 
+Porovnanie scenárov predajných cien (hárok Scenáre, mil. €):
+
+| Scenár | Chalet s DPH | Apartmán s DPH | Tržby bez DPH | Hrubá marža | Reziduál | Zisk pri 4,0 mil. € | Zisk pri 1,0 mil. € |
+|---|---|---|---|---|---|---|---|
+| Nízky | 3 200 €/m² | 3 800 €/m² | 14,30 | 2,13 | **–0,44** | –1,87 (–13 %) | 1,13 (8 %) |
+| Investor | 3 500 €/m² | 3 800 €/m² | 15,44 | 3,25 | **0,47** | –0,75 (–5 %) | 2,25 (15 %) |
+| Trh – spodok | 3 800 €/m² | 4 200 €/m² | 16,76 | 4,55 | **1,53** | 0,55 (3 %) | 3,55 (21 %) |
+| Trh – inzercia | 4 200 €/m² | 4 500 €/m² | 18,43 | 6,18 | **2,86** | 2,18 (12 %) | 5,18 (28 %) |
+
+Pri 3 200 €/m² (chalet A 592 000 €, B 368 000 €, C 400 000 €) je reziduál záporný: projekt nepokryje požadovaný zisk 18 % ani pri nulovej cene za postúpenie. Hrubá marža 2,13 mil. € (15 % tržieb) by bola celým ziskom developera.
+
 Alternatíva bez výstavby (predaj zasieťovaných pozemkov za 165 €/m² s DPH): tržby 1,9 mil. bez DPH, po infraštruktúre a zisku zostáva na pozemok ≈ 0,2 mil. €.
 
 ## 4. Záver k cene
