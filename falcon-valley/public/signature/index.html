@@ -63,18 +63,19 @@
 <div class="wrap">
   <div class="eyebrow">Falcons Valley · interné</div>
   <h1>E-mailová pätička</h1>
-  <p class="lead">Pätička v dizajne falconsvalley.com pre Ľubomíra Kruka, v angličtine a arabčine. Vyberte verziu, kliknite na <b>Kopírovať pätičku</b> a vložte ju do nastavení podpisu vo svojom e-mailovom programe.</p>
+  <p class="lead">Pätička v dizajne falconsvalley.com pre Ľubomíra Kruka, v angličtine a arabčine. Vyberte verziu (tmavá v dizajne webu, svetlá, alebo písaná forma „Best regards, …“), kliknite na <b>Kopírovať pätičku</b> a vložte ju do nastavení podpisu vo svojom e-mailovom programe.</p>
 
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" aria-selected="true" data-variant="dark">Tmavá (dizajn webu)</button>
     <button class="tab" role="tab" aria-selected="false" data-variant="light">Svetlá (minimalistická)</button>
+    <button class="tab" role="tab" aria-selected="false" data-variant="text">Písaná forma (Best regards)</button>
   </div>
 
   <div class="stage">
     <div class="mail">
       <p>Dear Mr. Al Mansouri,</p>
       <p>Thank you for your interest. Please find the current photos, weight and flight video attached.</p>
-      <p>Kind regards,</p>
+      <p class="closing">Kind regards,</p>
     </div>
     <div id="preview"></div>
   </div>
@@ -190,6 +191,35 @@
   </tr>
 </table>
 </template>
+<template id="tpl-text"><!-- Falcons Valley – e-mailová pätička (písaná forma · EN/AR) -->
+<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:21px;color:#111111;max-width:560px;">
+  <tr>
+    <td style="padding:0 0 12px 0;">Best regards,<br /><span dir="rtl" lang="ar" style="color:#555555;">مع أطيب التحيات،</span></td>
+  </tr>
+  <tr>
+    <td style="padding:0;">
+      <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;">
+        <tr>
+          <td valign="top" style="padding:2px 16px 0 0;">
+            <a href="https://falconsvalley.com/" target="_blank" style="text-decoration:none;">
+              <img src="https://falconsvalley.com/signature/photo.jpg" width="88" height="88" alt="Ľubomír Kruk" style="display:block;width:88px;height:88px;border-radius:44px;border:2px solid #E3202B;object-fit:cover;" />
+            </a>
+          </td>
+          <td valign="top" style="padding:0;">
+            <b style="font-size:15px;">Ľubomír Kruk</b> <span dir="rtl" lang="ar" style="color:#555555;">لوبومير كروك</span><br />
+            Owner · Falcons Valley &nbsp;|&nbsp; <span dir="rtl" lang="ar" style="color:#555555;">المالك · وادي الصقور</span><br />
+            E-mail: <a href="mailto:info@falconsvalley.com" style="color:#111111;text-decoration:none;">info@falconsvalley.com</a><br />
+            Phone: <a href="tel:+421904027703" style="color:#111111;text-decoration:none;">+421 904 027 703</a><br />
+            Web: <a href="https://falconsvalley.com/" target="_blank" style="color:#E3202B;text-decoration:none;">https://falconsvalley.com/</a><br />
+            Instagram: <a href="https://www.instagram.com/falcons.valley/" target="_blank" style="color:#111111;text-decoration:none;">instagram.com/falcons.valley</a><br />
+            <span style="color:#777777;font-size:13px;">Falcons from the valley below the High Tatras, Slovakia</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</template>
 <template id="tpl-light"><!-- Falcons Valley – e-mailová pätička (light version · EN/AR) -->
 <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;font-family:Outfit,Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:560px;">
   <tr>
@@ -219,7 +249,7 @@
 
 <script>
 (function () {
-  var plainText = "Ľubomír Kruk · لوبومير كروك\nOwner · Falcons Valley\nالمالك · وادي الصقور\ninfo@falconsvalley.com\n+421 904 027 703\nhttps://falconsvalley.com/\nFalcons from the valley below the High Tatras\nصقور من الوادي أسفل جبال تاترا العليا";
+  var plainText = "Best regards,\nمع أطيب التحيات،\n\nĽubomír Kruk · لوبومير كروك\nOwner · Falcons Valley | المالك · وادي الصقور\nE-mail: info@falconsvalley.com\nPhone: +421 904 027 703\nWeb: https://falconsvalley.com/\nInstagram: https://www.instagram.com/falcons.valley/\nFalcons from the valley below the High Tatras, Slovakia";
   var onSite = /(^|\.)falconsvalley\.com$/i.test(location.hostname);
   var preview = document.getElementById('preview');
   var code = document.getElementById('code');
@@ -240,6 +270,7 @@
         .replace(/https:\/\/falconsvalley\.com\/logo-full@2x\.png/g, '../logo-full@2x.png');
     }
     preview.innerHTML = shown;
+    document.querySelector('.closing').style.display = current === 'text' ? 'none' : '';
     code.value = html;
     status.textContent = '';
     status.className = 'status';

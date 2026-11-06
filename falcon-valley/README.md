@@ -39,7 +39,8 @@ verzia). Po nasadení je náhľad s tlačidlom „Kopírovať pätičku“ a ná
 Gmail, Outlook a Apple Mail na adrese https://falconsvalley.com/signature/.
 
 - `index.html` – náhľad, kopírovanie a návod
-- `podpis.html` / `podpis-svetly.html` – samotný HTML kód pätičky
+- `podpis.html` / `podpis-svetly.html` / `podpis-text.html` – HTML kód pätičky
+  (tmavá, svetlá, písaná forma „Best regards, …“)
 - `podpis.txt` – textová verzia pre mobilné aplikácie
 - `predlohy.txt` – tri e-mailové predlohy (dopyt, rezervácia, po stretnutí)
   v angličtine a arabčine; sú aj na náhľadovej stránke s tlačidlom na kopírovanie
