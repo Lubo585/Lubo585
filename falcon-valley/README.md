@@ -32,6 +32,21 @@ Použité je originálne logo (červené FV, FALCONS VALLEY™, وادي الص�
 
 Ak dostanete logo vo vektore (SVG), stačí ním nahradiť tieto súbory.
 
+## E-mailová pätička
+
+V `public/signature/` je e-mailová pätička v dizajne webu (tmavá a svetlá
+verzia). Po nasadení je náhľad s tlačidlom „Kopírovať pätičku“ a návodom pre
+Gmail, Outlook a Apple Mail na adrese https://falconsvalley.com/signature/.
+
+- `index.html` – náhľad, kopírovanie a návod
+- `podpis.html` / `podpis-svetly.html` – samotný HTML kód pätičky
+- `podpis.txt` – textová verzia pre mobilné aplikácie
+- `photo.jpg` – fotografia konateľa (štvorec, min. 400 × 400 px). Kým nie je
+  nahraná vlastná fotka, je tu zástupný obrázok s iniciálami.
+
+Obrázky (fotka, logo) sa v e-mailoch načítavajú z falconsvalley.com, preto musí
+byť web nasadený, aby sa pätička zobrazovala správne.
+
 ## Fotografie Vysokých Tatier
 
 V priečinku `public/tatry/` je 13 voľne licencovaných fotiek (leto, jeseň, zima,

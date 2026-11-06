@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>E-mailová pätička · Falcons Valley</title>
+<link rel="icon" href="../favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root { --bg:#06080C; --panel:#0C0F14; --line:#1F2124; --text:#F5F7FA; --muted:#9AA6B5; --red:#E3202B; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:Inter,ui-sans-serif,system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3 { font-family:Outfit,Inter,sans-serif; letter-spacing:-0.02em; margin:0; }
+  .wrap { max-width:960px; margin:0 auto; padding:40px 16px 80px; }
+  .eyebrow { color:var(--red); font-size:12px; letter-spacing:.18em; text-transform:uppercase; font-weight:600; }
+  h1 { font-size:clamp(30px,5vw,48px); font-weight:700; margin:10px 0 8px; }
+  .lead { color:var(--muted); max-width:620px; line-height:1.55; margin:0 0 28px; }
+  .tabs { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .tab { border:1px solid #2B2D30; background:transparent; color:var(--text); border-radius:999px; padding:10px 18px; font:inherit; font-weight:500; cursor:pointer; }
+  .tab[aria-selected="true"] { background:var(--red); border-color:var(--red); color:#fff; }
+  .stage { background:#fff; border-radius:16px; padding:28px; overflow:auto; }
+  .stage .mail { font-family:Inter,Arial,sans-serif; color:#111; font-size:14px; line-height:1.5; margin-bottom:22px; }
+  .stage .mail p { margin:0 0 10px; }
+  .actions { display:flex; gap:10px; margin:16px 0 8px; flex-wrap:wrap; }
+  .btn { border-radius:999px; padding:12px 22px; font:inherit; font-weight:600; cursor:pointer; border:1px solid #2B2D30; background:transparent; color:var(--text); }
+  .btn.primary { background:var(--red); border-color:var(--red); color:#fff; }
+  .btn:hover { filter:brightness(1.1); }
+  .status { color:var(--muted); font-size:13px; min-height:18px; }
+  .status.ok { color:#4ADE80; }
+  details { margin-top:10px; }
+  summary { cursor:pointer; color:var(--muted); font-size:14px; }
+  textarea { width:100%; min-height:220px; margin-top:10px; background:#121418; color:#cbd3dc; border:1px solid var(--line); border-radius:16px; padding:14px; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin-top:40px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px; }
+  .card h3 { font-size:17px; margin-bottom:10px; }
+  .card ol { margin:0; padding-left:18px; color:var(--muted); line-height:1.6; font-size:14px; }
+  .card ol b { color:var(--text); font-weight:500; }
+  .note { margin-top:28px; border-left:3px solid var(--red); padding:4px 0 4px 16px; color:var(--muted); font-size:14px; line-height:1.6; }
+  .note b { color:var(--text); font-weight:500; }
+  code { background:#121418; border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-size:13px; color:#e2e8f0; }
+  footer { margin-top:48px; color:#5B6672; font-size:12px; }
+  footer a { color:var(--muted); text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Falcons Valley · interné</div>
+  <h1>E-mailová pätička</h1>
+  <p class="lead">Pätička v dizajne falconsvalley.com pre Ľubomíra Kruka. Vyberte verziu, kliknite na <b>Kopírovať pätičku</b> a vložte ju do nastavení podpisu vo svojom e-mailovom programe.</p>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-variant="dark">Tmavá (dizajn webu)</button>
+    <button class="tab" role="tab" aria-selected="false" data-variant="light">Svetlá (minimalistická)</button>
+  </div>
+
+  <div class="stage">
+    <div class="mail">
+      <p>Dobrý deň,</p>
+      <p>ďakujem za Váš záujem. Posielam aktuálne fotografie, hmotnosť a video.</p>
+      <p>S pozdravom,</p>
+    </div>
+    <div id="preview"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn primary" id="copy">Kopírovať pätičku</button>
+    <button class="btn" id="copyText">Kopírovať len text</button>
+  </div>
+  <div class="status" id="status"></div>
+
+  <details>
+    <summary>Zobraziť HTML kód pätičky</summary>
+    <textarea id="code" readonly spellcheck="false"></textarea>
+  </details>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Gmail (v prehliadači)</h3>
+      <ol>
+        <li>Kliknite <b>Kopírovať pätičku</b>.</li>
+        <li>Gmail → ozubené koliesko → <b>Zobraziť všetky nastavenia</b>.</li>
+        <li>Záložka <b>Všeobecné</b> → sekcia <b>Podpis</b> → <b>Vytvoriť nový</b>.</li>
+        <li>Do poľa vložte pätičku (Ctrl+V / Cmd+V).</li>
+        <li>Nastavte podpis pre nové správy aj odpovede a <b>Uložte zmeny</b>.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>Outlook (web / nový Outlook)</h3>
+      <ol>
+        <li>Kliknite <b>Kopírovať pätičku</b>.</li>
+        <li>Nastavenia → <b>Pošta</b> → <b>Vytvoriť a odpovedať</b>.</li>
+        <li>Do editora podpisu vložte pätičku (Ctrl+V).</li>
+        <li>Vyberte ju ako predvolenú pre nové správy a odpovede → <b>Uložiť</b>.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>Apple Mail (Mac)</h3>
+      <ol>
+        <li>Kliknite <b>Kopírovať pätičku</b>.</li>
+        <li>Mail → <b>Nastavenia</b> → <b>Podpisy</b> → <b>+</b>.</li>
+        <li>Vložte pätičku (Cmd+V) a vypnite <b>Vždy použiť moje predvolené písmo</b>.</li>
+        <li>Pätičku pretiahnite na účet info@falconsvalley.com.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>iPhone / Android</h3>
+      <ol>
+        <li>Mobilné aplikácie Gmail a Outlook podporujú len textový podpis – použite <b>Kopírovať len text</b>.</li>
+        <li>Apple Mail na iPhone: skopírujte pätičku v Safari, potom <b>Nastavenia → Mail → Podpis</b> a vložte. Časť formátovania sa môže zjednodušiť.</li>
+        <li>Podpis nastavený v Gmaile na počítači sa v aplikácii Gmail <b>nepoužije</b> – mobil má vlastný.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Fotografia.</b> Pätička načítava fotku z adresy <code>https://falconsvalley.com/signature/photo.jpg</code>. Pokiaľ nie je nahraná vlastná fotografia, zobrazuje sa zástupný obrázok s iniciálami. Vlastnú fotku uložte ako štvorec (ideálne 400 × 400 px alebo väčší, JPG) do <code>falcon-valley/public/signature/photo.jpg</code> a nasaďte web – pätička sa aktualizuje vo všetkých už odoslaných aj budúcich e-mailoch, pretože obrázky sa načítavajú z webu.
+  </div>
+
+  <footer>Falcons Valley · <a href="https://falconsvalley.com/">falconsvalley.com</a> · <a href="mailto:info@falconsvalley.com">info@falconsvalley.com</a></footer>
+</div>
+
+<template id="tpl-dark"><!-- Falcons Valley – e-mailová pätička (tmavá verzia, dizajn webu) -->
+<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:separate;font-family:Outfit,Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:560px;background-color:#06080C;border-radius:20px;overflow:hidden;">
+  <tr>
+    <td style="padding:26px 28px 22px 28px;background-color:#06080C;">
+      <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;">
+        <tr>
+          <td valign="middle" style="padding:0 24px 0 0;">
+            <a href="https://falconsvalley.com/" target="_blank" style="text-decoration:none;">
+              <img src="https://falconsvalley.com/signature/photo.jpg" width="104" height="104" alt="Ľubomír Kruk" style="display:block;width:104px;height:104px;border-radius:52px;border:3px solid #E3202B;object-fit:cover;" />
+            </a>
+          </td>
+          <td valign="middle" style="padding:0 0 0 24px;border-left:1px solid #22262C;">
+            <div style="font-size:20px;line-height:24px;font-weight:700;color:#F5F7FA;letter-spacing:-0.3px;">Ľubomír Kruk</div>
+            <div style="font-size:13px;line-height:18px;color:#9AA6B5;margin-top:3px;">Konateľ&nbsp;·&nbsp;Falcons Valley</div>
+            <div style="width:36px;height:2px;background-color:#E3202B;margin:12px 0 12px 0;font-size:0;line-height:0;">&nbsp;</div>
+            <div style="font-size:14px;line-height:22px;">
+              <a href="mailto:info@falconsvalley.com" style="color:#F5F7FA;text-decoration:none;">info@falconsvalley.com</a><br />
+              <a href="tel:+421904027703" style="color:#F5F7FA;text-decoration:none;">+421 904 027 703</a><br />
+              <a href="https://falconsvalley.com/" target="_blank" style="color:#E3202B;text-decoration:none;font-weight:600;">falconsvalley.com</a>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:14px 28px 16px 28px;background-color:#0C0F14;border-top:1px solid #1A1D23;">
+      <table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%" style="border-collapse:collapse;">
+        <tr>
+          <td valign="middle" style="padding:0;">
+            <a href="https://falconsvalley.com/" target="_blank" style="text-decoration:none;">
+              <img src="https://falconsvalley.com/logo-full@2x.png" width="92" alt="Falcons Valley" style="display:block;width:92px;height:auto;border:0;" />
+            </a>
+          </td>
+          <td valign="middle" align="right" style="padding:0 0 0 16px;font-size:12px;line-height:18px;color:#9AA6B5;">
+            Sokoly z doliny pod Vysokými Tatrami<br />
+            <a href="https://instagram.com/falconsvalley" target="_blank" style="color:#F5F7FA;text-decoration:none;">Instagram</a>
+            <span style="color:#3A3F47;">&nbsp;·&nbsp;</span>
+            <a href="https://youtube.com/@falconsvalley" target="_blank" style="color:#F5F7FA;text-decoration:none;">YouTube</a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</template>
+<template id="tpl-light"><!-- Falcons Valley – e-mailová pätička (svetlá verzia) -->
+<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;font-family:Outfit,Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:560px;">
+  <tr>
+    <td valign="middle" style="padding:0 22px 0 0;">
+      <a href="https://falconsvalley.com/" target="_blank" style="text-decoration:none;">
+        <img src="https://falconsvalley.com/signature/photo.jpg" width="96" height="96" alt="Ľubomír Kruk" style="display:block;width:96px;height:96px;border-radius:48px;border:3px solid #E3202B;object-fit:cover;" />
+      </a>
+    </td>
+    <td valign="middle" style="padding:0 0 0 22px;border-left:3px solid #E3202B;">
+      <div style="font-size:19px;line-height:23px;font-weight:700;color:#06080C;letter-spacing:-0.3px;">Ľubomír Kruk</div>
+      <div style="font-size:13px;line-height:18px;color:#6B7684;margin-top:2px;">Konateľ&nbsp;·&nbsp;Falcons Valley</div>
+      <div style="font-size:14px;line-height:22px;margin-top:10px;">
+        <a href="mailto:info@falconsvalley.com" style="color:#06080C;text-decoration:none;">info@falconsvalley.com</a><br />
+        <a href="tel:+421904027703" style="color:#06080C;text-decoration:none;">+421 904 027 703</a><br />
+        <a href="https://falconsvalley.com/" target="_blank" style="color:#E3202B;text-decoration:none;font-weight:600;">falconsvalley.com</a>
+      </div>
+      <div style="margin-top:12px;">
+        <a href="https://falconsvalley.com/" target="_blank" style="text-decoration:none;">
+          <img src="https://falconsvalley.com/logo-full@2x.png" width="84" alt="Falcons Valley" style="display:inline-block;width:84px;height:auto;border:0;vertical-align:middle;" />
+        </a>
+      </div>
+    </td>
+  </tr>
+</table>
+</template>
+
+<script>
+(function () {
+  var plainText = "Ľubomír Kruk\nKonateľ · Falcons Valley\ninfo@falconsvalley.com\n+421 904 027 703\nhttps://falconsvalley.com/\nSokoly z doliny pod Vysokými Tatrami";
+  var onSite = /(^|\.)falconsvalley\.com$/i.test(location.hostname);
+  var preview = document.getElementById('preview');
+  var code = document.getElementById('code');
+  var status = document.getElementById('status');
+  var current = 'dark';
+
+  function canonical(variant) {
+    var t = document.getElementById('tpl-' + variant);
+    return t.innerHTML.replace(/^\s*<!--[\s\S]*?-->\s*/, '').trim();
+  }
+  function render() {
+    var html = canonical(current);
+    var shown = html;
+    if (!onSite) {
+      // Lokálny náhľad pred nasadením: obrázky čítaj z priečinka vedľa tejto stránky.
+      shown = html
+        .replace(/https:\/\/falconsvalley\.com\/signature\/photo\.jpg/g, 'photo.jpg')
+        .replace(/https:\/\/falconsvalley\.com\/logo-full@2x\.png/g, '../logo-full@2x.png');
+    }
+    preview.innerHTML = shown;
+    code.value = html;
+    status.textContent = '';
+    status.className = 'status';
+  }
+  function setStatus(msg, ok) { status.textContent = msg; status.className = 'status' + (ok ? ' ok' : ''); }
+
+  document.querySelectorAll('.tab').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+      b.setAttribute('aria-selected', 'true');
+      current = b.dataset.variant;
+      render();
+    });
+  });
+
+  function fallbackCopy(html) {
+    var box = document.createElement('div');
+    box.contentEditable = 'true';
+    box.style.cssText = 'position:fixed;left:-9999px;top:0;background:#fff;';
+    box.innerHTML = html;
+    document.body.appendChild(box);
+    var range = document.createRange(); range.selectNodeContents(box);
+    var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    sel.removeAllRanges(); document.body.removeChild(box);
+    return ok;
+  }
+
+  document.getElementById('copy').addEventListener('click', async function () {
+    var html = canonical(current);
+    try {
+      if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([new ClipboardItem({
+          'text/html': new Blob([html], { type: 'text/html' }),
+          'text/plain': new Blob([plainText], { type: 'text/plain' })
+        })]);
+        setStatus('Pätička je skopírovaná. Vložte ju do nastavení podpisu (Ctrl+V / Cmd+V).', true);
+        return;
+      }
+    } catch (e) {}
+    if (fallbackCopy(html)) setStatus('Pätička je skopírovaná. Vložte ju do nastavení podpisu (Ctrl+V / Cmd+V).', true);
+    else setStatus('Kopírovanie zlyhalo – označte pätičku v náhľade myšou a skopírujte ju ručne.');
+  });
+
+  document.getElementById('copyText').addEventListener('click', async function () {
+    try { await navigator.clipboard.writeText(plainText); setStatus('Textová verzia je skopírovaná.', true); }
+    catch (e) { setStatus('Kopírovanie zlyhalo – text nájdete v súbore podpis.txt.'); }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
