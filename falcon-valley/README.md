@@ -34,7 +34,7 @@ Ak dostanete logo vo vektore (SVG), stačí ním nahradiť tieto súbory.
 
 ## E-mailová pätička
 
-V `public/signature/` je e-mailová pätička v dizajne webu (tmavá a svetlá
+V `public/signature/` je e-mailová pätička v dizajne webu v angličtine a arabčine (tmavá a svetlá
 verzia). Po nasadení je náhľad s tlačidlom „Kopírovať pätičku“ a návodom pre
 Gmail, Outlook a Apple Mail na adrese https://falconsvalley.com/signature/.
 
