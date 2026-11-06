@@ -41,6 +41,8 @@ Gmail, Outlook a Apple Mail na adrese https://falconsvalley.com/signature/.
 - `index.html` – náhľad, kopírovanie a návod
 - `podpis.html` / `podpis-svetly.html` – samotný HTML kód pätičky
 - `podpis.txt` – textová verzia pre mobilné aplikácie
+- `predlohy.txt` – tri e-mailové predlohy (dopyt, rezervácia, po stretnutí)
+  v angličtine a arabčine; sú aj na náhľadovej stránke s tlačidlom na kopírovanie
 - `photo.jpg` – fotografia majiteľa (štvorec 600 × 600 px). Pri výmene stačí
   nahradiť súbor rovnakým názvom.
 

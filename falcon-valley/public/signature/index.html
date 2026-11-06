@@ -40,6 +40,21 @@
   .note { margin-top:28px; border-left:3px solid var(--red); padding:4px 0 4px 16px; color:var(--muted); font-size:14px; line-height:1.6; }
   .note b { color:var(--text); font-weight:500; }
   code { background:#121418; border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-size:13px; color:#e2e8f0; }
+  .tpl { margin-top:40px; }
+  .tpl h2 { font-size:28px; margin-bottom:6px; }
+  .tpl p.lead { margin-bottom:18px; }
+  .tcard { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px; margin-bottom:14px; }
+  .tcard-head { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+  .tcard h3 { font-size:17px; }
+  .lang { display:flex; gap:6px; }
+  .lang button { border:1px solid #2B2D30; background:transparent; color:var(--text); border-radius:999px; padding:6px 14px; font:inherit; font-size:13px; cursor:pointer; }
+  .lang button[aria-selected="true"] { background:var(--red); border-color:var(--red); color:#fff; }
+  .tsubject { color:var(--muted); font-size:13px; margin-bottom:8px; }
+  .tsubject b { color:var(--text); font-weight:500; }
+  .tbody { white-space:pre-wrap; background:#121418; border:1px solid var(--line); border-radius:12px; padding:14px 16px; font-size:14px; line-height:1.6; color:#dfe5ec; }
+  .tbody[dir="rtl"] { text-align:right; font-size:15px; }
+  .tactions { display:flex; gap:10px; align-items:center; margin-top:12px; flex-wrap:wrap; }
+  .tactions .btn { padding:9px 18px; font-size:14px; }
   footer { margin-top:48px; color:#5B6672; font-size:12px; }
   footer a { color:var(--muted); text-decoration:none; }
 </style>
@@ -113,6 +128,14 @@
       </ol>
     </div>
   </div>
+
+
+  <section class="tpl">
+    <div class="eyebrow">Predlohy</div>
+    <h2>E-mailové predlohy</h2>
+    <p class="lead">Tri hotové e-maily v angličtine a arabčine. Údaje v hranatých zátvorkách doplňte, text skopírujte do nového e-mailu a pod neho sa automaticky vloží pätička s fotkou.</p>
+    <div id="templates"></div>
+  </section>
 
   <div class="note">
     <b>Fotografia.</b> Pätička načítava fotku z adresy <code>https://falconsvalley.com/signature/photo.jpg</code>. Pokiaľ nie je nahraná vlastná fotografia, zobrazuje sa zástupný obrázok s iniciálami. Vlastnú fotku uložte ako štvorec (ideálne 400 × 400 px alebo väčší, JPG) do <code>falcon-valley/public/signature/photo.jpg</code> a nasaďte web – pätička sa aktualizuje vo všetkých už odoslaných aj budúcich e-mailoch, pretože obrázky sa načítavajú z webu.
@@ -268,6 +291,40 @@
   });
 
   render();
+})();
+</script>
+<script>
+(function () {
+  var T = [{"id": "enquiry", "title": "Odpoveď na dopyt o sokola", "en": {"subject": "Falcons Valley – [Falcon name], [species], ring [ring number]", "body": "Dear [Name],\n\nThank you for your interest in [Falcon name], a [male/female] [species] from our own breeding beneath the High Tatras, Slovakia.\n\nKey details:\n• Hatched: [date], parent-reared in a spacious aviary\n• Current weight: [weight] g (weight log kept since hatching)\n• Ring number: [ring number] – closed ring, microchip, CITES certificate and pedigree included\n• Manned to the glove, hood and travel box\n• Price: EUR [price]\n\nAttached you will find current photos and a short video of the falcon's flight and behaviour.\n\nWe arrange transport and export permits within the EU and beyond. If you would like to reserve [Falcon name], a deposit secures the falcon and we agree on a handover date together.\n\nI am happy to answer any questions or arrange a video call.\n\nKind regards,"}, "ar": {"subject": "وادي الصقور – [اسم الصقر]، [النوع]، حلقة رقم [رقم الحلقة]", "body": "السيد [الاسم] المحترم،\n\nشكرًا لاهتمامكم بالصقر [اسم الصقر]، وهو [ذكر/أنثى] من نوع [النوع] من إنتاجنا الخاص أسفل جبال تاترا العليا في سلوفاكيا.\n\nأهم التفاصيل:\n• تاريخ الفقس: [التاريخ]، تمت تربيته بواسطة الوالدين في قفص واسع\n• الوزن الحالي: [الوزن] غرام (سجل الوزن محفوظ منذ الفقس)\n• رقم الحلقة: [رقم الحلقة] – حلقة مغلقة، شريحة إلكترونية، شهادة CITES وشجرة نسب\n• مدرَّب على القفاز والبرقع وصندوق النقل\n• السعر: [السعر] يورو\n\nتجدون في المرفقات صورًا حديثة ومقطع فيديو قصيرًا لطيران الصقر وسلوكه.\n\nنتولى ترتيب النقل وتصاريح التصدير داخل الاتحاد الأوروبي وخارجه. إذا رغبتم في حجز [اسم الصقر]، فإن دفع العربون يضمن لكم الصقر، ونتفق معًا على موعد التسليم.\n\nيسعدني الإجابة عن أي استفسار أو ترتيب مكالمة فيديو.\n\nمع أطيب التحيات،"}}, {"id": "reservation", "title": "Potvrdenie rezervácie", "en": {"subject": "Reservation confirmed – [Falcon name], ring [ring number]", "body": "Dear [Name],\n\nThank you for your deposit of EUR [amount], received on [date]. [Falcon name] is now reserved for you.\n\nNext steps:\n1. We prepare the CITES certificate, veterinary health certificate and [export permit / transport documents].\n2. Handover on [date] – in person in the valley or delivered to [place].\n3. The remaining balance of EUR [amount] is due at handover.\n\nUntil then I will send you weight updates and new photos on request. The falcon leaves with complete documentation and our after-sale support on training, nutrition and transport.\n\nKind regards,"}, "ar": {"subject": "تأكيد الحجز – [اسم الصقر]، حلقة رقم [رقم الحلقة]", "body": "السيد [الاسم] المحترم،\n\nشكرًا لكم على دفع العربون بقيمة [المبلغ] يورو، والذي استلمناه بتاريخ [التاريخ]. الصقر [اسم الصقر] محجوز لكم الآن.\n\nالخطوات التالية:\n1. نقوم بتجهيز شهادة CITES والشهادة البيطرية و[تصريح التصدير / مستندات النقل].\n2. التسليم بتاريخ [التاريخ] – شخصيًا في الوادي أو بالتوصيل إلى [المكان].\n3. المبلغ المتبقي وقدره [المبلغ] يورو يُسدَّد عند التسليم.\n\nحتى ذلك الحين سأرسل لكم تحديثات الوزن وصورًا جديدة عند الطلب. يغادر الصقر بمستندات كاملة مع دعمنا بعد البيع في التدريب والتغذية والنقل.\n\nمع أطيب التحيات،"}}, {"id": "followup", "title": "Po stretnutí (výstava, veľtrh)", "en": {"subject": "Falcons Valley – a pleasure to meet you at [event]", "body": "Dear [Name],\n\nIt was a pleasure to meet you at [event] in [city]. Please allow me to briefly introduce Falcons Valley.\n\nWe are a falcon breeding facility in a quiet valley beneath the High Tatras, Slovakia. We breed peregrines, sakers and gyr hybrids from our own lines, selected for stamina, pitch and health. Every falcon is parent-reared, weighed from its first week and leaves with a closed ring, microchip, CITES certificate and pedigree. We deliver across Europe and beyond and arrange all permits.\n\nOur current offer of this year's young and yearlings is at https://falconsvalley.com/ – each with photos, weight, origin and ring number. I will gladly send you a video of any falcon you are interested in.\n\nI look forward to staying in touch.\n\nKind regards,"}, "ar": {"subject": "وادي الصقور – سعدنا بلقائكم في [اسم المعرض]", "body": "السيد [الاسم] المحترم،\n\nسعدت بلقائكم في [اسم المعرض] في [المدينة]. اسمحوا لي أن أعرّفكم باختصار بوادي الصقور.\n\nنحن مزرعة لتربية الصقور في وادٍ هادئ أسفل جبال تاترا العليا في سلوفاكيا. نربّي الشاهين والحر وهجين الجير من سلالاتنا الخاصة المنتقاة للتحمّل والارتفاع والصحة. كل صقر يُربّى بواسطة والديه، ويُوزن منذ أسبوعه الأول، ويغادر بحلقة مغلقة وشريحة إلكترونية وشهادة CITES وشجرة نسب. نوصّل إلى جميع أنحاء أوروبا وخارجها ونتولى جميع التصاريح.\n\nعرضنا الحالي من فراخ هذا العام والصقور بعمر سنة متاح على https://falconsvalley.com/ – مع صور ووزن وأصل ورقم حلقة لكل صقر. يسعدني أن أرسل لكم فيديو لأي صقر يثير اهتمامكم.\n\nأتطلع إلى البقاء على تواصل.\n\nمع أطيب التحيات،"}}];
+  var root = document.getElementById('templates');
+  T.forEach(function (t) {
+    var card = document.createElement('div'); card.className = 'tcard';
+    card.innerHTML =
+      '<div class="tcard-head"><h3>' + t.title + '</h3><div class="lang" role="tablist">' +
+      '<button role="tab" aria-selected="true" data-lang="en">English</button>' +
+      '<button role="tab" aria-selected="false" data-lang="ar">العربية</button></div></div>' +
+      '<div class="tsubject">Predmet: <b></b></div><div class="tbody"></div>' +
+      '<div class="tactions"><button class="btn primary">Kopírovať e-mail</button><span class="status"></span></div>';
+    var lang = 'en', subj = card.querySelector('.tsubject b'), body = card.querySelector('.tbody'), st = card.querySelector('.status');
+    function show () {
+      subj.textContent = t[lang].subject; body.textContent = t[lang].body;
+      body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr'); body.setAttribute('lang', lang);
+      st.textContent = ''; st.className = 'status';
+    }
+    card.querySelectorAll('.lang button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        card.querySelectorAll('.lang button').forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+        b.setAttribute('aria-selected', 'true'); lang = b.dataset.lang; show();
+      });
+    });
+    card.querySelector('.btn').addEventListener('click', async function () {
+      var text = 'Subject: ' + t[lang].subject + '\n\n' + t[lang].body;
+      try { await navigator.clipboard.writeText(text); st.textContent = 'Skopírované – vložte do nového e-mailu.'; st.className = 'status ok'; }
+      catch (e) { st.textContent = 'Kopírovanie zlyhalo – označte text myšou.'; }
+    });
+    show();
+    root.appendChild(card);
+  });
 })();
 </script>
 </body>

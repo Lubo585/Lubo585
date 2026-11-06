@@ -1,0 +1,117 @@
+=== Odpoveď na dopyt o sokola (EN) ===
+Subject: Falcons Valley – [Falcon name], [species], ring [ring number]
+
+Dear [Name],
+
+Thank you for your interest in [Falcon name], a [male/female] [species] from our own breeding beneath the High Tatras, Slovakia.
+
+Key details:
+• Hatched: [date], parent-reared in a spacious aviary
+• Current weight: [weight] g (weight log kept since hatching)
+• Ring number: [ring number] – closed ring, microchip, CITES certificate and pedigree included
+• Manned to the glove, hood and travel box
+• Price: EUR [price]
+
+Attached you will find current photos and a short video of the falcon's flight and behaviour.
+
+We arrange transport and export permits within the EU and beyond. If you would like to reserve [Falcon name], a deposit secures the falcon and we agree on a handover date together.
+
+I am happy to answer any questions or arrange a video call.
+
+Kind regards,
+
+[pätička / signature]
+
+=== Odpoveď na dopyt o sokola (AR) ===
+Subject: وادي الصقور – [اسم الصقر]، [النوع]، حلقة رقم [رقم الحلقة]
+
+السيد [الاسم] المحترم،
+
+شكرًا لاهتمامكم بالصقر [اسم الصقر]، وهو [ذكر/أنثى] من نوع [النوع] من إنتاجنا الخاص أسفل جبال تاترا العليا في سلوفاكيا.
+
+أهم التفاصيل:
+• تاريخ الفقس: [التاريخ]، تمت تربيته بواسطة الوالدين في قفص واسع
+• الوزن الحالي: [الوزن] غرام (سجل الوزن محفوظ منذ الفقس)
+• رقم الحلقة: [رقم الحلقة] – حلقة مغلقة، شريحة إلكترونية، شهادة CITES وشجرة نسب
+• مدرَّب على القفاز والبرقع وصندوق النقل
+• السعر: [السعر] يورو
+
+تجدون في المرفقات صورًا حديثة ومقطع فيديو قصيرًا لطيران الصقر وسلوكه.
+
+نتولى ترتيب النقل وتصاريح التصدير داخل الاتحاد الأوروبي وخارجه. إذا رغبتم في حجز [اسم الصقر]، فإن دفع العربون يضمن لكم الصقر، ونتفق معًا على موعد التسليم.
+
+يسعدني الإجابة عن أي استفسار أو ترتيب مكالمة فيديو.
+
+مع أطيب التحيات،
+
+[pätička / signature]
+
+=== Potvrdenie rezervácie (EN) ===
+Subject: Reservation confirmed – [Falcon name], ring [ring number]
+
+Dear [Name],
+
+Thank you for your deposit of EUR [amount], received on [date]. [Falcon name] is now reserved for you.
+
+Next steps:
+1. We prepare the CITES certificate, veterinary health certificate and [export permit / transport documents].
+2. Handover on [date] – in person in the valley or delivered to [place].
+3. The remaining balance of EUR [amount] is due at handover.
+
+Until then I will send you weight updates and new photos on request. The falcon leaves with complete documentation and our after-sale support on training, nutrition and transport.
+
+Kind regards,
+
+[pätička / signature]
+
+=== Potvrdenie rezervácie (AR) ===
+Subject: تأكيد الحجز – [اسم الصقر]، حلقة رقم [رقم الحلقة]
+
+السيد [الاسم] المحترم،
+
+شكرًا لكم على دفع العربون بقيمة [المبلغ] يورو، والذي استلمناه بتاريخ [التاريخ]. الصقر [اسم الصقر] محجوز لكم الآن.
+
+الخطوات التالية:
+1. نقوم بتجهيز شهادة CITES والشهادة البيطرية و[تصريح التصدير / مستندات النقل].
+2. التسليم بتاريخ [التاريخ] – شخصيًا في الوادي أو بالتوصيل إلى [المكان].
+3. المبلغ المتبقي وقدره [المبلغ] يورو يُسدَّد عند التسليم.
+
+حتى ذلك الحين سأرسل لكم تحديثات الوزن وصورًا جديدة عند الطلب. يغادر الصقر بمستندات كاملة مع دعمنا بعد البيع في التدريب والتغذية والنقل.
+
+مع أطيب التحيات،
+
+[pätička / signature]
+
+=== Po stretnutí (výstava, veľtrh) (EN) ===
+Subject: Falcons Valley – a pleasure to meet you at [event]
+
+Dear [Name],
+
+It was a pleasure to meet you at [event] in [city]. Please allow me to briefly introduce Falcons Valley.
+
+We are a falcon breeding facility in a quiet valley beneath the High Tatras, Slovakia. We breed peregrines, sakers and gyr hybrids from our own lines, selected for stamina, pitch and health. Every falcon is parent-reared, weighed from its first week and leaves with a closed ring, microchip, CITES certificate and pedigree. We deliver across Europe and beyond and arrange all permits.
+
+Our current offer of this year's young and yearlings is at https://falconsvalley.com/ – each with photos, weight, origin and ring number. I will gladly send you a video of any falcon you are interested in.
+
+I look forward to staying in touch.
+
+Kind regards,
+
+[pätička / signature]
+
+=== Po stretnutí (výstava, veľtrh) (AR) ===
+Subject: وادي الصقور – سعدنا بلقائكم في [اسم المعرض]
+
+السيد [الاسم] المحترم،
+
+سعدت بلقائكم في [اسم المعرض] في [المدينة]. اسمحوا لي أن أعرّفكم باختصار بوادي الصقور.
+
+نحن مزرعة لتربية الصقور في وادٍ هادئ أسفل جبال تاترا العليا في سلوفاكيا. نربّي الشاهين والحر وهجين الجير من سلالاتنا الخاصة المنتقاة للتحمّل والارتفاع والصحة. كل صقر يُربّى بواسطة والديه، ويُوزن منذ أسبوعه الأول، ويغادر بحلقة مغلقة وشريحة إلكترونية وشهادة CITES وشجرة نسب. نوصّل إلى جميع أنحاء أوروبا وخارجها ونتولى جميع التصاريح.
+
+عرضنا الحالي من فراخ هذا العام والصقور بعمر سنة متاح على https://falconsvalley.com/ – مع صور ووزن وأصل ورقم حلقة لكل صقر. يسعدني أن أرسل لكم فيديو لأي صقر يثير اهتمامكم.
+
+أتطلع إلى البقاء على تواصل.
+
+مع أطيب التحيات،
+
+[pätička / signature]
