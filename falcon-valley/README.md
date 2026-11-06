@@ -41,8 +41,8 @@ Gmail, Outlook a Apple Mail na adrese https://falconsvalley.com/signature/.
 - `index.html` – náhľad, kopírovanie a návod
 - `podpis.html` / `podpis-svetly.html` – samotný HTML kód pätičky
 - `podpis.txt` – textová verzia pre mobilné aplikácie
-- `photo.jpg` – fotografia konateľa (štvorec, min. 400 × 400 px). Kým nie je
-  nahraná vlastná fotka, je tu zástupný obrázok s iniciálami.
+- `photo.jpg` – fotografia majiteľa (štvorec 600 × 600 px). Pri výmene stačí
+  nahradiť súbor rovnakým názvom.
 
 Obrázky (fotka, logo) sa v e-mailoch načítavajú z falconsvalley.com, preto musí
 byť web nasadený, aby sa pätička zobrazovala správne.
