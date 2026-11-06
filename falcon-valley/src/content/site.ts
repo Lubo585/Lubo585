@@ -9,7 +9,7 @@ export const company = {
   website: 'https://falconsvalley.com',
   phone: '+421 904 027 703',
   phoneHref: 'tel:+421904027703',
-  instagram: 'https://instagram.com/falconsvalley', // DOPLNIŤ
+  instagram: 'https://www.instagram.com/falcons.valley/',
   youtube: 'https://youtube.com/@falconsvalley', // DOPLNIŤ
   legal: {
     name: 'Falcon Valley s. r. o.',
