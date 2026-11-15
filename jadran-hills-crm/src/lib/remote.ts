@@ -95,6 +95,12 @@ export class RemoteStore {
   private readonly db: Db
   /** Hodnoty častí, o ktorých vieme, že sú v databáze. */
   private saved = new Map<Part, unknown>()
+  /**
+   * Hodnoty častí, ktoré aplikácia naposledy dostala (pri načítaní alebo prevzatím zmeny).
+   * Časť, ktorú aplikácia drží v tejto podobe, sama nezmenila – taká sa nikdy nezapisuje,
+   * aj keby sa databáza medzitým posunula ďalej.
+   */
+  private handed = new Map<Part, unknown>()
   private target: ProjectData | null = null
   private writing = false
   private loaded = false
@@ -125,6 +131,10 @@ export class RemoteStore {
   /** Pripojí bežiacu aplikáciu: zmeny od iných a stav ukladania. */
   attach(handlers: LiveHandlers): () => void {
     this.live = handlers
+    // Čo prišlo z databázy, kým nikto nepočúval (napr. počas uvítacej obrazovky), dostane hneď.
+    for (const part of PARTS) {
+      if (this.saved.has(part) && !sameRef(this.saved.get(part), this.handed.get(part), part)) this.deliver(part)
+    }
     return () => {
       if (this.live === handlers) this.live = null
     }
@@ -142,7 +152,13 @@ export class RemoteStore {
       // Nepotvrdená kópia z minulej návštevy môže byť neúplná – čakáme na odpoveď databázy.
       if (snap.metadata.fromCache && !incoming) return
       this.loaded = true
-      if (incoming) for (const p of PARTS) this.saved.set(p, partOf(incoming, p))
+      if (incoming) {
+        for (const p of PARTS) {
+          const value = partOf(incoming, p)
+          this.saved.set(p, value)
+          this.handed.set(p, value)
+        }
+      }
       this.load?.onLoaded(incoming)
       return
     }
@@ -154,18 +170,32 @@ export class RemoteStore {
       const value = partOf(incoming, part)
       if (before !== undefined && stable(before) === stable(value)) continue // ozvena vlastného zápisu
       this.saved.set(part, value)
-      // Miestne neuložené úpravy tej istej časti majú prednosť; zapíšu sa pri najbližšom uložení.
-      this.live?.onRemote((local) => {
-        if (!sameRef(partOf(local, part), before, part)) return local
-        return part === 'core' ? { ...local, ...(value as Core) } : { ...local, [part]: value }
-      })
+      this.deliver(part)
     }
+  }
+
+  /**
+   * Odovzdá aplikácii novšiu hodnotu časti z databázy. Miestne neuložené úpravy tej istej
+   * časti majú prednosť; zapíšu sa pri najbližšom uložení. Ak aplikácia práve nepočúva,
+   * hodnota počká na pripojenie alebo na najbližšie ukladanie.
+   */
+  private deliver(part: Part): void {
+    const live = this.live
+    if (!live) return
+    const value = this.saved.get(part)
+    const given = this.handed.get(part)
+    live.onRemote((local) => {
+      if (!sameRef(partOf(local, part), given, part)) return local
+      this.handed.set(part, value)
+      return part === 'core' ? { ...local, ...(value as Core) } : { ...local, [part]: value }
+    })
   }
 
   /** Projekt, ktorý používateľ práve vytvoril alebo nahral; zapíše sa celý. */
   adopt(): void {
     this.loaded = true
     this.saved.clear()
+    this.handed.clear()
   }
 
   /** Zapíše zmenené časti. Ďalšie volanie počas zápisu sa zaradí za neho. */
@@ -186,9 +216,15 @@ export class RemoteStore {
         for (const part of PARTS) {
           const value = partOf(next, part)
           if (sameRef(value, this.saved.get(part), part)) continue
+          // Aplikácia túto časť nezmenila – databáza je len o krok ďalej. Starý stav sa nezapisuje.
+          if (this.saved.has(part) && sameRef(value, this.handed.get(part), part)) {
+            this.deliver(part)
+            continue
+          }
           this.live?.onState('saving')
           await this.write(part, toDoc(next, part))
           this.saved.set(part, value)
+          this.handed.set(part, value)
         }
       }
     } catch (e) {

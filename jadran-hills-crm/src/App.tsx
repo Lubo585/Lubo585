@@ -420,6 +420,9 @@ function HostedApp() {
 
       const store = new RemoteStore(db)
       setRemote(store)
+      // Kým je na obrazovke uvítanie, aplikácia ešte nebeží; zmeny od ostatných sa preto
+      // zapracujú do načítaných dát tu. Po vstupe ich preberá samotná aplikácia.
+      store.attach({ onRemote: (merge) => setInitial((d) => (d ? merge(d) : d)), onState: () => {} })
       setBoot((b) => (b.phase === 'connecting' ? { phase: 'loading', slow: false } : b))
       stop = store.start({
         onLoaded: (data) => {

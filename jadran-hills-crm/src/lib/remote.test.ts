@@ -163,6 +163,48 @@ describe('spoločné úložisko', () => {
     expect((db.docs.get('risks')!.items as { title: string }[])[0].title).toBe('Moja úprava')
   })
 
+  it('zmenu, ktorá prišla pred pripojením aplikácie, neprepíše starým stavom', async () => {
+    const db = new FakeDb()
+    db.seed(project())
+    const store = new RemoteStore(db)
+    let loaded: ProjectData | null = null
+    store.start({ onLoaded: (d) => (loaded = d), onError: () => {} })
+    await tick()
+    // Aplikácia ešte nebeží (uvítacia obrazovka) a kolega medzitým pridá obrázok a upraví riziko.
+    db.docs.set('media', { items: [{ id: 'med_1', title: 'Pohľad' }] })
+    db.docs.set('risks', { items: (db.docs.get('risks')!.items as { title: string }[]).map((r, i) => (i === 0 ? { ...r, title: 'Upravil kolega' } : r)) })
+    db.emit()
+    // Až teraz sa aplikácia pripojí – so stavom, aký bol pri načítaní – a skúsi uložiť.
+    const app = { data: loaded! as ProjectData }
+    store.attach({ onRemote: (merge) => (app.data = merge(app.data)), onState: () => {} })
+    expect(app.data.media).toHaveLength(1) // zmeškané zmeny dostala hneď pri pripojení
+    expect(app.data.risks[0].title).toBe('Upravil kolega')
+    store.save(app.data)
+    await tick()
+    await tick()
+    expect(db.writes).toEqual([])
+    expect((db.docs.get('media')!.items as unknown[]).length).toBe(1)
+  })
+
+  it('časť, ktorú aplikácia nezmenila, nezapíše ani vtedy, keď o novšej hodnote ešte nevie', async () => {
+    const db = new FakeDb()
+    db.seed(project())
+    const store = new RemoteStore(db)
+    let loaded: ProjectData | null = null
+    store.start({ onLoaded: (d) => (loaded = d), onError: () => {} })
+    await tick()
+    db.docs.set('media', { items: [{ id: 'med_1', title: 'Pohľad' }] })
+    db.emit() // nikto nepočúva
+    // Uloženie so starým stavom (napr. z okna, ktoré sa práve prebúdza) a s jednou vlastnou úpravou.
+    const stale = loaded! as ProjectData
+    const app = { data: { ...stale, tasks: [] } as ProjectData }
+    store.save(app.data)
+    await tick()
+    await tick()
+    expect(db.writes).toEqual(['crm/tasks']) // vlastná úprava áno, starý zoznam obrázkov nie
+    expect((db.docs.get('media')!.items as unknown[]).length).toBe(1)
+  })
+
   it('nový alebo nahraný projekt sa zapíše celý', async () => {
     const db = new FakeDb()
     const { store, app } = await boot(db)
