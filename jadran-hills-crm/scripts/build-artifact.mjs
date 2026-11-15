@@ -35,9 +35,15 @@ if (existsSync(privateDir)) {
   }
 }
 
+// Obrázky projektu patria do úložiska stránky, nie do jej kódu.
+if (/data:image\/(png|jpe?g|webp);base64,/.test(html) || html.length > 1_200_000) {
+  throw new Error('Stránka obsahuje vložené obrázky alebo je nečakane veľká – zostavenie zastavené.')
+}
+
 const page = [
   `<title>${title}</title>`,
   '<meta name="claude:viewport-fit-sides" content="cover">',
+  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">',
   `<style>${style}</style>`,
   '<div id="root"></div>',
   `<script type="module">${script}</script>`,

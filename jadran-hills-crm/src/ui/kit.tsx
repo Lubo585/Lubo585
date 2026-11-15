@@ -4,6 +4,7 @@ import { X } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { num, parseNum } from '../lib/format'
 import { cx } from './cx'
+import { useMountTransition, useSlider } from './motion'
 
 
 // ───────────────────────── Karta ─────────────────────────
@@ -21,15 +22,15 @@ export function Card({ title, hint, action, children, className, pad = true }: C
   return (
     <section className={cx('card rounded-xl border border-line bg-surface shadow-[var(--shadow)]', className)}>
       {(title || action) && (
-        <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-4 pt-4 sm:px-5">
+        <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-5 pt-5 sm:px-6">
           <div className="min-w-0">
-            {title && <h2 className="text-[15px] font-semibold leading-snug text-ink">{title}</h2>}
+            {title && <h2 className="text-[16.5px] font-semibold leading-snug tracking-[-0.015em] text-ink">{title}</h2>}
             {hint && <p className="mt-0.5 text-[13px] text-muted">{hint}</p>}
           </div>
           {action && <div className="no-print flex shrink-0 flex-wrap items-center gap-2">{action}</div>}
         </header>
       )}
-      <div className={pad ? 'p-4 sm:p-5' : title || action ? 'pt-3' : ''}>{children}</div>
+      <div className={pad ? 'p-5 sm:p-6' : title || action ? 'pt-3' : ''}>{children}</div>
     </section>
   )
 }
@@ -55,10 +56,10 @@ const toneText: Record<Tone, string> = {
 
 export function Stat({ label, value, sub, tone = 'neutral' }: StatProps) {
   return (
-    <div className="rounded-xl border border-line bg-surface px-4 py-3.5 shadow-[var(--shadow)]">
-      <div className="text-[12.5px] text-muted">{label}</div>
-      <div className={cx('mt-1 text-[22px] font-semibold leading-tight tracking-tight', toneText[tone])}>{value}</div>
-      {sub && <div className="mt-1 text-[12.5px] text-ink-2">{sub}</div>}
+    <div className="rounded-xl border border-line bg-surface px-4 py-4 shadow-[var(--shadow)] sm:px-5">
+      <div className="text-[12.5px] font-medium leading-[1.3] text-muted xl:min-h-[2.6em]">{label}</div>
+      <div className={cx('mt-1.5 text-[25px] font-semibold leading-none tracking-[-0.03em]', toneText[tone])}>{value}</div>
+      {sub && <div className="mt-2 text-[12.5px] text-ink-2">{sub}</div>}
     </div>
   )
 }
@@ -77,19 +78,35 @@ interface ButtonProps {
 }
 
 export function Button({ children, onClick, variant = 'ghost', size = 'md', icon, title, disabled, type = 'button' }: ButtonProps) {
-  const base = 'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg font-medium whitespace-nowrap transition-colors disabled:opacity-50 disabled:pointer-events-none cursor-pointer'
-  const sizes = size === 'sm' ? 'h-8 px-2.5 text-[13px]' : 'h-9 px-3.5 text-[13.5px]'
+  const base = 'press inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full font-medium whitespace-nowrap disabled:opacity-50 disabled:pointer-events-none cursor-pointer'
+  const sizes = size === 'sm' ? 'h-8 px-3 text-[13px]' : 'h-9 px-4 text-[13.5px]'
   const variants = {
-    primary: 'bg-accent text-accent-ink hover:bg-accent-hover',
-    ghost: 'border border-line-2 bg-surface text-ink hover:bg-surface-2',
+    primary: 'bg-accent-fill text-accent-ink hover:bg-accent-fill-hover',
+    ghost: 'bg-tint text-ink hover:bg-tint-2',
     soft: 'bg-accent-soft text-accent hover:brightness-95',
-    danger: 'border border-line-2 bg-surface text-crit-ink hover:bg-crit-soft',
+    danger: 'bg-tint text-crit-ink hover:bg-crit-soft',
   }[variant]
   return (
     <button type={type} onClick={onClick} title={title} aria-label={!children ? title : undefined} disabled={disabled} className={cx(base, sizes, variants)}>
       {icon}
       {children}
     </button>
+  )
+}
+
+/** Odkaz v podobe tlačidla – na prechod do inej časti aplikácie. */
+export function LinkButton({ href, children, variant = 'ghost', icon }: { href: string; children: ReactNode; variant?: 'primary' | 'ghost'; icon?: ReactNode }) {
+  return (
+    <a
+      href={href}
+      className={cx(
+        'press inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-4 text-[13.5px] font-medium no-underline hover:no-underline',
+        variant === 'primary' ? 'bg-accent-fill text-accent-ink hover:bg-accent-fill-hover' : 'bg-tint text-ink hover:bg-tint-2',
+      )}
+    >
+      {children}
+      {icon}
+    </a>
   )
 }
 
@@ -101,7 +118,7 @@ export function IconButton({ onClick, title, children, tone }: { onClick: () => 
       title={title}
       aria-label={title}
       className={cx(
-        'no-print inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-surface-2',
+        'press no-print inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted hover:bg-tint',
         tone === 'crit' ? 'hover:text-crit-ink' : 'hover:text-ink',
       )}
     >
@@ -122,7 +139,7 @@ const badgeTone: Record<Tone, string> = {
 
 export function Badge({ tone = 'neutral', children, title }: { tone?: Tone; children: ReactNode; title?: string }) {
   return (
-    <span title={title} className={cx('inline-flex items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-[12px] font-medium', badgeTone[tone])}>
+    <span title={title} className={cx('inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[12px] font-medium', badgeTone[tone])}>
       {children}
     </span>
   )
@@ -268,23 +285,28 @@ export function Check({ checked, onChange, label }: { checked: boolean; onChange
 // ───────────────────────── Záložky ─────────────────────────
 
 export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: { id: T; label: string }[]; value: T; onChange: (v: T) => void }) {
+  const { box, pill } = useSlider<HTMLDivElement, HTMLSpanElement>(value)
   return (
-    <div className="no-print -mx-1 flex gap-1 overflow-x-auto px-1 pb-1" role="tablist">
-      {tabs.map((t) => (
-        <button
-          key={t.id}
-          type="button"
-          role="tab"
-          aria-selected={t.id === value}
-          onClick={() => onChange(t.id)}
-          className={cx(
-            'h-9 shrink-0 cursor-pointer whitespace-nowrap rounded-lg px-3 text-[13.5px] font-medium transition-colors',
-            t.id === value ? 'bg-accent text-accent-ink' : 'text-ink-2 hover:bg-surface-2',
-          )}
-        >
-          {t.label}
-        </button>
-      ))}
+    <div className="no-print mb-1 max-w-full">
+      <div ref={box} className="seg" role="tablist">
+        <span ref={pill} className="seg-pill" aria-hidden />
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={t.id === value}
+            data-on={t.id === value}
+            onClick={() => onChange(t.id)}
+            className={cx(
+              'relative z-[1] h-8 shrink-0 cursor-pointer whitespace-nowrap rounded-full px-3.5 text-[13.5px] font-medium transition-colors duration-300',
+              t.id === value ? 'text-ink' : 'text-ink-2 hover:text-ink',
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
@@ -302,8 +324,22 @@ interface ModalProps {
 export function Modal({ title, onClose, children, footer, wide }: ModalProps) {
   const ref = useRef<HTMLDivElement>(null)
   const titleId = useId()
+  const [open, setOpen] = useState(true)
+  const { phase } = useMountTransition(open, 200)
+  // Zatvorenie krížikom, kliknutím mimo alebo klávesom Escape najprv dohrá animáciu.
+  const close = useRef(() => {})
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    close.current = () => {
+      setOpen(false)
+      window.setTimeout(onClose, 190)
+    }
+  }, [onClose])
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      e.preventDefault() // zatvára okno, nemá zároveň zastaviť čítanie nahlas
+      close.current()
+    }
     document.addEventListener('keydown', onKey)
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -312,23 +348,27 @@ export function Modal({ title, onClose, children, footer, wide }: ModalProps) {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = prev
     }
-  }, [onClose])
+  }, [])
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      data-phase={phase}
+      className="backdrop fixed inset-0 z-[65] flex items-end justify-center bg-black/35 p-0 backdrop-blur-[6px] sm:items-center sm:p-4"
+      onMouseDown={(e) => e.target === e.currentTarget && close.current()}
+    >
       <div
         ref={ref}
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={cx('sheet flex max-h-[92dvh] w-full flex-col rounded-t-2xl border border-line bg-surface shadow-2xl outline-none sm:rounded-2xl', wide ? 'sm:max-w-3xl' : 'sm:max-w-xl')}
+        className={cx('sheet flex max-h-[92dvh] w-full flex-col rounded-t-2xl border border-line bg-surface shadow-[var(--shadow-pop)] outline-none sm:rounded-2xl', wide ? 'sm:max-w-3xl' : 'sm:max-w-xl')}
       >
-        <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
-          <h2 id={titleId} className="text-[15px] font-semibold">{title}</h2>
-          <IconButton onClick={onClose} title="Zavrieť"><X size={16} /></IconButton>
+        <header className="flex items-center justify-between gap-3 px-6 pb-2 pt-5">
+          <h2 id={titleId} className="text-[18px] font-semibold tracking-[-0.02em]">{title}</h2>
+          <IconButton onClick={() => close.current()} title="Zavrieť"><X size={16} /></IconButton>
         </header>
-        <div className="overflow-y-auto px-5 py-4">{children}</div>
-        {footer && <footer className="flex flex-wrap justify-end gap-2 border-t border-line px-5 py-3">{footer}</footer>}
+        <div className="overflow-y-auto px-6 py-3">{children}</div>
+        {footer && <footer className="flex flex-wrap justify-end gap-2 px-6 pb-5 pt-3">{footer}</footer>}
       </div>
     </div>
   )
@@ -338,8 +378,8 @@ export function Modal({ title, onClose, children, footer, wide }: ModalProps) {
 
 export function Empty({ title, text, action }: { title: string; text?: string; action?: ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed border-line-2 px-6 py-10 text-center">
-      <div className="text-[14.5px] font-semibold">{title}</div>
+    <div className="rounded-xl border border-dashed border-line-2 px-6 py-12 text-center">
+      <div className="text-[16px] font-semibold tracking-[-0.015em]">{title}</div>
       {text && <p className="mx-auto mt-1 max-w-md text-[13px] text-muted">{text}</p>}
       {action && <div className="mt-4 flex justify-center">{action}</div>}
     </div>
@@ -354,7 +394,7 @@ export function Note({ tone = 'neutral', children, title }: { tone?: 'neutral' |
     crit: 'border-transparent bg-crit-soft text-crit-ink',
   }[tone]
   return (
-    <div className={cx('rounded-lg border px-3.5 py-2.5 text-[13px] leading-relaxed', tones)}>
+    <div className={cx('rounded-xl border px-4 py-3 text-[13px] leading-relaxed', tones)}>
       {title && <div className="mb-0.5 font-semibold">{title}</div>}
       {children}
     </div>
@@ -363,10 +403,10 @@ export function Note({ tone = 'neutral', children, title }: { tone?: 'neutral' |
 
 export function PageHead({ title, sub, actions }: { title: string; sub?: ReactNode; actions?: ReactNode }) {
   return (
-    <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div className="min-w-0">
-        <h1 className="text-[22px] font-semibold leading-tight tracking-tight">{title}</h1>
-        {sub && <p className="mt-1 max-w-3xl text-[13.5px] text-ink-2">{sub}</p>}
+        <h1 className="text-[30px] font-bold leading-[1.08] tracking-[-0.03em] sm:text-[34px]">{title}</h1>
+        {sub && <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-2">{sub}</p>}
       </div>
       {actions && <div className="no-print flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
@@ -387,7 +427,7 @@ export function Meter({ value, max, tone = 'accent', label }: { value: number; m
       className="h-2 w-full overflow-hidden rounded-full"
       style={{ background: `color-mix(in srgb, ${fill} 18%, var(--surface-2))` }}
     >
-      <div className="h-full rounded-full" style={{ width: `${p * 100}%`, background: fill }} />
+      <div className="bar-x h-full rounded-full transition-[width] duration-700 ease-out" style={{ width: `${p * 100}%`, background: fill }} />
     </div>
   )
 }

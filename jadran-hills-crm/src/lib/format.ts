@@ -92,6 +92,11 @@ export function todayIso(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
+/** Aktuálna hodina dňa (0–23) – pre pozdrav podľa času. */
+export function currentHour(): number {
+  return new Date().getHours()
+}
+
 /** 15. 11. 2026 */
 export function fmtDate(iso: string | null | undefined): string {
   if (!iso) return '—'

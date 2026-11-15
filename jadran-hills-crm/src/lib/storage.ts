@@ -13,7 +13,7 @@ export interface Storage {
 
 export const COLLECTIONS: CollectionKey[] = [
   'parcels', 'buildings', 'tech', 'units', 'clients', 'activities', 'payments', 'costs',
-  'boqSections', 'boq', 'phases', 'contacts', 'tenders', 'permits', 'documents', 'risks', 'tasks',
+  'boqSections', 'boq', 'phases', 'contacts', 'tenders', 'permits', 'documents', 'risks', 'tasks', 'media',
 ]
 
 /** Overí a doplní načítané dáta (import zo súboru alebo z úložiska). */

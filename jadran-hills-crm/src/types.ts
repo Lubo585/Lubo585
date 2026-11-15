@@ -345,6 +345,30 @@ export interface Settings {
   scenarios: Scenario[]
 }
 
+// ───────────────────────── Obrázky ─────────────────────────
+
+export type MediaKind = 'visual' | 'photo' | 'elevation' | 'plan' | 'section' | 'site' | 'tech' | 'detail' | 'other'
+
+export interface MediaItem {
+  id: ID
+  title: string
+  note: string
+  kind: MediaKind
+  /** Súbor v úložisku hostiteľa; zobrazuje sa z adresy /_blob/<assetId>. */
+  assetId: string | null
+  /** Názov súboru pribaleného k súkromnému zostaveniu aplikácie. */
+  file: string | null
+  /** Priama adresa obrázka, ak nie je v úložisku ani pribalený. */
+  src: string | null
+  w: number
+  h: number
+  /** Čiarová kresba na priehľadnom pozadí – farbí sa podľa témy. */
+  line: boolean
+  /** Titulný obrázok projektu. */
+  cover: boolean
+  addedAt: string
+}
+
 // ───────────────────────── Celý projekt ─────────────────────────
 
 export interface ProjectData {
@@ -369,6 +393,7 @@ export interface ProjectData {
   documents: DocItem[]
   risks: Risk[]
   tasks: Task[]
+  media: MediaItem[]
 }
 
 /** Kolekcie s položkami, ktoré majú `id` – používa ich generický editor v store. */
@@ -390,3 +415,4 @@ export type CollectionKey =
   | 'documents'
   | 'risks'
   | 'tasks'
+  | 'media'

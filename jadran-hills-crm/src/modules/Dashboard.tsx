@@ -1,11 +1,14 @@
-import { TriangleAlert } from 'lucide-react'
+import { ArrowRight, TriangleAlert } from 'lucide-react'
 import { useMemo } from 'react'
-import { breakeven, isSold } from '../lib/calc'
-import { addYears, daysUntil, eur, eurShort, fmtDate, monthLabel, monthShort, pct } from '../lib/format'
+import { breakeven, isSold, sellableArea } from '../lib/calc'
+import { addYears, daysUntil, eur, eurShort, fmtDate, monthLabel, monthShort, num, pct } from '../lib/format'
+import { coverOf } from '../lib/media'
 import { useStore } from '../store'
 import { SERIES } from '../ui/chartUtils'
 import { BarList, LineChart, SegBar } from '../ui/charts'
-import { Badge, Card, Meter, Note, PageHead, Stat } from '../ui/kit'
+import { CoverArt } from '../ui/CoverArt'
+import { Badge, Card, LinkButton, Meter, Note, Stat } from '../ui/kit'
+import { Num } from '../ui/Num'
 import { PIPELINE, riskTone, UNIT_STATUS, UNIT_STATUS_ORDER } from '../ui/labels'
 
 export default function Dashboard() {
@@ -42,10 +45,41 @@ export default function Dashboard() {
   const permitsAll = data.permits.filter((p) => p.status !== 'na').length
   const completion = r.phases.find((p) => p.tag === 'completion')
   const activeClients = data.clients.filter((c) => c.stage !== 'lost')
+  const cover = coverOf(data.media)
+  const area = data.units.reduce((a, u) => a + sellableArea(u, s), 0)
+  const houses = data.buildings.length
 
   return (
     <>
-      <PageHead title={data.project.name} sub={`${data.project.location} · ${data.project.stage}`} />
+      <section className="hero mb-5">
+        <div className="relative z-[1] grid items-end gap-6 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-10 lg:p-10">
+          <div className="min-w-0">
+            <p className="m-0 text-[12.5px] font-semibold uppercase tracking-[0.1em] text-accent">{data.project.location}</p>
+            <h1 className="m-0 mt-2 text-[40px] font-bold leading-[1.02] tracking-[-0.04em] sm:text-[54px]">{data.project.name}</h1>
+            <p className="m-0 mt-3 max-w-md text-[15.5px] leading-snug text-ink-2">{data.project.stage}</p>
+            <dl className="m-0 mt-6 flex flex-wrap gap-x-8 gap-y-3">
+              {[
+                ['Jednotky', String(data.units.length)],
+                ['Domy', String(houses)],
+                ['Predajná plocha', `${num(area, 0)} m²`],
+                ['Odovzdanie', monthLabel(s.startMonth, r.ms.handover)],
+              ].map(([k, v]) => (
+                <div key={k}>
+                  <dt className="text-[12px] text-muted">{k}</dt>
+                  <dd className="m-0 text-[19px] font-semibold tracking-[-0.02em]">{v}</dd>
+                </div>
+              ))}
+            </dl>
+            <div className="no-print mt-7 flex flex-wrap gap-2">
+              <LinkButton href="#ekonomika" variant="primary" icon={<ArrowRight size={15} aria-hidden />}>Ekonomika</LinkButton>
+              <LinkButton href="#galeria">Galéria</LinkButton>
+            </div>
+          </div>
+          <a href="#galeria" aria-label="Otvoriť galériu" className="relative block h-[150px] text-ink-2 sm:h-[200px] lg:h-[260px]">
+            <CoverArt item={cover} className="absolute inset-0 h-full w-full" position="center bottom" />
+          </a>
+        </div>
+      </section>
 
       {loss && (
         <div className="mb-4">
@@ -64,21 +98,21 @@ export default function Dashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <Stat label="Tržby bez DPH" value={eurShort(r.revenue.net)} sub={`${eurShort(r.revenue.gross)} s DPH`} />
-        <Stat label="Náklady spolu" value={eurShort(r.kpi.totalCost)} sub={`pozemok ${pct(r.kpi.totalCost > 0 ? (land / r.kpi.totalCost) * 100 : 0, 0)}`} />
-        <Stat label="Zisk pred zdanením" value={eurShort(r.kpi.profit)} tone={loss ? 'crit' : 'good'} sub={`marža ${pct(r.kpi.marginRevenue)} z tržieb`} />
-        <Stat label="Viazané vlastné zdroje" value={eurShort(r.finance.peakEquity)} sub={`úver najviac ${eurShort(r.finance.peakLoan)}`} />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:gap-4 xl:grid-cols-6">
+        <Stat label="Tržby bez DPH" value={<Num value={r.revenue.net} format={eurShort} />} sub={`${eurShort(r.revenue.gross)} s DPH`} />
+        <Stat label="Náklady spolu" value={<Num value={r.kpi.totalCost} format={eurShort} />} sub={`pozemok ${pct(r.kpi.totalCost > 0 ? (land / r.kpi.totalCost) * 100 : 0, 0)}`} />
+        <Stat label="Zisk pred zdanením" value={<Num value={r.kpi.profit} format={eurShort} />} tone={loss ? 'crit' : 'good'} sub={`marža ${pct(r.kpi.marginRevenue)} z tržieb`} />
+        <Stat label="Viazané vlastné zdroje" value={<Num value={r.finance.peakEquity} format={eurShort} />} sub={`úver najviac ${eurShort(r.finance.peakLoan)}`} />
         <Stat label="Predané a rezervované" value={`${r.revenue.soldCount} / ${data.units.length}`} sub={`zazmluvnené ${eurShort(r.revenue.soldGross)}`} />
         <Stat
           label="Výnos vlastných zdrojov"
-          value={r.kpi.irrEquity === null ? '—' : pct(r.kpi.irrEquity * 100)}
+          value={r.kpi.irrEquity === null ? '—' : <Num value={r.kpi.irrEquity * 100} format={(v) => pct(v)} />}
           sub={`ročne (IRR) · ROE ${pct(r.kpi.roe)}`}
           tone={r.kpi.irrEquity !== null && r.kpi.irrEquity < 0 ? 'crit' : 'neutral'}
         />
       </div>
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <Card title="Peňažné toky projektu" hint="Kumulatívny tok bez financovania, viazané vlastné zdroje a čerpaný úver">
           <LineChart
             ariaLabel="Kumulatívny peňažný tok projektu po mesiacoch"
@@ -127,7 +161,7 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-5 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
         <Card title="Štruktúra nákladov" hint={`Spolu ${eur(r.kpi.totalCost)} vrátane financovania`}>
           <BarList
             format={eurShort}
@@ -197,7 +231,7 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-5 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
         <Card title="Najbližšie úlohy" action={<a href="#ulohy" className="text-[13px]">Všetky úlohy</a>}>
           {tasks.length === 0 ? (
             <p className="m-0 text-[13px] text-muted">Žiadne otvorené úlohy.</p>

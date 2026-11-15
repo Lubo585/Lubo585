@@ -1,13 +1,16 @@
-import { Download, RotateCcw, Trash2, Upload } from 'lucide-react'
+import { Download, Play, RotateCcw, Square, Trash2, Upload } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { useAssistant } from '../assistantContext'
 import { PRIVATE_PARAMS } from '../data/seed'
 import { createProject } from '../data/templates'
+import { firstName } from '../lib/briefing'
 import { exportJson } from '../lib/export'
 import { fmtDate, todayIso } from '../lib/format'
 import { normalize } from '../lib/storage'
 import { useStore } from '../store'
 import type { ProjectData } from '../types'
-import { Button, Card, Dl, Modal, Note, PageHead } from '../ui/kit'
+import type { GreetLang, VoiceName } from '../lib/prefs'
+import { Button, Card, Check, Dl, Field, Modal, Note, PageHead, Select, TextInput } from '../ui/kit'
 
 type Confirm = { title: string; text: string; action: () => void; label: string } | null
 
@@ -17,6 +20,19 @@ export default function SettingsPage({ onReplace }: { onReplace: (d: ProjectData
   const [error, setError] = useState('')
   const [confirm, setConfirm] = useState<Confirm>(null)
   const readOnly = sync.state === 'readonly'
+  const assistant = useAssistant()
+  const { prefs, setPrefs } = assistant
+  const voice = assistant.voice()
+  const who = prefs.assistant.trim() || 'Jarvis'
+  const langName = voice.lang === 'sk' ? 'po slovensky' : 'po anglicky'
+  const voiceText =
+    voice.mode === 'host'
+      ? `Pozdrav prečíta hlas stránky ${langName}.${prefs.lang === 'auto' && voice.lang === 'en' ? ' Slovenčinu tu hlas neponúka; ak ju chcete skúsiť aj tak, zvoľte ju ako jazyk pozdravu.' : ''}`
+      : voice.mode === 'device'
+        ? `Pozdrav prečíta hlas vášho zariadenia${voice.device ? ` (${voice.device})` : ''} ${langName}.`
+        : prefs.voice
+          ? 'V tomto zobrazení nie je hlas dostupný; pozdrav sa ukáže ako titulky.'
+          : 'Hlas je vypnutý; pozdrav sa ukáže ako titulky.'
 
   const onFile = async (f: File | undefined) => {
     setError('')
@@ -113,6 +129,68 @@ export default function SettingsPage({ onReplace }: { onReplace: (d: ProjectData
             </div>
           </Card>
         )}
+
+        <Card title="Uvítanie a asistent" hint="Tieto voľby platia len pre vás v tomto prehliadači.">
+          <div className="grid gap-4">
+            <div className="grid gap-2.5">
+              <Check checked={prefs.welcome} onChange={(v) => setPrefs({ welcome: v })} label="Uvítacia obrazovka pri otvorení" />
+              <Check checked={prefs.sound} onChange={(v) => setPrefs({ sound: v })} label="Úvodná zvučka" />
+              <Check checked={prefs.voice} onChange={(v) => setPrefs({ voice: v })} label="Hlasový pozdrav a stav projektu" />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Meno asistenta">
+                <TextInput value={prefs.assistant} onChange={(v) => setPrefs({ assistant: v })} placeholder="Jarvis" />
+              </Field>
+              <Field label="Oslovenie" hint={assistant.viewerName ? `Prázdne = meno z prihlásenia (${firstName(assistant.viewerName) || 'bez mena'}).` : 'Ako vás má asistent osloviť.'}>
+                <TextInput value={prefs.salutation} onChange={(v) => setPrefs({ salutation: v })} placeholder={firstName(assistant.viewerName) || 'napr. Peter'} />
+              </Field>
+              <Field label="Jazyk pozdravu">
+                <Select<GreetLang>
+                  value={prefs.lang}
+                  onChange={(v) => setPrefs({ lang: v })}
+                  options={[
+                    { value: 'auto', label: 'Automaticky' },
+                    { value: 'sk', label: 'Slovenčina' },
+                    { value: 'en', label: 'Angličtina' },
+                  ]}
+                />
+              </Field>
+              <Field label="Tempo reči">
+                <Select
+                  value={String(prefs.rate)}
+                  onChange={(v) => setPrefs({ rate: Number(v) })}
+                  options={[
+                    { value: '0.9', label: 'Pomalšie' },
+                    { value: '1', label: 'Normálne' },
+                    { value: '1.1', label: 'Rýchlejšie' },
+                  ]}
+                />
+              </Field>
+              {voice.mode === 'host' && (
+                <Field label="Hlas" hint="Štyri hlasy stránky; rozdiel je najlepšie počuť v angličtine.">
+                  <Select<VoiceName>
+                    value={prefs.voiceName}
+                    onChange={(v) => setPrefs({ voiceName: v })}
+                    options={[
+                      { value: 'buttery', label: 'Hlas 1 (predvolený)' },
+                      { value: 'airy', label: 'Hlas 2' },
+                      { value: 'glassy', label: 'Hlas 3' },
+                      { value: 'rounded', label: 'Hlas 4' },
+                    ]}
+                  />
+                </Field>
+              )}
+            </div>
+            <Note>{voiceText}</Note>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="primary" icon={<Play size={14} />} onClick={() => assistant.greet(data)}>Prehrať uvítanie</Button>
+              {assistant.speaking && <Button icon={<Square size={12} />} onClick={assistant.stop}>Zastaviť</Button>}
+            </div>
+            <p className="m-0 text-[12.5px] text-muted">
+              Zvučka je pôvodný zvuk vytvorený priamo v prehliadači a {who} hovorí syntetickým hlasom – nejde o nahrávku ani hlas z filmu.
+            </p>
+          </div>
+        </Card>
 
         <Card title="Prihlásenie a viac používateľov">
           {sync.shared ? (

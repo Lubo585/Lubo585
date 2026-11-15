@@ -7,6 +7,7 @@ import type {
   CostItem,
   DocItem,
   ID,
+  MediaItem,
   Parcel,
   PermitItem,
   Phase,
@@ -73,7 +74,11 @@ export interface ProjectParams {
   tech: Omit<TechParam, 'id'>[]
   contacts: Omit<Contact, 'id'>[]
   documents: Omit<DocItem, 'id'>[]
+  /** Obrázky pribalené k súkromnému zostaveniu (priečinok private/media). */
+  media?: MediaSeed[]
 }
+
+export type MediaSeed = Pick<MediaItem, 'title' | 'note' | 'kind' | 'w' | 'h' | 'line' | 'cover'> & { file: string }
 
 // ───────────────────────── Harmonogram ─────────────────────────
 
@@ -351,5 +356,6 @@ export function createProject(p: ProjectParams, today: string): ProjectData {
     documents: p.documents.map((d, i) => ({ ...d, id: `doc_${i + 1}` })),
     risks: RISKS.map((x, i) => ({ ...x, id: `risk_${i + 1}`, owner: '', status: 'open' as const })),
     tasks: TASKS.map(({ dueInDays, ...x }, i) => ({ ...x, id: `task_${i + 1}`, owner: '', due: addDays(today, dueInDays), status: 'todo' as const })),
+    media: (p.media ?? []).map((m, i) => ({ ...m, id: `med_${i + 1}`, assetId: null, src: null, addedAt: now })),
   }
 }

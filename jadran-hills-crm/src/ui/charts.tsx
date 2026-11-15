@@ -175,13 +175,14 @@ export function LineChart({ labels, series, format, height = 240, ariaLabel, mar
             {series.map((s, si) => (
               <g key={s.name}>
                 {si === 0 && series.length === 1 && (
-                  <path
-                    d={`M${x(0)},${y(0)} ${s.values.map((v, i) => `L${x(i)},${y(v)}`).join(' ')} L${x(n - 1)},${y(0)} Z`}
-                    fill={s.color}
-                    opacity={0.1}
-                  />
+                  <g className="chart-area">
+                    <path d={`M${x(0)},${y(0)} ${s.values.map((v, i) => `L${x(i)},${y(v)}`).join(' ')} L${x(n - 1)},${y(0)} Z`} fill={s.color} opacity={0.1} />
+                  </g>
                 )}
                 <polyline
+                  className="chart-line"
+                  pathLength={1}
+                  style={{ animationDelay: `${si * 140}ms` }}
                   points={s.values.map((v, i) => `${x(i)},${y(v)}`).join(' ')}
                   fill="none"
                   stroke={s.color}
@@ -189,7 +190,7 @@ export function LineChart({ labels, series, format, height = 240, ariaLabel, mar
                   strokeLinejoin="round"
                   strokeLinecap="round"
                 />
-                {n > 0 && <circle cx={x(n - 1)} cy={y(s.values[n - 1] ?? 0)} r={4} fill={s.color} stroke="var(--surface)" strokeWidth={2} />}
+                {n > 0 && <circle className="chart-dot" cx={x(n - 1)} cy={y(s.values[n - 1] ?? 0)} r={4} fill={s.color} stroke="var(--surface)" strokeWidth={2} />}
               </g>
             ))}
             {active !== null && (
@@ -245,7 +246,7 @@ export function ColumnChart({ labels, series, format, height = 240, ariaLabel, m
   }
 
   /** Stĺpec so zaobleným koncom na strane údaja a rovnou hranou pri základni. */
-  const bar = (xc: number, v0: number, v1: number, fill: string, key: string, roundEnd: boolean) => {
+  const bar = (xc: number, v0: number, v1: number, fill: string, key: string, roundEnd: boolean, delay = 0) => {
     const yTop = Math.min(y(v0), y(v1))
     const h = Math.abs(y(v0) - y(v1))
     if (h < 0.5) return null
@@ -255,7 +256,7 @@ export function ColumnChart({ labels, series, format, height = 240, ariaLabel, m
     const d = up
       ? `M${x0},${yTop + h} V${yTop + r} Q${x0},${yTop} ${x0 + r},${yTop} H${x0 + barW - r} Q${x0 + barW},${yTop} ${x0 + barW},${yTop + r} V${yTop + h} Z`
       : `M${x0},${yTop} V${yTop + h - r} Q${x0},${yTop + h} ${x0 + r},${yTop + h} H${x0 + barW - r} Q${x0 + barW},${yTop + h} ${x0 + barW},${yTop + h - r} V${yTop} Z`
-    return <path key={key} d={d} fill={fill} />
+    return <path key={key} className={up ? 'chart-bar' : 'chart-bar down'} style={{ animationDelay: `${delay}ms` }} d={d} fill={fill} />
   }
 
   const legend: LegendItem[] =
@@ -287,7 +288,7 @@ export function ColumnChart({ labels, series, format, height = 240, ariaLabel, m
               const parts: ReactNode[] = []
               if (mode === 'diverging') {
                 const v = series[0]?.values[i] ?? 0
-                parts.push(bar(cx(i), 0, v, v >= 0 ? 'var(--pos)' : 'var(--neg)', 'b', true))
+                parts.push(bar(cx(i), 0, v, v >= 0 ? 'var(--pos)' : 'var(--neg)', 'b', true, Math.min(i * 14, 700)))
               } else {
                 let acc = 0
                 const present = series.filter((s) => (s.values[i] ?? 0) > 0)
@@ -295,7 +296,7 @@ export function ColumnChart({ labels, series, format, height = 240, ariaLabel, m
                   const v = s.values[i] ?? 0
                   // 2 px medzera vo farbe podkladu oddeľuje naskladané segmenty
                   const gap = k > 0 ? (2 / plotH) * (ticks[ticks.length - 1] - ticks[0]) : 0
-                  parts.push(bar(cx(i), acc + gap, acc + v, s.color, s.name, k === present.length - 1))
+                  parts.push(bar(cx(i), acc + gap, acc + v, s.color, s.name, k === present.length - 1, Math.min(i * 14, 700)))
                   acc += v
                 })
               }
@@ -359,7 +360,10 @@ export function BarList({ rows, format, color = 'var(--s1)', colors }: { rows: B
             {r.sub && <span className="ml-1.5 text-muted">{r.sub}</span>}
           </span>
           <span className="font-semibold tabular-nums">{format(r.value)}</span>
-          <span className="col-span-2 block h-2 rounded-r-[4px]" style={{ width: `${Math.max(0.5, (Math.abs(r.value) / max) * 100)}%`, background: colors?.[i] ?? color }} />
+          <span
+            className="bar-x col-span-2 block h-2 rounded-r-[4px] transition-[width] duration-700 ease-out"
+            style={{ width: `${Math.max(0.5, (Math.abs(r.value) / max) * 100)}%`, background: colors?.[i] ?? color, animationDelay: `${i * 60}ms` }}
+          />
         </li>
       ))}
     </ul>

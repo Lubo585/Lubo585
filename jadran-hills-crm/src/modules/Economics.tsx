@@ -53,7 +53,7 @@ export default function Economics() {
           { id: 'assumptions', label: 'Predpoklady' },
         ]}
       />
-      <div className="mt-3">
+      <div key={tab} className="mt-4">
         {tab === 'summary' && <Summary />}
         {tab === 'budget' && <Budget />}
         {tab === 'cash' && <Cash />}

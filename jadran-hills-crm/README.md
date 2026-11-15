@@ -15,6 +15,7 @@ v prehliadači, bez servera.
 |---|---|
 | Prehľad | Hlavné ukazovatele, peňažné toky, body zvratu, míľniky, najbližšie úlohy a najväčšie riziká |
 | Karta projektu | Základné údaje, pozemky s kúpnou cenou, domy a etapizácia, technické parametre so zdrojom |
+| Galéria | Pohľady, pôdorysy, rezy, situácia a fotografie; titulný obrázok pre prehľad a uvítanie, prehliadanie na celej obrazovke, nahrávanie |
 | Ekonomika | Výsledovka, rozpočet nákladov (plán / zazmluvnené / uhradené), mesačný cash-flow, financovanie, scenáre a citlivosť, porovnanie stratégií |
 | Výkaz výmer | Položkový rozpočet stavby po oddieloch s označením pôvodu množstva (projekt / výpočet / odhad), hromadná úprava cien, export |
 | Jednotky a cenník | Byty s plochami, automatický cenník podľa predajnej plochy, stav predaja |
@@ -23,7 +24,7 @@ v prehliadači, bez servera.
 | Dodávatelia a tendre | Tendrové balíky z oddielov výkazu výmer, porovnanie ponúk s rozpočtom, adresár |
 | Povolenia a dokumenty | Kontrolný zoznam krokov podľa chorvátskych predpisov, register dokumentov s odkazmi |
 | Riziká, Úlohy | Register rizík s maticou, zoznam úloh s termínmi |
-| Nastavenia a dáta | Export / import JSON, obnova, informácie o ukladaní |
+| Nastavenia a dáta | Export / import JSON, obnova, informácie o ukladaní, uvítanie a asistent |
 
 Všetky čísla sa prepočítavajú z jedného modelu (`src/lib/calc.ts`): zmena ceny vo
 výkaze výmer, posun fázy v harmonograme alebo rezervácia bytu sa okamžite prejaví
@@ -79,12 +80,58 @@ src/
   lib/remote.ts         spoločná databáza stránky (zápis po častiach, zmeny od iných)
   lib/remote.test.ts    testy spoločného úložiska
   lib/export.ts         export JSON a CSV
+  lib/media.ts          obrázky projektu: zdroj, titulný obrázok, nahrávanie do úložiska stránky
+  lib/briefing.ts       pozdrav asistenta a stav projektu vo vetách (slovensky, anglicky)
+  lib/chime.ts          úvodná zvučka poskladaná v prehliadači (Web Audio)
+  lib/speech.ts         hlas: služba hostiteľa, hlas zariadenia alebo titulky
+  lib/prefs.ts          osobné nastavenia uvítania a asistenta
+  AssistantProvider.tsx zvučka, hlas a titulky dostupné v celej aplikácii
   data/templates.ts     vytvorenie projektu z parametrov, šablóny nákladov, povolení, rizík
   data/boqTemplate.ts   generátor výkazu výmer z geometrie stavby
   data/demo.ts          vymyslený ukážkový projekt
   modules/              obrazovky aplikácie
-  ui/                   komponenty a grafy
+  ui/                   komponenty, grafy a pomôcky pre pohyb
 ```
+
+## Vzhľad a pohyb
+
+Rozhranie tvorí bočný panel, sklenená horná lišta a biele karty na šedom podklade
+so systémovým písmom, vo svetlej aj tmavej téme. Farby, zaoblenia a krivky pohybu
+sú tokeny v `src/index.css`.
+
+- Stránky a karty pri otvorení nabiehajú postupne, čísla sa dopočítajú, čiary
+  grafov sa dokreslia a stĺpce vyrastú.
+- Aktívna položka menu a segmentového prepínača má posuvný podklad, okná a menu
+  majú animáciu otvorenia aj zatvorenia.
+- Kto má v systéme vypnutý pohyb (`prefers-reduced-motion`), dostane stránku hneď
+  v pokojnom stave.
+
+## Uvítanie a asistent
+
+Po otvorení sa ukáže uvítacia obrazovka s pozdravom podľa dennej doby. Vstup spustí
+krátku zvučku a asistent povie stav projektu: predaj, najbližší míľnik, úlohy
+s termínom, lehotu zo stavebného povolenia a výsledok modelu.
+
+- Zvučka je pôvodný zvuk poskladaný pri prehratí (`src/lib/chime.ts`), nie nahrávka.
+- Hlas je na stránke s prihlásením služba hostiteľa; kde ju zobrazenie neponúka,
+  použije sa miestny hlas zariadenia, inak sa pozdrav ukáže ako titulky. Titulky
+  s tlačidlom na zastavenie sú na obrazovke vždy.
+- Meno na oslovenie prichádza z prihlásenia hostiteľa; dá sa prepísať v časti
+  Nastavenia a dáta, kde sa volí aj meno asistenta, jazyk, tempo a vypnutie zvuku.
+- Prehľad sa dá kedykoľvek prehrať znova tlačidlom v hornej lište.
+
+## Obrázky projektu
+
+Obrázky sú dáta projektu, nie súčasť kódu. Záznam o obrázku (názov, druh, rozmery)
+je v kolekcii `media`; samotný súbor je
+
+- na stránke s prihlásením v úložisku súborov stránky (záznam drží jeho
+  identifikátor), kde ich môže pridávať a mazať ten, kto smie stránku upravovať,
+- v súkromnom samostatnom zostavení pribalený z priečinka `private/media/`
+  (zoznam je v `private/*.params.json` pod kľúčom `media`).
+
+Čiarové kresby s priehľadným pozadím sa farbia farbou textu, takže fungujú vo
+svetlej aj tmavej téme; výkresy na bielom podklade sa v tmavej téme invertujú.
 
 ## Dve podoby aplikácie
 
@@ -97,14 +144,16 @@ súkromná stránka na claude.ai. Prístup riadi prihlásenie a zdieľanie hosti
 dáta sú v databáze stránky, spoločné pre všetkých, ktorí k nej majú prístup:
 
 - `src/lib/platform.ts` zistí, či aplikácia beží u hostiteľa, a sprostredkuje jeho
-  schopnosti (databáza, ukladanie súborov).
+  schopnosti. Stránka pri zverejnení deklaruje `db` (databáza), `user` s rozsahom
+  `profile` (meno na oslovenie), `downloads` (ukladanie súborov), `assets`
+  (obrázky) a `tts` (hlas).
 - `src/lib/remote.ts` rozdelí projekt na časti – jadro a každú kolekciu zvlášť –
   a každú drží ako jeden dokument v kolekcii `crm`. Zapisujú sa len zmenené časti,
   zmeny od ostatných sa preberajú priebežne; v rámci jednej časti platí posledný
   zápis.
 - Kto má stránku len na čítanie, vidí dáta, ale jeho úpravy sa neukladajú.
-- Zostavenie pre zverejnenie nikdy neobsahuje súkromné parametre projektu
-  (`scripts/build-artifact.mjs` to kontroluje); dáta sa do databázy nahrajú až po
+- Zostavenie pre zverejnenie nikdy neobsahuje súkromné parametre ani obrázky
+  projektu (`scripts/build-artifact.mjs` to kontroluje); dáta sa do databázy nahrajú až po
   zverejnení alebo importom JSON priamo v stránke.
 
 Samostatnú aplikáciu so súkromnými dátami nedávajte na verejnú adresu bez ochrany

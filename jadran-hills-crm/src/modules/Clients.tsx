@@ -125,7 +125,7 @@ export default function Clients() {
         />
       </div>
 
-      <div className="mt-3">
+      <div key={tab} className="mt-4">
         {tab === 'pipeline' &&
           (data.clients.length === 0 ? (
             <Empty title="Zatiaľ žiadni klienti" text="Pridajte prvého záujemcu. Každý klient má fázu obchodu, jednotky záujmu, ďalší krok s termínom a históriu komunikácie." action={<Button variant="primary" icon={<Plus size={15} />} onClick={create}>Nový klient</Button>} />
@@ -325,7 +325,7 @@ export default function Clients() {
                     onClick={() => setEditing({ ...editing, unitIds: on ? editing.unitIds.filter((x) => x !== u.id) : [...editing.unitIds, u.id] })}
                     className={cx(
                       'h-8 cursor-pointer rounded-md border px-2.5 text-[12.5px] font-medium',
-                      on ? 'border-accent bg-accent text-accent-ink' : 'border-line-2 bg-surface text-ink-2 hover:bg-surface-2',
+                      on ? 'border-accent-fill bg-accent-fill text-accent-ink' : 'border-line-2 bg-surface text-ink-2 hover:bg-surface-2',
                       taken && !on && 'opacity-50',
                     )}
                   >

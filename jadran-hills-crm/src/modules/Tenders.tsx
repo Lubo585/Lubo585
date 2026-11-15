@@ -88,7 +88,7 @@ export default function Tenders() {
                             type="button"
                             aria-pressed={on}
                             onClick={() => patch('tenders', t.id, { sectionIds: on ? t.sectionIds.filter((x) => x !== s.id) : [...t.sectionIds, s.id] })}
-                            className={cx('h-8 cursor-pointer rounded-md border px-2.5 text-[12.5px]', on ? 'border-accent bg-accent text-accent-ink' : 'border-line-2 bg-surface text-ink-2 hover:bg-surface-2')}
+                            className={cx('h-8 cursor-pointer rounded-md border px-2.5 text-[12.5px]', on ? 'border-accent-fill bg-accent-fill text-accent-ink' : 'border-line-2 bg-surface text-ink-2 hover:bg-surface-2')}
                             title={eur(totalOf.get(s.id) ?? 0)}
                           >
                             {s.code} {s.name}
