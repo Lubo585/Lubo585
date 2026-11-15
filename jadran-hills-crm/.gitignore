@@ -1,0 +1,10 @@
+node_modules
+dist
+dist-single
+*.local
+.DS_Store
+
+# Dôverné dáta projektu (ceny, zmluvné podmienky, klienti) – NIKDY necommitovať.
+# Repozitár je verejný; dáta sa do aplikácie nahrávajú importom JSON.
+private/
+*.seed.json

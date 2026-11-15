@@ -1,0 +1,352 @@
+@import "tailwindcss";
+
+/* ───────────── Farebné tokeny (svetlý režim) ───────────── */
+:root {
+  color-scheme: light;
+  --bg: #f6f5f1;
+  --surface: #fcfcfb;
+  --surface-2: #f1f0eb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #6f6d67;
+  --line: #e1e0d9;
+  --line-2: #c3c2b7;
+  --accent: #1c5cab;
+  --accent-hover: #184f95;
+  --accent-ink: #ffffff;
+  --accent-soft: #e4eefb;
+  --good: #0ca30c;
+  --good-ink: #006300;
+  --good-soft: #e2f4e2;
+  --warn: #fab219;
+  --warn-ink: #6b4500;
+  --warn-soft: #fdefcf;
+  --serious: #ec835a;
+  --crit: #d03b3b;
+  --crit-ink: #a31f1f;
+  --crit-soft: #fbe5e5;
+  --shadow: 0 1px 2px rgba(11, 11, 11, 0.04), 0 4px 16px rgba(11, 11, 11, 0.04);
+
+  /* Grafy – kategorické farby v pevnom poradí, sekvenčná a divergentná škála */
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
+  --s4: #eda100;
+  --s5: #e87ba4;
+  --s6: #008300;
+  --s7: #6250d6;
+  --s8: #e34948;
+  --seq-1: #86b6ef;
+  --seq-2: #5598e7;
+  --seq-3: #2a78d6;
+  --seq-4: #1c5cab;
+  --seq-5: #104281;
+  --pos: #2a78d6;
+  --neg: #e34948;
+  --mid: #f0efec;
+  --deemph: #c3c2b7;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #232321;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #9c9a91;
+    --line: #2c2c2a;
+    --line-2: #383835;
+    --accent: #6da7ec;
+    --accent-hover: #86b6ef;
+    --accent-ink: #0b0b0b;
+    --accent-soft: #1b2a40;
+    --good: #0ca30c;
+    --good-ink: #3fc23f;
+    --good-soft: #132a13;
+    --warn: #fab219;
+    --warn-ink: #fab219;
+    --warn-soft: #33270a;
+    --serious: #ec835a;
+    --crit: #d03b3b;
+    --crit-ink: #ee7b7b;
+    --crit-soft: #341616;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
+    --s4: #c98500;
+    --s5: #d55181;
+    --s6: #0ca30c;
+    --s7: #9085e9;
+    --s8: #e66767;
+    --seq-1: #184f95;
+    --seq-2: #256abf;
+    --seq-3: #3987e5;
+    --seq-4: #6da7ec;
+    --seq-5: #9ec5f4;
+    --pos: #3987e5;
+    --neg: #e66767;
+    --mid: #383835;
+    --deemph: #52514e;
+    --grid: #2c2c2a;
+    --axis: #383835;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d0d0d;
+  --surface: #1a1a19;
+  --surface-2: #232321;
+  --ink: #f0efec;
+  --ink-2: #c3c2b7;
+  --muted: #9c9a91;
+  --line: #2c2c2a;
+  --line-2: #383835;
+  --accent: #6da7ec;
+  --accent-hover: #86b6ef;
+  --accent-ink: #0b0b0b;
+  --accent-soft: #1b2a40;
+  --good: #0ca30c;
+  --good-ink: #3fc23f;
+  --good-soft: #132a13;
+  --warn: #fab219;
+  --warn-ink: #fab219;
+  --warn-soft: #33270a;
+  --serious: #ec835a;
+  --crit: #d03b3b;
+  --crit-ink: #ee7b7b;
+  --crit-soft: #341616;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --s1: #3987e5;
+  --s2: #d95926;
+  --s3: #199e70;
+  --s4: #c98500;
+  --s5: #d55181;
+  --s6: #0ca30c;
+  --s7: #9085e9;
+  --s8: #e66767;
+  --seq-1: #184f95;
+  --seq-2: #256abf;
+  --seq-3: #3987e5;
+  --seq-4: #6da7ec;
+  --seq-5: #9ec5f4;
+  --pos: #3987e5;
+  --neg: #e66767;
+  --mid: #383835;
+  --deemph: #52514e;
+  --grid: #2c2c2a;
+  --axis: #383835;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-good: var(--good);
+  --color-good-ink: var(--good-ink);
+  --color-good-soft: var(--good-soft);
+  --color-warn: var(--warn);
+  --color-warn-ink: var(--warn-ink);
+  --color-warn-soft: var(--warn-soft);
+  --color-serious: var(--serious);
+  --color-crit: var(--crit);
+  --color-crit-ink: var(--crit-ink);
+  --color-crit-soft: var(--crit-soft);
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  a {
+    color: var(--accent);
+  }
+
+  /* Položky mriežky sa nesmú roztiahnuť podľa širokej tabuľky – tá sa posúva vo vlastnom obale. */
+  .grid > * {
+    min-width: 0;
+  }
+}
+
+@layer components {
+  /* ───────────── Tabuľky ───────────── */
+  .tbl-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .tbl th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--muted);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line-2);
+    white-space: nowrap;
+    background: var(--surface);
+  }
+
+  .tbl td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+
+  .tbl tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .tbl tbody tr:hover td {
+    background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+  }
+
+  .tbl .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .tbl tfoot td,
+  .tbl .total td {
+    font-weight: 650;
+    border-top: 1px solid var(--line-2);
+    border-bottom: 0;
+    background: var(--surface-2);
+  }
+
+  .tbl .group td {
+    background: var(--surface-2);
+    font-weight: 650;
+  }
+
+  /* ───────────── Formulárové prvky ───────────── */
+  .inp {
+    width: 100%;
+    min-width: 0;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+  }
+
+  textarea.inp {
+    height: auto;
+    padding: 8px 10px;
+    resize: vertical;
+  }
+
+  .inp:hover {
+    border-color: var(--muted);
+  }
+
+  .inp:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 0;
+    border-color: var(--accent);
+  }
+
+  /* Úzke políčko priamo v bunke tabuľky */
+  .cell {
+    width: 100%;
+    min-width: 56px;
+    height: 28px;
+    padding: 0 6px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cell:hover {
+    border-color: var(--line-2);
+    background: var(--surface);
+  }
+
+  .cell:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 0;
+    background: var(--surface);
+  }
+
+  .cell.num {
+    text-align: right;
+  }
+
+  select.cell {
+    padding-right: 2px;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    font-size: 11px;
+  }
+
+  .print-full {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  .tbl-wrap {
+    overflow: visible;
+  }
+}

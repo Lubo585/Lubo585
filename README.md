@@ -85,3 +85,10 @@ ktorý treba potvrdiť.
 V priečinku [`falcon-valley/`](falcon-valley/README.md) je samostatná stránka
 pre chovateľskú stanicu sokolov Falcon Valley (prezentácia firmy, chovné sokoly
 a shop so sokolmi na predaj). Má vlastný `package.json` a build, pozri jej README.
+
+## Jadran Hills CRM
+
+V priečinku [`jadran-hills-crm/`](jadran-hills-crm/README.md) je interná aplikácia
+na riadenie developerského projektu (ekonomika, výkaz výmer, cenník a predaj,
+harmonogram, tendre, povolenia, riziká). Má vlastný `package.json` a build; dôverné
+dáta projektu v repozitári nie sú – pozri jej README.
