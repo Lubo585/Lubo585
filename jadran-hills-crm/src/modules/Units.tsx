@@ -2,6 +2,7 @@ import { Download, Plus, Printer, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { isSold, listPrice, sellableArea } from '../lib/calc'
 import { eur, eurShort, num, todayIso, uid } from '../lib/format'
+import { hosted } from '../lib/platform'
 import { exportCsv } from '../lib/export'
 import { useStore } from '../store'
 import type { Unit, UnitStatus } from '../types'
@@ -53,7 +54,7 @@ export default function Units() {
         actions={
           <>
             <Button icon={<Download size={15} />} onClick={csv}>Export CSV</Button>
-            <Button icon={<Printer size={15} />} onClick={() => window.print()}>Tlač cenníka</Button>
+            {!hosted && <Button icon={<Printer size={15} />} onClick={() => window.print()}>Tlač cenníka</Button>}
           </>
         }
       />

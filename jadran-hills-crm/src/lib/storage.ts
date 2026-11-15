@@ -11,7 +11,7 @@ export interface Storage {
   clear(): void
 }
 
-const COLLECTIONS: CollectionKey[] = [
+export const COLLECTIONS: CollectionKey[] = [
   'parcels', 'buildings', 'tech', 'units', 'clients', 'activities', 'payments', 'costs',
   'boqSections', 'boq', 'phases', 'contacts', 'tenders', 'permits', 'documents', 'risks', 'tasks',
 ]

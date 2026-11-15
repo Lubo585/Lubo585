@@ -146,7 +146,7 @@ function Summary() {
           <Note>
             Náklady sú bez DPH (predpoklad: DPH z výstavby je odpočítateľná). Tržby sú po odpočítaní DPH z predajnej ceny.
             Daň z prevodu pri kúpe pozemku je nákladom. Časový posun vratiek DPH model nezohľadňuje. Referenčné trhové
-            hodnoty nájdete v <a href="#/projekt">Karte projektu</a>.
+            hodnoty nájdete v <a href="#projekt">Karte projektu</a>.
           </Note>
         </div>
       </div>

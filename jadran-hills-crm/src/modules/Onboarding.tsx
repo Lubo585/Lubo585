@@ -7,8 +7,14 @@ import { normalize } from '../lib/storage'
 import type { ProjectData } from '../types'
 import { Button, Note } from '../ui/kit'
 
-/** Úvodná obrazovka, keď v prehliadači ešte nie sú žiadne dáta projektu. */
-export default function Onboarding({ onStart }: { onStart: (d: ProjectData) => void }) {
+interface Props {
+  onStart: (d: ProjectData) => void
+  /** true = dáta sa uložia do spoločnej databázy stránky, nie do prehliadača. */
+  shared?: boolean
+}
+
+/** Úvodná obrazovka, keď ešte nie sú k dispozícii žiadne dáta projektu. */
+export default function Onboarding({ onStart, shared = false }: Props) {
   const file = useRef<HTMLInputElement>(null)
   const [error, setError] = useState('')
 
@@ -27,11 +33,11 @@ export default function Onboarding({ onStart }: { onStart: (d: ProjectData) => v
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col justify-center px-4 py-10">
+    <main className="gutter mx-auto flex min-h-dvh w-full max-w-xl flex-col justify-center py-10">
       <h1 className="text-[26px] font-semibold tracking-tight">CRM developerského projektu</h1>
       <p className="mt-2 text-[14.5px] leading-relaxed text-ink-2">
-        Ekonomika, výkaz výmer, cenník a predaj, harmonogram, tendre, povolenia a riziká na jednom mieste. V tomto prehliadači
-        zatiaľ nie sú uložené žiadne dáta projektu.
+        Ekonomika, výkaz výmer, cenník a predaj, harmonogram, tendre, povolenia a riziká na jednom mieste.{' '}
+        {shared ? 'V databáze tejto stránky zatiaľ nie sú žiadne dáta projektu.' : 'V tomto prehliadači zatiaľ nie sú uložené žiadne dáta projektu.'}
       </p>
 
       <div className="mt-6 grid gap-3">
@@ -42,7 +48,7 @@ export default function Onboarding({ onStart }: { onStart: (d: ProjectData) => v
             <Button variant="primary" icon={<FolderOpen size={16} />} onClick={() => file.current?.click()}>
               Vybrať súbor
             </Button>
-            <input ref={file} type="file" accept="application/json,.json" hidden onChange={(e) => onFile(e.target.files?.[0])} />
+            <input id="onboarding-file" ref={file} type="file" accept="application/json,.json" hidden onChange={(e) => onFile(e.target.files?.[0])} />
           </div>
           {error && <p className="mt-2 text-[13px] text-crit-ink">{error}</p>}
         </div>
@@ -60,8 +66,9 @@ export default function Onboarding({ onStart }: { onStart: (d: ProjectData) => v
 
       <div className="mt-5">
         <Note>
-          Dáta zostávajú len vo vašom prehliadači – nikam sa neodosielajú. Pravidelne si ich zálohujte exportom v časti
-          Nastavenia a dáta.
+          {shared
+            ? 'Dáta sa uložia do databázy tejto stránky. Uvidí ich každý, komu stránku sprístupníte; upravovať ich môžu len ľudia s oprávnením na úpravy.'
+            : 'Dáta zostávajú len vo vašom prehliadači – nikam sa neodosielajú. Pravidelne si ich zálohujte exportom v časti Nastavenia a dáta.'}
         </Note>
       </div>
     </main>

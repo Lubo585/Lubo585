@@ -8,3 +8,4 @@ dist-single
 # Repozitár je verejný; dáta sa do aplikácie nahrávajú importom JSON.
 private/
 *.seed.json
+dist-artifact

@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronRight, Download, Plus, Printer, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { eur, eurShort, num, pct, uid } from '../lib/format'
+import { hosted } from '../lib/platform'
 import { exportCsv } from '../lib/export'
 import { useStore } from '../store'
 import type { BoqSource, ID } from '../types'
@@ -80,7 +81,9 @@ export default function Boq() {
         actions={
           <>
             <Button icon={<Download size={15} />} onClick={csv}>Export CSV</Button>
-            <Button icon={<Printer size={15} />} onClick={() => { setOpen(new Set(data.boqSections.map((s) => s.id))); window.setTimeout(() => window.print(), 150) }}>Tlač</Button>
+            {!hosted && (
+              <Button icon={<Printer size={15} />} onClick={() => { setOpen(new Set(data.boqSections.map((s) => s.id))); window.setTimeout(() => window.print(), 150) }}>Tlač</Button>
+            )}
           </>
         }
       />

@@ -1,38 +1,58 @@
-// Drží dáta projektu v pamäti, prepočítava model a priebežne ukladá zmeny.
+// Drží dáta projektu v pamäti, prepočítava model a priebežne ukladá zmeny –
+// do úložiska prehliadača, alebo do spoločnej databázy stránky.
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { compute } from './lib/calc'
-import { localStore, type Storage } from './lib/storage'
+import type { RemoteStore, SyncState } from './lib/remote'
+import { localStore } from './lib/storage'
 import { StoreContext, type Store } from './store'
 import type { ID, ProjectData } from './types'
 
 interface ProviderProps {
   initial: ProjectData
-  storage?: Storage
+  /** Spoločná databáza; bez nej sa ukladá do prehliadača. */
+  remote?: RemoteStore | null
+  /** Používateľ smie dáta len čítať – zmeny sa neukladajú. */
+  readOnly?: boolean
   children: ReactNode
 }
 
-export function StoreProvider({ initial, storage = localStore, children }: ProviderProps) {
+export function StoreProvider({ initial, remote = null, readOnly = false, children }: ProviderProps) {
   const [data, setData] = useState<ProjectData>(initial)
-  const [persisted, setPersisted] = useState(true)
+  const [state, setState] = useState<SyncState>(readOnly ? 'readonly' : 'saved')
   const timer = useRef<number | null>(null)
   const latest = useRef(data)
 
+  const persist = useCallback(() => {
+    if (readOnly) return
+    if (remote) remote.save(latest.current)
+    else setState(localStore.save(latest.current) ? 'saved' : 'error')
+  }, [remote, readOnly])
+
+  // Zmeny sa zapisujú až po krátkej pauze, aby séria úprav bola jeden zápis.
   useEffect(() => {
     latest.current = data
     if (timer.current) window.clearTimeout(timer.current)
-    timer.current = window.setTimeout(() => setPersisted(storage.save(latest.current)), 400)
+    timer.current = window.setTimeout(persist, remote ? 800 : 400)
     return () => {
       if (timer.current) window.clearTimeout(timer.current)
     }
-  }, [data, storage])
+  }, [data, persist, remote])
 
-  // Uloží rozpracované zmeny aj pri zatvorení okna.
+  // Rozpracované zmeny sa uložia aj pri zatvorení okna.
   useEffect(() => {
-    const flush = () => storage.save(latest.current)
-    window.addEventListener('pagehide', flush)
-    return () => window.removeEventListener('pagehide', flush)
-  }, [storage])
+    window.addEventListener('pagehide', persist)
+    return () => window.removeEventListener('pagehide', persist)
+  }, [persist])
+
+  // Zmeny od iných používateľov a stav ukladania zo spoločnej databázy.
+  useEffect(() => {
+    if (!remote) return
+    return remote.attach({
+      onRemote: (merge) => setData(merge),
+      onState: (s) => setState((prev) => (prev === 'readonly' ? prev : s)),
+    })
+  }, [remote])
 
   const set = useCallback((fn: (d: ProjectData) => ProjectData) => {
     setData((d) => {
@@ -48,8 +68,8 @@ export function StoreProvider({ initial, storage = localStore, children }: Provi
     const remove: Store['remove'] = (key, id) =>
       set((d) => ({ ...d, [key]: (d[key] as { id: ID }[]).filter((x) => x.id !== id) }))
     const setSettings: Store['setSettings'] = (fn) => set((d) => ({ ...d, settings: fn(d.settings) }))
-    return { data, r: compute(data), persisted, set, patch, add, remove, setSettings }
-  }, [data, persisted, set])
+    return { data, r: compute(data), sync: { shared: !!remote, state }, set, patch, add, remove, setSettings }
+  }, [data, state, remote, set])
 
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>
 }

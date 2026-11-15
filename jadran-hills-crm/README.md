@@ -52,7 +52,8 @@ npm run lint
 ```
 
 `npm run build:single` zabalí aplikáciu do jedného súboru `dist-single/index.html`,
-ktorý sa dá otvoriť priamo z disku alebo poslať e-mailom.
+ktorý sa dá otvoriť priamo z disku alebo poslať e-mailom. `npm run build:artifact`
+pripraví stránku na zverejnenie s prihlásením (`dist-artifact/page.html`).
 
 ## Dáta projektu
 
@@ -73,7 +74,10 @@ src/
   types.ts              dátový model
   lib/calc.ts           výpočtový model (tržby, náklady, cash-flow, financovanie, IRR)
   lib/calc.test.ts      testy modelu
-  lib/storage.ts        ukladanie – rozhranie Storage a lokálne úložisko
+  lib/storage.ts        ukladanie do prehliadača, kontrola načítaných dát
+  lib/platform.ts       rozpoznanie hostiteľa a jeho schopností
+  lib/remote.ts         spoločná databáza stránky (zápis po častiach, zmeny od iných)
+  lib/remote.test.ts    testy spoločného úložiska
   lib/export.ts         export JSON a CSV
   data/templates.ts     vytvorenie projektu z parametrov, šablóny nákladov, povolení, rizík
   data/boqTemplate.ts   generátor výkazu výmer z geometrie stavby
@@ -82,20 +86,29 @@ src/
   ui/                   komponenty a grafy
 ```
 
-## Prihlásenie a nasadenie
+## Dve podoby aplikácie
 
-Aplikácia zatiaľ nemá prihlásenie ani spoločné úložisko – po dodaní webstránky sa
-doplní jedno z riešení:
+**Samostatná aplikácia** (`npm run build`, `npm run build:single`) ukladá dáta do
+úložiska prehliadača. Hodí sa na prácu jedného človeka alebo na vlastný web; dáta
+sa medzi zariadeniami prenášajú exportom a importom JSON.
 
-1. **Ochrana na úrovni hostingu** (napr. HTTP autentifikácia cez `.htaccess`) –
-   najrýchlejšie; dáta ostávajú v prehliadači každého používateľa a zdieľajú sa
-   exportom.
-2. **Server s účtami a databázou** – viac používateľov nad tými istými dátami.
-   Miestom napojenia je rozhranie `Storage` v `src/lib/storage.ts`; moduly ani
-   formát dát sa nemenia.
+**Stránka s prihlásením** (`npm run build:artifact`) je určená na zverejnenie ako
+súkromná stránka na claude.ai. Prístup riadi prihlásenie a zdieľanie hostiteľa a
+dáta sú v databáze stránky, spoločné pre všetkých, ktorí k nej majú prístup:
 
-Kým nie je vyriešené prihlásenie, aplikáciu so súkromnými dátami nezverejňujte na
-verejnej adrese: údaje zabudované do stránky by si mohol prečítať ktokoľvek.
+- `src/lib/platform.ts` zistí, či aplikácia beží u hostiteľa, a sprostredkuje jeho
+  schopnosti (databáza, ukladanie súborov).
+- `src/lib/remote.ts` rozdelí projekt na časti – jadro a každú kolekciu zvlášť –
+  a každú drží ako jeden dokument v kolekcii `crm`. Zapisujú sa len zmenené časti,
+  zmeny od ostatných sa preberajú priebežne; v rámci jednej časti platí posledný
+  zápis.
+- Kto má stránku len na čítanie, vidí dáta, ale jeho úpravy sa neukladajú.
+- Zostavenie pre zverejnenie nikdy neobsahuje súkromné parametre projektu
+  (`scripts/build-artifact.mjs` to kontroluje); dáta sa do databázy nahrajú až po
+  zverejnení alebo importom JSON priamo v stránke.
+
+Samostatnú aplikáciu so súkromnými dátami nedávajte na verejnú adresu bez ochrany
+prístupu: údaje zabudované do stránky by si mohol prečítať ktokoľvek.
 
 ## Upozornenie
 

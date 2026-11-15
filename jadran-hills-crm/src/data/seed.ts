@@ -8,4 +8,7 @@ import type { ProjectParams } from './templates'
 
 const found = import.meta.glob<ProjectParams>('../../private/*.params.json', { eager: true, import: 'default' })
 
-export const PRIVATE_PARAMS: ProjectParams | null = Object.values(found)[0] ?? null
+// Stránka zostavená na zverejnenie (režim „artifact“) si dáta berie z databázy
+// hostiteľa, preto sa do nej súkromné parametre nesmú dostať ani omylom.
+export const PRIVATE_PARAMS: ProjectParams | null =
+  import.meta.env.MODE === 'artifact' ? null : (Object.values(found)[0] ?? null)

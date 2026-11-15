@@ -325,6 +325,55 @@
   }
 }
 
+@layer components {
+  /* Bočný okraj obsahu: najmenej 16 px a vždy mimo systémovej lišty telefónu. */
+  .gutter {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  @media (min-width: 640px) {
+    .gutter {
+      padding-left: max(24px, env(safe-area-inset-left, 0px));
+      padding-right: max(24px, env(safe-area-inset-right, 0px));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .gutter {
+      padding-left: max(32px, env(safe-area-inset-left, 0px));
+      padding-right: max(32px, env(safe-area-inset-right, 0px));
+    }
+  }
+
+  /* Prilepená horná lišta začína pod systémovou lištou. */
+  .topbar {
+    top: env(safe-area-inset-top, 0px);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  .drawer {
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+
+  .sheet {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* Pás nad prilepenou lištou, aby pod systémovou lištou nepresvital posúvaný obsah. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  background: var(--surface);
+}
+
 @media print {
   .no-print {
     display: none !important;

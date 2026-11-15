@@ -22,6 +22,8 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { PRIVATE_PARAMS } from './data/seed'
 import { createProject } from './data/templates'
 import { todayIso } from './lib/format'
+import { capability, hosted } from './lib/platform'
+import { RemoteStore, type Db, type SyncState } from './lib/remote'
 import Boq from './modules/Boq'
 import Clients from './modules/Clients'
 import Dashboard from './modules/Dashboard'
@@ -40,7 +42,6 @@ import { useStore } from './store'
 import { StoreProvider } from './StoreProvider'
 import type { ProjectData } from './types'
 import { cx } from './ui/cx'
-import {  } from './ui/kit'
 
 interface Route {
   id: string
@@ -114,7 +115,7 @@ function Nav({ route, onNavigate }: { route: string; onNavigate?: () => void }) 
             {ROUTES.filter((r) => r.group === g).map((r) => (
               <li key={r.id}>
                 <a
-                  href={`#/${r.id}`}
+                  href={`#${r.id}`}
                   onClick={onNavigate}
                   aria-current={route === r.id ? 'page' : undefined}
                   className={cx(
@@ -134,13 +135,29 @@ function Nav({ route, onNavigate }: { route: string; onNavigate?: () => void }) 
   )
 }
 
+const SYNC_TEXT: Record<'local' | 'shared', Record<SyncState, string>> = {
+  local: {
+    saved: 'Zmeny sa ukladajú v tomto prehliadači',
+    saving: 'Ukladá sa…',
+    error: 'Ukladanie nie je dostupné',
+    readonly: 'Len na čítanie',
+  },
+  shared: {
+    saved: 'Všetky zmeny sú uložené',
+    saving: 'Ukladá sa…',
+    error: 'Zmeny sa nepodarilo uložiť',
+    readonly: 'Len na čítanie',
+  },
+}
+
 function Shell({ onReplace }: { onReplace: (d: ProjectData | null) => void }) {
   const route = useHashRoute()
-  const { data, persisted } = useStore()
+  const { data, sync } = useStore()
   const [open, setOpen] = useState(false)
   const [theme, cycleTheme] = useTheme()
   const ThemeIcon = theme === 'auto' ? Monitor : theme === 'light' ? Sun : Moon
   const themeTitle = theme === 'auto' ? 'Téma: podľa systému' : theme === 'light' ? 'Téma: svetlá' : 'Téma: tmavá'
+  const syncText = SYNC_TEXT[sync.shared ? 'shared' : 'local'][sync.state]
 
   useEffect(() => {
     document.title = `${data.project.name} CRM`
@@ -162,11 +179,19 @@ function Shell({ onReplace }: { onReplace: (d: ProjectData | null) => void }) {
   }
 
   const brand = (
-    <a href="#/prehlad" className="block px-2.5 no-underline" onClick={() => setOpen(false)}>
+    <a href="#prehlad" className="block px-2.5 no-underline" onClick={() => setOpen(false)}>
       <div className="truncate text-[15px] font-semibold tracking-tight text-ink">{data.project.name}</div>
       <div className="truncate text-[12px] text-muted">{data.project.subtitle}</div>
     </a>
   )
+
+  // Tému na hostovanej stránke určuje hostiteľ; vlastný prepínač má len samostatná aplikácia.
+  const themeButton = (size: number) =>
+    hosted ? null : (
+      <button type="button" onClick={cycleTheme} title={themeTitle} aria-label={themeTitle} className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg text-ink-2 hover:bg-surface-2">
+        <ThemeIcon size={size} />
+      </button>
+    )
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[232px_minmax(0,1fr)]">
@@ -175,20 +200,16 @@ function Shell({ onReplace }: { onReplace: (d: ProjectData | null) => void }) {
         {brand}
         <Nav route={route} />
         <div className="mt-auto flex items-center justify-between gap-2 px-2.5 text-[12px] text-muted">
-          <span>{persisted ? 'Zmeny sa ukladajú v tomto prehliadači' : 'Ukladanie nie je dostupné'}</span>
-          <button type="button" onClick={cycleTheme} title={themeTitle} aria-label={themeTitle} className="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-ink-2 hover:bg-surface-2">
-            <ThemeIcon size={16} />
-          </button>
+          <span aria-live="polite">{syncText}</span>
+          {themeButton(16)}
         </div>
       </aside>
 
       {/* Horná lišta – mobil */}
-      <header className="no-print sticky top-0 z-40 flex h-14 items-center justify-between gap-3 border-b border-line bg-surface px-4 lg:hidden">
+      <header className="topbar no-print sticky z-40 flex h-14 items-center justify-between gap-3 border-b border-line bg-surface lg:hidden">
         <div className="min-w-0">{brand}</div>
         <div className="flex items-center gap-1">
-          <button type="button" onClick={cycleTheme} title={themeTitle} aria-label={themeTitle} className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-ink-2 hover:bg-surface-2">
-            <ThemeIcon size={17} />
-          </button>
+          {themeButton(17)}
           <button type="button" onClick={() => setOpen(true)} aria-label="Otvoriť menu" className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-ink hover:bg-surface-2">
             <Menu size={19} />
           </button>
@@ -198,7 +219,7 @@ function Shell({ onReplace }: { onReplace: (d: ProjectData | null) => void }) {
       {open && (
         <div className="no-print fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
           <div className="absolute inset-0 bg-black/45" onClick={() => setOpen(false)} />
-          <div className="absolute inset-y-0 right-0 flex w-[280px] max-w-[85vw] flex-col gap-4 overflow-y-auto bg-surface px-3 py-4 shadow-2xl">
+          <div className="drawer absolute inset-y-0 right-0 flex w-[280px] max-w-[85vw] flex-col gap-4 overflow-y-auto bg-surface px-3 shadow-2xl">
             <div className="flex items-center justify-between px-2.5">
               <span className="text-[13px] font-semibold text-muted">Menu</span>
               <button type="button" onClick={() => setOpen(false)} aria-label="Zavrieť menu" className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg hover:bg-surface-2">
@@ -206,14 +227,22 @@ function Shell({ onReplace }: { onReplace: (d: ProjectData | null) => void }) {
               </button>
             </div>
             <Nav route={route} onNavigate={() => setOpen(false)} />
+            <div className="mt-auto px-2.5 text-[12px] text-muted">{syncText}</div>
           </div>
         </div>
       )}
 
-      <main className="print-full mx-auto w-full max-w-[1320px] px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
-        {!persisted && (
-          <div className="no-print mb-4 rounded-lg bg-warn-soft px-3.5 py-2.5 text-[13px] text-warn-ink">
-            Prehliadač neumožnil uložiť dáta (súkromné okno alebo plné úložisko). Zmeny si zálohujte exportom v časti Nastavenia a dáta.
+      <main className="gutter print-full mx-auto w-full max-w-[1320px] py-5 lg:py-7">
+        {sync.state === 'error' && (
+          <div className="no-print mb-4 rounded-lg bg-warn-soft px-3.5 py-2.5 text-[13px] text-warn-ink" role="status">
+            {sync.shared
+              ? 'Posledné zmeny sa nepodarilo uložiť do databázy stránky. Skúsim to znova pri ďalšej úprave; ak to pretrváva, exportujte si dáta v časti Nastavenia a dáta.'
+              : 'Prehliadač neumožnil uložiť dáta (súkromné okno alebo plné úložisko). Zmeny si zálohujte exportom v časti Nastavenia a dáta.'}
+          </div>
+        )}
+        {sync.state === 'readonly' && (
+          <div className="no-print mb-4 rounded-lg bg-accent-soft px-3.5 py-2.5 text-[13px] text-ink" role="status">
+            Projekt máte sprístupnený len na čítanie. Úpravy, ktoré tu urobíte, sa neuložia a po obnovení stránky zmiznú.
           </div>
         )}
         {pages[route]}
@@ -222,7 +251,20 @@ function Shell({ onReplace }: { onReplace: (d: ProjectData | null) => void }) {
   )
 }
 
-export default function App() {
+/** Úvodná obrazovka počas pripájania k databáze stránky. */
+function Splash({ title, text }: { title: string; text: string }) {
+  return (
+    <main className="gutter mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center py-10">
+      <div className="rounded-xl border border-line bg-surface p-5 shadow-[var(--shadow)]">
+        <h1 className="m-0 text-[18px] font-semibold tracking-tight">{title}</h1>
+        <p className="mb-0 mt-2 text-[13.5px] leading-relaxed text-ink-2" role="status">{text}</p>
+      </div>
+    </main>
+  )
+}
+
+/** Samostatná aplikácia: dáta v úložisku prehliadača. */
+function LocalApp() {
   const [initial, setInitial] = useState<ProjectData | null>(
     () => localStore.load() ?? (PRIVATE_PARAMS ? createProject(PRIVATE_PARAMS, todayIso()) : null),
   )
@@ -233,7 +275,7 @@ export default function App() {
     else localStore.clear()
     setInitial(d)
     setGeneration((g) => g + 1)
-    window.location.hash = '#/prehlad'
+    window.location.hash = 'prehlad'
   }, [])
 
   if (!initial) return <Onboarding onStart={replace} />
@@ -242,4 +284,115 @@ export default function App() {
       <Shell onReplace={replace} />
     </StoreProvider>
   )
+}
+
+type Boot =
+  | { phase: 'connecting' }
+  | { phase: 'loading'; slow: boolean }
+  | { phase: 'local' }
+  | { phase: 'empty' }
+  | { phase: 'ready' }
+  | { phase: 'failed' }
+
+interface HostUser {
+  can(name: string): Promise<boolean | null>
+}
+
+/** Hostovaná stránka: dáta v spoločnej databáze, prístup riadi prihlásenie hostiteľa. */
+function HostedApp() {
+  const [boot, setBoot] = useState<Boot>({ phase: 'connecting' })
+  const [initial, setInitial] = useState<ProjectData | null>(null)
+  const [generation, setGeneration] = useState(0)
+  const [readOnly, setReadOnly] = useState(false)
+  const [remote, setRemote] = useState<RemoteStore | null>(null)
+
+  useEffect(() => {
+    let alive = true
+    let stop: (() => void) | null = null
+    // Databáza nemusí odpovedať hneď; po 10 s to povieme, ale počúvame ďalej.
+    const slow = window.setTimeout(() => {
+      if (alive) setBoot((b) => (b.phase === 'connecting' || b.phase === 'loading' ? { phase: 'loading', slow: true } : b))
+    }, 10_000)
+
+    void (async () => {
+      const db = await capability<Db>('db')
+      if (!alive) return
+      if (!db) {
+        window.clearTimeout(slow)
+        setBoot({ phase: 'local' })
+        return
+      }
+      const user = await capability<HostUser>('user')
+      const canWrite = user ? await user.can('data.write').catch(() => null) : null
+      if (!alive) return
+      if (canWrite === false) setReadOnly(true)
+
+      const store = new RemoteStore(db)
+      setRemote(store)
+      setBoot((b) => (b.phase === 'connecting' ? { phase: 'loading', slow: false } : b))
+      stop = store.start({
+        onLoaded: (data) => {
+          window.clearTimeout(slow)
+          if (!alive) return
+          setInitial(data)
+          setBoot({ phase: data ? 'ready' : 'empty' })
+        },
+        onError: () => {
+          window.clearTimeout(slow)
+          if (alive) setBoot((b) => (b.phase === 'ready' ? b : { phase: 'failed' }))
+        },
+      })
+    })()
+
+    return () => {
+      alive = false
+      window.clearTimeout(slow)
+      stop?.()
+    }
+  }, [])
+
+  const replace = useCallback(
+    (d: ProjectData | null) => {
+      if (!d) return
+      remote?.adopt()
+      setInitial(d)
+      setGeneration((g) => g + 1)
+      setBoot({ phase: 'ready' })
+      window.location.hash = 'prehlad'
+    },
+    [remote],
+  )
+
+  if (boot.phase === 'local') return <LocalApp />
+  if (boot.phase === 'connecting' || boot.phase === 'loading') {
+    return (
+      <Splash
+        title="Načítavam dáta projektu"
+        text={
+          boot.phase === 'loading' && boot.slow
+            ? 'Databáza stránky zatiaľ neodpovedá. Skúšam to ďalej – ak sa nič nezmení, skontrolujte pripojenie.'
+            : 'Pripájam sa k databáze tejto stránky. Zobrazí sa prehľad projektu, ekonomika, výkaz výmer a ostatné moduly.'
+        }
+      />
+    )
+  }
+  if (boot.phase === 'failed') {
+    return <Splash title="Dáta sa nepodarilo načítať" text="Databáza tejto stránky nie je pre toto zobrazenie dostupná. Otvorte stránku znova; ak problém pretrváva, overte si u vlastníka, či k nej máte prístup." />
+  }
+  if (boot.phase === 'empty' || !initial) {
+    return readOnly ? (
+      <Splash title="Projekt zatiaľ nemá dáta" text="V databáze tejto stránky ešte nie sú dáta projektu a váš prístup je len na čítanie. Dáta musí nahrať vlastník stránky." />
+    ) : (
+      <Onboarding onStart={replace} shared />
+    )
+  }
+  return (
+    <StoreProvider key={generation} initial={initial} remote={remote} readOnly={readOnly}>
+      <Shell onReplace={replace} />
+    </StoreProvider>
+  )
+}
+
+export default function App() {
+  return hosted ? <HostedApp /> : <LocalApp />
 }

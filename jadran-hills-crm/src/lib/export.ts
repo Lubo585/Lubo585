@@ -1,8 +1,13 @@
 // Export dát do súborov (záloha JSON, tabuľky CSV pre Excel).
 
 import type { ProjectData } from '../types'
+import { capability, errorCode, hosted } from './platform'
 
-export function downloadFile(name: string, content: string, mime: string): void {
+interface HostDownloads {
+  save(request: { filename: string; data: string }): Promise<unknown>
+}
+
+function anchorDownload(name: string, content: string, mime: string): void {
   const blob = new Blob([content], { type: mime })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -14,9 +19,37 @@ export function downloadFile(name: string, content: string, mime: string): void 
   window.setTimeout(() => URL.revokeObjectURL(url), 2000)
 }
 
+/**
+ * Ponúkne súbor na uloženie. U hostiteľa ide cez jeho potvrdzovacie okno
+ * (priame sťahovanie tam nie je povolené), inak bežným odkazom.
+ */
+export function downloadFile(name: string, content: string, mime: string): void {
+  if (!hosted) {
+    anchorDownload(name, content, mime)
+    return
+  }
+  void (async () => {
+    const downloads = await capability<HostDownloads>('downloads')
+    if (!downloads) {
+      anchorDownload(name, content, mime)
+      return
+    }
+    try {
+      await downloads.save({ filename: name, data: content })
+    } catch (e) {
+      // „declined“ = používateľ uloženie odmietol; ostatné chyby skúsime bežným odkazom.
+      if (errorCode(e) !== 'declined') anchorDownload(name, content, mime)
+    }
+  })()
+}
+
 export function exportJson(data: ProjectData): void {
   const stamp = new Date().toISOString().slice(0, 10)
-  const slug = data.project.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-')
+  const slug = data.project.name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
   downloadFile(`${slug || 'projekt'}-${stamp}.json`, JSON.stringify(data, null, 2), 'application/json')
 }
 

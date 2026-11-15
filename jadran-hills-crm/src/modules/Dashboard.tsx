@@ -92,7 +92,7 @@ export default function Dashboard() {
             ]}
           />
           <p className="mt-2 text-[12.5px] text-muted">
-            Mesačné hodnoty sú v časti <a href="#/ekonomika">Ekonomika → Cash-flow</a>.
+            Mesačné hodnoty sú v časti <a href="#ekonomika">Ekonomika → Cash-flow</a>.
           </p>
         </Card>
 
@@ -122,7 +122,7 @@ export default function Dashboard() {
           </ul>
           <p className="mt-3 text-[12.5px] text-muted">
             Kladná hodnota je rezerva, záporná znamená potrebné zlepšenie. Kombinácie pák nájdete v časti{' '}
-            <a href="#/ekonomika">Ekonomika → Scenáre a citlivosť</a>.
+            <a href="#ekonomika">Ekonomika → Scenáre a citlivosť</a>.
           </p>
         </Card>
       </div>
@@ -183,13 +183,13 @@ export default function Dashboard() {
               </Note>
             ) : (
               <Note tone="warn">
-                Doplňte dátum právoplatnosti stavebného povolenia v <a href="#/projekt">Karte projektu</a> – aplikácia potom stráži lehotu na začatie stavby.
+                Doplňte dátum právoplatnosti stavebného povolenia v <a href="#projekt">Karte projektu</a> – aplikácia potom stráži lehotu na začatie stavby.
               </Note>
             )}
           </div>
           <div className="mt-4">
             <div className="mb-1.5 flex items-center justify-between text-[13px]">
-              <a href="#/povolenia" className="text-ink-2">Povolenia a kroky</a>
+              <a href="#povolenia" className="text-ink-2">Povolenia a kroky</a>
               <span className="font-semibold">{permitsDone} / {permitsAll}</span>
             </div>
             <Meter value={permitsDone} max={permitsAll} label="Splnené kroky povoľovacieho procesu" />
@@ -198,7 +198,7 @@ export default function Dashboard() {
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-        <Card title="Najbližšie úlohy" action={<a href="#/ulohy" className="text-[13px]">Všetky úlohy</a>}>
+        <Card title="Najbližšie úlohy" action={<a href="#ulohy" className="text-[13px]">Všetky úlohy</a>}>
           {tasks.length === 0 ? (
             <p className="m-0 text-[13px] text-muted">Žiadne otvorené úlohy.</p>
           ) : (
@@ -219,7 +219,7 @@ export default function Dashboard() {
           )}
         </Card>
 
-        <Card title="Najväčšie riziká" action={<a href="#/rizika" className="text-[13px]">Register rizík</a>}>
+        <Card title="Najväčšie riziká" action={<a href="#rizika" className="text-[13px]">Register rizík</a>}>
           <ul className="m-0 grid list-none gap-2.5 p-0 text-[13.5px]">
             {risks.map((x) => (
               <li key={x.id} className="flex items-start justify-between gap-3">
@@ -232,7 +232,7 @@ export default function Dashboard() {
           </ul>
         </Card>
 
-        <Card title="Obchod" action={<a href="#/klienti" className="text-[13px]">Klienti a obchod</a>}>
+        <Card title="Obchod" action={<a href="#klienti" className="text-[13px]">Klienti a obchod</a>}>
           {activeClients.length === 0 ? (
             <p className="m-0 text-[13px] text-muted">
               Zatiaľ žiadni záujemcovia. Pridajte prvého klienta v časti Klienti a obchod – uvidíte tu rozloženie podľa fázy obchodu.

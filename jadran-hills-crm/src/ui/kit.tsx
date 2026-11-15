@@ -321,7 +321,7 @@ export function Modal({ title, onClose, children, footer, wide }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={cx('flex max-h-[92dvh] w-full flex-col rounded-t-2xl border border-line bg-surface shadow-2xl outline-none sm:rounded-2xl', wide ? 'sm:max-w-3xl' : 'sm:max-w-xl')}
+        className={cx('sheet flex max-h-[92dvh] w-full flex-col rounded-t-2xl border border-line bg-surface shadow-2xl outline-none sm:rounded-2xl', wide ? 'sm:max-w-3xl' : 'sm:max-w-xl')}
       >
         <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
           <h2 id={titleId} className="text-[15px] font-semibold">{title}</h2>
