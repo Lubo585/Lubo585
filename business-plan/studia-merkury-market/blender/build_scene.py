@@ -3,8 +3,11 @@ from mathutils import Vector
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 VIEW = argv[0] if argv else "entrance"; OUT = argv[1] if len(argv) > 1 else f"out/{VIEW}.png"; SAMPLES = int(argv[2]) if len(argv) > 2 else 64
 RESX, RESY = (int(argv[3]), int(argv[4])) if len(argv) > 4 else (1920, 1080)
+FLAGS = argv[5].split(',') if len(argv) > 5 else []
+ORTHO = 'ortho' in FLAGS; PHOTO = 'photo' in FLAGS
 HERE = os.path.dirname(os.path.abspath(__file__)); TEX = os.path.join(HERE, "tex")
 S = json.load(open(os.path.join(HERE, "..", "mm_study", "layout.json")))
+PANO = json.load(open(os.path.join(HERE, '..', 'gmaps', 'pano_local.json'))) if os.path.exists(os.path.join(HERE, '..', 'gmaps', 'pano_local.json')) else {}
 random.seed(7)
 # ---------------- reset ----------------
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -125,16 +128,27 @@ def plane_sign(name, mat, w, h, x, y, z, rot_z=0.0, coll=None, double=True):
     mat.use_backface_culling = True
     return ob
 # ---------------- ground, roads ----------------
-flat("ground", [(-400, -400), (500, -400), (500, 600), (-400, 600)], M_GRASS, -0.03)
-flat("parcel", S["parcel"], M_GRASS2, 0.0)
-flat("road", S["ROAD"], M_ROAD, 0.03, 0.08); flat("elane", S["ELANE"], M_LANE, 0.03, 0.06)
-flat("river", S["RIVER"], M_WATER, -0.3)
-flat("riverbed", S["RIVER"], noise_mat("bed", srgb("6b6a5e"), srgb("8c8a7a"), 10, 4, 0.9, 0.3), -0.9)
+if ORTHO:
+    OJ = json.load(open(os.path.join(HERE, '..', 'gmaps', 'ortho_local.json')))
+    mo = bpy.data.materials.new("ortho"); mo.use_nodes = True; nt = mo.node_tree; p = nt.nodes["Principled BSDF"]; t = nt.nodes.new("ShaderNodeTexImage"); t.image = bpy.data.images.load(os.path.join(HERE, '..', 'gmaps', 'ortho_local.jpg')); nt.links.new(t.outputs["Color"], p.inputs["Base Color"]); p.inputs["Roughness"].default_value = 0.9; p.inputs["Specular IOR Level"].default_value = 0.15
+    v = [(OJ["X0"], OJ["Y0"], -0.02), (OJ["X1"], OJ["Y0"], -0.02), (OJ["X1"], OJ["Y1"], -0.02), (OJ["X0"], OJ["Y1"], -0.02)]
+    og = mesh_obj("ortho", v, [(0, 1, 2, 3)], mo); og.data.uv_layers.new(); uv = og.data.uv_layers.active.data
+    for i, co in enumerate([(0, 0), (1, 0), (1, 1), (0, 1)]): uv[i].uv = co
+    gr_ = flat("ground", [(-900, -900), (900, -900), (900, 900), (-900, 900)], M_GRASS, -0.05)
+    pr_ = flat("parcel", S["parcel"], M_GRASS2, 0.0)
+    if PHOTO:
+        for o_ in (og, gr_): o_.is_shadow_catcher = True
+else:
+    flat("ground", [(-400, -400), (500, -400), (500, 600), (-400, 600)], M_GRASS, -0.03)
+    flat("parcel", S["parcel"], M_GRASS2, 0.0)
+    flat("road", S["ROAD"], M_ROAD, 0.03, 0.08); flat("elane", S["ELANE"], M_LANE, 0.03, 0.06)
+    flat("river", S["RIVER"], M_WATER, -0.3)
+    flat("riverbed", S["RIVER"], noise_mat("bed", srgb("6b6a5e"), srgb("8c8a7a"), 10, 4, 0.9, 0.3), -0.9)
 flat("paved", S["PAVED"], M_ASPH, 0.04, 0.1); flat("apron", S["APRON"], M_ASPH, 0.04, 0.1)
 lx, ly, lw, lh = S["LANE"]; flat("lane", [(lx, ly), (lx + lw, ly), (lx + lw, ly + lh), (lx, ly + lh)], M_ASPH, 0.04, 0.1)
-ex, ey, ew, eh = S["ENTRY_ROAD"]; flat("entry", [(ex - 8, ey), (ex + ew, ey), (ex + ew, ey + eh), (ex - 8, ey + eh)], M_ASPH, 0.045, 0.1)
+ex, ey, ew, eh = S["ENTRY_ROAD"]; flat("entry", [(ex - (0 if ORTHO else 8), ey), (ex + ew, ey), (ex + ew, ey + eh), (ex - (0 if ORTHO else 8), ey + eh)], M_ASPH, 0.045, 0.1)
 # road centre line dashes
-cl = S["ROAD_CL"]
+cl = S["ROAD_CL"] if not ORTHO else []
 for i in range(len(cl) - 1):
     a, b = cl[i], cl[i + 1]; L = math.hypot(b[0] - a[0], b[1] - a[1]); n = int(L / 6)
     for k in range(n):
@@ -246,10 +260,14 @@ if not SECTION:
     ob = bpy.data.objects.new("prism", me); COLL_E.objects.link(ob); ob.location = (PX, PY, 16.6); ob.rotation_euler = (0, 0, math.pi / 6)
     mp = img_mat("pylon", os.path.join(TEX, "pylon.png"), alpha=False); ob.data.materials.append(mp); ob.data.materials.append(M_DARK)
     me.uv_layers.new(); uv = me.uv_layers.active.data
+    k = 0
     for pg in me.polygons:
         if len(pg.vertices) == 4:
-            k = pg.index % 3
-            for li, co in zip(pg.loop_indices, [(k / 3, 0), ((k + 1) / 3, 0), ((k + 1) / 3, 1), (k / 3, 1)]): uv[li].uv = co
+            nrm = pg.normal; right = Vector((-nrm.y, nrm.x, 0.0)); right.normalize()  # (-n) x z
+            cos_ = [me.vertices[vi].co for vi in pg.vertices]; proj = [v_.dot(right) for v_ in cos_]; pmin, pmax = min(proj), max(proj); zmin = min(v_.z for v_ in cos_); zmax = max(v_.z for v_ in cos_)
+            for li, vi in zip(pg.loop_indices, pg.vertices):
+                v_ = me.vertices[vi].co; uv[li].uv = (k / 3 + (v_.dot(right) - pmin) / (pmax - pmin + 1e-9) / 3, (v_.z - zmin) / (zmax - zmin + 1e-9))
+            k += 1
         else:
             pg.material_index = 1
     for zc in (14.2, 19.0): cyl(f"cap{zc}", 2.9, 2.9, 0.25, M_DARK, PX, PY, zc - 0.125, 3).rotation_euler = (0, 0, math.pi / 6)
@@ -275,7 +293,7 @@ if not SECTION:
     car(16, 14, -math.pi / 2, "b5262a"); car(30, 46, math.pi / 2, "dedede"); car(13, 62, -math.pi / 2, "2c4e9a")
     def truck(x, y, rot):
         grp = [box("tcab", -1.25, -2.05, 0.8, 2.5, 2.3, 3.2, pbr("cabred", srgb("c62828"), 0.3, 0.5, coat=1.0), bevel=0.1), box("tcabg", -1.1, -2.1, 2.2, 2.2, 0.1, 1.2, M_GLASS), box("trail", -1.27, -0.5, 1.0, 2.55, 13.6, 2.8, M_WHITE, bevel=0.05)]
-        grp.append(plane_sign("tlogo1", M_LOGO, 10, 1.67, 1.29, 6.3, 2.4, -math.pi / 2)); grp.append(plane_sign("tlogo2", M_LOGO, 10, 1.67, -1.29, 6.3, 2.4, math.pi / 2))
+        grp.append(plane_sign("tlogo1", M_LOGO, 10, 1.67, 1.29, 6.3, 2.4, math.pi / 2)); grp.append(plane_sign("tlogo2", M_LOGO, 10, 1.67, -1.29, 6.3, 2.4, -math.pi / 2))
         for i in range(6):
             w = cyl("tw", 0.5, 0.5, 0.35, M_DARK, 0, 0, 0, 14); w.location = ((1.1 if i % 2 else -1.1), [-0.8, -0.8, 9.5, 9.5, 11.2, 11.2][i], 0.5); w.rotation_euler = (0, math.pi / 2, 0); grp.append(w)
         e = bpy.data.objects.new("truck", None); COLL_E.objects.link(e); e.location = (x, y, 0.05); e.rotation_euler = (0, 0, rot)
@@ -291,9 +309,10 @@ if not SECTION:
     trees = [(3, 95), (4, 108), (5, 122), (6.5, 136), (8, 150), (10, 163), (30, 165), (45, 167), (66, 110), (68, 128), (64, 148), (60, 162), (74, 100), (78, 80), (80, 60), (82, 46), (76, 30), (40, 1), (27, 0), (5, 40), (6, 28), (2, 80)]
     for (x, y) in trees: tree(x, y, 0.9 + random.random() * 0.4)
     for t in range(14): tree(92 + random.random() * 6 - t * 1.5, 10 + t * 12, 1.1 + random.random() * 0.5)
-    for t in range(10): tree(-18 - random.random() * 8 + t * 0.5, 30 + t * 16, 1.0 + random.random() * 0.5)
-    for t in range(12): tree(-40 - random.random() * 30, -20 + t * 20, 1.2 + random.random() * 0.6)
-    for t in range(10): tree(110 + random.random() * 30, -10 + t * 22, 1.2 + random.random() * 0.6)
+    if not PHOTO:
+        for t in range(10): tree(-18 - random.random() * 8 + t * 0.5, 30 + t * 16, 1.0 + random.random() * 0.5)
+        for t in range(12): tree(-40 - random.random() * 30, -20 + t * 20, 1.2 + random.random() * 0.6)
+        for t in range(10): tree(110 + random.random() * 30, -10 + t * 22, 1.2 + random.random() * 0.6)
     def lamp(x, y):
         cyl(f"lp{x}_{y}", 0.08, 0.12, 9, M_GREY, x, y, 0, 10); box(f"lh{x}_{y}", x - 0.2, y - 0.2, 9, 1.2, 0.4, 0.25, M_DARK)
     for (x, y) in [(13, 30), (42, 30), (13, 46), (42, 46), (8, 62), (45, 12), (60, 30), (59.5, 100), (59.5, 140)]: lamp(x, y)
@@ -328,14 +347,21 @@ views = {
     "entrance": ((10, 48, 2.6), (21, 90, 5), 55), "road": ((8, -2, 2.0), (30, 95, 6), 58), "dock": ((70, 10, 3.5), (48, 58, 4), 50),
     "plaza": ((2, 60, 1.7), (24, 92, 6), 55), "section_aa": ((-22, 92, 26), (46, 110, 3), 46), "section_bb": ((14, 24, 34), (40, 94, 3), 44), "section_cc": ((8, 56, 22), (34, 120, 3), 46),
 }
+SV = {}
+if PANO:
+    SV = {"sv_south": ((PANO["south"][0], PANO["south"][1], 2.6), (30, 75, 4.5), 62), "sv_mid": ((PANO["mid"][0], PANO["mid"][1], 2.6), (24, 86, 5), 70), "sv_far_south": ((PANO["far_south"][0], PANO["far_south"][1], 2.6), (26, 40, 4), 55)}
+views.update(SV)
 pos, look, fov = views.get(VIEW, views["entrance"])
-cam = bpy.data.cameras.new("cam"); cam.sensor_fit = 'VERTICAL'; cam.sensor_height = 24; cam.lens = 12 / math.tan(math.radians(fov) / 2)
+cam = bpy.data.cameras.new("cam")
+if VIEW in SV: cam.sensor_fit = 'HORIZONTAL'; cam.sensor_width = 36; cam.lens = 18 / math.tan(math.radians(fov) / 2)
+else: cam.sensor_fit = 'VERTICAL'; cam.sensor_height = 24; cam.lens = 12 / math.tan(math.radians(fov) / 2)
 co = bpy.data.objects.new("cam", cam); scene.collection.objects.link(co); co.location = pos
 d = Vector(look) - Vector(pos); co.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler(); scene.camera = co
 # ---------------- render settings ----------------
 scene.render.engine = 'CYCLES'; scene.cycles.device = 'CPU'; scene.cycles.samples = SAMPLES; scene.cycles.use_adaptive_sampling = True; scene.cycles.adaptive_threshold = 0.02
 scene.cycles.use_denoising = True; scene.cycles.denoiser = 'OPENIMAGEDENOISE'; scene.cycles.max_bounces = 6; scene.cycles.diffuse_bounces = 3; scene.cycles.glossy_bounces = 3; scene.cycles.transparent_max_bounces = 8
-scene.render.resolution_x = RESX; scene.render.resolution_y = RESY; scene.render.resolution_percentage = 100; scene.render.film_transparent = False
+scene.render.resolution_x = RESX; scene.render.resolution_y = RESY; scene.render.resolution_percentage = 100; scene.render.film_transparent = PHOTO
+if PHOTO: scene.render.image_settings.color_mode = 'RGBA'
 scene.view_settings.view_transform = 'AgX'; scene.view_settings.look = 'AgX - Punchy'; scene.view_settings.exposure = -0.35
 scene.render.image_settings.file_format = 'PNG'; scene.render.filepath = os.path.join(HERE, OUT)
 print("objects:", len(bpy.data.objects))
