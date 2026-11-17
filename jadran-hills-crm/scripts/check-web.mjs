@@ -28,11 +28,11 @@ walk(dist)
 // Prezentačná stránka v každom jazyku (slovenská je na úvodnej adrese) a aplikácia.
 const langs = ['sk', 'en', 'hr', 'de', 'hu']
 const sitePage = (lang) => (lang === 'sk' ? 'index.html' : `${lang}/index.html`)
-const need = [...langs.map(sitePage), 'crm/index.html', 'robots.txt', 'favicon.svg', '.htaccess']
+const need = [...langs.map(sitePage), 'crm/index.html', 'robots.txt', 'favicon.svg', '.htaccess', 'notify.php']
 for (const f of need) if (!existsSync(join(dist, f))) fail(`Vo výstupe chýba ${f}.`)
 
 const text = (path) => readFileSync(path, 'utf8')
-const textual = files.filter((f) => ['.html', '.js', '.css', '.svg', '.txt', '.json'].includes(extname(f)))
+const textual = files.filter((f) => ['.html', '.js', '.css', '.svg', '.txt', '.json', '.php'].includes(extname(f)))
 
 // 1. Adresa a kľúč projektu Supabase musia byť doplnené.
 for (const f of [...langs.map(sitePage), 'crm/index.html']) {
@@ -89,7 +89,11 @@ if (inlineScript.test(text(join(dist, 'crm/index.html')))) {
   fail('crm/index.html: stránka obsahuje vložený skript – bezpečnostné pravidlá stránky (CSP) ho nespustia.')
 }
 
+// 4. Vizualizácie nie sú v repozitári – stránka zostavená bez nich má o dve časti menej.
+const visuals = text(join(dist, 'index.html')).includes('id="vizualizacie"')
+if (!visuals) console.warn('! Stránka je zostavená BEZ vizualizácií (priečinok web/public/vizualizacie je prázdny) – pozri README.')
+
 const total = files.reduce((sum, f) => sum + statSync(f).size, 0)
 console.log(
-  `✓ Web je pripravený v dist-web: ${files.length} súborov, ${(total / 1048576).toFixed(1)} MB; prezentačná stránka v ${langs.length} jazykoch, jej skript ${Math.round(landingJs / 1024)} kB.`,
+  `✓ Web je pripravený v dist-web: ${files.length} súborov, ${(total / 1048576).toFixed(1)} MB; prezentačná stránka v ${langs.length} jazykoch${visuals ? ' s vizualizáciami' : ''}, jej skript ${Math.round(landingJs / 1024)} kB.`,
 )

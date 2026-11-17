@@ -17,6 +17,14 @@
   DirectoryIndex index.html
 </IfModule>
 
+# Nastavenie e-mailu o novom dopyte patrí o priečinok vyššie, mimo webu. Ak by ho hosting
+# tam nepustil a ležalo tu, nikdy sa neposiela von.
+<IfModule mod_authz_core.c>
+  <Files ".jh-notify.config.php">
+    Require all denied
+  </Files>
+</IfModule>
+
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"

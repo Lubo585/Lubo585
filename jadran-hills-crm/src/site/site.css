@@ -1382,6 +1382,79 @@ button {
   }
 }
 
+/* Poloha domov: zábery z výšky. Hlavný obrázok sa neorezáva – ide o to, čo na ňom vidno. */
+
+.spot {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(22px, 3.4vw, 48px);
+  margin-top: clamp(40px, 5.5vw, 72px);
+  scroll-margin-top: 90px;
+}
+
+.snap {
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--tint, #8aa3b5);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 18px 50px rgba(0, 0, 0, 0.06);
+}
+
+.snap img {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.spot figcaption {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.spot-side h3 {
+  margin-top: 10px;
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.spot-text {
+  margin-top: 14px;
+  color: var(--ink-2);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.spot-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 26px;
+}
+
+.spot-pair .snap {
+  border-radius: 18px;
+  aspect-ratio: 3 / 2;
+}
+
+.spot-pair .snap img {
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 980px) {
+  .spot {
+    grid-template-columns: 1fr;
+  }
+
+  .snap {
+    border-radius: 20px;
+  }
+}
+
 /* ───────────── Projekt (tmavá časť) ───────────── */
 
 .arch {
@@ -1477,6 +1550,118 @@ button {
 
   .features li {
     padding: 22px 0 26px;
+  }
+}
+
+/* Vizualizácie domov: jeden veľký záber a päť menších, popisky pod obrázkami, aby nič
+   nezakrývali. Kliknutím sa otvorí celý obrázok. */
+
+.viz {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 22px 16px;
+  margin-top: clamp(44px, 6vw, 80px);
+  scroll-margin-top: 90px;
+}
+
+.viz-item {
+  display: flex;
+  grid-column: span 4;
+  flex-direction: column;
+}
+
+.viz-item--big {
+  grid-column: span 8;
+  grid-row: span 2;
+}
+
+.viz-pic {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 22px;
+  aspect-ratio: 16 / 9;
+  background: var(--tint, #8f9a98);
+  cursor: zoom-in;
+}
+
+/* Veľký záber vyplní výšku dvoch menších vedľa seba. */
+.viz-item--big .viz-pic {
+  flex: 1;
+  min-height: 0;
+  border-radius: 28px;
+  aspect-ratio: auto;
+}
+
+.viz-pic img {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 1.6s var(--ease);
+}
+
+.viz-pic:hover img {
+  transform: scale(1.04);
+}
+
+.viz-item figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 4px 0;
+}
+
+.viz-item figcaption b {
+  font-size: 16.5px;
+  font-weight: 600;
+  letter-spacing: -0.018em;
+}
+
+.viz-item figcaption span {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.viz-note {
+  margin-top: 26px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: 1020px) {
+  .viz-item {
+    grid-column: span 6;
+  }
+
+  /* Prvý a posledný záber cez celú šírku, medzi nimi dva rady po dvoch. */
+  .viz-item--big,
+  .viz-item:last-child {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .viz-item--big .viz-pic {
+    flex: none;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (max-width: 640px) {
+  .viz {
+    gap: 20px;
+  }
+
+  .viz-item {
+    grid-column: 1 / -1;
+  }
+
+  .viz-pic,
+  .viz-item--big .viz-pic {
+    border-radius: 18px;
   }
 }
 
@@ -1982,6 +2167,25 @@ html:not(.js) .seg button[aria-selected="true"] {
   padding-block: clamp(88px, 12vw, 160px);
 }
 
+.contact-mail {
+  margin-top: 18px;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 17px;
+}
+
+.contact-mail a {
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.4);
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+}
+
+.contact-mail a:hover {
+  text-decoration-color: #ffffff;
+}
+
 .form {
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 30px;
@@ -2224,6 +2428,7 @@ html:not(.js) .seg button[aria-selected="true"] {
 }
 
 .footer-links a:hover,
+.footer-addr a:hover,
 .legal a:hover {
   color: var(--ink);
   text-decoration: underline;

@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "build:artifact": "tsc -b && vite build --mode artifact && node scripts/build-artifact.mjs",
     "dev:web": "vite --mode web",
+    "visuals": "node scripts/fetch-visuals.mjs",
     "build:web": "tsc -b && vite build --mode web && node scripts/check-web.mjs",
     "preview:web": "vite preview --mode web"
   },

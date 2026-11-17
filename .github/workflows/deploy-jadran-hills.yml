@@ -44,6 +44,10 @@ jobs:
       - run: npm test
         if: steps.cfg.outputs.ok == 'true'
         working-directory: jadran-hills-crm
+      # Vizualizácie nie sú v repozitári – pred zostavením sa stiahnu z nasadeného webu.
+      - run: npm run visuals
+        if: steps.cfg.outputs.ok == 'true'
+        working-directory: jadran-hills-crm
       - run: npm run build:web
         if: steps.cfg.outputs.ok == 'true'
         working-directory: jadran-hills-crm

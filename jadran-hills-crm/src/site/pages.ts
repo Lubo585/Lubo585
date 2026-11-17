@@ -31,6 +31,16 @@ const HINT_KEYS = ['js.suggest.text', 'js.suggest.go', 'js.suggest.close'] as co
 
 const PLACEHOLDER = /\{\{(@?[A-Za-z0-9_.]+)\}\}/g
 
+// Podmienené časti šablóny: {{#názov}}…{{/názov}} ostane, ak je vlastnosť zapnutá,
+// {{^názov}}…{{/názov}} naopak, ak zapnutá nie je. Časti sa do seba nevnárajú.
+const BLOCK = /\{\{([#^])([A-Za-z]+)\}\}([\s\S]*?)\{\{\/\2\}\}/g
+const BLOCK_MARK = /\{\{[#^/][A-Za-z]+\}\}/
+/** Značka časti na samostatnom riadku po sebe nenechá prázdny riadok. */
+const BLOCK_LINE = /^[ \t]*(\{\{[#^/][A-Za-z]+\}\})[ \t]*\r?\n/gm
+
+/** Súbory vizualizácií, na ktoré šablóna odkazuje (ležia vo web/public/vizualizacie). */
+const VISUAL_FILE = /\/vizualizacie\/([A-Za-z0-9._-]+\.(?:webp|jpg|png))/g
+
 const escapeHtml = (text: string): string =>
   text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 
@@ -46,6 +56,22 @@ export function templateKeys(template: string): string[] {
   const keys = new Set<string>()
   for (const m of template.matchAll(PLACEHOLDER)) if (!m[1].startsWith('@')) keys.add(m[1])
   return [...keys]
+}
+
+/** Názvy súborov vizualizácií, ktoré šablóna potrebuje. */
+export function visualFiles(template: string): string[] {
+  return [...new Set([...template.matchAll(VISUAL_FILE)].map((m) => m[1]))].sort()
+}
+
+/** Vyberie zo šablóny časti podľa zapnutých vlastností stránky. */
+export function applyBlocks(template: string, flags: Record<string, boolean>): string {
+  const out = template.replace(BLOCK_LINE, '$1').replace(BLOCK, (_, kind: string, name: string, body: string) => {
+    if (!(name in flags)) throw new Error(`Šablóna používa neznámu časť {{${kind}${name}}}.`)
+    return flags[name] === (kind === '#') ? body : ''
+  })
+  const stray = BLOCK_MARK.exec(out)
+  if (stray) throw new Error(`Šablóna má neuzavretú alebo vnorenú časť ${stray[0]}.`)
+  return out
 }
 
 /**
@@ -85,10 +111,23 @@ export function siteBase(url: string | undefined): string {
   return value.replace(/\/*$/, '/')
 }
 
+/** Kontaktný e-mail v jednotnom tvare; prázdny, ak nie je nastavený. */
+export function contactEmail(value: string | undefined): string {
+  const email = value?.trim() ?? ''
+  if (!email) return ''
+  if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(email)) throw new Error(`Kontaktný e-mail nevyzerá ako adresa: „${email}“.`)
+  return email
+}
+
 export interface PageOptions {
   /** Úplná adresa webu so záverečnou lomkou (napr. https://www.priklad.sk/). Bez nej sa
    *  odkazy na jazykové verzie pre vyhľadávače nevkladajú – tie musia byť úplné. */
   siteUrl?: string
+  /** Kontaktný e-mail zobrazený na stránke. Bez neho stránka odkazuje len na formulár. */
+  email?: string
+  /** Či sú pri zostavení k dispozícii vizualizácie a letecké zábery pozemku. Bez nich sa
+   *  časti stránky, ktoré ich ukazujú, vynechajú. */
+  visuals?: boolean
 }
 
 /** Zloží stránku v danom jazyku. */
@@ -131,7 +170,9 @@ export function renderPage(template: string, lang: LangCode, dicts: Dicts, optio
       ].join('\n')
     : ''
 
+  const email = contactEmail(options.email)
   const special: Record<string, string> = {
+    '@email': escapeHtml(email),
     '@lang': lang,
     '@langCode': lang.toUpperCase(),
     '@langName': me.name,
@@ -142,7 +183,8 @@ export function renderPage(template: string, lang: LangCode, dicts: Dicts, optio
     '@src': src,
   }
 
-  return template.replace(PLACEHOLDER, (_, key: string) => {
+  const body = applyBlocks(template, { email: email !== '', visuals: options.visuals === true })
+  return body.replace(PLACEHOLDER, (_, key: string) => {
     if (!key.startsWith('@')) return text(key)
     if (!(key in special)) throw new Error(`Šablóna používa neznámu značku {{${key}}}.`)
     return special[key]

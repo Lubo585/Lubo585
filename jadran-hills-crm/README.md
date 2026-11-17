@@ -229,6 +229,28 @@ v HTML a vyhľadávače vidia každú verziu na vlastnej adrese.
 Preklady do angličtiny, chorvátčiny, nemčiny a maďarčiny treba pred propagáciou
 stránky dať prečítať rodenému hovoriacemu.
 
+### Vizualizácie a poloha domov
+
+Časť Projekt ukazuje šesť vizualizácií domov a časť Lokalita zábery z výšky s polohou
+domov voči moru. Obrázky sú podkladmi investora a **nie sú v repozitári** (repozitár
+je verejný): ležia v priečinku `web/public/vizualizacie/`, ktorý Git ignoruje, a na
+web idú pri zostavení.
+
+- Keď pri zostavení v priečinku sú, stránka obe časti ukáže. Keď nie sú, časti sa
+  vynechajú a `scripts/check-web.mjs` na to upozorní; ak je v priečinku len časť
+  súborov, zostavenie skončí chybou.
+- `npm run visuals` stiahne chýbajúce súbory z nasadeného webu (`VITE_SITE_URL`).
+  Robí to aj workflow nasadenia, takže automatické zostavenie má stránku celú.
+- Zoznam súborov určuje šablóna (`/vizualizacie/…` vo `web/site.template.html`):
+  vizualizácie `terasy`, `strecha`, `bazen-zhora`, `tri-domy`, `priecelie` a
+  `pri-bazene` (každá ako `-800.webp` a `-1600.webp`, pomer strán 16 : 9) a zábery
+  `poloha-920.webp`, `pozemok-567.webp` a `pozemok-more-721.webp`.
+- Nová vizualizácia: uložiť ju v oboch veľkostiach do priečinka, pridať dlaždicu do
+  šablóny a texty `viz.N.*` do slovníkov. Kliknutím sa na stránke otvorí väčšia verzia.
+- Vzdialenosť od mora stránka uvádza ako čas chôdze (`dist.seaValue`, `spot.text`,
+  `hero.sub`, `place.sea.text`), nie v metroch: pozemok leží v druhom rade zástavby
+  a údaj v metroch treba pred zverejnením zamerať.
+
 ### Prístup do CRM
 
 Účty nevznikajú verejnou registráciou. Prístup sa vytvára **jednorazovým kódom**:
@@ -257,15 +279,59 @@ jediná pracuje so servisným kľúčom; ten nie je v stránke ani v repozitári
 | Obrázky projektu | súkromné úložisko `crm-media`, čítanie cez dočasné adresy pre členov |
 | Dopyty z formulára | tabuľka `inquiries`; v CRM sú v časti Dopyty z webu a jedným kliknutím sa z nich stáva klient |
 | Čiarová kresba domu na prezentačnej stránke | verejné úložisko `site` |
+| Vizualizácie a zábery polohy | priečinok `vizualizacie/` na hostingu; v repozitári nie sú |
 
 Adresa projektu Supabase a jeho verejný kľúč sú v `.env.web`. Kľúč je určený do
 kódu stránky a nič neodomyká.
+
+### Kontaktný e-mail a e-mail o novom dopyte
+
+Adresa vo `VITE_CONTACT_EMAIL` (`.env.web`) sa zobrazí pri formulári, v pätičke a
+v časti Ochrana osobných údajov. Bez nej stránka odkazuje len na formulár.
+
+Každý nový dopyt sa okrem uloženia do CRM pošle aj e-mailom:
+
+1. Po uložení dopytu zavolá databáza skript `notify.php` na hostingu (spúšťač
+   `inquiries_notify` v `supabase/schema.sql`, rozšírenie `pg_net`).
+2. Skript overí podpis požiadavky (HMAC-SHA256 kľúčom, ktorý pozná len databáza a
+   hosting) a pošle správu funkciou `mail()`. V poli Odpovedať komu je adresa
+   záujemcu, takže na upozornenie sa dá rovno odpovedať.
+3. Zlyhanie upozornenia uloženie dopytu neovplyvní – dopyt je v CRM vždy.
+
+Nastavuje sa raz, mimo repozitára:
+
+- Na hostingu súbor `jh-notify.config.php` **o priečinok vyššie než web** (mimo
+  dosahu prehliadača):
+
+  ```php
+  <?php
+  return [
+      'secret' => '<kľúč z databázy>',
+      'to' => 'info@jadranhills.com',    // kam upozornenia chodia
+      'from' => 'info@jadranhills.com',  // odosielateľ – schránka na tej istej doméne
+      'site' => 'https://jadranhills.com/',
+  ];
+  ```
+
+  Ak hosting skriptu čítanie mimo webu nedovolí, môže súbor ležať priamo vo webe
+  pod názvom `.jh-notify.config.php`; `.htaccess` ho von neposiela.
+- V databáze kľúč a adresa skriptu (`crm_setup.notify_secret`, `crm_setup.notify_url`;
+  príkazy sú na konci `supabase/schema.sql`). Kým adresa nie je nastavená, nič sa
+  neposiela.
+- Schránka príjemcu musí na hostingu existovať.
+
+Skript odpovedá stavom `sent`, `not_configured` (chýba súbor s nastavením), `time`
+alebo `signature` (neplatná požiadavka), `mail_failed` (hosting správu neprijal).
+Odpovede na posledné volania si databáza niekoľko hodín pamätá v tabuľke
+`net._http_response`.
 
 ### Nasadenie
 
 Web beží na doméne jadranhills.com. Na hosting sa nahráva celý obsah priečinka
 `dist-web` do webového priečinka domény (vrátane skrytých súborov `.htaccess`);
 súbory v `assets/` majú v názve odtlačok obsahu, staré verzie preto môžu ostať.
+S webom sa nahrá aj skript `notify.php`; jeho nastavenie (`jh-notify.config.php`) sa
+na hosting ukladá zvlášť a pri ďalších nahratiach sa neprepisuje.
 
 Workflow `.github/workflows/deploy-jadran-hills.yml` web zostaví a nahrá cez FTP.
 Spustí sa ručne alebo pri zmene v tomto priečinku na vetve `main`; bez nastavených

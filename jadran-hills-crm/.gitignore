@@ -10,3 +10,7 @@ dist-web
 private/
 *.seed.json
 dist-artifact
+
+# Vizualizácie a letecké zábery pozemku (podklady investora) – na web idú pri zostavení,
+# v repozitári nie sú. Pozri README, časť Verejný web.
+web/public/vizualizacie/

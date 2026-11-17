@@ -24,7 +24,10 @@ create table public.crm_members (
 create table public.crm_setup (
   id integer primary key default 1 check (id = 1),
   owner_code_hash text,
-  seed_token_hash text
+  seed_token_hash text,
+  -- e-mail o novom dopyte: adresa skriptu na hostingu a podpisový kľúč (pozri inquiries_notify)
+  notify_url text check (notify_url is null or notify_url ~ '^https://[^[:space:]]+$'),
+  notify_secret text check (notify_secret is null or char_length(notify_secret) >= 32)
 );
 
 create table public.crm_docs (
@@ -183,6 +186,43 @@ end $$;
 create trigger inquiries_limit before insert on public.inquiries
   for each row execute function public.inquiries_limit();
 
+-- E-mail o novom dopyte. Po uložení dopytu databáza zavolá skript na hostingu
+-- (web/public/notify.php), ktorý pošle upozornenie na e-mail projektu. Požiadavka je
+-- podpísaná kľúčom, ktorý pozná len databáza a hosting. Adresa skriptu a kľúč sa nastavujú
+-- raz, mimo tohto súboru (pozri README, časť E-mail o novom dopyte); bez nich sa nič neposiela.
+create extension if not exists pg_net;
+
+create function public.inquiries_notify() returns trigger
+language plpgsql security definer set search_path = '' as $$
+declare
+  cfg record;
+  payload jsonb;
+  stamp text;
+begin
+  select s.notify_url, s.notify_secret into cfg from public.crm_setup s where s.id = 1;
+  if coalesce(cfg.notify_url, '') = '' or coalesce(cfg.notify_secret, '') = '' then
+    return new;
+  end if;
+  payload := jsonb_build_object('id', new.id, 'created_at', new.created_at, 'name', new.name, 'email', new.email,
+    'phone', new.phone, 'interest', new.interest, 'message', new.message, 'lang', new.lang);
+  stamp := floor(extract(epoch from clock_timestamp()))::bigint::text;
+  -- Podpis: HMAC-SHA256 z „čas.telo“; skript ho overí rovnakým kľúčom.
+  perform net.http_post(
+    url := cfg.notify_url,
+    body := payload,
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'X-JH-Timestamp', stamp,
+      'X-JH-Signature', encode(extensions.hmac(convert_to(stamp || '.' || payload::text, 'UTF8'), convert_to(cfg.notify_secret, 'UTF8'), 'sha256'), 'hex')),
+    timeout_milliseconds := 10000);
+  return new;
+exception when others then
+  -- Upozornenie nesmie zabrániť uloženiu dopytu.
+  return new;
+end $$;
+create trigger inquiries_notify after insert on public.inquiries
+  for each row execute function public.inquiries_notify();
+
 -- ───────────────────────── Prístupové kódy ─────────────────────────
 
 create function public.crm_code_hash(code text) returns text
@@ -321,7 +361,7 @@ $$;
 -- Kto smie ktorú funkciu volať.
 revoke all on function public.crm_email(), public.crm_role(), public.crm_has_owner() from public, anon;
 grant execute on function public.crm_email(), public.crm_role(), public.crm_has_owner() to authenticated;
-revoke all on function public.crm_touch(), public.crm_keep_owner(), public.inquiries_limit() from public, anon, authenticated;
+revoke all on function public.crm_touch(), public.crm_keep_owner(), public.inquiries_limit(), public.inquiries_notify() from public, anon, authenticated;
 revoke all on function public.crm_code_hash(text), public.crm_new_code(), public.crm_redeem_core(uuid, text, text, text, boolean),
   public.crm_join_attempt(), public.crm_join_check(text, text), public.crm_join_commit(uuid, text, text, text), public.crm_user_id(text)
   from public, anon, authenticated;
@@ -333,6 +373,9 @@ grant execute on function public.crm_redeem(text), public.crm_claim_owner(text),
 
 -- Kód prvého vlastníka sa nastaví raz, mimo tohto súboru (v databáze je len odtlačok):
 --   update public.crm_setup set owner_code_hash = public.crm_code_hash('<kód>') where id = 1;
+-- Rovnako e-mail o novom dopyte – kľúč vznikne v databáze, adresa sa doplní po nahratí skriptu:
+--   update public.crm_setup set notify_secret = encode(extensions.gen_random_bytes(32), 'hex') where id = 1;
+--   update public.crm_setup set notify_url = 'https://<web>/notify.php' where id = 1;
 
 -- ───────────────────────── Úložisko súborov ─────────────────────────
 
