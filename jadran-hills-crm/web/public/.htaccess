@@ -1,6 +1,16 @@
 # Jadran Hills – nastavenie servera Apache. Iné servery súbor ignorujú;
 # všetko je v blokoch IfModule, takže chýbajúci modul stránku nezhodí.
 
+# Web beží len cez zabezpečené pripojenie: adresy http sa presmerujú na https.
+# (Hosting ukončuje šifrovanie pred serverom, preto sa pozerá aj na hlavičku
+# X-Forwarded-Proto.)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
 # Úvodnou stránkou každého priečinka je index.html (aj keď hosting v priečinku
 # necháva vlastnú predvolenú stránku index.php).
 <IfModule mod_dir.c>

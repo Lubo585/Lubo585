@@ -275,8 +275,8 @@ domény). Prístupové údaje k hostingu do repozitára nepatria.
 
 Na hostingu a v službách okolo treba mať nastavené:
 
-- **certifikát SSL a presmerovanie na https** – bez neho sa CRM neotvorí a
-  adresy pre vyhľadávače (`https://…`) nefungujú,
+- **certifikát SSL** – bez neho sa CRM neotvorí a adresy pre vyhľadávače
+  (`https://…`) nefungujú; presmerovanie z http na https rieši `.htaccess`,
 - prevádzkovateľa a kontakt v časti Ochrana osobných údajov (text
   `privacy.who.text` vo všetkých slovníkoch `web/i18n/`),
 - v Supabase adresu stránky (Authentication → URL Configuration: Site URL a
