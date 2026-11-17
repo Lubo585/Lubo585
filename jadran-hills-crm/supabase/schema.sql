@@ -63,7 +63,9 @@ create table public.inquiries (
   message text not null default '' check (char_length(message) <= 2000),
   interest text not null default '' check (char_length(interest) <= 80),
   consent boolean not null check (consent),
-  handled boolean not null default false
+  handled boolean not null default false,
+  -- jazyk stránky, z ktorej dopyt prišiel (sk, en, hr, de, hu) – napovie, v akej reči odpovedať
+  lang text not null default 'sk' check (lang ~ '^[a-z]{2}$')
 );
 
 alter table public.crm_members enable row level security;

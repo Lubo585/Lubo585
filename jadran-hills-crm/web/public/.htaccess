@@ -1,6 +1,12 @@
 # Jadran Hills – nastavenie servera Apache. Iné servery súbor ignorujú;
 # všetko je v blokoch IfModule, takže chýbajúci modul stránku nezhodí.
 
+# Úvodnou stránkou každého priečinka je index.html (aj keď hosting v priečinku
+# necháva vlastnú predvolenú stránku index.php).
+<IfModule mod_dir.c>
+  DirectoryIndex index.html
+</IfModule>
+
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"

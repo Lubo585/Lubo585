@@ -1,4 +1,6 @@
 // Pohyb a ovládanie prezentačnej stránky. Obsah je v HTML a funguje aj bez tohto skriptu.
+// Skript je spoločný pre všetky jazykové verzie: texty, ktoré zobrazuje, si berie
+// z atribútov prvkov na stránke (pozri src/site/pages.ts).
 
 import './site.css'
 
@@ -80,13 +82,126 @@ function menu(): void {
     if (e.key === 'Escape' && !sheet.hidden) set(false)
   })
   window.addEventListener('resize', () => {
-    if (window.innerWidth > 860 && !sheet.hidden) set(false)
+    if (window.innerWidth > 940 && !sheet.hidden) set(false)
   })
+}
+
+// ───────────────────────── Jazyky ─────────────────────────
+
+const LANG_KEY = 'jh:lang'
+const HINT_KEY = 'jh:lang-hint'
+/** Jazyky, ktorým návštevník rozumie rovnako dobre ako niektorej z verzií stránky. */
+const CLOSE_LANGS: Record<string, string> = { cs: 'sk', bs: 'hr', sr: 'hr', sh: 'hr' }
+
+// Úložisko prehliadača môže byť vypnuté (súkromný režim) – stránka sa bez neho zaobíde.
+const memory = {
+  get(key: string): string | null {
+    try {
+      return window.localStorage.getItem(key)
+    } catch {
+      return null
+    }
+  },
+  set(key: string, value: string): void {
+    try {
+      window.localStorage.setItem(key, value)
+    } catch {
+      /* bez zapamätania */
+    }
+  },
+}
+
+/** Časť stránky, ktorú má návštevník pred sebou; po prepnutí jazyka sa ocitne na tej istej. */
+function currentSection(): string {
+  if (window.scrollY < window.innerHeight * 0.5) return ''
+  const mid = window.innerHeight * 0.4
+  let id = ''
+  for (const s of $$('main section[id]')) {
+    const r = s.getBoundingClientRect()
+    if (r.top <= mid && r.bottom > mid) id = s.id
+  }
+  return id
+}
+
+function languages(): void {
+  const box = $<HTMLDetailsElement>('[data-lang]')
+  const links = $$<HTMLAnchorElement>('[data-lang-link]')
+
+  // Voľba jazyka sa zapamätá a nová stránka sa otvorí na tom istom mieste.
+  for (const a of links) {
+    const choose = () => {
+      memory.set(LANG_KEY, a.dataset.langLink ?? '')
+      const id = currentSection()
+      a.hash = id ? `#${id}` : ''
+    }
+    a.addEventListener('click', choose)
+    a.addEventListener('auxclick', (e) => {
+      if (e.button === 1) choose()
+    })
+  }
+
+  if (box) {
+    document.addEventListener('click', (e) => {
+      if (box.open && !box.contains(e.target as Node)) box.open = false
+    })
+    box.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || !box.open) return
+      box.open = false
+      $('summary', box)?.focus()
+    })
+    box.addEventListener('focusout', (e) => {
+      const to = e.relatedTarget as Node | null
+      if (box.open && to && !box.contains(to)) box.open = false
+    })
+  }
+
+  suggestLanguage(links.filter((a) => a.closest('[data-lang]')))
+}
+
+/**
+ * Návštevníkovi, ktorého prehliadač uprednostňuje iný z jazykov stránky, ponúkne prepnutie.
+ * Nič sa neprepína samo; kto si už jazyk vybral alebo ponuku zavrel, viac ju neuvidí.
+ */
+function suggestLanguage(links: HTMLAnchorElement[]): void {
+  if (memory.get(LANG_KEY) || memory.get(HINT_KEY)) return
+  const offered = new Map(links.map((a) => [a.dataset.langLink ?? '', a]))
+  const spoken = (navigator.languages?.length ? navigator.languages : [navigator.language ?? ''])
+    .map((l) => l.toLowerCase().split('-')[0])
+    .map((l) => CLOSE_LANGS[l] ?? l)
+  // Kto nehovorí žiadnym z jazykov stránky, tomu najskôr pomôže angličtina.
+  const want = spoken.find((l) => offered.has(l)) ?? 'en'
+  const link = offered.get(want)
+  if (!link || want === root.lang || !link.dataset.suggest) return
+
+  const card = document.createElement('aside')
+  card.className = 'lang-hint'
+  card.lang = want
+  const text = document.createElement('p')
+  text.textContent = link.dataset.suggest
+  const go = document.createElement('a')
+  go.href = link.href
+  go.textContent = link.dataset.go ?? want.toUpperCase()
+  go.addEventListener('click', (e) => {
+    // rovnaká cesta ako pri voľbe v zozname jazykov
+    e.preventDefault()
+    link.click()
+  })
+  const close = document.createElement('button')
+  close.type = 'button'
+  close.setAttribute('aria-label', link.dataset.close ?? '×')
+  close.innerHTML = '<svg class="i" aria-hidden="true"><use href="#i-x" /></svg>'
+  close.addEventListener('click', () => {
+    memory.set(HINT_KEY, '1')
+    card.classList.remove('is-in')
+    window.setTimeout(() => card.remove(), reduced ? 0 : 600)
+  })
+  card.append(text, go, close)
+  document.body.append(card)
+  window.setTimeout(() => card.classList.add('is-in'), reduced ? 0 : 1800)
 }
 
 // ───────────────────────── Úvod: striedanie záberov a posun pri rolovaní ─────────────────────────
 
-const CAPTIONS = ['Sabunike · foto Fred Romero', 'Velebit zo Sabuník · foto Fred Romero', 'Zadar · foto Karl Paul Baldacchino']
 const SLIDE_MS = 7000
 
 // Ďalšie zábery úvodu sa načítavajú až po prvom; ich adresy pozná zostavenie stránky.
@@ -132,7 +247,9 @@ function hero(): void {
     load(slides[at])
     slides.forEach((s, k) => s.classList.toggle('is-on', k === at))
     dots.forEach((d, k) => d.setAttribute('aria-selected', String(k === at)))
-    if (caption) caption.textContent = CAPTIONS[at] ?? ''
+    // popis záberu v jazyku stránky nesie jeho bodka
+    const note = dots[at]?.dataset.caption
+    if (caption && note) caption.textContent = note
     // ďalší záber sa pripraví vopred, aby prechod nezačal prázdnou plochou
     load(slides[(at + 1) % slides.length])
   }
@@ -422,6 +539,9 @@ function form(): void {
   const label = $('[data-form-label]', el)
   const consent = $('.consent', el)
   const input = (name: string) => el.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  /** Hlásenie v jazyku stránky. */
+  const say = (key: string) => el.getAttribute(`data-msg-${key}`) ?? ''
+  const idle = label?.textContent ?? ''
 
   const fail = (text: string, at?: HTMLElement) => {
     if (error) {
@@ -448,11 +568,11 @@ function form(): void {
     const phone = input('phone').value.trim()
     const message = input('message').value.trim()
     const interest = input('interest').value
-    if (name.length < 2) return fail('Napíšte, prosím, svoje meno.', input('name'))
-    if (!EMAIL.test(email)) return fail('Skontrolujte, prosím, e-mailovú adresu.', input('email'))
+    if (name.length < 2) return fail(say('name'), input('name'))
+    if (!EMAIL.test(email)) return fail(say('email'), input('email'))
     if (!(input('consent') as HTMLInputElement).checked) {
       consent?.setAttribute('data-invalid', '')
-      return fail('Bez súhlasu so spracovaním údajov vám nemôžeme odpovedať.')
+      return fail(say('consent'))
     }
 
     const finish = () => {
@@ -462,30 +582,25 @@ function form(): void {
     }
     // Pole, ktoré človek nevidí, a odoslanie do pár sekúnd po načítaní prezrádzajú robota.
     if (input('website').value !== '' || Date.now() - opened < 2500) return finish()
-    // Náhľad stránky (mimo ostrej domény) nič neodosiela.
-    if (el.hasAttribute('data-preview')) return fail('Toto je náhľad stránky – dopyt sa odošle až z ostrej stránky.')
-    if (!API || !KEY) return fail('Formulár teraz nie je dostupný. Skúste to, prosím, neskôr.')
+    if (!API || !KEY) return fail(say('unavailable'))
 
     if (submit) submit.disabled = true
-    if (label) label.textContent = 'Odosielam…'
+    if (label) label.textContent = say('sending')
     try {
       const res = await fetch(`${API}/rest/v1/inquiries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', apikey: KEY, Prefer: 'return=minimal' },
-        body: JSON.stringify({ name, email, phone, message, interest, consent: true }),
+        // jazyk stránky napovie tímu, v akej reči má odpovedať
+        body: JSON.stringify({ name, email, phone, message, interest, consent: true, lang: root.lang }),
       })
       if (res.ok) return finish()
       const text = await res.text().catch(() => '')
-      fail(
-        text.includes('too_many_inquiries')
-          ? 'Práve prišlo veľa dopytov naraz. Skúste to, prosím, o hodinu.'
-          : 'Dopyt sa nepodarilo odoslať. Skontrolujte údaje a skúste to znova.',
-      )
+      fail(say(text.includes('too_many_inquiries') ? 'busy' : 'failed'))
     } catch {
-      fail('Nepodarilo sa spojiť so serverom. Skontrolujte pripojenie a skúste to znova.')
+      fail(say('offline'))
     } finally {
       if (submit) submit.disabled = false
-      if (label) label.textContent = 'Odoslať dopyt'
+      if (label) label.textContent = idle
     }
   })
 }
@@ -505,6 +620,7 @@ function privacy(): void {
 function start(): void {
   nav()
   menu()
+  languages()
   hero()
   words()
   counters()

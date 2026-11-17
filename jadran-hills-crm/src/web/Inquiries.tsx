@@ -17,6 +17,17 @@ export interface Inquiry {
   message: string
   interest: string
   handled: boolean
+  /** Jazyk stránky, z ktorej dopyt prišiel. */
+  lang: string
+}
+
+/** V akej reči návštevník stránku čítal – a teda v akej mu zrejme treba odpovedať. */
+const PAGE_LANGUAGE: Record<string, string> = {
+  sk: 'Slovenčina',
+  en: 'Angličtina',
+  hr: 'Chorvátčina',
+  de: 'Nemčina',
+  hu: 'Maďarčina',
 }
 
 type Filter = 'new' | 'done'
@@ -32,7 +43,7 @@ export default function Inquiries({ onChanged }: { onChanged(): void }) {
   const load = useCallback(async () => {
     const { data: found, error } = await supabase
       .from('inquiries')
-      .select('id, created_at, name, email, phone, message, interest, handled')
+      .select('id, created_at, name, email, phone, message, interest, handled, lang')
       .order('created_at', { ascending: false })
       .limit(500)
     if (error) {
@@ -69,7 +80,7 @@ export default function Inquiries({ onChanged }: { onChanged(): void }) {
       email: q.email,
       phone: q.phone,
       country: '',
-      language: '',
+      language: PAGE_LANGUAGE[q.lang] ?? '',
       source: 'Web projektu',
       agent: '',
       budget: 0,
@@ -140,6 +151,7 @@ export default function Inquiries({ onChanged }: { onChanged(): void }) {
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="m-0 truncate text-[16px] font-semibold tracking-[-0.015em]">{q.name}</h2>
                       {q.interest && <Badge tone="accent">{q.interest}</Badge>}
+                      {q.lang !== 'sk' && PAGE_LANGUAGE[q.lang] && <Badge title="Jazyk stránky, z ktorej dopyt prišiel">{PAGE_LANGUAGE[q.lang]}</Badge>}
                       {exists && <Badge tone="good">V klientoch</Badge>}
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]">

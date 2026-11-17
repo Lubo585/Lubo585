@@ -25,14 +25,17 @@ const walk = (dir) => {
 if (!existsSync(dist)) fail('Priečinok dist-web neexistuje – najprv spustite zostavenie.')
 walk(dist)
 
-const need = ['index.html', 'crm/index.html', 'robots.txt', 'favicon.svg', '.htaccess']
+// Prezentačná stránka v každom jazyku (slovenská je na úvodnej adrese) a aplikácia.
+const langs = ['sk', 'en', 'hr', 'de', 'hu']
+const sitePage = (lang) => (lang === 'sk' ? 'index.html' : `${lang}/index.html`)
+const need = [...langs.map(sitePage), 'crm/index.html', 'robots.txt', 'favicon.svg', '.htaccess']
 for (const f of need) if (!existsSync(join(dist, f))) fail(`Vo výstupe chýba ${f}.`)
 
 const text = (path) => readFileSync(path, 'utf8')
 const textual = files.filter((f) => ['.html', '.js', '.css', '.svg', '.txt', '.json'].includes(extname(f)))
 
 // 1. Adresa a kľúč projektu Supabase musia byť doplnené.
-for (const f of ['index.html', 'crm/index.html']) {
+for (const f of [...langs.map(sitePage), 'crm/index.html']) {
   if (text(join(dist, f)).includes('%VITE_')) fail(`${f}: chýba nastavenie Supabase (súbor .env.web).`)
 }
 
@@ -67,14 +70,26 @@ if (existsSync(privateDir)) {
   }
 }
 
-// 3. Prezentačná stránka nesmie ťahať kód aplikácie.
-const landing = text(join(dist, 'index.html'))
-const scripts = [...landing.matchAll(/<script[^>]+src="([^"]+)"/g)].map((m) => m[1]).filter((s) => s.includes('assets/'))
-const landingJs = scripts.reduce((sum, s) => sum + statSync(join(dist, s)).size, 0)
-if (landingJs > 60_000) fail(`Skript prezentačnej stránky má ${Math.round(landingJs / 1024)} kB – pribalil sa doň kód aplikácie?`)
-if (/<script(?![^>]*\bsrc=)[^>]*>/.test(landing) || /<script(?![^>]*\bsrc=)[^>]*>/.test(text(join(dist, 'crm/index.html')))) {
-  fail('Stránka obsahuje vložený skript – bezpečnostné pravidlá stránky (CSP) ho nespustia.')
+// 3. Každá jazyková verzia je celá, hlási svoj jazyk, vedie na ostatné a neťahá kód aplikácie.
+const inlineScript = /<script(?![^>]*\bsrc=)[^>]*>/
+let landingJs = 0
+for (const lang of langs) {
+  const file = sitePage(lang)
+  const page = text(join(dist, file))
+  if (!page.includes(`<html lang="${lang}">`)) fail(`${file}: stránka nehlási jazyk „${lang}“.`)
+  if (page.includes('{{')) fail(`${file}: v stránke ostala nevyplnená značka šablóny.`)
+  for (const to of langs) if (!page.includes(`data-lang-link="${to}"`)) fail(`${file}: chýba odkaz na jazyk „${to}“.`)
+  const scripts = [...page.matchAll(/<script[^>]+src="([^"]+)"/g)].map((m) => m[1]).filter((s) => s.includes('assets/'))
+  const size = scripts.reduce((sum, s) => sum + statSync(join(dist, dirname(file), s)).size, 0)
+  if (size > 60_000) fail(`${file}: skript stránky má ${Math.round(size / 1024)} kB – pribalil sa doň kód aplikácie?`)
+  if (inlineScript.test(page)) fail(`${file}: stránka obsahuje vložený skript – bezpečnostné pravidlá stránky (CSP) ho nespustia.`)
+  landingJs = Math.max(landingJs, size)
+}
+if (inlineScript.test(text(join(dist, 'crm/index.html')))) {
+  fail('crm/index.html: stránka obsahuje vložený skript – bezpečnostné pravidlá stránky (CSP) ho nespustia.')
 }
 
 const total = files.reduce((sum, f) => sum + statSync(f).size, 0)
-console.log(`✓ Web je pripravený v dist-web: ${files.length} súborov, ${(total / 1048576).toFixed(1)} MB; skript prezentačnej stránky ${Math.round(landingJs / 1024)} kB.`)
+console.log(
+  `✓ Web je pripravený v dist-web: ${files.length} súborov, ${(total / 1048576).toFixed(1)} MB; prezentačná stránka v ${langs.length} jazykoch, jej skript ${Math.round(landingJs / 1024)} kB.`,
+)

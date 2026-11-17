@@ -397,3 +397,26 @@ export function NoAccess({ email, siteHref, onRedeemed, onSignOut }: { email: st
     </AuthFrame>
   )
 }
+
+/**
+ * Stránka otvorená cez nechránené pripojenie (http). Heslo ani dáta projektu cez takú
+ * stránku nejdú – namiesto prihlásenia ponúkne zabezpečenú adresu.
+ */
+export function Insecure({ siteHref }: { siteHref?: string }) {
+  const secure = `https://${window.location.host}${window.location.pathname}${window.location.hash}`
+  return (
+    <AuthFrame siteHref={siteHref}>
+      <div className="auth-card">
+        <div className="auth-pane">
+          <p className="auth-eyebrow">Jadran Hills · CRM</p>
+          <h1 className="auth-title">Potrebné je zabezpečené pripojenie</h1>
+          <p className="auth-sub">Prihlásenie funguje len na adrese, ktorá sa začína na https://. Heslo a dáta projektu tak neprechádzajú cez nechránenú stránku.</p>
+          <a className="welcome-cta auth-submit" href={secure}>
+            Otvoriť zabezpečenú adresu <ArrowRight size={18} aria-hidden />
+          </a>
+          <p className="auth-note">Ak sa zabezpečená adresa neotvorí, doména ešte nemá zapnutý certifikát SSL. Zapína sa v nastaveniach hostingu.</p>
+        </div>
+      </div>
+    </AuthFrame>
+  )
+}

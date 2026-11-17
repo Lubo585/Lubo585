@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="{{@lang}}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{{meta.title}}</title>
+    <meta
+      name="description"
+      content="{{meta.description}}"
+    />
+    <meta name="theme-color" content="#0c2536" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="{{meta.locale}}" />
+    <meta property="og:title" content="{{meta.ogTitle}}" />
+    <meta property="og:description" content="{{meta.ogDescription}}" />
+    <meta property="og:image" content="{{@root}}img/og-jadran-hills.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: %VITE_SUPABASE_URL%; connect-src %VITE_SUPABASE_URL%; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
+{{@alternates}}    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script src="/boot-site.js"></script>
+    <link rel="stylesheet" href="{{@src}}site/site.css" />
+  </head>
+  <body>
+    <!-- Ikony -->
+    <svg xmlns="http://www.w3.org/2000/svg" hidden>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></symbol>
+      <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+      <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol>
+      <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16" /></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></symbol>
+      <symbol id="i-pool" viewBox="0 0 24 24"><path d="M2 19c2 0 2 1.5 4 1.5S8 19 10 19s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5M8 16V5.5a2.5 2.5 0 0 1 5 0M15 16V5.5a2.5 2.5 0 0 1 5 0M8 9h7M8 13h7" /></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></symbol>
+      <symbol id="i-terrace" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 1 9 9H3a9 9 0 0 1 9-9zM12 12v9M7 21h10" /></symbol>
+      <symbol id="i-air" viewBox="0 0 24 24"><path d="M3 8h10.5A2.5 2.5 0 1 0 11 5.5M3 12h15.5a2.5 2.5 0 1 1-2.5 2.5M3 16h7.5A2.5 2.5 0 1 1 8 18.5" /></symbol>
+      <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M11 20a7 7 0 0 1-7-7c0-6 5-9 16-9 0 9-3 16-9 16zM4 21c1.5-5 5.5-8.5 11-10.5" /></symbol>
+      <symbol id="i-parking" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" /><path d="M9.5 17V7H13a3 3 0 0 1 0 6H9.5" /></symbol>
+      <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.6 2.4 4 5.6 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.6-4-9s1.4-6.6 4-9z" /></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z" /><circle cx="12" cy="10" r="2.5" /></symbol>
+    </svg>
+
+    <a class="skip" href="#obsah">{{a11y.skip}}</a>
+
+    <!-- Navigácia -->
+    <header class="nav" data-nav>
+      <div class="nav-in wrap">
+        <a class="brand" href="#top" aria-label="{{a11y.home}}">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <circle cx="22.5" cy="9.5" r="3.5" fill="currentColor" opacity="0.9" />
+            <path d="M2 23 10.5 11l5 6.5 3.5-4L30 23" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M3 27.5c3-1.8 5.5 1.2 8.5 0s5.5-1.8 8.5 0 5.5 1.2 9 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.55" />
+          </svg>
+          <span>Jadran Hills</span>
+        </a>
+        <nav class="nav-links" aria-label="{{a11y.mainNav}}">
+          <a href="#miesto">{{nav.place}}</a>
+          <a href="#projekt">{{nav.project}}</a>
+          <a href="#apartmany">{{nav.apartments}}</a>
+          <a href="#galeria">{{nav.gallery}}</a>
+          <a href="#kontakt">{{nav.contact}}</a>
+        </nav>
+        <div class="nav-right">
+          <details class="lang" data-lang>
+            <summary aria-label="{{lang.choose}}: {{@langName}}">
+              <svg class="i" aria-hidden="true"><use href="#i-globe" /></svg>
+              <span>{{@langCode}}</span>
+            </summary>
+            <ul class="lang-list">
+{{@langList}}
+            </ul>
+          </details>
+          <a class="login" href="{{@root}}crm/" aria-label="{{nav.login}}">
+            <svg class="i" aria-hidden="true"><use href="#i-user" /></svg>
+            <span>{{nav.login}}</span>
+          </a>
+          <button class="nav-burger" type="button" aria-label="{{a11y.openMenu}}" aria-expanded="false" aria-controls="menu" data-menu-open>
+            <svg class="i" aria-hidden="true"><use href="#i-menu" /></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Menu na telefóne -->
+    <div class="menu" id="menu" hidden data-menu>
+      <div class="menu-top wrap">
+        <span class="brand"><span>Jadran Hills</span></span>
+        <button class="nav-burger" type="button" aria-label="{{a11y.closeMenu}}" data-menu-close>
+          <svg class="i" aria-hidden="true"><use href="#i-x" /></svg>
+        </button>
+      </div>
+      <nav class="menu-links wrap" aria-label="{{a11y.menu}}">
+        <a href="#miesto">{{nav.place}}</a>
+        <a href="#projekt">{{nav.project}}</a>
+        <a href="#apartmany">{{nav.apartments}}</a>
+        <a href="#galeria">{{nav.gallery}}</a>
+        <a href="#kontakt">{{nav.contact}}</a>
+        <a class="menu-login" href="{{@root}}crm/">{{nav.teamLogin}} <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+      </nav>
+      <nav class="menu-langs wrap" aria-label="{{lang.choose}}">
+{{@langPills}}
+      </nav>
+    </div>
+
+    <main id="obsah">
+      <!-- Úvod -->
+      <section class="hero" id="top" data-hero data-dark>
+        <div class="hero-media" aria-hidden="true">
+          <div class="hero-slide is-on" data-slide style="--tint: #67889c">
+            <img
+              src="{{@root}}img/hero-more-1600.webp"
+              srcset="{{@root}}img/hero-more-900.webp 900w, {{@root}}img/hero-more-1600.webp 1600w, {{@root}}img/hero-more-2400.webp 2400w"
+              sizes="100vw"
+              width="2400"
+              height="1600"
+              alt=""
+              fetchpriority="high"
+              decoding="async"
+            />
+          </div>
+          <div class="hero-slide" data-slide style="--tint: #6e899d">
+            <img data-img="hero-velebit" sizes="100vw" width="2400" height="1600" alt="" decoding="async" />
+          </div>
+          <div class="hero-slide" data-slide style="--tint: #827870">
+            <img data-img="hero-zadar" sizes="100vw" width="2400" height="1599" alt="" decoding="async" />
+          </div>
+          <div class="hero-shade"></div>
+        </div>
+
+        <div class="hero-body wrap" data-hero-body>
+          <p class="eyebrow hero-eyebrow"><span>{{hero.place}}</span><span class="dot" aria-hidden="true"></span><span>{{hero.region}}</span></p>
+          <h1 class="hero-title">
+            <span class="line"><span>{{hero.title1}}</span></span>
+            <span class="line"><span>{{hero.title2}}</span></span>
+          </h1>
+          <p class="hero-sub">
+            {{hero.sub}}
+          </p>
+          <div class="hero-cta">
+            <a class="btn btn-light" href="#kontakt">{{hero.cta}}</a>
+            <a class="btn-text" href="#projekt">{{hero.more}} <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+          </div>
+        </div>
+
+        <div class="hero-foot wrap">
+          <p class="hero-status"><span class="pulse" aria-hidden="true"></span>{{hero.status}}</p>
+          <div class="hero-dots" role="tablist" aria-label="{{hero.slides}}">
+            <button type="button" role="tab" aria-selected="true" aria-label="{{hero.slide1}}" data-caption="{{hero.caption1}}" data-dot></button>
+            <button type="button" role="tab" aria-selected="false" aria-label="{{hero.slide2}}" data-caption="{{hero.caption2}}" data-dot></button>
+            <button type="button" role="tab" aria-selected="false" aria-label="{{hero.slide3}}" data-caption="{{hero.caption3}}" data-dot></button>
+          </div>
+          <p class="hero-caption" data-hero-caption>{{hero.caption1}}</p>
+        </div>
+        <a class="hero-scroll" href="#uvod" aria-label="{{hero.scroll}}"><svg class="i" aria-hidden="true"><use href="#i-down" /></svg></a>
+      </section>
+
+      <!-- Úvodné vyhlásenie -->
+      <section class="intro" id="uvod">
+        <div class="wrap">
+          <p class="eyebrow" data-reveal>Jadran Hills</p>
+          <p class="statement" data-words>
+            {{intro.statement}}
+          </p>
+          <dl class="stats" data-stagger>
+            <div class="stat" data-reveal>
+              <dt>{{stats.houses}}</dt>
+              <dd><span data-count="3">3</span></dd>
+            </div>
+            <div class="stat" data-reveal>
+              <dt>{{stats.apartments}}</dt>
+              <dd><span data-count="27">27</span></dd>
+            </div>
+            <div class="stat" data-reveal>
+              <dt>{{stats.pools}}</dt>
+              <dd><span data-count="3">3</span></dd>
+            </div>
+            <div class="stat" data-reveal>
+              <dt>{{stats.roofs}}</dt>
+              <dd><span data-count="9">9</span></dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- Lokalita -->
+      <section class="place" id="miesto">
+        <div class="wrap">
+          <header class="head">
+            <p class="eyebrow" data-reveal>{{nav.place}}</p>
+            <h2 data-reveal>{{place.title1}}<br /><span class="soft">{{place.title2}}</span></h2>
+            <p class="lead" data-reveal>
+              {{place.lead}}
+            </p>
+          </header>
+
+          <div class="place-grid">
+            <article class="place-card place-card--wide" data-reveal>
+              <div class="frame" style="--tint: #7293a8" data-parallax>
+                <img
+                  src="{{@root}}img/miesto-more-800.webp"
+                  srcset="{{@root}}img/miesto-more-800.webp 800w, {{@root}}img/miesto-more-1600.webp 1600w"
+                  sizes="(min-width: 900px) 62vw, 100vw"
+                  width="1600"
+                  height="1067"
+                  loading="lazy"
+                  decoding="async"
+                  alt="{{place.sea.alt}}"
+                />
+                <p class="credit">{{place.sea.credit}}</p>
+              </div>
+              <div class="place-text">
+                <p class="tag">{{place.sea.tag}}</p>
+                <h3>{{place.sea.title}}</h3>
+                <p>{{place.sea.text}}</p>
+              </div>
+            </article>
+
+            <article class="place-card" data-reveal>
+              <div class="frame" style="--tint: #7291b4" data-parallax>
+                <img
+                  src="{{@root}}img/miesto-hory-800.webp"
+                  srcset="{{@root}}img/miesto-hory-800.webp 800w, {{@root}}img/miesto-hory-1600.webp 1600w"
+                  sizes="(min-width: 900px) 36vw, 100vw"
+                  width="1600"
+                  height="1067"
+                  loading="lazy"
+                  decoding="async"
+                  alt="{{place.mountains.alt}}"
+                />
+                <p class="credit">{{place.mountains.credit}}</p>
+              </div>
+              <div class="place-text">
+                <p class="tag">{{place.mountains.tag}}</p>
+                <h3>{{place.mountains.title}}</h3>
+                <p>{{place.mountains.text}}</p>
+              </div>
+            </article>
+
+            <article class="place-card" data-reveal>
+              <div class="frame" style="--tint: #80888a" data-parallax>
+                <img
+                  src="{{@root}}img/miesto-mesto-800.webp"
+                  srcset="{{@root}}img/miesto-mesto-800.webp 800w, {{@root}}img/miesto-mesto-1600.webp 1600w"
+                  sizes="(min-width: 900px) 36vw, 100vw"
+                  width="1600"
+                  height="1067"
+                  loading="lazy"
+                  decoding="async"
+                  alt="{{place.city.alt}}"
+                />
+                <p class="credit">{{place.city.credit}}</p>
+              </div>
+              <div class="place-text">
+                <p class="tag">{{place.city.tag}}</p>
+                <h3>{{place.city.title}}</h3>
+                <p>{{place.city.text}}</p>
+              </div>
+            </article>
+
+            <aside class="distances" data-reveal aria-label="{{dist.title}}">
+              <h3>{{dist.title}}</h3>
+              <ul>
+                <li><span>{{dist.nin}}</span><i aria-hidden="true"></i><b>{{dist.ninValue}}</b></li>
+                <li><span>{{dist.vir}}</span><i aria-hidden="true"></i><b>{{dist.virValue}}</b></li>
+                <li><span>{{dist.zadar}}</span><i aria-hidden="true"></i><b>{{dist.zadarValue}}</b></li>
+                <li><span>{{dist.airport}}</span><i aria-hidden="true"></i><b>{{dist.airportValue}}</b></li>
+                <li><span>{{dist.paklenica}}</span><i aria-hidden="true"></i><b>{{dist.paklenicaValue}}</b></li>
+              </ul>
+              <p class="fine">{{dist.note}}</p>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- Projekt -->
+      <section class="arch" id="projekt" data-dark>
+        <div class="wrap">
+          <header class="head head--center">
+            <p class="eyebrow" data-reveal>{{nav.project}}</p>
+            <h2 data-reveal>{{project.title}}</h2>
+            <p class="lead" data-reveal>
+              {{project.lead}}
+            </p>
+          </header>
+
+          <figure class="elevation" data-elevation>
+            <div class="elevation-art" data-art style="--art: url('%VITE_SUPABASE_URL%/storage/v1/object/public/site/pa5f3656c590db54a/pohlad-celny.png')" role="img" aria-label="{{project.artAlt}}"></div>
+            <figcaption>{{project.artCaption}}</figcaption>
+          </figure>
+
+          <ul class="features" data-stagger>
+            <li data-reveal>
+              <svg class="i" aria-hidden="true"><use href="#i-pool" /></svg>
+              <h3>{{feat.pool.title}}</h3>
+              <p>{{feat.pool.text}}</p>
+            </li>
+            <li data-reveal>
+              <svg class="i" aria-hidden="true"><use href="#i-sun" /></svg>
+              <h3>{{feat.roof.title}}</h3>
+              <p>{{feat.roof.text}}</p>
+            </li>
+            <li data-reveal>
+              <svg class="i" aria-hidden="true"><use href="#i-terrace" /></svg>
+              <h3>{{feat.terrace.title}}</h3>
+              <p>{{feat.terrace.text}}</p>
+            </li>
+            <li data-reveal>
+              <svg class="i" aria-hidden="true"><use href="#i-air" /></svg>
+              <h3>{{feat.air.title}}</h3>
+              <p>{{feat.air.text}}</p>
+            </li>
+            <li data-reveal>
+              <svg class="i" aria-hidden="true"><use href="#i-leaf" /></svg>
+              <h3>{{feat.energy.title}}</h3>
+              <p>{{feat.energy.text}}</p>
+            </li>
+            <li data-reveal>
+              <svg class="i" aria-hidden="true"><use href="#i-parking" /></svg>
+              <h3>{{feat.parking.title}}</h3>
+              <p>{{feat.parking.text}}</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Apartmány -->
+      <section class="apts" id="apartmany">
+        <div class="wrap">
+          <header class="head">
+            <p class="eyebrow" data-reveal>{{nav.apartments}}</p>
+            <h2 data-reveal>{{apts.title}}</h2>
+            <p class="lead" data-reveal>{{apts.lead}}</p>
+          </header>
+
+          <div class="floors" data-floors>
+            <div class="floors-pick" data-reveal>
+              <div class="seg" role="tablist" aria-label="{{apts.pick}}">
+                <span class="seg-pill" aria-hidden="true" data-seg-pill></span>
+                <button type="button" role="tab" id="tab-0" aria-controls="floor-0" aria-selected="true" data-floor="0">{{apts.floor0}}</button>
+                <button type="button" role="tab" id="tab-1" aria-controls="floor-1" aria-selected="false" data-floor="1">{{apts.floor1}}</button>
+                <button type="button" role="tab" id="tab-2" aria-controls="floor-2" aria-selected="false" data-floor="2">{{apts.floor2}}</button>
+              </div>
+
+              <svg class="house" viewBox="0 0 320 250" role="img" aria-label="{{apts.houseAlt}}" data-house>
+                <path class="house-ground" d="M10 232h300" />
+                <g class="house-floor" data-level="roof">
+                  <path d="M70 62h180M92 62V38h76v24M196 62V46M224 62V46M196 46h28" />
+                </g>
+                <g class="house-floor" data-level="2">
+                  <rect x="60" y="64" width="200" height="52" rx="3" />
+                  <path d="M92 76v28M128 76v28M192 76v28M228 76v28M60 104h200" />
+                </g>
+                <g class="house-floor" data-level="1">
+                  <rect x="60" y="120" width="200" height="52" rx="3" />
+                  <path d="M92 132v28M128 132v28M192 132v28M228 132v28M60 160h200" />
+                </g>
+                <g class="house-floor" data-level="0">
+                  <rect x="60" y="176" width="200" height="54" rx="3" />
+                  <path d="M92 188v30M128 188v30M192 188v30M228 188v30" />
+                </g>
+                <path class="house-pool" d="M22 232c6-4 10 4 16 0s10-4 16 0" />
+              </svg>
+            </div>
+
+            <div class="floors-panels" data-reveal>
+              <div class="floor-panel is-on" id="floor-0" role="tabpanel" aria-labelledby="tab-0" data-panel="0">
+                <h3>{{apts.p0.title}}</h3>
+                <p>{{apts.p0.text}}</p>
+                <ul class="unit-list">
+                  <li><b>{{apts.two}}</b><span>{{apts.twoSpec}}</span></li>
+                  <li><b>{{apts.one}}</b><span>{{apts.oneSpec}}</span></li>
+                </ul>
+              </div>
+              <div class="floor-panel" id="floor-1" role="tabpanel" aria-labelledby="tab-1" data-panel="1" hidden>
+                <h3>{{apts.p1.title}}</h3>
+                <p>{{apts.p1.text}}</p>
+                <ul class="unit-list">
+                  <li><b>{{apts.two}}</b><span>{{apts.twoSpec}}</span></li>
+                  <li><b>{{apts.one}}</b><span>{{apts.oneSpec}}</span></li>
+                </ul>
+              </div>
+              <div class="floor-panel" id="floor-2" role="tabpanel" aria-labelledby="tab-2" data-panel="2" hidden>
+                <h3>{{apts.p2.title}}</h3>
+                <p>{{apts.p2.text}}</p>
+                <ul class="unit-list">
+                  <li><b>{{apts.two}}</b><span>{{apts.twoRoofSpec}}</span></li>
+                  <li><b>{{apts.one}}</b><span>{{apts.oneRoofSpec}}</span></li>
+                </ul>
+              </div>
+              <p class="fine">{{apts.note}}</p>
+              <a class="btn btn-dark" href="#kontakt">{{apts.cta}}</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Galéria -->
+      <section class="gallery" id="galeria">
+        <div class="wrap">
+          <header class="head head--row">
+            <div>
+              <p class="eyebrow" data-reveal>{{nav.gallery}}</p>
+              <h2 data-reveal>{{gallery.title}}</h2>
+            </div>
+            <div class="gallery-nav" data-reveal>
+              <button type="button" aria-label="{{gallery.prev}}" data-gal-prev><svg class="i" aria-hidden="true"><use href="#i-left" /></svg></button>
+              <button type="button" aria-label="{{gallery.next}}" data-gal-next><svg class="i" aria-hidden="true"><use href="#i-right" /></svg></button>
+            </div>
+          </header>
+        </div>
+        <div class="rail" data-rail tabindex="0" aria-label="{{gallery.rail}}">
+          <figure class="shot" style="--tint: #708d92">
+            <img src="{{@root}}img/galeria-zaliv-800.webp" srcset="{{@root}}img/galeria-zaliv-800.webp 800w, {{@root}}img/galeria-zaliv-1600.webp 1600w" sizes="(min-width: 900px) 58vw, 86vw" width="1600" height="1067" loading="lazy" decoding="async" alt="{{gal.1.alt}}" />
+            <figcaption><b>{{gal.1.title}}</b><span>{{gal.1.text}}</span></figcaption>
+          </figure>
+          <figure class="shot" style="--tint: #6f6d69">
+            <img src="{{@root}}img/galeria-velebit-800.webp" srcset="{{@root}}img/galeria-velebit-800.webp 800w, {{@root}}img/galeria-velebit-1600.webp 1600w" sizes="(min-width: 900px) 58vw, 86vw" width="1600" height="1067" loading="lazy" decoding="async" alt="{{gal.2.alt}}" />
+            <figcaption><b>{{gal.2.title}}</b><span>{{gal.2.text}}</span></figcaption>
+          </figure>
+          <figure class="shot" style="--tint: #84867f">
+            <img src="{{@root}}img/galeria-molo-800.webp" srcset="{{@root}}img/galeria-molo-800.webp 800w, {{@root}}img/galeria-molo-1600.webp 1600w" sizes="(min-width: 900px) 58vw, 86vw" width="1600" height="1067" loading="lazy" decoding="async" alt="{{gal.3.alt}}" />
+            <figcaption><b>{{gal.3.title}}</b><span>{{gal.3.text}}</span></figcaption>
+          </figure>
+          <figure class="shot" style="--tint: #506a70">
+            <img src="{{@root}}img/galeria-jadran-800.webp" srcset="{{@root}}img/galeria-jadran-800.webp 800w, {{@root}}img/galeria-jadran-1600.webp 1600w" sizes="(min-width: 900px) 58vw, 86vw" width="1600" height="1067" loading="lazy" decoding="async" alt="{{gal.4.alt}}" />
+            <figcaption><b>{{gal.4.title}}</b><span>{{gal.4.text}}</span></figcaption>
+          </figure>
+          <figure class="shot" style="--tint: #8b937e">
+            <img src="{{@root}}img/galeria-promenada-800.webp" srcset="{{@root}}img/galeria-promenada-800.webp 800w, {{@root}}img/galeria-promenada-1600.webp 1600w" sizes="(min-width: 900px) 58vw, 86vw" width="1600" height="1067" loading="lazy" decoding="async" alt="{{gal.5.alt}}" />
+            <figcaption><b>{{gal.5.title}}</b><span>{{gal.5.text}}</span></figcaption>
+          </figure>
+          <figure class="shot" style="--tint: #827870">
+            <img src="{{@root}}img/hero-zadar-900.webp" srcset="{{@root}}img/hero-zadar-900.webp 900w, {{@root}}img/hero-zadar-1600.webp 1600w" sizes="(min-width: 900px) 58vw, 86vw" width="1600" height="1066" loading="lazy" decoding="async" alt="{{gal.6.alt}}" />
+            <figcaption><b>{{gal.6.title}}</b><span>{{gal.6.text}}</span></figcaption>
+          </figure>
+        </div>
+        <div class="wrap">
+          <div class="rail-bar" aria-hidden="true"><span data-rail-bar></span></div>
+        </div>
+      </section>
+
+      <!-- Stav projektu -->
+      <section class="status" id="stav">
+        <div class="wrap">
+          <header class="head head--center">
+            <p class="eyebrow" data-reveal>{{status.eyebrow}}</p>
+            <h2 data-reveal>{{status.title}}</h2>
+          </header>
+          <ol class="steps" data-steps>
+            <li class="is-done" data-reveal>
+              <span class="step-dot"><svg class="i" aria-hidden="true"><use href="#i-check" /></svg></span>
+              <h3>{{status.s1.title}}</h3>
+              <p>{{status.s1.text}}</p>
+            </li>
+            <li class="is-done" data-reveal>
+              <span class="step-dot"><svg class="i" aria-hidden="true"><use href="#i-check" /></svg></span>
+              <h3>{{status.s2.title}}</h3>
+              <p>{{status.s2.text}}</p>
+            </li>
+            <li class="is-done" data-reveal>
+              <span class="step-dot"><svg class="i" aria-hidden="true"><use href="#i-check" /></svg></span>
+              <h3>{{status.s3.title}}</h3>
+              <p>{{status.s3.text}}</p>
+            </li>
+            <li class="is-now" data-reveal>
+              <span class="step-dot"><span class="pulse" aria-hidden="true"></span></span>
+              <h3>{{status.s4.title}}</h3>
+              <p>{{status.s4.text}}</p>
+            </li>
+            <li data-reveal>
+              <span class="step-dot"></span>
+              <h3>{{status.s5.title}}</h3>
+              <p>{{status.s5.text}}</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Kontakt -->
+      <section class="contact" id="kontakt" data-dark>
+        <div class="contact-media" aria-hidden="true" style="--tint: #69736c">
+          <img src="{{@root}}img/zaver-zapad-1100.webp" srcset="{{@root}}img/zaver-zapad-1100.webp 1100w, {{@root}}img/zaver-zapad-2200.webp 2200w" sizes="100vw" width="2200" height="1467" loading="lazy" decoding="async" alt="" />
+        </div>
+        <div class="wrap contact-in">
+          <div class="contact-copy">
+            <p class="eyebrow" data-reveal>{{nav.contact}}</p>
+            <h2 data-reveal>{{contact.title}}</h2>
+            <p class="lead" data-reveal>{{contact.lead}}</p>
+            <p class="credit credit--light" data-reveal>{{contact.credit}}</p>
+          </div>
+
+          <form
+            class="form"
+            data-form
+            novalidate
+            data-reveal
+            data-msg-name="{{js.err.name}}"
+            data-msg-email="{{js.err.email}}"
+            data-msg-consent="{{js.err.consent}}"
+            data-msg-unavailable="{{js.err.unavailable}}"
+            data-msg-busy="{{js.err.busy}}"
+            data-msg-failed="{{js.err.failed}}"
+            data-msg-offline="{{js.err.offline}}"
+            data-msg-sending="{{js.sending}}"
+          >
+            <div class="form-fields" data-form-fields>
+              <div class="field">
+                <label for="f-name">{{form.name}}</label>
+                <input id="f-name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="120" />
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="f-email">{{form.email}}</label>
+                  <input id="f-email" name="email" type="email" autocomplete="email" required maxlength="200" />
+                </div>
+                <div class="field">
+                  <label for="f-phone">{{form.phone}} <span>{{form.optional}}</span></label>
+                  <input id="f-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="f-interest">{{form.interest}}</label>
+                <select id="f-interest" name="interest">
+                  <option value="">{{form.choose}}</option>
+                  <option value="Apartmán s jednou spálňou">{{form.opt1}}</option>
+                  <option value="Apartmán s dvoma spálňami">{{form.opt2}}</option>
+                  <option value="Apartmán so strešnou terasou">{{form.opt3}}</option>
+                  <option value="Investícia / viac apartmánov">{{form.opt4}}</option>
+                  <option value="Iné">{{form.opt5}}</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="f-message">{{form.message}} <span>{{form.optional}}</span></label>
+                <textarea id="f-message" name="message" rows="3" maxlength="2000"></textarea>
+              </div>
+              <!-- Pole pre roboty: človek ho nevidí a nevypĺňa. -->
+              <div class="hp" aria-hidden="true">
+                <label for="f-web">{{form.website}}</label>
+                <input id="f-web" name="website" type="text" tabindex="-1" autocomplete="off" />
+              </div>
+              <label class="consent">
+                <input type="checkbox" name="consent" required />
+                <span>{{form.consent}} <a href="#udaje" data-open-privacy>{{form.privacyLink}}</a></span>
+              </label>
+              <p class="form-error" role="alert" hidden data-form-error></p>
+              <button class="btn btn-light btn-wide" type="submit" data-form-submit>
+                <span data-form-label>{{form.submit}}</span>
+                <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg>
+              </button>
+            </div>
+            <div class="form-done" role="status" hidden data-form-done>
+              <span class="done-mark"><svg class="i" aria-hidden="true"><use href="#i-check" /></svg></span>
+              <h3>{{form.doneTitle}}</h3>
+              <p>{{form.doneText}}</p>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <!-- Pätička -->
+    <footer class="footer">
+      <div class="wrap">
+        <div class="footer-top">
+          <div>
+            <a class="brand brand--footer" href="#top"><span>Jadran Hills</span></a>
+            <p class="footer-addr"><svg class="i" aria-hidden="true"><use href="#i-pin" /></svg>{{footer.address}}</p>
+          </div>
+          <nav class="footer-links" aria-label="{{footer.nav}}">
+            <a href="#miesto">{{nav.place}}</a>
+            <a href="#projekt">{{nav.project}}</a>
+            <a href="#apartmany">{{nav.apartments}}</a>
+            <a href="#galeria">{{nav.gallery}}</a>
+            <a href="#kontakt">{{nav.contact}}</a>
+            <a href="{{@root}}crm/">{{nav.teamLogin}}</a>
+          </nav>
+        </div>
+
+        <details class="legal" id="udaje" data-privacy>
+          <summary>{{privacy.title}}</summary>
+          <div class="legal-body">
+            <p><b>{{privacy.who.title}}</b> <span data-operator>{{privacy.who.text}}</span></p>
+            <p><b>{{privacy.what.title}}</b> {{privacy.what.text}}</p>
+            <p><b>{{privacy.how.title}}</b> {{privacy.how.text}}</p>
+            <p><b>{{privacy.rights.title}}</b> {{privacy.rights.text}}</p>
+            <p>{{privacy.cookies}}</p>
+          </div>
+        </details>
+
+        <details class="legal">
+          <summary>{{credits.title}}</summary>
+          <div class="legal-body">
+            <p>{{credits.intro}}</p>
+            <ul class="credits">
+              <li>{{credits.sabunike}} <a href="https://commons.wikimedia.org/wiki/File:Sabunike_(48942219361).jpg" rel="noopener">Fred Romero</a>, {{credits.license}} <a href="https://creativecommons.org/licenses/by/2.0/" rel="noopener license">CC BY 2.0</a>, Wikimedia Commons</li>
+              <li>{{credits.zadarAir}} <a href="https://unsplash.com/photos/a-city-next-to-the-water-3zyWLrFNU88" rel="noopener">Karl Paul Baldacchino</a>, Unsplash</li>
+              <li>{{credits.zadarRiva}} <a href="https://unsplash.com/photos/a-large-body-of-water-next-to-a-city-D3B8iHMq5_8" rel="noopener">Val Begic</a>, Unsplash</li>
+              <li>{{credits.velebit}} <a href="https://unsplash.com/photos/a-mountain-range-with-trees-and-bushes-in-the-foreground-tb9guWwF5Ac" rel="noopener">Kristina Kutleša</a>, Unsplash</li>
+              <li>{{credits.tulove}} <a href="https://unsplash.com/photos/a-rocky-mountain-with-clouds-in-the-sky-ciXvNx3eLKs" rel="noopener">Marta Rastovac</a>, Unsplash</li>
+              <li>{{credits.coast}} <a href="https://unsplash.com/photos/gray-and-brown-rocks-beside-blue-sea-during-daytime-qpCfZJtCdTs" rel="noopener">Bas van den Eijkhof</a>, Unsplash</li>
+              <li>{{credits.sunset}} <a href="https://unsplash.com/photos/a-view-of-a-body-of-water-at-sunset-LQtoQBT2Bu0" rel="noopener">Lukas Zischke</a>, Unsplash</li>
+            </ul>
+          </div>
+        </details>
+
+        <p class="disclaimer">
+          {{footer.disclaimer}}
+        </p>
+        <p class="copy">© <span data-year>2026</span> Jadran Hills</p>
+      </div>
+    </footer>
+
+    <script type="module" src="{{@src}}site/main.ts"></script>
+  </body>
+</html>

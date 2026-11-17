@@ -95,14 +95,18 @@ src/
   extensions.ts         čo aplikácii dodá prostredie (účet, správa prístupov, stránky navyše)
   web/                  web s vlastným prihlásením: Supabase, prihlasovacie obrazovky,
                         prístupové kódy, dopyty z verejnej stránky, súkromné obrázky
-  site/                 prezentačná stránka: štýly a pohyb (obsah je vo web/index.html)
+  site/                 prezentačná stránka: štýly, pohyb a skladanie jazykových verzií
+                        (pages.ts); obsah je v šablóne a slovníkoch vo web/
   data/templates.ts     vytvorenie projektu z parametrov, šablóny nákladov, povolení, rizík
   data/boqTemplate.ts   generátor výkazu výmer z geometrie stavby
   data/demo.ts          vymyslený ukážkový projekt
   modules/              obrazovky aplikácie
   ui/                   komponenty, grafy a pomôcky pre pohyb
 web/
-  index.html            prezentačná stránka (texty, štruktúra)
+  site.template.html    prezentačná stránka: stavba so značkami namiesto textov
+  i18n/                 slovník pre každý jazyk (sk, en, hr, de, hu)
+  index.html, en/, hr/, de/, hu/
+                        značky jazykových verzií – obsah vzniká pri zostavení
   crm/index.html        vstup do CRM s vlastným prihlásením
   img/                  fotografie okolia s uvedením autorov (CREDITS.md)
   public/               nastavenie servera, robots.txt, ikona
@@ -182,16 +186,48 @@ prístupu: údaje zabudované do stránky by si mohol prečítať ktokoľvek.
 
 ## Verejný web
 
-`npm run build:web` zostaví do `dist-web` dve stránky, ktoré sa nahrajú na bežný
-webhosting (stačí statický obsah):
+`npm run build:web` zostaví do `dist-web` web, ktorý sa nahrá na bežný webhosting
+(stačí statický obsah):
 
-- **`/` – prezentačná stránka projektu.** Statické HTML (`web/index.html`) so štýlmi
-  a pohybom v `src/site/`. Funguje aj bez JavaScriptu; skript pridáva striedanie
-  záberov v úvode, zobrazovanie pri rolovaní, výber podlažia, galériu a formulár.
-  Písmo aj obrázky sú na vlastnej doméne – stránka nenačítava obsah tretích strán
-  a nepoužíva súbory cookie. Dopyt z formulára sa uloží do tabuľky `inquiries`.
+- **`/` – prezentačná stránka projektu** v slovenčine a jej jazykové verzie na
+  `/en/`, `/hr/`, `/de/` a `/hu/`. Statické HTML so štýlmi a pohybom v `src/site/`.
+  Funguje aj bez JavaScriptu; skript pridáva striedanie záberov v úvode,
+  zobrazovanie pri rolovaní, výber podlažia, galériu a formulár. Písmo aj obrázky
+  sú na vlastnej doméne – stránka nenačítava obsah tretích strán a nepoužíva
+  súbory cookie. Dopyt z formulára sa uloží do tabuľky `inquiries`.
 - **`/crm/` – CRM s prihlásením.** Tá istá aplikácia nad databázou Supabase
-  (`src/web/`). Vpravo hore na prezentačnej stránke je odkaz Prihlásenie.
+  (`src/web/`), v slovenčine. Vpravo hore na prezentačnej stránke je odkaz
+  Prihlásenie. Aplikácia sa spustí len cez zabezpečené pripojenie (https); cez
+  http namiesto prihlásenia ponúkne zabezpečenú adresu.
+
+### Jazykové verzie
+
+Stránka má jednu šablónu (`web/site.template.html`) a pre každý jazyk slovník
+(`web/i18n/<kód>.json`). Pri zostavení z nich vznikne samostatná stránka pre každý
+jazyk (`src/site/pages.ts`, zapojené vo `vite.config.ts`), takže texty sú priamo
+v HTML a vyhľadávače vidia každú verziu na vlastnej adrese.
+
+- **Úprava textu:** zmeniť hodnotu v slovníku daného jazyka. **Nový text:** pridať
+  značku `{{kľúč}}` do šablóny a kľúč do všetkých piatich slovníkov.
+- Zostavenie aj testy (`src/site/pages.test.ts`) zlyhajú, ak v niektorom jazyku
+  preklad chýba, je prázdny alebo má iné čísla (výmery, počty, vzdialenosti) než
+  slovenský originál.
+- **Prepínač jazykov** je v navigácii vedľa Prihlásenia a v menu na telefóne; sú
+  to obyčajné odkazy, fungujú aj bez skriptu. Po prepnutí sa návštevník ocitne
+  v tej istej časti stránky.
+- Zvolený jazyk si prehliadač zapamätá: pri ďalšom príchode na úvodnú adresu sa
+  otvorí rovno v ňom (`web/public/boot-site.js`). Nič sa neprepína podľa jazyka
+  prehliadača – návštevníkovi s iným jazykom stránka prepnutie len ponúkne malou
+  kartou v jeho reči.
+- Formulár posiela s dopytom aj jazyk stránky (stĺpec `lang`); v CRM je pri
+  dopyte vidieť a prenesie sa do poľa Jazyk komunikácie klienta. Hodnoty záujmu
+  idú do CRM vždy v slovenčine, nech je stránka v akomkoľvek jazyku.
+- S nastavenou adresou webu (`VITE_SITE_URL` v `.env.web`) dostane každá stránka
+  vlastnú kanonickú adresu, odkazy `hreflang` na ostatné jazyky a úplnú adresu
+  obrázka pre náhľad odkazu.
+
+Preklady do angličtiny, chorvátčiny, nemčiny a maďarčiny treba pred propagáciou
+stránky dať prečítať rodenému hovoriacemu.
 
 ### Prístup do CRM
 
@@ -227,24 +263,30 @@ kódu stránky a nič neodomyká.
 
 ### Nasadenie
 
+Web beží na doméne jadranhills.com. Na hosting sa nahráva celý obsah priečinka
+`dist-web` do webového priečinka domény (vrátane skrytých súborov `.htaccess`);
+súbory v `assets/` majú v názve odtlačok obsahu, staré verzie preto môžu ostať.
+
 Workflow `.github/workflows/deploy-jadran-hills.yml` web zostaví a nahrá cez FTP.
 Spustí sa ručne alebo pri zmene v tomto priečinku na vetve `main`; bez nastavených
 údajov hostingu sa preskočí. Potrebné GitHub Secrets: `JH_FTP_SERVER`,
-`JH_FTP_USERNAME`, `JH_FTP_PASSWORD`, voliteľne `JH_FTP_DIR`.
+`JH_FTP_USERNAME`, `JH_FTP_PASSWORD`, voliteľne `JH_FTP_DIR` (webový priečinok
+domény). Prístupové údaje k hostingu do repozitára nepatria.
 
-Pred spustením ostrej stránky:
+Na hostingu a v službách okolo treba mať nastavené:
 
-- doplniť prevádzkovateľa a kontakt do časti Ochrana osobných údajov vo
-  `web/index.html` (prvok `data-operator`),
-- v Supabase nastaviť adresu stránky (Authentication → URL Configuration), aby
-  fungoval odkaz na obnovu hesla e-mailom,
+- **certifikát SSL a presmerovanie na https** – bez neho sa CRM neotvorí a
+  adresy pre vyhľadávače (`https://…`) nefungujú,
+- prevádzkovateľa a kontakt v časti Ochrana osobných údajov (text
+  `privacy.who.text` vo všetkých slovníkoch `web/i18n/`),
+- v Supabase adresu stránky (Authentication → URL Configuration: Site URL a
+  Redirect URLs na `https://…/crm/`), aby fungoval odkaz na obnovu hesla e-mailom,
 - zvážiť platený plán Supabase: projekt na bezplatnom pláne sa po týždni bez
   aktivity pozastaví a treba ho ručne obnoviť.
 
 `scripts/check-web.mjs` po zostavení overí, že vo výstupe nie je nič zo súkromného
-priečinka a že prezentačná stránka nepribalila kód aplikácie.
-`scripts/build-preview.mjs` z výstupu pripraví náhľad prezentačnej stránky na
-zverejnenie ako súkromná stránka na claude.ai.
+priečinka, že každá jazyková verzia je celá a vedie na ostatné a že prezentačná
+stránka nepribalila kód aplikácie.
 
 ## Upozornenie
 
