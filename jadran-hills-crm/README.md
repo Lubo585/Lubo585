@@ -339,6 +339,10 @@ Spustí sa ručne alebo pri zmene v tomto priečinku na vetve `main`; bez nastav
 `JH_FTP_USERNAME`, `JH_FTP_PASSWORD`, voliteľne `JH_FTP_DIR` (webový priečinok
 domény). Prístupové údaje k hostingu do repozitára nepatria.
 
+Kde sa z prostredia na hosting nedá pripojiť cez FTP, nahrá ten istý obsah
+`scripts/upload-webftp.cjs` cez webového správcu súborov hostingu (odkaz s prístupom
+číta zo súboru mimo repozitára).
+
 Na hostingu a v službách okolo treba mať nastavené:
 
 - **certifikát SSL** – bez neho sa CRM neotvorí a adresy pre vyhľadávače
