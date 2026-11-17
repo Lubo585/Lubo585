@@ -190,7 +190,7 @@ create trigger inquiries_limit before insert on public.inquiries
 -- (web/public/notify.php), ktorý pošle upozornenie na e-mail projektu. Požiadavka je
 -- podpísaná kľúčom, ktorý pozná len databáza a hosting. Adresa skriptu a kľúč sa nastavujú
 -- raz, mimo tohto súboru (pozri README, časť E-mail o novom dopyte); bez nich sa nič neposiela.
-create extension if not exists pg_net;
+create extension if not exists pg_net with schema extensions;  -- jeho funkcie sú v schéme net, cez API nedostupnej
 
 create function public.inquiries_notify() returns trigger
 language plpgsql security definer set search_path = '' as $$
