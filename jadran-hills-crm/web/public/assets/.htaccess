@@ -1,0 +1,5 @@
+# Súbory v tomto priečinku majú v názve odtlačok obsahu – nikdy sa nemenia,
+# prehliadač si ich preto môže pamätať rok.
+<IfModule mod_headers.c>
+  Header set Cache-Control "public, max-age=31536000, immutable"
+</IfModule>

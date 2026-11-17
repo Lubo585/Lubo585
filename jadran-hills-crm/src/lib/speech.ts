@@ -107,6 +107,19 @@ export class Speaker {
     return this.deviceVoice(lang)?.name ?? ''
   }
 
+  /** Odomkne hlas zariadenia z kliknutia, aby mohol prehovoriť aj o chvíľu neskôr. */
+  prime(): void {
+    const synth = this.synth()
+    if (!synth || this.tts) return
+    try {
+      const u = new SpeechSynthesisUtterance(' ')
+      u.volume = 0
+      synth.speak(u)
+    } catch {
+      // bez hlasu dobehne pozdrav v titulkoch
+    }
+  }
+
   /** Prečíta vety. Volať priamo z kliknutia – prehliadače inak zvuk nespustia. */
   speak(lines: BriefLine[], opts: SpeakOptions, handlers: SpeakHandlers): SpeechMode {
     this.halt()

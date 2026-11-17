@@ -17,6 +17,14 @@ function context(): AudioContext | null {
 }
 
 /**
+ * Odomkne zvuk. Volať priamo z kliknutia (napr. z tlačidla prihlásenia), ak má zvučka
+ * zaznieť až o chvíľu neskôr – prehliadač potom už ďalšie kliknutie nevyžaduje.
+ */
+export function primeChime(): void {
+  void context()?.resume().catch(() => {})
+}
+
+/**
  * Prehrá zvučku. Musí sa volať priamo z kliknutia – prehliadač inak zvuk nepovolí.
  * Vracia dĺžku v sekundách (0, ak zvuk nie je dostupný).
  */

@@ -2,7 +2,10 @@
 
 Interná webová aplikácia na riadenie developerského projektu: ekonomika, výkaz
 výmer, cenník a predaj, harmonogram, tendre, povolenia, riziká a úlohy. Beží celá
-v prehliadači, bez servera.
+v prehliadači; dáta má v prehliadači, alebo v spoločnej databáze s prihlásením.
+
+Súčasťou je aj **verejný web projektu**: prezentačná stránka s odkazom Prihlásenie,
+za ktorým je táto aplikácia s vlastným prihlásením (pozri časť Verejný web).
 
 > **Dôverné dáta projektu nie sú v repozitári.** Repozitár je verejný, preto
 > obsahuje len kód aplikácie a vymyslený ukážkový projekt. Skutočné údaje
@@ -55,6 +58,8 @@ npm run lint
 `npm run build:single` zabalí aplikáciu do jedného súboru `dist-single/index.html`,
 ktorý sa dá otvoriť priamo z disku alebo poslať e-mailom. `npm run build:artifact`
 pripraví stránku na zverejnenie s prihlásením (`dist-artifact/page.html`).
+`npm run build:web` zostaví verejný web do `dist-web` (prezentačná stránka a CRM
+pod `/crm/`); `npm run dev:web` ho spustí pri vývoji.
 
 ## Dáta projektu
 
@@ -86,11 +91,25 @@ src/
   lib/speech.ts         hlas: služba hostiteľa, hlas zariadenia alebo titulky
   lib/prefs.ts          osobné nastavenia uvítania a asistenta
   AssistantProvider.tsx zvučka, hlas a titulky dostupné v celej aplikácii
+  AppShell.tsx          kostra aplikácie: menu, horná lišta, aplikácia nad spoločnou databázou
+  extensions.ts         čo aplikácii dodá prostredie (účet, správa prístupov, stránky navyše)
+  web/                  web s vlastným prihlásením: Supabase, prihlasovacie obrazovky,
+                        prístupové kódy, dopyty z verejnej stránky, súkromné obrázky
+  site/                 prezentačná stránka: štýly a pohyb (obsah je vo web/index.html)
   data/templates.ts     vytvorenie projektu z parametrov, šablóny nákladov, povolení, rizík
   data/boqTemplate.ts   generátor výkazu výmer z geometrie stavby
   data/demo.ts          vymyslený ukážkový projekt
   modules/              obrazovky aplikácie
   ui/                   komponenty, grafy a pomôcky pre pohyb
+web/
+  index.html            prezentačná stránka (texty, štruktúra)
+  crm/index.html        vstup do CRM s vlastným prihlásením
+  img/                  fotografie okolia s uvedením autorov (CREDITS.md)
+  public/               nastavenie servera, robots.txt, ikona
+supabase/
+  schema.sql            schéma databázy, pravidlá prístupu a úložisko súborov
+  functions/crm-join/   vytvorenie prístupu jednorazovým kódom
+scripts/                kontroly a príprava zostavení
 ```
 
 ## Vzhľad a pohyb
@@ -133,7 +152,7 @@ je v kolekcii `media`; samotný súbor je
 Čiarové kresby s priehľadným pozadím sa farbia farbou textu, takže fungujú vo
 svetlej aj tmavej téme; výkresy na bielom podklade sa v tmavej téme invertujú.
 
-## Dve podoby aplikácie
+## Tri podoby aplikácie
 
 **Samostatná aplikácia** (`npm run build`, `npm run build:single`) ukladá dáta do
 úložiska prehliadača. Hodí sa na prácu jedného človeka alebo na vlastný web; dáta
@@ -156,8 +175,76 @@ dáta sú v databáze stránky, spoločné pre všetkých, ktorí k nej majú pr
   projektu (`scripts/build-artifact.mjs` to kontroluje); dáta sa do databázy nahrajú až po
   zverejnení alebo importom JSON priamo v stránke.
 
+**Verejný web s vlastným prihlásením** (`npm run build:web`) je opísaný nižšie.
+
 Samostatnú aplikáciu so súkromnými dátami nedávajte na verejnú adresu bez ochrany
 prístupu: údaje zabudované do stránky by si mohol prečítať ktokoľvek.
+
+## Verejný web
+
+`npm run build:web` zostaví do `dist-web` dve stránky, ktoré sa nahrajú na bežný
+webhosting (stačí statický obsah):
+
+- **`/` – prezentačná stránka projektu.** Statické HTML (`web/index.html`) so štýlmi
+  a pohybom v `src/site/`. Funguje aj bez JavaScriptu; skript pridáva striedanie
+  záberov v úvode, zobrazovanie pri rolovaní, výber podlažia, galériu a formulár.
+  Písmo aj obrázky sú na vlastnej doméne – stránka nenačítava obsah tretích strán
+  a nepoužíva súbory cookie. Dopyt z formulára sa uloží do tabuľky `inquiries`.
+- **`/crm/` – CRM s prihlásením.** Tá istá aplikácia nad databázou Supabase
+  (`src/web/`). Vpravo hore na prezentačnej stránke je odkaz Prihlásenie.
+
+### Prístup do CRM
+
+Účty nevznikajú verejnou registráciou. Prístup sa vytvára **jednorazovým kódom**:
+
+1. Prvý vlastník použije kód vlastníka (v databáze je uložený len jeho odtlačok).
+   Na prihlasovacej obrazovke zvolí „Mám prístupový kód“, zadá meno, e-mail, heslo
+   a kód.
+2. Vlastník potom v časti Nastavenia a dáta pozýva ďalších ľudí: zadá e-mail a
+   oprávnenie, systém vydá kód viazaný na tento e-mail (platí 14 dní, raz). Kód
+   pošle pozvanému sám – systém e-maily neodosiela.
+3. Zabudnuté heslo sa rieši novou pozvánkou na ten istý e-mail.
+
+Oprávnenia: **vlastník** (všetko vrátane prístupov), **môže upravovať**, **len na
+čítanie**. Pravidlá vynucuje databáza (RLS v `supabase/schema.sql`), nie aplikácia:
+neprihlásený ani nečlen sa k dátam nedostane ani priamou požiadavkou. Členstvo je
+viazané na konkrétny účet a odobratie prístupu platí okamžite.
+
+Kód overuje funkcia Edge `crm-join` (`supabase/functions/crm-join`), ktorá ako
+jediná pracuje so servisným kľúčom; ten nie je v stránke ani v repozitári.
+
+### Čo je kde uložené
+
+| Čo | Kde |
+|---|---|
+| Dáta projektu (19 častí) | tabuľka `crm_docs`, zmeny sa medzi otvorenými oknami prenášajú priebežne |
+| Obrázky projektu | súkromné úložisko `crm-media`, čítanie cez dočasné adresy pre členov |
+| Dopyty z formulára | tabuľka `inquiries`; v CRM sú v časti Dopyty z webu a jedným kliknutím sa z nich stáva klient |
+| Čiarová kresba domu na prezentačnej stránke | verejné úložisko `site` |
+
+Adresa projektu Supabase a jeho verejný kľúč sú v `.env.web`. Kľúč je určený do
+kódu stránky a nič neodomyká.
+
+### Nasadenie
+
+Workflow `.github/workflows/deploy-jadran-hills.yml` web zostaví a nahrá cez FTP.
+Spustí sa ručne alebo pri zmene v tomto priečinku na vetve `main`; bez nastavených
+údajov hostingu sa preskočí. Potrebné GitHub Secrets: `JH_FTP_SERVER`,
+`JH_FTP_USERNAME`, `JH_FTP_PASSWORD`, voliteľne `JH_FTP_DIR`.
+
+Pred spustením ostrej stránky:
+
+- doplniť prevádzkovateľa a kontakt do časti Ochrana osobných údajov vo
+  `web/index.html` (prvok `data-operator`),
+- v Supabase nastaviť adresu stránky (Authentication → URL Configuration), aby
+  fungoval odkaz na obnovu hesla e-mailom,
+- zvážiť platený plán Supabase: projekt na bezplatnom pláne sa po týždni bez
+  aktivity pozastaví a treba ho ručne obnoviť.
+
+`scripts/check-web.mjs` po zostavení overí, že vo výstupe nie je nič zo súkromného
+priečinka a že prezentačná stránka nepribalila kód aplikácie.
+`scripts/build-preview.mjs` z výstupu pripraví náhľad prezentačnej stránky na
+zverejnenie ako súkromná stránka na claude.ai.
 
 ## Upozornenie
 

@@ -1,4 +1,4 @@
-import { mediaSrc } from '../lib/media'
+import { mediaSrc, useMediaVersion } from '../lib/media'
 import type { MediaItem } from '../types'
 import { cx } from './cx'
 import { useImageOk } from './motion'
@@ -34,6 +34,7 @@ interface Props {
  * aj tmavej téme), fotografia vyplní plochu, bez obrázka sa ukáže náhradná kresba.
  */
 export function CoverArt({ item, className, position = 'center' }: Props) {
+  useMediaVersion()
   const src = item ? mediaSrc(item) : null
   const ok = useImageOk(src)
   if (!src || ok === 'error') return <Hills className={className} />

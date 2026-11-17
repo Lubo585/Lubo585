@@ -1,5 +1,6 @@
 // Obrázky projektu: odkiaľ sa načítajú a ako sa nahrávajú do úložiska stránky.
 
+import { useSyncExternalStore } from 'react'
 import { PRIVATE_MEDIA } from '../data/seed'
 import type { MediaItem, MediaKind } from '../types'
 import { capability, errorCode, hosted } from './platform'
@@ -18,9 +19,50 @@ export const MEDIA_KIND: Record<MediaKind, string> = {
 
 export const MEDIA_KIND_ORDER: MediaKind[] = ['visual', 'photo', 'elevation', 'plan', 'section', 'site', 'tech', 'detail', 'other']
 
+// ───────────────────────── Vlastné úložisko obrázkov ─────────────────────────
+
+export interface AssetStore {
+  upload(blob: Blob, options?: { type?: string }): Promise<{ id: string }>
+  delete(ref: string): Promise<unknown>
+}
+
+/** Úložisko mimo hostiteľa (web s vlastným prihlásením): adresy obrázkov sa zisťujú až za behu. */
+export interface MediaBackend {
+  /** Adresa uloženého obrázka; null, kým ju úložisko nevydalo. */
+  url(assetId: string): string | null
+  /** Úložisko na nahrávanie; null, ak tento používateľ nahrávať nesmie. */
+  store(): Promise<AssetStore | null>
+}
+
+let backend: MediaBackend | null = null
+let version = 0
+const listeners = new Set<() => void>()
+
+/** Oznámi obrazovkám, že pribudli adresy obrázkov a majú sa prekresliť. */
+export function mediaChanged(): void {
+  version += 1
+  for (const l of listeners) l()
+}
+
+export function setMediaBackend(b: MediaBackend | null): void {
+  backend = b
+  mediaChanged()
+}
+
+function subscribe(onChange: () => void): () => void {
+  listeners.add(onChange)
+  return () => listeners.delete(onChange)
+}
+
+/** Prekreslí komponent, keď úložisko vydá nové adresy obrázkov. */
+export function useMediaVersion(): number {
+  return useSyncExternalStore(subscribe, () => version)
+}
+
 /** Adresa obrázka pre toto zobrazenie, alebo null, ak ho tu nie je odkiaľ načítať. */
 export function mediaSrc(m: MediaItem): string | null {
   if (m.assetId && hosted) return `/_blob/${m.assetId}`
+  if (m.assetId && backend) return backend.url(m.assetId)
   if (m.file && PRIVATE_MEDIA[m.file]) return PRIVATE_MEDIA[m.file]
   return m.src
 }
@@ -39,14 +81,14 @@ export function coverOf(media: MediaItem[]): MediaItem | null {
 
 // ───────────────────────── Nahrávanie ─────────────────────────
 
-interface HostAssets {
-  upload(blob: Blob, options?: { type?: string }): Promise<{ id: string; url: string; sizeBytes: number; contentType: string }>
-  delete(ref: string): Promise<{ deleted: boolean }>
+/** Úložisko súborov; null, ak tento používateľ nahrávať nesmie alebo aplikácia beží samostatne. */
+export function assetStore(): Promise<AssetStore | null> {
+  return backend ? backend.store() : capability<AssetStore>('assets')
 }
 
-/** Úložisko súborov hostiteľa; null, ak tento používateľ nahrávať nesmie alebo aplikácia beží samostatne. */
-export function hostAssets(): Promise<HostAssets | null> {
-  return capability<HostAssets>('assets')
+/** true = obrázky sa nahrávajú do úložiska, ku ktorému sa používateľ prihlasuje. */
+export function hasSharedMedia(): boolean {
+  return hosted || backend !== null
 }
 
 const MAX_SIDE = 2400

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { AssistantContext, type Assistant } from './assistantContext'
 import { buildBriefing, firstName, type BriefLine } from './lib/briefing'
 import { compute } from './lib/calc'
-import { playChime } from './lib/chime'
+import { playChime, primeChime } from './lib/chime'
 import { currentHour, todayIso } from './lib/format'
 import { capability } from './lib/platform'
 import { loadPrefs, savePrefs, type AssistantPrefs } from './lib/prefs'
@@ -82,14 +82,21 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     [speaker, prefs, name],
   )
 
+  const identify = useCallback((n: string) => setViewerName(n), [])
+
+  const prime = useCallback(() => {
+    if (prefs.sound) primeChime()
+    if (prefs.voice) speaker.prime()
+  }, [speaker, prefs.sound, prefs.voice])
+
   const voice = useCallback(() => {
     const lang = speaker.language(prefs.lang)
     return { mode: prefs.voice ? speaker.mode(lang) : ('text' as SpeechMode), lang, device: speaker.deviceVoiceName(lang) }
   }, [speaker, prefs.lang, prefs.voice])
 
   const api = useMemo<Assistant>(
-    () => ({ prefs, setPrefs, viewerName, name, speaking: caption !== null, greet, stop, voice }),
-    [prefs, setPrefs, viewerName, name, caption, greet, stop, voice],
+    () => ({ prefs, setPrefs, viewerName, name, speaking: caption !== null, identify, prime, greet, stop, voice }),
+    [prefs, setPrefs, viewerName, name, caption, identify, prime, greet, stop, voice],
   )
 
   return (

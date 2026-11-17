@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="sk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: %VITE_SUPABASE_URL%; connect-src %VITE_SUPABASE_URL% %VITE_SUPABASE_WS%; font-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
+    <meta name="theme-color" content="#000000" />
+    <title>Jadran Hills CRM</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script src="/boot-crm.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>Aplikácia potrebuje zapnutý JavaScript.</noscript>
+    <script type="module" src="../../src/web/main.tsx"></script>
+  </body>
+</html>

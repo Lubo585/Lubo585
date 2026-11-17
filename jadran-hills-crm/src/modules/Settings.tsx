@@ -1,6 +1,7 @@
 import { Download, Play, RotateCcw, Square, Trash2, Upload } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useAssistant } from '../assistantContext'
+import { useExtensions } from '../extensions'
 import { PRIVATE_PARAMS } from '../data/seed'
 import { createProject } from '../data/templates'
 import { firstName } from '../lib/briefing'
@@ -20,6 +21,7 @@ export default function SettingsPage({ onReplace }: { onReplace: (d: ProjectData
   const [error, setError] = useState('')
   const [confirm, setConfirm] = useState<Confirm>(null)
   const readOnly = sync.state === 'readonly'
+  const ext = useExtensions()
   const assistant = useAssistant()
   const { prefs, setPrefs } = assistant
   const voice = assistant.voice()
@@ -46,7 +48,7 @@ export default function SettingsPage({ onReplace }: { onReplace: (d: ProjectData
       setConfirm({
         title: 'Nahradiť dáta projektu?',
         text: sync.shared
-          ? `Dáta v databáze tejto stránky sa nahradia obsahom súboru „${f.name}“ (projekt ${parsed.project.name}) – pre všetkých, ktorí stránku používajú. Ak ich nemáte zálohované, najprv ich exportujte.`
+          ? `Dáta v spoločnej databáze sa nahradia obsahom súboru „${f.name}“ (projekt ${parsed.project.name}) – pre všetkých, ktorí stránku používajú. Ak ich nemáte zálohované, najprv ich exportujte.`
           : `Aktuálne dáta v tomto prehliadači sa nahradia obsahom súboru „${f.name}“ (projekt ${parsed.project.name}). Ak ste si ich nezálohovali, najprv ich exportujte.`,
         label: 'Nahradiť',
         action: () => onReplace(parsed),
@@ -66,7 +68,7 @@ export default function SettingsPage({ onReplace }: { onReplace: (d: ProjectData
         <Card title="Záloha a prenos dát">
           <p className="m-0 text-[13.5px] text-ink-2">
             {sync.shared
-              ? 'Údaje projektu sú uložené v databáze tejto stránky a sú rovnaké pre všetkých, ktorí k nej majú prístup. Exportom získate jeden súbor JSON ako zálohu.'
+              ? 'Údaje projektu sú uložené v spoločnej databáze a sú rovnaké pre všetkých, ktorí k nej majú prístup. Exportom získate jeden súbor JSON ako zálohu.'
               : 'Všetky údaje projektu sú uložené v tomto prehliadači. Exportom získate jeden súbor JSON, ktorý môžete zálohovať, poslať kolegovi alebo nahrať na inom zariadení.'}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -192,7 +194,9 @@ export default function SettingsPage({ onReplace }: { onReplace: (d: ProjectData
           </div>
         </Card>
 
-        <Card title="Prihlásenie a viac používateľov">
+        {ext.settings}
+
+        {!ext.settings && <Card title="Prihlásenie a viac používateľov">
           {sync.shared ? (
             <>
               <p className="m-0 text-[13.5px] text-ink-2">
@@ -217,7 +221,7 @@ export default function SettingsPage({ onReplace }: { onReplace: (d: ProjectData
               </div>
             </>
           )}
-        </Card>
+        </Card>}
 
         <Card title="O projekte v aplikácii">
           <Dl

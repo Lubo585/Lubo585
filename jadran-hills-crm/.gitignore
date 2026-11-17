@@ -1,6 +1,8 @@
 node_modules
 dist
 dist-single
+dist-web
+dist-preview
 *.local
 .DS_Store
 

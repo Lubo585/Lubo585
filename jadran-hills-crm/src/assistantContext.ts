@@ -14,6 +14,10 @@ export interface Assistant {
   /** Oslovenie použité v pozdrave. */
   name: string
   speaking: boolean
+  /** Nastaví meno prihláseného používateľa (web s vlastným prihlásením). */
+  identify(name: string): void
+  /** Odomkne zvuk a hlas z kliknutia, ak má pozdrav zaznieť až po načítaní dát. */
+  prime(): void
   /** Spustí pozdrav so zvučkou. Volať priamo z kliknutia. */
   greet(data: ProjectData, opts?: { chime?: boolean }): void
   stop(): void

@@ -63,6 +63,15 @@ export function welcomedThisSession(): boolean {
   }
 }
 
+/** Po novom prihlásení sa uvítanie ukáže znova. */
+export function resetWelcomed(): void {
+  try {
+    sessionStorage.removeItem(SEEN)
+  } catch {
+    /* bez úložiska sa uvítanie ukáže vždy */
+  }
+}
+
 export function markWelcomed(): void {
   try {
     sessionStorage.setItem(SEEN, '1')

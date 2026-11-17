@@ -1,19 +1,19 @@
 import { ChevronLeft, ChevronRight, ImagePlus, Pencil, Star, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { uid } from '../lib/format'
-import { hostAssets, MEDIA_KIND, MEDIA_KIND_ORDER, mediaSrc, prepareImage, uploadErrorText } from '../lib/media'
-import { hosted } from '../lib/platform'
+import { assetStore, hasSharedMedia, MEDIA_KIND, MEDIA_KIND_ORDER, mediaSrc, prepareImage, uploadErrorText, useMediaVersion } from '../lib/media'
 import { useStore } from '../store'
 import type { ID, MediaItem, MediaKind } from '../types'
 import { cx } from '../ui/cx'
 import { Badge, Button, Check, Empty, Field, Modal, Note, PageHead, Select, Tabs, TextArea, TextInput } from '../ui/kit'
 import { useMountTransition } from '../ui/motion'
 
-type Assets = NonNullable<Awaited<ReturnType<typeof hostAssets>>>
+type Assets = NonNullable<Awaited<ReturnType<typeof assetStore>>>
 type Filter = 'all' | MediaKind
 
 /** Jeden obrázok vo vyhradenej ploche: čiarová kresba, výkres na „papieri“ alebo fotografia. */
 function Picture({ item, zoom, lightbox }: { item: MediaItem; zoom?: boolean; lightbox?: boolean }) {
+  useMediaVersion()
   const src = mediaSrc(item)
   const [failed, setFailed] = useState<string | null>(null)
   if (!src || failed === src) {
@@ -49,7 +49,7 @@ export default function Gallery() {
 
   useEffect(() => {
     let alive = true
-    void hostAssets().then((a) => alive && setAssets(a))
+    void assetStore().then((a) => alive && setAssets(a))
     return () => {
       alive = false
     }
@@ -150,7 +150,7 @@ export default function Gallery() {
           text={
             assets && !readOnly
               ? 'Pridajte vizualizácie, fotografie pozemku alebo výkresy. Prvý obrázok sa stane titulným.'
-              : hosted
+              : hasSharedMedia()
                 ? 'Obrázky môže pridávať ten, kto má oprávnenie stránku upravovať.'
                 : 'Obrázky sa nahrávajú na stránke s prihlásením; táto samostatná kópia zobrazuje len pribalené súbory.'
           }
@@ -182,7 +182,7 @@ export default function Gallery() {
       {!assets && !readOnly && data.media.length > 0 && (
         <div className="mt-4">
           <Note>
-            {hosted
+            {hasSharedMedia()
               ? 'Pridávať a odstraňovať obrázky môže ten, kto má oprávnenie stránku upravovať.'
               : 'Nové obrázky sa nahrávajú na stránke s prihlásením; táto samostatná kópia zobrazuje pribalené súbory.'}
           </Note>

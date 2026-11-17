@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useAssistant } from '../assistantContext'
 import { greetingWord } from '../lib/briefing'
 import { currentHour } from '../lib/format'
-import { coverOf } from '../lib/media'
+import { coverOf, useMediaVersion } from '../lib/media'
 import type { ProjectData } from '../types'
 import { CoverArt } from '../ui/CoverArt'
 
@@ -15,16 +15,19 @@ interface Props {
   phase: WelcomePhase
   /** Databáza dlho neodpovedá. */
   slow?: boolean
+  /** Vstup nastane sám (po čerstvom prihlásení) – tlačidlo sa nezobrazuje. */
+  auto?: boolean
   onEnter(sound: boolean): void
 }
 
 /** Uvítacia obrazovka po otvorení: pozdrav menom a vstup do projektu so zvučkou a hlasom. */
-export default function Welcome({ data, phase, slow, onEnter }: Props) {
+export default function Welcome({ data, phase, slow, auto, onEnter }: Props) {
   const { prefs, name } = useAssistant()
   const [hour] = useState(currentHour)
   const hello = `${greetingWord(hour, 'sk')}${name ? `, ${name}` : ''}.`
   const who = prefs.assistant.trim() || 'Jarvis'
   const audible = prefs.sound || prefs.voice
+  useMediaVersion()
   const cover = data ? coverOf(data.media) : null
   const houses = data?.buildings.length ?? 0
 
@@ -60,20 +63,29 @@ export default function Welcome({ data, phase, slow, onEnter }: Props) {
               </>
             )}
           </div>
-          <div className="mt-9 flex flex-col items-center gap-2">
-            <button type="button" className="welcome-cta" disabled={!data} onClick={() => onEnter(true)} autoFocus>
-              {data ? 'Vstúpiť' : 'Načítavam…'}
-              {data && <ArrowRight size={18} aria-hidden />}
-            </button>
-            {data && audible && (
-              <button type="button" className="welcome-link" onClick={() => onEnter(false)}>
-                Vstúpiť bez zvuku
+          {auto ? (
+            <div className="mt-9 flex flex-col items-center gap-3">
+              <span className="welcome-wait" aria-hidden />
+              <p className="m-0 text-[13.5px] text-[var(--w-muted)]" role="status">
+                {data ? `${who} sa pripája…` : 'Otváram projekt…'}
+              </p>
+            </div>
+          ) : (
+            <div className="mt-9 flex flex-col items-center gap-2">
+              <button type="button" className="welcome-cta" disabled={!data} onClick={() => onEnter(true)} autoFocus>
+                {data ? 'Vstúpiť' : 'Načítavam…'}
+                {data && <ArrowRight size={18} aria-hidden />}
               </button>
-            )}
-            <p className="m-0 mt-1 max-w-sm text-[12.5px] leading-snug text-[var(--w-muted)]">
-              {audible ? `Po vstupe zaznie zvučka a ${who} vás pozdraví a zhrnie stav projektu.` : `${who} po vstupe zhrnie stav projektu v titulkoch.`}
-            </p>
-          </div>
+              {data && audible && (
+                <button type="button" className="welcome-link" onClick={() => onEnter(false)}>
+                  Vstúpiť bez zvuku
+                </button>
+              )}
+              <p className="m-0 mt-1 max-w-sm text-[12.5px] leading-snug text-[var(--w-muted)]">
+                {audible ? `Po vstupe zaznie zvučka a ${who} vás pozdraví a zhrnie stav projektu.` : `${who} po vstupe zhrnie stav projektu v titulkoch.`}
+              </p>
+            </div>
+          )}
         </div>
       )}
       {phase !== 'idle' && (

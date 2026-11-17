@@ -30,14 +30,18 @@ export function StoreProvider({ initial, remote = null, readOnly = false, childr
   }, [remote, readOnly])
 
   // Zmeny sa zapisujú až po krátkej pauze, aby séria úprav bola jeden zápis.
-  useEffect(() => {
-    latest.current = data
+  const schedule = useCallback(() => {
     if (timer.current) window.clearTimeout(timer.current)
     timer.current = window.setTimeout(persist, remote ? 800 : 400)
+  }, [persist, remote])
+
+  useEffect(() => {
+    latest.current = data
+    schedule()
     return () => {
       if (timer.current) window.clearTimeout(timer.current)
     }
-  }, [data, persist, remote])
+  }, [data, schedule])
 
   // Rozpracované zmeny sa uložia aj pri zatvorení okna.
   useEffect(() => {
@@ -54,12 +58,20 @@ export function StoreProvider({ initial, remote = null, readOnly = false, childr
     })
   }, [remote])
 
-  const set = useCallback((fn: (d: ProjectData) => ProjectData) => {
-    setData((d) => {
-      const next = fn(d)
-      return next === d ? d : { ...next, meta: { ...next.meta, updatedAt: new Date().toISOString() } }
-    })
-  }, [])
+  const set = useCallback(
+    (fn: (d: ProjectData) => ProjectData) => {
+      setData((d) => {
+        const next = fn(d)
+        return next === d ? d : { ...next, meta: { ...next.meta, updatedAt: new Date().toISOString() } }
+      })
+      // Stav „uložené“ nemá svietiť, kým úprava ešte čaká na zápis do spoločnej databázy.
+      if (remote && !readOnly) {
+        setState((prev) => (prev === 'readonly' ? prev : 'saving'))
+        schedule()
+      }
+    },
+    [remote, readOnly, schedule],
+  )
 
   const store = useMemo<Store>(() => {
     const patch: Store['patch'] = (key, id, p) =>

@@ -2,7 +2,7 @@ import { ArrowRight, TriangleAlert } from 'lucide-react'
 import { useMemo } from 'react'
 import { breakeven, isSold, sellableArea } from '../lib/calc'
 import { addYears, daysUntil, eur, eurShort, fmtDate, monthLabel, monthShort, num, pct } from '../lib/format'
-import { coverOf } from '../lib/media'
+import { coverOf, useMediaVersion } from '../lib/media'
 import { useStore } from '../store'
 import { SERIES } from '../ui/chartUtils'
 import { BarList, LineChart, SegBar } from '../ui/charts'
@@ -45,6 +45,7 @@ export default function Dashboard() {
   const permitsAll = data.permits.filter((p) => p.status !== 'na').length
   const completion = r.phases.find((p) => p.tag === 'completion')
   const activeClients = data.clients.filter((c) => c.stage !== 'lost')
+  useMediaVersion()
   const cover = coverOf(data.media)
   const area = data.units.reduce((a, u) => a + sellableArea(u, s), 0)
   const houses = data.buildings.length
