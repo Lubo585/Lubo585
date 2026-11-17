@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEMO_PARAMS } from '../data/demo'
 import { createProject } from '../data/templates'
-import { boqTotals, breakevenPriceDelta, compute, irrAnnual, listPrice, minEquity, sellableArea, NO_ADJ } from './calc'
+import { apartmentPrice, boqTotals, breakevenPriceDelta, compute, irrAnnual, listPrice, minEquity, parkingTotal, sellableArea, NO_ADJ } from './calc'
 
 const TODAY = '2026-11-15'
 const base = () => createProject({ ...DEMO_PARAMS, startMonth: '2026-11' }, TODAY)
@@ -19,6 +19,56 @@ describe('jednotky a ceny', () => {
     const u = d.units[0]
     expect(listPrice(u, d.settings) % d.settings.pricing.roundTo).toBe(0)
     expect(listPrice({ ...u, priceMode: 'manual', manualPrice: 123456 }, d.settings)).toBe(123456)
+  })
+
+  it('cena bytu = predajná plocha × základná cena × príplatok podlažia, zaokrúhlená', () => {
+    const d = base()
+    d.settings.pricing = { ...d.settings.pricing, basePerM2: 4500, floorAdjPct: [0, 2, 4], roundTo: 500 }
+    d.settings.areaCoef = { coveredTerrace: 0.5, loggia: 0.75, roofTerrace: 0.25, garden: 0.1 }
+    const unit = { ...d.units[0], floor: 2, interior: 60.12, coveredTerrace: 11.72, loggia: 2, roofTerrace: 89.47, garden: 0 }
+    // 60,12 + 5,86 + 1,50 + 22,3675 = 89,8475 m² → × 4 500 × 1,04 = 420 486,30 → 420 500
+    expect(sellableArea(unit, d.settings)).toBeCloseTo(89.8475, 6)
+    expect(apartmentPrice(unit, d.settings)).toBe(420_500)
+  })
+
+  it('parkovanie sa kupuje k bytu zvlášť: cenu bytu ani cenu za m² nemení', () => {
+    const d = base()
+    const before = run(d)
+    const paid = base()
+    paid.settings.pricing.parkingPrice = 10_000
+    const after = run(paid)
+    const spaces = paid.units.reduce((a, u) => a + u.parking, 0)
+    expect(spaces).toBeGreaterThan(0)
+    for (const [i, u] of after.units.entries()) {
+      expect(u.apartment).toBe(before.units[i].apartment)
+      expect(u.parking).toBe(u.unit.parking * 10_000)
+      expect(u.list).toBe(u.apartment + u.parking)
+    }
+    expect(after.revenue.avgPerM2).toBeCloseTo(before.revenue.avgPerM2, 6)
+    expect(after.revenue.parkingList).toBe(spaces * 10_000)
+    expect(after.revenue.parkingSpaces).toBe(spaces)
+    expect(after.revenue.listGross).toBe(before.revenue.listGross + spaces * 10_000)
+    // voľné byty sa predajú za cenník – tržby rastú presne o cenu parkovacích miest
+    expect(after.revenue.gross).toBeCloseTo(before.revenue.gross + spaces * 10_000, 4)
+  })
+
+  it('parkovanie sa pripočíta aj k ručne zadanej cene bytu a pri byte bez miesta sa neúčtuje', () => {
+    const d = base()
+    d.settings.pricing.parkingPrice = 10_000
+    const u = d.units[0]
+    expect(apartmentPrice({ ...u, priceMode: 'manual', manualPrice: 250_000 }, d.settings)).toBe(250_000)
+    expect(listPrice({ ...u, priceMode: 'manual', manualPrice: 250_000, parking: 1 }, d.settings)).toBe(260_000)
+    expect(listPrice({ ...u, parking: 2 }, d.settings)).toBe(apartmentPrice(u, d.settings) + 20_000)
+    expect(parkingTotal({ ...u, parking: 0 }, d.settings)).toBe(0)
+    expect(listPrice({ ...u, parking: 0 }, d.settings)).toBe(apartmentPrice(u, d.settings))
+  })
+
+  it('cena parkovania sa nezaokrúhľuje spolu s cenou bytu', () => {
+    const d = base()
+    d.settings.pricing = { ...d.settings.pricing, parkingPrice: 9_990, roundTo: 500 }
+    const u = d.units[0]
+    expect(apartmentPrice(u, d.settings) % 500).toBe(0)
+    expect(listPrice(u, d.settings)).toBe(apartmentPrice(u, d.settings) + 9_990 * u.parking)
   })
 })
 

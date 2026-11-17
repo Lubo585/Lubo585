@@ -19,6 +19,8 @@ export default function Units() {
 
   const rows = r.units.filter((u) => (building === 'all' || u.unit.buildingId === building) && (status === 'all' || u.unit.status === status))
   const maxFloor = Math.max(0, ...data.units.map((u) => u.floor))
+  /** Parkovanie má vlastnú cenu a kupuje sa k bytu zvlášť – cenník ho ukazuje v samostatných stĺpcoch. */
+  const extraParking = s.pricing.parkingPrice > 0
   const missingGardens = data.units.some((u) => u.floor === 0) && data.units.filter((u) => u.floor === 0).every((u) => u.garden === 0)
 
   const setStatusOf = (u: Unit, st: UnitStatus) => {
@@ -28,10 +30,10 @@ export default function Units() {
 
   const csv = () =>
     exportCsv('cennik-jednotiek.csv', [
-      ['Byt', 'Dom', 'Podlažie', 'Dispozícia', 'Orientácia', 'Interiér m²', 'Krytá terasa m²', 'Lodžia m²', 'Strešná terasa m²', 'Záhrada m²', 'Predajná plocha m²', 'Parkovanie', 'Cenníková cena €', 'Cena €/m²', 'Stav', 'Zmluvná cena €', 'Dátum', 'Poznámka'],
+      ['Byt', 'Dom', 'Podlažie', 'Dispozícia', 'Orientácia', 'Interiér m²', 'Krytá terasa m²', 'Lodžia m²', 'Strešná terasa m²', 'Záhrada m²', 'Predajná plocha m²', 'Parkovacie miesta', 'Cena bytu €', 'Cena bytu €/m²', 'Parkovanie €', 'Spolu €', 'Stav', 'Zmluvná cena €', 'Dátum', 'Poznámka'],
       ...r.units.map((u) => [
         u.unit.label, u.building?.name ?? '', floorLabel(u.unit.floor), u.unit.layout, u.unit.orientation, u.unit.interior, u.unit.coveredTerrace, u.unit.loggia,
-        u.unit.roofTerrace, u.unit.garden, u.area, u.unit.parking, u.list, u.area > 0 ? u.list / u.area : 0, UNIT_STATUS[u.unit.status].label,
+        u.unit.roofTerrace, u.unit.garden, u.area, u.unit.parking, u.apartment, u.area > 0 ? u.apartment / u.area : 0, u.parking, u.list, UNIT_STATUS[u.unit.status].label,
         u.unit.soldPrice ?? '', u.unit.saleDate ?? '', u.unit.note,
       ]),
     ])
@@ -63,12 +65,16 @@ export default function Units() {
         <Stat label="Jednotky" value={data.units.length} sub={`${r.revenue.soldCount} predaných alebo rezervovaných`} />
         <Stat label="Vnútorná plocha" value={`${num(r.revenue.interior, 0)} m²`} />
         <Stat label="Predajná plocha" value={`${num(r.revenue.area, 0)} m²`} sub="vrátane vážených terás" />
-        <Stat label={s.pricesIncludeVat ? 'Hodnota cenníka s DPH' : 'Hodnota cenníka'} value={eurShort(r.units.reduce((a, u) => a + u.list, 0))} />
-        <Stat label="Priemerná cena" value={`${eur(r.revenue.avgPerM2)}/m²`} sub="na m² predajnej plochy" />
+        <Stat
+          label={s.pricesIncludeVat ? 'Hodnota cenníka s DPH' : 'Hodnota cenníka'}
+          value={eurShort(r.revenue.listGross)}
+          sub={extraParking ? `z toho parkovanie ${eurShort(r.revenue.parkingList)} (${r.revenue.parkingSpaces} miest)` : undefined}
+        />
+        <Stat label="Priemerná cena" value={`${eur(r.revenue.avgPerM2)}/m²`} sub={extraParking ? 'na m² predajnej plochy, bez parkovania' : 'na m² predajnej plochy'} />
       </div>
 
       <div className="no-print mt-4">
-        <Card title="Nastavenie cenníka" hint="Cena = predajná plocha × základná cena × (1 + príplatok podlažia) × (1 + príplatok domu) + parkovanie">
+        <Card title="Nastavenie cenníka" hint="Cena bytu = predajná plocha × základná cena × (1 + príplatok podlažia) × (1 + príplatok domu). Parkovacie miesto sa kupuje k bytu zvlášť.">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Field label="Základná cena">
               <NumInput value={s.pricing.basePerM2} onChange={(v) => setSettings((x) => ({ ...x, pricing: { ...x.pricing, basePerM2: v } }))} suffix="€/m²" />
@@ -99,7 +105,7 @@ export default function Units() {
                 />
               </Field>
             ))}
-            <Field label="Parkovacie miesto" hint="0 = v cene bytu">
+            <Field label="Parkovacie miesto" hint="Kupuje sa k bytu zvlášť; 0 = v cene bytu">
               <NumInput value={s.pricing.parkingPrice} onChange={(v) => setSettings((x) => ({ ...x, pricing: { ...x.pricing, parkingPrice: v } }))} suffix="€" />
             </Field>
             <Field label="Zaokrúhlenie ceny">
@@ -129,8 +135,8 @@ export default function Units() {
       {missingGardens && (
         <div className="no-print mt-4">
           <Note tone="warn" title="Doplňte záhrady a overte plochy">
-            Plochy sú prevzaté z výkresov inštalácií. Výmery záhrad prízemných bytov a počet parkovacích miest v dostupných
-            podkladoch nie sú – doplňte ich podľa architektonického projektu, cenník sa prepočíta.
+            Plochy sú prevzaté z výkresov inštalácií. Výmery záhrad prízemných bytov v dostupných podkladoch nie sú –
+            doplňte ich podľa architektonického projektu, cenník sa prepočíta.
           </Note>
         </div>
       )}
@@ -161,10 +167,16 @@ export default function Units() {
                   <th>Dispozícia</th>
                   <th>Podlažie</th>
                   <th className="num">Predajná plocha</th>
-                  <th className="num">Cenníková cena</th>
+                  <th className="num">{extraParking ? 'Cena bytu' : 'Cenníková cena'}</th>
                   <th className="num">€/m²</th>
+                  {extraParking && (
+                    <>
+                      <th className="num">Parkovanie</th>
+                      <th className="num">Spolu</th>
+                    </>
+                  )}
                   <th>Stav</th>
-                  <th className="num">Zmluvná cena</th>
+                  <th className="num" title={extraParking ? 'Spolu za byt a parkovanie' : undefined}>Zmluvná cena</th>
                   <th>Dátum</th>
                   <th>Klient</th>
                   <th className="num">Interiér</th>
@@ -172,13 +184,14 @@ export default function Units() {
                   <th className="num">Lodžia</th>
                   <th className="num">Strešná terasa</th>
                   <th className="num">Záhrada</th>
+                  <th className="num">Park. miesta</th>
                   <th>Cena</th>
                   <th>Poznámka</th>
                   <th />
                 </tr>
               </thead>
               <tbody>
-                {rows.map(({ unit: u, area, list }) => (
+                {rows.map(({ unit: u, area, list, apartment, parking }) => (
                   <tr key={u.id}>
                     <td className="sticky left-0 z-[1] bg-surface" style={{ minWidth: 64 }}><TextInput cell value={u.label} onChange={(v) => patch('units', u.id, { label: v })} ariaLabel="Označenie bytu" /></td>
                     <td style={{ minWidth: 290 }} title={u.layout}><TextInput cell value={u.layout} onChange={(v) => patch('units', u.id, { layout: v })} ariaLabel="Dispozícia" /></td>
@@ -193,9 +206,15 @@ export default function Units() {
                     </td>
                     <td className="num font-medium">{num(area)}</td>
                     <td className="num" style={{ minWidth: 104 }}>
-                      {u.priceMode === 'manual' ? <NumInput cell value={u.manualPrice} onChange={(v) => patch('units', u.id, { manualPrice: v })} ariaLabel="Cenníková cena" /> : <span className="font-medium">{eur(list)}</span>}
+                      {u.priceMode === 'manual' ? <NumInput cell value={u.manualPrice} onChange={(v) => patch('units', u.id, { manualPrice: v })} ariaLabel={extraParking ? 'Cena bytu' : 'Cenníková cena'} /> : <span className="font-medium">{eur(apartment)}</span>}
                     </td>
-                    <td className="num text-ink-2">{area > 0 ? num(list / area, 0) : '—'}</td>
+                    <td className="num text-ink-2">{area > 0 ? num(apartment / area, 0) : '—'}</td>
+                    {extraParking && (
+                      <>
+                        <td className="num text-ink-2">{parking > 0 ? eur(parking) : '—'}</td>
+                        <td className="num font-semibold" style={{ minWidth: 104 }}>{eur(list)}</td>
+                      </>
+                    )}
                     <td style={{ minWidth: 128 }}>
                       <span className="hidden print:inline"><Badge tone={UNIT_STATUS[u.status].tone}>{UNIT_STATUS[u.status].label}</Badge></span>
                       <span className="print:hidden">
@@ -222,11 +241,14 @@ export default function Units() {
                         <NumInput cell decimals={2} value={u[k]} onChange={(v) => patch('units', u.id, { [k]: v })} ariaLabel={AREA_LABEL[k]} />
                       </td>
                     ))}
+                    <td className="num" style={{ minWidth: 70 }}>
+                      <NumInput cell value={u.parking} min={0} onChange={(v) => patch('units', u.id, { parking: Math.max(0, Math.round(v)) })} ariaLabel="Počet parkovacích miest" />
+                    </td>
                     <td style={{ minWidth: 96 }}>
                       <Select
                         cell
                         value={u.priceMode}
-                        onChange={(v) => patch('units', u.id, { priceMode: v, manualPrice: v === 'manual' && !u.manualPrice ? list : u.manualPrice })}
+                        onChange={(v) => patch('units', u.id, { priceMode: v, manualPrice: v === 'manual' && !u.manualPrice ? apartment : u.manualPrice })}
                         ariaLabel="Spôsob určenia ceny"
                         options={[{ value: 'auto', label: 'Výpočet' }, { value: 'manual', label: 'Ručne' }]}
                       />
@@ -240,8 +262,15 @@ export default function Units() {
                 <tr>
                   <td className="sticky left-0 z-[1]" colSpan={3}>Spolu ({rows.length})</td>
                   <td className="num">{num(rows.reduce((a, x) => a + sellableArea(x.unit, s), 0))}</td>
-                  <td className="num">{eur(rows.reduce((a, x) => a + x.list, 0))}</td>
-                  <td colSpan={2} />
+                  <td className="num">{eur(rows.reduce((a, x) => a + x.apartment, 0))}</td>
+                  <td />
+                  {extraParking && (
+                    <>
+                      <td className="num">{eur(rows.reduce((a, x) => a + x.parking, 0))}</td>
+                      <td className="num">{eur(rows.reduce((a, x) => a + x.list, 0))}</td>
+                    </>
+                  )}
+                  <td />
                   <td className="num">{eur(rows.reduce((a, x) => a + (isSold(x.unit) ? (x.unit.soldPrice ?? 0) : 0), 0))}</td>
                   <td colSpan={2} />
                   <td className="num">{num(rows.reduce((a, x) => a + x.unit.interior, 0))}</td>
@@ -249,6 +278,7 @@ export default function Units() {
                   <td className="num">{num(rows.reduce((a, x) => a + x.unit.loggia, 0))}</td>
                   <td className="num">{num(rows.reduce((a, x) => a + x.unit.roofTerrace, 0))}</td>
                   <td className="num">{num(rows.reduce((a, x) => a + x.unit.garden, 0))}</td>
+                  <td className="num">{num(rows.reduce((a, x) => a + Math.max(0, x.unit.parking), 0), 0)}</td>
                   <td colSpan={3} />
                 </tr>
               </tfoot>

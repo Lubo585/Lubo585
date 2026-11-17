@@ -59,19 +59,30 @@ export function sellableArea(u: Unit, s: Settings): number {
   )
 }
 
-/** Cenníková cena jednotky (v cenníkovom vyjadrení – spravidla s DPH). */
-export function listPrice(u: Unit, s: Settings): number {
+/**
+ * Cena samotného bytu podľa cenníka, bez parkovania (v cenníkovom vyjadrení – spravidla
+ * s DPH). Pri ručnom režime je to cena zadaná pri byte.
+ */
+export function apartmentPrice(u: Unit, s: Settings): number {
   if (u.priceMode === 'manual') return u.manualPrice
   const p = s.pricing
   const floorAdj = p.floorAdjPct.length
     ? (p.floorAdjPct[Math.min(u.floor, p.floorAdjPct.length - 1)] ?? 0)
     : 0
   const buildingAdj = p.buildingAdjPct[u.buildingId] ?? 0
-  const raw =
-    sellableArea(u, s) * p.basePerM2 * (1 + floorAdj / 100) * (1 + buildingAdj / 100) +
-    u.parking * p.parkingPrice
+  const raw = sellableArea(u, s) * p.basePerM2 * (1 + floorAdj / 100) * (1 + buildingAdj / 100)
   const r = p.roundTo > 0 ? p.roundTo : 1
   return Math.round(raw / r) * r
+}
+
+/** Cena parkovacích miest bytu; kupujú sa k bytu zvlášť (0 = parkovanie je v cene bytu). */
+export function parkingTotal(u: Unit, s: Settings): number {
+  return Math.max(0, u.parking) * Math.max(0, s.pricing.parkingPrice)
+}
+
+/** Cenníková cena jednotky spolu: byt a jeho parkovacie miesta. */
+export function listPrice(u: Unit, s: Settings): number {
+  return apartmentPrice(u, s) + parkingTotal(u, s)
 }
 
 export function isSold(u: Unit): boolean {
@@ -250,7 +261,9 @@ export interface UnitCalc {
   unit: Unit
   building: Building | undefined
   area: number // predajná plocha
-  list: number // cenníková cena
+  apartment: number // cenníková cena samotného bytu
+  parking: number // cenníková cena jeho parkovacích miest
+  list: number // cenníková cena spolu (byt + parkovanie)
   price: number // účinná cena (cenníkové vyjadrenie)
   net: number // tržba bez DPH
   saleMonth: number
@@ -282,7 +295,10 @@ export interface Results {
     net: number
     area: number
     interior: number
-    avgPerM2: number // cenníková cena / m² predajnej plochy
+    avgPerM2: number // cenníková cena bytov / m² predajnej plochy (bez parkovania)
+    listGross: number // hodnota cenníka spolu (byty + parkovanie)
+    parkingList: number // z toho parkovacie miesta
+    parkingSpaces: number
     soldCount: number
     soldGross: number
     soldNet: number
@@ -359,7 +375,9 @@ export function compute(data: ProjectData, adj: Adj = NO_ADJ, opts: ComputeOpts 
 
   const units: UnitCalc[] = data.units.map((u) => {
     const sold = isSold(u)
-    const list = listPrice(u, s)
+    const apartment = apartmentPrice(u, s)
+    const parking = parkingTotal(u, s)
+    const list = apartment + parking
     const price = effectivePrice(u, s, adj)
     let saleMonth: number
     if (sold) {
@@ -372,6 +390,8 @@ export function compute(data: ProjectData, adj: Adj = NO_ADJ, opts: ComputeOpts 
       unit: u,
       building: buildingById.get(u.buildingId),
       area: sellableArea(u, s),
+      apartment,
+      parking,
       list,
       price,
       net: netOfVat(price, s),
@@ -646,7 +666,11 @@ export function compute(data: ProjectData, adj: Adj = NO_ADJ, opts: ComputeOpts 
       net: revNet,
       area,
       interior: sum(data.units.map((u) => u.interior)),
-      avgPerM2: area > 0 ? sum(units.map((u) => u.list)) / area : 0,
+      // parkovanie sa predáva zvlášť, do ceny za m² sa preto nepočíta
+      avgPerM2: area > 0 ? sum(units.map((u) => u.apartment)) / area : 0,
+      listGross: sum(units.map((u) => u.list)),
+      parkingList: sum(units.map((u) => u.parking)),
+      parkingSpaces: sum(data.units.map((u) => Math.max(0, u.parking))),
       soldCount: soldUnits.length,
       soldGross: sum(soldUnits.map((u) => u.price)),
       soldNet: sum(soldUnits.map((u) => u.net)),

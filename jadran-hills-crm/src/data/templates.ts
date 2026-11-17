@@ -54,6 +54,7 @@ export interface Rates {
   gridPerKw: number // pripojovací poplatok elektrina €/kW
   peakPowerKw: number // pripojovaný výkon spolu (kW)
   basePricePerM2: number // cenníková cena €/m² predajnej plochy
+  parkingPrice?: number // cena parkovacieho miesta, ak sa kupuje k bytu zvlášť (inak je v cene bytu)
   landExitPerM2: number // alternatíva: predaj pozemku s povolením
   contingencyPct: number // stavebná rezerva
   priceIndex: number // cenová hladina výkazu výmer (1 = základné ceny šablóny)
@@ -206,7 +207,7 @@ export function defaultSettings(startMonth: string, rates: Rates): Settings {
     pricesIncludeVat: true,
     profitTaxPct: 18,
     areaCoef: { coveredTerrace: 0.5, loggia: 0.75, roofTerrace: 0.25, garden: 0.1 },
-    pricing: { basePerM2: rates.basePricePerM2, floorAdjPct: [0, 2, 4], buildingAdjPct: {}, parkingPrice: 0, roundTo: 500 },
+    pricing: { basePerM2: rates.basePricePerM2, floorAdjPct: [0, 2, 4], buildingAdjPct: {}, parkingPrice: rates.parkingPrice ?? 0, roundTo: 500 },
     sales: { startMonth: 2, endMonth: 30, depositPct: 10, shellPct: 30, finalPct: 60 },
     finance: { equity: 0, loanLimit: 0, interestPct: rates.interestPct, feePct: 1 },
     rent: { adr1: 100, adr2: 145, adr2roof: 175, nights: 85, feesPct: 25, costPerUnitYear: 2600, capRatePct: 5.5 },

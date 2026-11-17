@@ -324,7 +324,7 @@ export interface Settings {
     basePerM2: number // € za m² predajnej plochy (v cenníkovom vyjadrení)
     floorAdjPct: number[] // príplatok podľa podlažia (index = podlažie)
     buildingAdjPct: Record<ID, number>
-    parkingPrice: number // cena parkovacieho miesta (0 = v cene bytu)
+    parkingPrice: number // cena parkovacieho miesta, kupuje sa k bytu zvlášť (0 = v cene bytu)
     roundTo: number
   }
   sales: {
