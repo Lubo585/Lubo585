@@ -6,7 +6,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { viteSingleFile } from 'vite-plugin-singlefile'
-import { LANGS, checkDicts, contactEmail, isLang, renderPage, siteBase, visualFiles, type Dicts } from './src/site/pages.ts'
+import { LANGS, checkDicts, contactEmail, isLang, isOptionalVisual, renderPage, siteBase, visualFiles, type Dicts } from './src/site/pages.ts'
 
 const root = fileURLToPath(new URL('.', import.meta.url))
 
@@ -17,6 +17,7 @@ const root = fileURLToPath(new URL('.', import.meta.url))
  *
  * Vizualizácie a letecké zábery pozemku (web/public/vizualizacie) nie sú v repozitári. Ak pri
  * zostavení v priečinku sú, stránka ich ukáže; ak nie, časti stránky s nimi sa vynechajú.
+ * Vizualizácia domov v leteckom zábere (súbory poloha-*) je medzi nimi voliteľná.
  */
 function sitePages(siteUrl: string | undefined, email: string | undefined): Plugin[] {
   contactEmail(email)
@@ -29,13 +30,17 @@ function sitePages(siteUrl: string | undefined, email: string | undefined): Plug
     const dicts = Object.fromEntries(LANGS.map((l) => [l.code, JSON.parse(readFileSync(dictFile(l.code), 'utf8'))])) as Dicts
     const problems = checkDicts(template, dicts)
     if (problems.length) throw new Error(`Slovníky prezentačnej stránky nie sú úplné:\n  ${problems.join('\n  ')}`)
-    const wanted = visualFiles(template)
-    const missing = wanted.filter((name) => !existsSync(resolve(visualsDir, name)))
+    const here = (name: string) => existsSync(resolve(visualsDir, name))
+    const wanted = visualFiles(template).filter((name) => !isOptionalVisual(name))
+    const missing = wanted.filter((name) => !here(name))
     // Polovičná sada by na stránke nechala prázdne rámy.
     if (missing.length && missing.length < wanted.length) {
       throw new Error(`V priečinku web/public/vizualizacie chýbajú súbory: ${missing.join(', ')}`)
     }
-    return { template, dicts, visuals: wanted.length > 0 && missing.length === 0 }
+    const visuals = wanted.length > 0 && missing.length === 0
+    // Vizualizácia domov v leteckom zábere je voliteľná – bez nej blok Poloha ukáže zábery pozemku.
+    const optional = visualFiles(template).filter(isOptionalVisual)
+    return { template, dicts, visuals, montage: visuals && optional.length > 0 && optional.every(here) }
   }
   const pages: Plugin = {
     name: 'jadran-hills:site-pages',
@@ -56,8 +61,8 @@ function sitePages(siteUrl: string | undefined, email: string | undefined): Plug
         const lang = /<html[^>]*\bdata-site-page="([a-z]+)"/.exec(html)?.[1]
         if (!lang) return html
         if (!isLang(lang)) throw new Error(`Neznámy jazyk stránky: ${lang}`)
-        const { template, dicts, visuals } = load()
-        return renderPage(template, lang, dicts, { siteUrl, email, visuals })
+        const { template, dicts, visuals, montage } = load()
+        return renderPage(template, lang, dicts, { siteUrl, email, visuals, montage })
       },
     },
   }

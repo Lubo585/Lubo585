@@ -278,16 +278,27 @@
 {{#visuals}}
 
           <div class="spot" id="poloha">
+{{#montage}}
             <figure class="spot-main" data-reveal>
               <div class="snap" style="--tint: #7c8a80">
                 <img src="/vizualizacie/poloha-920.webp" width="920" height="548" loading="lazy" decoding="async" alt="{{spot.main.alt}}" />
               </div>
               <figcaption>{{spot.main.caption}}</figcaption>
             </figure>
+{{/montage}}
+{{^montage}}
+            <figure class="spot-main" data-reveal>
+              <div class="snap" style="--tint: #5d86a2">
+                <img src="/vizualizacie/pozemok-more-721.webp" width="721" height="370" loading="lazy" decoding="async" alt="{{spot.sea.alt}}" />
+              </div>
+              <figcaption>{{spot.sea.caption}}</figcaption>
+            </figure>
+{{/montage}}
             <div class="spot-side" data-reveal>
               <p class="tag">{{spot.tag}}</p>
               <h3>{{spot.title}}</h3>
               <p class="spot-text">{{spot.text}}</p>
+{{#montage}}
               <div class="spot-pair">
                 <figure>
                   <div class="snap" style="--tint: #5d86a2">
@@ -302,6 +313,17 @@
                   <figcaption>{{spot.top.caption}}</figcaption>
                 </figure>
               </div>
+{{/montage}}
+{{^montage}}
+              <div class="spot-pair spot-pair--one">
+                <figure>
+                  <div class="snap" style="--tint: #7d8468">
+                    <img src="/vizualizacie/pozemok-567.webp" width="567" height="419" loading="lazy" decoding="async" alt="{{spot.top.alt}}" />
+                  </div>
+                  <figcaption>{{spot.top.caption}}</figcaption>
+                </figure>
+              </div>
+{{/montage}}
             </div>
           </div>
 {{/visuals}}

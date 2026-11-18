@@ -1445,6 +1445,15 @@ button {
   object-fit: cover;
 }
 
+/* Bez vizualizácie domov v leteckom zábere ostáva vedľa textu jeden záber. */
+.spot-pair--one {
+  grid-template-columns: 1fr;
+}
+
+.spot-pair--one .snap {
+  aspect-ratio: 16 / 10;
+}
+
 @media (max-width: 980px) {
   .spot {
     grid-template-columns: 1fr;

@@ -42,12 +42,18 @@ for (const name of missing) {
     writeFileSync(join(dir, name), data)
     console.log(`  ${name} (${Math.round(data.length / 1024)} kB)`)
   } catch (error) {
+    const why = error instanceof Error ? error.message : error
+    // Vizualizácia domov v leteckom zábere (poloha-*) je voliteľná – stránka sa zaobíde bez nej.
+    if (name.startsWith('poloha-')) {
+      console.warn(`! ${name} na webe nie je (${why}) – blok Poloha ukáže len zábery pozemku.`)
+      continue
+    }
     failed++
-    console.error(`✗ ${name}: ${error instanceof Error ? error.message : error}`)
+    console.error(`✗ ${name}: ${why}`)
   }
 }
 if (failed) {
   console.error(`✗ ${failed} z ${missing.length} súborov sa nepodarilo stiahnuť z ${site} – skopírujte ich do web/public/vizualizacie ručne (README, časť Vizualizácie).`)
   process.exit(1)
 }
-console.log(`✓ Stiahnutých ${missing.length} súborov z ${site}.`)
+console.log(`✓ Vizualizácie stiahnuté z ${site}.`)

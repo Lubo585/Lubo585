@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import template from '../../web/site.template.html?raw'
-import { BASE_LANG, LANGS, applyBlocks, checkDicts, contactEmail, renderPage, siteBase, templateKeys, visualFiles, type Dict, type Dicts } from './pages'
+import { BASE_LANG, LANGS, applyBlocks, checkDicts, contactEmail, isOptionalVisual, renderPage, siteBase, templateKeys, visualFiles, type Dict, type Dicts } from './pages'
 
 const files = import.meta.glob<Dict>('../../web/i18n/*.json', { eager: true, import: 'default' })
 const dicts = Object.fromEntries(LANGS.map((l) => [l.code, files[`../../web/i18n/${l.code}.json`]])) as Dicts
 const pages = Object.fromEntries(LANGS.map((l) => [l.code, renderPage(template, l.code, dicts)]))
 /** Stránky tak, ako idú na web: s kontaktným e-mailom a s vizualizáciami. */
 const full = Object.fromEntries(LANGS.map((l) => [l.code, renderPage(template, l.code, dicts, { email: 'info@example.com', visuals: true })]))
+/** To isté aj s vizualizáciou domov v leteckom zábere. */
+const fullMontage = Object.fromEntries(
+  LANGS.map((l) => [l.code, renderPage(template, l.code, dicts, { email: 'info@example.com', visuals: true, montage: true })]),
+)
 
 /** Stavba stránky bez textov: poradie značiek a ich atribútov (označenie zobrazeného jazyka sa líši zámerne). */
 const skeleton = (html: string): string[] =>
@@ -55,9 +59,11 @@ describe('jazykové verzie stránky', () => {
   it('všetky verzie majú rovnakú stavbu – texty nikde nerozbili značky', () => {
     const base = skeleton(pages[BASE_LANG])
     const fullBase = skeleton(full[BASE_LANG])
+    const montageBase = skeleton(fullMontage[BASE_LANG])
     for (const { code } of LANGS) {
       expect(skeleton(pages[code]), code).toEqual(base)
       expect(skeleton(full[code]), `${code} s e-mailom a vizualizáciami`).toEqual(fullBase)
+      expect(skeleton(fullMontage[code]), `${code} aj s vizualizáciou polohy`).toEqual(montageBase)
     }
   })
 
@@ -162,7 +168,7 @@ describe('vizualizácie a zábery polohy', () => {
   it('so súbormi stránka ukáže polohu domov aj vizualizácie', () => {
     for (const { code } of LANGS) {
       const html = full[code]
-      for (const name of names) expect(html, `${code}: ${name}`).toContain(`/vizualizacie/${name}`)
+      for (const name of names.filter((n) => !isOptionalVisual(n))) expect(html, `${code}: ${name}`).toContain(`/vizualizacie/${name}`)
       expect(html.match(/class="viz-item/g), code).toHaveLength(6)
       expect(html, code).toContain('id="poloha"')
       expect(html, code).toContain('id="vizualizacie"')
@@ -172,6 +178,30 @@ describe('vizualizácie a zábery polohy', () => {
     // celý obrázok sa otvára odkazom, ktorý sedí s umiestnením stránky
     expect(full.sk).toContain('href="./vizualizacie/terasy-1600.webp"')
     expect(full.hu).toContain('href="../vizualizacie/terasy-1600.webp"')
+  })
+
+  it('vizualizácia domov v leteckom zábere je voliteľná', () => {
+    expect(names.filter(isOptionalVisual)).toEqual(['poloha-920.webp'])
+    for (const { code } of LANGS) {
+      // bez nej je hlavným obrázkom bloku záber pozemku s morom a vedľa textu ostáva jeden záber
+      expect(full[code], code).not.toContain('vizualizacie/poloha-')
+      expect(full[code], code).not.toContain(dicts[code]['spot.main.caption'])
+      expect(full[code].match(/pozemok-more-721\.webp/g), code).toHaveLength(1)
+      expect(full[code], code).toContain('class="spot-pair spot-pair--one"')
+      // s ňou je hlavným obrázkom ona a zábery pozemku sú dva vedľa seba
+      expect(fullMontage[code], code).toContain('/vizualizacie/poloha-920.webp')
+      expect(fullMontage[code], code).toContain(dicts[code]['spot.main.caption'])
+      expect(fullMontage[code].match(/pozemok-more-721\.webp/g), code).toHaveLength(1)
+      expect(fullMontage[code], code).not.toContain('spot-pair--one')
+      // text o polohe a oba zábery pozemku sú v oboch podobách
+      for (const html of [full[code], fullMontage[code]]) {
+        expect(html, code).toContain(dicts[code]['spot.text'])
+        expect(html, code).toContain(dicts[code]['spot.sea.caption'])
+        expect(html, code).toContain(dicts[code]['spot.top.caption'])
+      }
+    }
+    // sama osebe, bez ostatných súborov, sa neukáže
+    expect(renderPage(template, 'sk', dicts, { montage: true })).not.toContain('vizualizacie')
   })
 
   it('vzdialenosť od mora je rovnaká v každom jazyku a nezávisí od obrázkov', () => {
@@ -194,10 +224,19 @@ describe('podmienené časti šablóny', () => {
     expect(applyBlocks('1\n  {{#x}}\n2\n  {{/x}}\n3\n', { x: false })).toBe('1\n3\n')
   })
 
-  it('neznámu, neuzavretú alebo vnorenú časť odmietne', () => {
+  it('časti sa môžu vnárať', () => {
+    const src = 'a{{#x}}b{{#y}}c{{/y}}{{^y}}d{{/y}}e{{/x}}f'
+    expect(applyBlocks(src, { x: true, y: true })).toBe('abcef')
+    expect(applyBlocks(src, { x: true, y: false })).toBe('abdef')
+    expect(applyBlocks(src, { x: false, y: true })).toBe('af')
+    expect(applyBlocks('{{#x}}a{{^x}}b{{/x}}c{{/x}}', { x: true })).toBe('ac')
+  })
+
+  it('neznámu, neuzavretú alebo prekríženú časť odmietne', () => {
     expect(() => applyBlocks('{{#y}}a{{/y}}', { x: true })).toThrow()
     expect(() => applyBlocks('{{#x}}a', { x: true })).toThrow()
-    expect(() => applyBlocks('{{#x}}a{{^x}}b{{/x}}c{{/x}}', { x: true })).toThrow()
+    expect(() => applyBlocks('a{{/x}}', { x: true })).toThrow()
+    expect(() => applyBlocks('{{#x}}a{{#y}}b{{/x}}c{{/y}}', { x: true, y: true })).toThrow()
   })
 
   it('texty vo vypnutých častiach kontrola slovníkov stále vyžaduje', () => {

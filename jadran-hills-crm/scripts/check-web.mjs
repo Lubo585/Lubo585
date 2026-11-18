@@ -92,6 +92,9 @@ if (inlineScript.test(text(join(dist, 'crm/index.html')))) {
 // 4. Vizualizácie nie sú v repozitári – stránka zostavená bez nich má o dve časti menej.
 const visuals = text(join(dist, 'index.html')).includes('id="vizualizacie"')
 if (!visuals) console.warn('! Stránka je zostavená BEZ vizualizácií (priečinok web/public/vizualizacie je prázdny) – pozri README.')
+else if (!text(join(dist, 'index.html')).includes('vizualizacie/poloha-')) {
+  console.warn('! Blok Poloha je bez vizualizácie domov v leteckom zábere (v priečinku chýba poloha-*.webp).')
+}
 
 const total = files.reduce((sum, f) => sum + statSync(f).size, 0)
 console.log(

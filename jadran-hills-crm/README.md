@@ -245,6 +245,8 @@ web idú pri zostavení.
   vizualizácie `terasy`, `strecha`, `bazen-zhora`, `tri-domy`, `priecelie` a
   `pri-bazene` (každá ako `-800.webp` a `-1600.webp`, pomer strán 16 : 9) a zábery
   `poloha-920.webp`, `pozemok-567.webp` a `pozemok-more-721.webp`.
+- Vizualizácia domov zasadených do leteckého záberu (`poloha-*.webp`) je voliteľná:
+  bez nej blok Poloha ukáže len skutočné zábery pozemku a zostavenie na to upozorní.
 - Nová vizualizácia: uložiť ju v oboch veľkostiach do priečinka, pridať dlaždicu do
   šablóny a texty `viz.N.*` do slovníkov. Kliknutím sa na stránke otvorí väčšia verzia.
 - Vzdialenosť od mora stránka uvádza ako čas chôdze (`dist.seaValue`, `spot.text`,

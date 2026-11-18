@@ -32,8 +32,9 @@ const HINT_KEYS = ['js.suggest.text', 'js.suggest.go', 'js.suggest.close'] as co
 const PLACEHOLDER = /\{\{(@?[A-Za-z0-9_.]+)\}\}/g
 
 // Podmienené časti šablóny: {{#názov}}…{{/názov}} ostane, ak je vlastnosť zapnutá,
-// {{^názov}}…{{/názov}} naopak, ak zapnutá nie je. Časti sa do seba nevnárajú.
-const BLOCK = /\{\{([#^])([A-Za-z]+)\}\}([\s\S]*?)\{\{\/\2\}\}/g
+// {{^názov}}…{{/názov}} naopak, ak zapnutá nie je. Časti sa môžu vnárať; výraz nižšie
+// nájde vždy tú najvnútornejšiu (bez ďalšej značky časti vnútri).
+const BLOCK = /\{\{([#^])([A-Za-z]+)\}\}((?:(?!\{\{[#^/][A-Za-z]+\}\})[\s\S])*?)\{\{\/\2\}\}/g
 const BLOCK_MARK = /\{\{[#^/][A-Za-z]+\}\}/
 /** Značka časti na samostatnom riadku po sebe nenechá prázdny riadok. */
 const BLOCK_LINE = /^[ \t]*(\{\{[#^/][A-Za-z]+\}\})[ \t]*\r?\n/gm
@@ -65,14 +66,25 @@ export function visualFiles(template: string): string[] {
 
 /** Vyberie zo šablóny časti podľa zapnutých vlastností stránky. */
 export function applyBlocks(template: string, flags: Record<string, boolean>): string {
-  const out = template.replace(BLOCK_LINE, '$1').replace(BLOCK, (_, kind: string, name: string, body: string) => {
-    if (!(name in flags)) throw new Error(`Šablóna používa neznámu časť {{${kind}${name}}}.`)
-    return flags[name] === (kind === '#') ? body : ''
-  })
+  let out = template.replace(BLOCK_LINE, '$1')
+  // Najprv najvnútornejšie časti, potom tie okolo nich – kým je čo vyberať.
+  for (let before = ''; before !== out; ) {
+    before = out
+    out = out.replace(BLOCK, (_, kind: string, name: string, body: string) => {
+      if (!(name in flags)) throw new Error(`Šablóna používa neznámu časť {{${kind}${name}}}.`)
+      return flags[name] === (kind === '#') ? body : ''
+    })
+  }
   const stray = BLOCK_MARK.exec(out)
-  if (stray) throw new Error(`Šablóna má neuzavretú alebo vnorenú časť ${stray[0]}.`)
+  if (stray) throw new Error(`Šablóna má neuzavretú časť ${stray[0]}.`)
   return out
 }
+
+/**
+ * Vizualizácia domov zasadených do leteckého záberu (súbory poloha-*) je voliteľná: bez nej
+ * blok Poloha ukáže len skutočné zábery pozemku. Ostatné súbory idú vždy spolu.
+ */
+export const isOptionalVisual = (name: string): boolean => name.startsWith('poloha-')
 
 /**
  * Skontroluje slovníky voči šablóne a slovenskému originálu. Vráti zoznam nedostatkov;
@@ -128,6 +140,8 @@ export interface PageOptions {
   /** Či sú pri zostavení k dispozícii vizualizácie a letecké zábery pozemku. Bez nich sa
    *  časti stránky, ktoré ich ukazujú, vynechajú. */
   visuals?: boolean
+  /** Či je medzi nimi aj vizualizácia domov v leteckom zábere (pozri isOptionalVisual). */
+  montage?: boolean
 }
 
 /** Zloží stránku v danom jazyku. */
@@ -183,7 +197,8 @@ export function renderPage(template: string, lang: LangCode, dicts: Dicts, optio
     '@src': src,
   }
 
-  const body = applyBlocks(template, { email: email !== '', visuals: options.visuals === true })
+  const visuals = options.visuals === true
+  const body = applyBlocks(template, { email: email !== '', visuals, montage: visuals && options.montage === true })
   return body.replace(PLACEHOLDER, (_, key: string) => {
     if (!key.startsWith('@')) return text(key)
     if (!(key in special)) throw new Error(`Šablóna používa neznámu značku {{${key}}}.`)
