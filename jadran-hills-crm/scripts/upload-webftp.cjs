@@ -8,6 +8,9 @@
 //           files:<a,b,c>          nahrá súbory z koreňa dist-web
 //           in:<priečinok>:<a,b>   nahrá súbory z dist-web/<priečinok> do rovnakého priečinka na hostingu
 //           list                   vypíše obsah webového priečinka (aj podpriečinkov)
+//           up:<miestny súbor>     nahrá súbor o priečinok vyššie než web (mimo dosahu prehliadača),
+//                                  napr. nastavenie e-mailu o novom dopyte jh-notify.config.php
+//           uplist                 vypíše obsah priečinka o úroveň vyššie
 //
 // Odkaz do správcu súborov obsahuje prístupové údaje: číta sa zo súboru mimo repozitára
 // a nikam sa nevypisuje. Skript potrebuje balík playwright s prehliadačom Chromium.
@@ -113,6 +116,23 @@ const hide = (s) => String(s).replace(/eyJ[A-Za-z0-9+/=_-]{20,}/g, '‹prístup�
       const okay = await idle(3000)
       console.log(`súbory ${dir ? dir + '/' : ''}${names}: odoslaných požiadaviek ${uploads - before}, potvrdení prepísania ${confirmed}${okay ? '' : ' (čakanie vypršalo)'}`)
       if (dir) { await page.click('button[title="Back"]'); await idle(1500) }
+    } else if (kind === 'uplist' || kind === 'up') {
+      // O priečinok vyššie než web (priečinok domény, mimo dosahu prehliadača).
+      await page.click('button[title="Back"]'); await idle(1500)
+      const here = await rows()
+      if (!here.some((r) => r.dir && r.name === 'web')) throw new Error('O priečinok vyššie nie je priečinok web – končím bez zmien.')
+      if (kind === 'up') {
+        const local = path.resolve(arg)
+        if (!fs.existsSync(local)) throw new Error('Chýba miestny súbor ' + local)
+        await page.setInputFiles('#upload-placeholder', [local])
+        const confirmed = await confirm()
+        const okay = await idle(3000)
+        console.log(`súbor ${path.basename(local)} o priečinok vyššie: odoslaných požiadaviek ${uploads - before}, potvrdení prepísania ${confirmed}${okay ? '' : ' (čakanie vypršalo)'}`)
+        await page.click('button[title="Refresh"]'); await idle(1500)
+      }
+      const after = await rows()
+      console.log('priečinok domény:', after.map((r) => (r.dir ? r.name + '/' : `${r.name} ${r.size}`)).join(', '))
+      await open('web')
     } else if (kind === 'list') {
       await page.click('button[title="Refresh"]'); await idle(1500)
       const top = await rows()
