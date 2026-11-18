@@ -1808,11 +1808,29 @@ html:not(.js) .seg button[aria-selected="true"] {
 }
 
 .unit-list li {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 3px 18px;
   border-top: 1px solid var(--line);
   padding: 16px 0;
+}
+
+.unit-list b,
+.unit-list span {
+  grid-column: 1;
+}
+
+/* Cena apartmánu na danom podlaží – vpravo, cez oba riadky. */
+.unit-list .price {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-size: 19px;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .unit-list li:last-child {
@@ -1850,6 +1868,219 @@ html:not(.js) .seg button[aria-selected="true"] {
 
   .floors-pick {
     text-align: center;
+  }
+}
+
+/* Pôdorysy a ceny: pre každý typ pôdorys, miestnosti s výmerami a ceny podľa podlažia. */
+
+.plans {
+  margin-top: clamp(72px, 10vw, 128px);
+  scroll-margin-top: 90px;
+}
+
+.plans-head h3 {
+  font-size: clamp(28px, 3.8vw, 46px);
+  font-weight: 600;
+  line-height: 1.06;
+  letter-spacing: -0.034em;
+}
+
+.plans-head p {
+  margin-top: 12px;
+  max-width: 38em;
+  color: var(--ink-2);
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+.plan {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(24px, 3.4vw, 48px);
+  margin-top: 20px;
+  border-radius: 28px;
+  background: var(--bg-2);
+  padding: clamp(20px, 3vw, 36px);
+}
+
+.plans-head + .plan {
+  margin-top: clamp(28px, 4vw, 48px);
+}
+
+.plan--pic {
+  grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+}
+
+.plan-pic {
+  position: relative;
+  display: block;
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 12px 34px rgba(0, 0, 0, 0.05);
+  cursor: zoom-in;
+}
+
+.plan-pic img {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+/* Lupa v rohu napovie, že pôdorys sa dá otvoriť väčší. */
+.plan-zoom {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: grid;
+  height: 34px;
+  width: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(29, 29, 31, 0.82);
+  color: #ffffff;
+  font-size: 16px;
+  transition: transform 0.5s var(--ease);
+}
+
+.plan-pic:hover .plan-zoom {
+  transform: scale(1.1);
+}
+
+.plan-body h4 {
+  margin: 8px 0 0;
+  font-size: clamp(24px, 2.6vw, 32px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.028em;
+}
+
+.plan-text {
+  margin-top: 12px;
+  max-width: 36em;
+  color: var(--ink-2);
+  font-size: 16.5px;
+  line-height: 1.5;
+}
+
+.plan-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 26px clamp(24px, 3vw, 44px);
+  margin-top: 26px;
+}
+
+.plan-cols h5 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.rooms {
+  margin-top: 10px;
+}
+
+.rooms div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--line);
+  padding: 9px 0;
+  font-size: 15px;
+}
+
+.rooms dt {
+  color: var(--ink-2);
+}
+
+.rooms dd {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rooms-sum dt,
+.rooms-sum dd {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.prices {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+}
+
+.prices th,
+.prices td {
+  border-top: 1px solid var(--line);
+  padding: 12px 0;
+  vertical-align: baseline;
+}
+
+.prices th {
+  padding-right: 16px;
+  color: var(--ink-2);
+  font-size: 15.5px;
+  font-weight: 400;
+  text-align: left;
+}
+
+.prices th small {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.prices td {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.prices-extra th {
+  color: var(--muted);
+  font-size: 14.5px;
+}
+
+.prices-extra td {
+  color: var(--ink-2);
+  font-size: 16px;
+}
+
+.plans-note {
+  margin-top: 18px;
+  max-width: 70ch;
+}
+
+@media (max-width: 1100px) {
+  .plan-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .plan--pic {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .plan-pic {
+    width: 100%;
+    max-width: 420px;
+    margin-inline: auto;
+  }
+
+  .plan {
+    border-radius: 24px;
   }
 }
 

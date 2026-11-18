@@ -29,7 +29,9 @@ export const isLang = (code: string): code is LangCode => LANGS.some((l) => l.co
 /** Kľúče, ktoré šablóna nepoužíva priamo – vkladá ich zostavenie k odkazom na jazyky. */
 const HINT_KEYS = ['js.suggest.text', 'js.suggest.go', 'js.suggest.close'] as const
 
-const PLACEHOLDER = /\{\{(@?[A-Za-z0-9_.]+)\}\}/g
+// {{kľúč}} je text zo slovníka; {{@značka}} dopĺňa zostavenie. Značky s dvojbodkou nesú údaj:
+// {{@area:29.72}} je výmera a {{@price:two.0}} cena z cenníka – obe sa zapíšu podľa jazyka.
+const PLACEHOLDER = /\{\{(@?[A-Za-z0-9_.:]+)\}\}/g
 
 // Podmienené časti šablóny: {{#názov}}…{{/názov}} ostane, ak je vlastnosť zapnutá,
 // {{^názov}}…{{/názov}} naopak, ak zapnutá nie je. Časti sa môžu vnárať; výraz nižšie
@@ -57,6 +59,40 @@ export function templateKeys(template: string): string[] {
   const keys = new Set<string>()
   for (const m of template.matchAll(PLACEHOLDER)) if (!m[1].startsWith('@')) keys.add(m[1])
   return [...keys]
+}
+
+/** Zápis čísel podľa jazyka stránky: oddeľovač tisícov a desatinný znak. */
+const NUMBER_LOCALE: Record<LangCode, string> = { sk: 'sk-SK', en: 'en-GB', hr: 'hr-HR', de: 'de-DE', hu: 'hu-HU' }
+const NBSP = ' '
+
+/** Výmera na dve desatinné miesta, tak ako ju uvádza projektová dokumentácia. */
+export function formatArea(value: number, lang: LangCode): string {
+  const number = new Intl.NumberFormat(NUMBER_LOCALE[lang], { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)
+  return `${number}${NBSP}m²`
+}
+
+/** Cena v celých eurách. */
+export function formatPrice(value: number, lang: LangCode): string {
+  const amount = new Intl.NumberFormat(NUMBER_LOCALE[lang], { maximumFractionDigits: 0 }).format(value)
+  return lang === 'en' ? `€${amount}` : `${amount}${NBSP}€`
+}
+
+/**
+ * Cenník stránky (web/prices.json) v podobe, akú používa šablóna: polia sa rozpíšu na
+ * „názov.poradie“ – { two: [a, b] } dá ceny two.0 a two.1. Cena musí byť kladné celé číslo.
+ */
+export function priceTable(data: unknown): Record<string, number> {
+  const out: Record<string, number> = {}
+  const add = (key: string, value: unknown): void => {
+    if (typeof value !== 'number' || !Number.isInteger(value) || value <= 0) throw new Error(`Cena „${key}“ v cenníku nie je kladné celé číslo.`)
+    out[key] = value
+  }
+  if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Cenník musí byť objekt s cenami.')
+  for (const [key, value] of Object.entries(data)) {
+    if (Array.isArray(value)) value.forEach((item, i) => add(`${key}.${i}`, item))
+    else add(key, value)
+  }
+  return out
 }
 
 /** Názvy súborov vizualizácií, ktoré šablóna potrebuje. */
@@ -142,6 +178,8 @@ export interface PageOptions {
   visuals?: boolean
   /** Či je medzi nimi aj vizualizácia domov v leteckom zábere (pozri isOptionalVisual). */
   montage?: boolean
+  /** Ceny, na ktoré sa šablóna odvoláva značkou {{@price:názov}} (pozri priceTable). */
+  prices?: Record<string, number>
 }
 
 /** Zloží stránku v danom jazyku. */
@@ -201,6 +239,17 @@ export function renderPage(template: string, lang: LangCode, dicts: Dicts, optio
   const body = applyBlocks(template, { email: email !== '', visuals, montage: visuals && options.montage === true })
   return body.replace(PLACEHOLDER, (_, key: string) => {
     if (!key.startsWith('@')) return text(key)
+    if (key.startsWith('@area:')) {
+      const value = Number(key.slice('@area:'.length))
+      if (!Number.isFinite(value) || value <= 0) throw new Error(`Šablóna má neplatnú výmeru {{${key}}}.`)
+      return formatArea(value, lang)
+    }
+    if (key.startsWith('@price:')) {
+      const name = key.slice('@price:'.length)
+      const value = options.prices?.[name]
+      if (value === undefined) throw new Error(`V cenníku (web/prices.json) chýba cena „${name}“.`)
+      return formatPrice(value, lang)
+    }
     if (!(key in special)) throw new Error(`Šablóna používa neznámu značku {{${key}}}.`)
     return special[key]
   })

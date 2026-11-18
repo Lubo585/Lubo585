@@ -249,9 +249,29 @@ web idú pri zostavení.
   bez nej blok Poloha ukáže len skutočné zábery pozemku a zostavenie na to upozorní.
 - Nová vizualizácia: uložiť ju v oboch veľkostiach do priečinka, pridať dlaždicu do
   šablóny a texty `viz.N.*` do slovníkov. Kliknutím sa na stránke otvorí väčšia verzia.
-- Vzdialenosť od mora stránka uvádza ako čas chôdze (`dist.seaValue`, `spot.text`,
-  `hero.sub`, `place.sea.text`), nie v metroch: pozemok leží v druhom rade zástavby
-  a údaj v metroch treba pred zverejnením zamerať.
+- Vzdialenosť od pláže (30 m) je údaj investora, braný od hranice pozemku. Stránka ho
+  uvádza v úvode, v zozname vzdialeností, v bloku Poloha a medzi bodmi projektu
+  (`hero.sub`, `dist.seaValue`, `spot.text`, `place.sea.text`, `feat.beach.title`,
+  `meta.description`); pri zmene ho treba upraviť na všetkých miestach a vo všetkých
+  jazykoch – testy strážia, že sa nerozíde.
+
+### Pôdorysy a ceny
+
+Časť Apartmány ukazuje pri každom podlaží cenu oboch typov a pod tým blok Pôdorysy a
+ceny: pôdorys typu, miestnosti s výmerami a ceny podľa podlažia vrátane parkovacieho
+miesta.
+
+- **Ceny sú v `web/prices.json`** (`two` a `one` sú ceny apartmánu s dvoma a s jednou
+  spálňou pre prízemie, 1. a 2. poschodie; `parking` je parkovacie miesto). Sú to
+  cenníkové ceny s DPH z CRM, časť Jednotky. **Web si ich z CRM nečíta sám** – po zmene
+  cien v CRM treba súbor upraviť a web znova nasadiť.
+- Šablóna sa na cenu odvoláva značkou `{{@price:two.0}}` a výmeru zapisuje ako
+  `{{@area:29.72}}`; zostavenie ich vypíše podľa jazyka stránky (304 500 €, €304,500,
+  304.500 €; 29,72 m², 29.72 m²). Čísla tak nie sú v slovníkoch a nemôžu sa medzi
+  jazykmi rozísť.
+- Pôdorysy (`podorys-2-spalne-*.webp`, `podorys-1-spalna-*.webp`) sú výrezy z projektovej
+  dokumentácie bez rohovej pečiatky. Ležia pri vizualizáciách, mimo repozitára; bez nich
+  stránka ukáže popis a ceny bez obrázka.
 
 ### Prístup do CRM
 

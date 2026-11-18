@@ -1,15 +1,37 @@
 import { describe, expect, it } from 'vitest'
+import priceData from '../../web/prices.json'
 import template from '../../web/site.template.html?raw'
-import { BASE_LANG, LANGS, applyBlocks, checkDicts, contactEmail, isOptionalVisual, renderPage, siteBase, templateKeys, visualFiles, type Dict, type Dicts } from './pages'
+import {
+  BASE_LANG,
+  LANGS,
+  applyBlocks,
+  checkDicts,
+  contactEmail,
+  formatArea,
+  formatPrice,
+  isOptionalVisual,
+  priceTable,
+  renderPage,
+  siteBase,
+  templateKeys,
+  visualFiles,
+  type Dict,
+  type Dicts,
+  type LangCode,
+  type PageOptions,
+} from './pages'
 
 const files = import.meta.glob<Dict>('../../web/i18n/*.json', { eager: true, import: 'default' })
 const dicts = Object.fromEntries(LANGS.map((l) => [l.code, files[`../../web/i18n/${l.code}.json`]])) as Dicts
-const pages = Object.fromEntries(LANGS.map((l) => [l.code, renderPage(template, l.code, dicts)]))
+const prices = priceTable(priceData)
+/** Stránka s cenníkom, ktorý ide na web; ostatné vlastnosti podľa testu. */
+const render = (lang: LangCode, from: Dicts = dicts, options: PageOptions = {}): string => renderPage(template, lang, from, { prices, ...options })
+const pages = Object.fromEntries(LANGS.map((l) => [l.code, render(l.code, dicts)]))
 /** Stránky tak, ako idú na web: s kontaktným e-mailom a s vizualizáciami. */
-const full = Object.fromEntries(LANGS.map((l) => [l.code, renderPage(template, l.code, dicts, { email: 'info@example.com', visuals: true })]))
+const full = Object.fromEntries(LANGS.map((l) => [l.code, render(l.code, dicts, { email: 'info@example.com', visuals: true })]))
 /** To isté aj s vizualizáciou domov v leteckom zábere. */
 const fullMontage = Object.fromEntries(
-  LANGS.map((l) => [l.code, renderPage(template, l.code, dicts, { email: 'info@example.com', visuals: true, montage: true })]),
+  LANGS.map((l) => [l.code, render(l.code, dicts, { email: 'info@example.com', visuals: true, montage: true })]),
 )
 
 /** Stavba stránky bez textov: poradie značiek a ich atribútov (označenie zobrazeného jazyka sa líši zámerne). */
@@ -71,7 +93,7 @@ describe('jazykové verzie stránky', () => {
     const tricky = structuredClone(dicts)
     tricky.en['hero.title1'] = 'Sea & "sky" <b>'
     tricky.en['place.sea.alt'] = 'A "quoted" jetty'
-    const html = renderPage(template, 'en', tricky)
+    const html = render('en', tricky)
     expect(html).toContain('<span>Sea &amp; &quot;sky&quot; &lt;b&gt;</span>')
     expect(html).toContain('alt="A &quot;quoted&quot; jetty"')
     expect(skeleton(html)).toEqual(skeleton(pages.en))
@@ -120,6 +142,83 @@ describe('jazykové verzie stránky', () => {
   })
 })
 
+describe('pôdorysy a ceny', () => {
+  const NBSP = '\u00a0'
+
+  it('ceny a výmery sa zapisujú podľa jazyka stránky', () => {
+    expect(formatPrice(304500, 'sk')).toBe(`304${NBSP}500${NBSP}€`)
+    expect(formatPrice(304500, 'hu')).toBe(`304${NBSP}500${NBSP}€`)
+    expect(formatPrice(304500, 'hr')).toBe(`304.500${NBSP}€`)
+    expect(formatPrice(304500, 'de')).toBe(`304.500${NBSP}€`)
+    expect(formatPrice(304500, 'en')).toBe('€304,500')
+    expect(formatArea(2.5, 'sk')).toBe(`2,50${NBSP}m²`)
+    expect(formatArea(60.12, 'en')).toBe(`60.12${NBSP}m²`)
+  })
+
+  it('cenník sa rozpíše na ceny podľa typu a podlažia a nezmysel odmietne', () => {
+    expect(priceTable({ two: [1000, 2000], parking: 500 })).toEqual({ 'two.0': 1000, 'two.1': 2000, parking: 500 })
+    expect(() => priceTable({ two: [1000, 0] })).toThrow()
+    expect(() => priceTable({ parking: '13000' })).toThrow()
+    expect(() => priceTable({ parking: 99.5 })).toThrow()
+    expect(() => priceTable([1, 2])).toThrow()
+  })
+
+  it('cenník má všetky ceny, zaokrúhlené a rastúce s podlažím', () => {
+    expect(Object.keys(prices).sort()).toEqual(['one.0', 'one.1', 'one.2', 'parking', 'two.0', 'two.1', 'two.2'])
+    for (const [name, value] of Object.entries(prices)) expect(value % 500, name).toBe(0)
+    for (const kind of ['one', 'two']) {
+      expect(prices[`${kind}.0`]).toBeLessThan(prices[`${kind}.1`])
+      expect(prices[`${kind}.1`]).toBeLessThan(prices[`${kind}.2`])
+      expect(prices['one.0']).toBeLessThan(prices['two.0'])
+    }
+  })
+
+  it('každá jazyková verzia ukáže všetky ceny vo svojom zápise', () => {
+    for (const { code } of LANGS) {
+      for (const [name, value] of Object.entries(prices)) expect(pages[code], `${code}: ${name}`).toContain(formatPrice(value, code))
+      // pri každom podlaží dve ceny, v pôdorysoch tri podlažia a parkovanie pre oba typy
+      expect(pages[code].match(/<em class="price">/g), code).toHaveLength(6)
+      expect(pages[code].match(/<table class="prices">/g), code).toHaveLength(2)
+      expect(pages[code].split(formatPrice(prices.parking, code)), code).toHaveLength(3)
+    }
+  })
+
+  it('bez cenníka sa stránka nezostaví', () => {
+    expect(() => renderPage(template, 'sk', dicts)).toThrow(/cenník/i)
+    expect(() => renderPage(template, 'sk', dicts, { prices: { ...prices, 'two.2': undefined as unknown as number } })).toThrow()
+  })
+
+  it('výmery miestností dávajú vnútornú plochu apartmánu', () => {
+    const lists = [...template.matchAll(/<dl class="rooms">([\s\S]*?)<\/dl>/g)].map((m) => m[1])
+    expect(lists).toHaveLength(2)
+    for (const [list, total] of [
+      [lists[0], 60.12],
+      [lists[1], 37.53],
+    ] as const) {
+      const [rooms, sum] = list.split('class="rooms-sum"')
+      const areas = [...rooms.matchAll(/\{\{@area:([0-9.]+)\}\}/g)].map((m) => Number(m[1]))
+      expect(areas.reduce((a, b) => a + b, 0)).toBeCloseTo(total, 6)
+      expect(Number(/\{\{@area:([0-9.]+)\}\}/.exec(sum)?.[1])).toBe(total)
+    }
+  })
+
+  it('pôdorysy sú len tam, kde sú k dispozícii obrázky; popis a ceny vždy', () => {
+    for (const { code } of LANGS) {
+      expect(pages[code], code).not.toContain('plan-pic')
+      expect(pages[code].match(/<article class="plan"/g), code).toHaveLength(2)
+      expect(full[code].match(/<article class="plan plan--pic"/g), code).toHaveLength(2)
+      expect(full[code], code).toContain('/vizualizacie/podorys-2-spalne-600.webp')
+      expect(full[code], code).toContain('/vizualizacie/podorys-1-spalna-600.webp')
+      for (const html of [pages[code], full[code]]) {
+        expect(html, code).toContain(dicts[code]['plans.two.text'])
+        expect(html, code).toContain(dicts[code]['rooms.inside'])
+        expect(html, code).toContain(formatArea(60.12, code))
+        expect(html, code).toContain(formatArea(37.53, code))
+      }
+    }
+  })
+})
+
 describe('kontaktný e-mail', () => {
   it('bez e-mailu stránka odkazuje len na formulár', () => {
     for (const { code } of LANGS) {
@@ -143,7 +242,7 @@ describe('kontaktný e-mail', () => {
     expect(contactEmail('  info@example.com ')).toBe('info@example.com')
     expect(() => contactEmail('info(at)example.com')).toThrow()
     expect(() => contactEmail('info@example')).toThrow()
-    expect(() => renderPage(template, 'sk', dicts, { email: '"><script>' })).toThrow()
+    expect(() => render('sk', dicts, { email: '"><script>' })).toThrow()
   })
 })
 
@@ -154,7 +253,7 @@ describe('vizualizácie a zábery polohy', () => {
     expect(names).toContain('poloha-920.webp')
     expect(names).toContain('terasy-1600.webp')
     expect(names).toEqual([...new Set(names)].sort())
-    expect(names).toHaveLength(15)
+    expect(names).toHaveLength(19)
   })
 
   it('bez súborov sa časti s nimi vynechajú celé', () => {
@@ -201,13 +300,22 @@ describe('vizualizácie a zábery polohy', () => {
       }
     }
     // sama osebe, bez ostatných súborov, sa neukáže
-    expect(renderPage(template, 'sk', dicts, { montage: true })).not.toContain('vizualizacie')
+    expect(render('sk', dicts, { montage: true })).not.toContain('vizualizacie')
   })
 
-  it('vzdialenosť od mora je rovnaká v každom jazyku a nezávisí od obrázkov', () => {
+  it('vzdialenosť od pláže je rovnaká v každom jazyku a nezávisí od obrázkov', () => {
     for (const { code } of LANGS) {
-      expect(dicts[code]['dist.seaValue'], code).toMatch(/\b2\b/)
-      expect(pages[code], code).toContain(dicts[code]['dist.seaValue'])
+      expect(dicts[code]['dist.seaValue'], code).toBe('30 m')
+      expect(pages[code], code).toContain(`<b>${dicts[code]['dist.seaValue']}</b>`)
+      // tú istú vzdialenosť uvádza úvod, popis stránky, text o mori aj jeden z bodov projektu
+      for (const key of ['hero.sub', 'meta.description', 'place.sea.text', 'feat.beach.title']) expect(dicts[code][key], `${code}: ${key}`).toMatch(/\b30\b/)
+    }
+  })
+
+  it('projekt má deväť bodov vrátane cesty, ihrísk a pláže', () => {
+    for (const { code } of LANGS) {
+      expect(pages[code].match(/<ul class="features"[\s\S]*?<\/ul>/)?.[0].match(/<li /g), code).toHaveLength(9)
+      for (const key of ['feat.road.title', 'feat.play.title', 'feat.beach.title']) expect(pages[code], `${code}: ${key}`).toContain(dicts[code][key])
     }
   })
 })
@@ -252,7 +360,7 @@ describe('odkazy na jazykové verzie pre vyhľadávače', () => {
   })
 
   it('s adresou webu má každá stránka vlastnú adresu a odkazy na ostatné jazyky', () => {
-    const html = renderPage(template, 'hr', dicts, { siteUrl: 'https://www.example.com' })
+    const html = render('hr', dicts, { siteUrl: 'https://www.example.com' })
     expect(html).toContain('<link rel="canonical" href="https://www.example.com/hr/" />')
     expect(html).toContain('<link rel="alternate" hreflang="sk" href="https://www.example.com/" />')
     expect(html).toContain('<link rel="alternate" hreflang="hu" href="https://www.example.com/hu/" />')

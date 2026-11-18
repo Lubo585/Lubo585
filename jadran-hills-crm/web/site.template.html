@@ -41,6 +41,10 @@
       <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M11 20a7 7 0 0 1-7-7c0-6 5-9 16-9 0 9-3 16-9 16zM4 21c1.5-5 5.5-8.5 11-10.5" /></symbol>
       <symbol id="i-parking" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" /><path d="M9.5 17V7H13a3 3 0 0 1 0 6H9.5" /></symbol>
       <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.6 2.4 4 5.6 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.6-4-9s1.4-6.6 4-9z" /></symbol>
+      <symbol id="i-waves" viewBox="0 0 24 24"><path d="M2 7c2-2 4-2 6 0s4 2 6 0 4-2 6 0M2 12.5c2-2 4-2 6 0s4 2 6 0 4-2 6 0M2 18c2-2 4-2 6 0s4 2 6 0 4-2 6 0" /></symbol>
+      <symbol id="i-road" viewBox="0 0 24 24"><path d="M8 3 4 21M16 3l4 18M12 4v3M12 10.5v3M12 17v3" /></symbol>
+      <symbol id="i-swing" viewBox="0 0 24 24"><path d="M3 21 7.5 3h9L21 21M9.5 3v10M14.5 3v10M8.5 13h7v3h-7z" /></symbol>
+      <symbol id="i-zoom" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.6-3.6M11 8v6M8 11h6" /></symbol>
       <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m4 8 8 6 8-6" /></symbol>
       <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z" /><circle cx="12" cy="10" r="2.5" /></symbol>
     </svg>
@@ -390,6 +394,11 @@
 
           <ul class="features" data-stagger>
             <li data-reveal>
+              <svg class="i" aria-hidden="true"><use href="#i-waves" /></svg>
+              <h3>{{feat.beach.title}}</h3>
+              <p>{{feat.beach.text}}</p>
+            </li>
+            <li data-reveal>
               <svg class="i" aria-hidden="true"><use href="#i-pool" /></svg>
               <h3>{{feat.pool.title}}</h3>
               <p>{{feat.pool.text}}</p>
@@ -405,6 +414,21 @@
               <p>{{feat.terrace.text}}</p>
             </li>
             <li data-reveal>
+              <svg class="i" aria-hidden="true"><use href="#i-road" /></svg>
+              <h3>{{feat.road.title}}</h3>
+              <p>{{feat.road.text}}</p>
+            </li>
+            <li data-reveal>
+              <svg class="i" aria-hidden="true"><use href="#i-parking" /></svg>
+              <h3>{{feat.parking.title}}</h3>
+              <p>{{feat.parking.text}}</p>
+            </li>
+            <li data-reveal>
+              <svg class="i" aria-hidden="true"><use href="#i-swing" /></svg>
+              <h3>{{feat.play.title}}</h3>
+              <p>{{feat.play.text}}</p>
+            </li>
+            <li data-reveal>
               <svg class="i" aria-hidden="true"><use href="#i-air" /></svg>
               <h3>{{feat.air.title}}</h3>
               <p>{{feat.air.text}}</p>
@@ -413,11 +437,6 @@
               <svg class="i" aria-hidden="true"><use href="#i-leaf" /></svg>
               <h3>{{feat.energy.title}}</h3>
               <p>{{feat.energy.text}}</p>
-            </li>
-            <li data-reveal>
-              <svg class="i" aria-hidden="true"><use href="#i-parking" /></svg>
-              <h3>{{feat.parking.title}}</h3>
-              <p>{{feat.parking.text}}</p>
             </li>
           </ul>
         </div>
@@ -467,29 +486,117 @@
                 <h3>{{apts.p0.title}}</h3>
                 <p>{{apts.p0.text}}</p>
                 <ul class="unit-list">
-                  <li><b>{{apts.two}}</b><span>{{apts.twoSpec}}</span></li>
-                  <li><b>{{apts.one}}</b><span>{{apts.oneSpec}}</span></li>
+                  <li><b>{{apts.two}}</b><span>{{apts.twoSpec}}</span><em class="price">{{@price:two.0}}</em></li>
+                  <li><b>{{apts.one}}</b><span>{{apts.oneSpec}}</span><em class="price">{{@price:one.0}}</em></li>
                 </ul>
               </div>
               <div class="floor-panel" id="floor-1" role="tabpanel" aria-labelledby="tab-1" data-panel="1" hidden>
                 <h3>{{apts.p1.title}}</h3>
                 <p>{{apts.p1.text}}</p>
                 <ul class="unit-list">
-                  <li><b>{{apts.two}}</b><span>{{apts.twoSpec}}</span></li>
-                  <li><b>{{apts.one}}</b><span>{{apts.oneSpec}}</span></li>
+                  <li><b>{{apts.two}}</b><span>{{apts.twoSpec}}</span><em class="price">{{@price:two.1}}</em></li>
+                  <li><b>{{apts.one}}</b><span>{{apts.oneSpec}}</span><em class="price">{{@price:one.1}}</em></li>
                 </ul>
               </div>
               <div class="floor-panel" id="floor-2" role="tabpanel" aria-labelledby="tab-2" data-panel="2" hidden>
                 <h3>{{apts.p2.title}}</h3>
                 <p>{{apts.p2.text}}</p>
                 <ul class="unit-list">
-                  <li><b>{{apts.two}}</b><span>{{apts.twoRoofSpec}}</span></li>
-                  <li><b>{{apts.one}}</b><span>{{apts.oneRoofSpec}}</span></li>
+                  <li><b>{{apts.two}}</b><span>{{apts.twoRoofSpec}}</span><em class="price">{{@price:two.2}}</em></li>
+                  <li><b>{{apts.one}}</b><span>{{apts.oneRoofSpec}}</span><em class="price">{{@price:one.2}}</em></li>
                 </ul>
               </div>
               <p class="fine">{{apts.note}}</p>
               <a class="btn btn-dark" href="#kontakt">{{apts.cta}}</a>
             </div>
+          </div>
+
+          <div class="plans" id="podorysy">
+            <header class="plans-head" data-reveal>
+              <h3>{{plans.title}}</h3>
+              <p>{{plans.lead}}</p>
+            </header>
+
+            <article class="plan{{#visuals}} plan--pic{{/visuals}}" data-reveal>
+{{#visuals}}
+              <a class="plan-pic" href="{{@root}}vizualizacie/podorys-2-spalne-1200.webp" target="_blank" rel="noopener" aria-label="{{viz.open}}: {{plans.two.title}}">
+                <img src="/vizualizacie/podorys-2-spalne-600.webp" srcset="/vizualizacie/podorys-2-spalne-600.webp 600w, /vizualizacie/podorys-2-spalne-1200.webp 1200w" sizes="(min-width: 901px) 352px, 80vw" width="1200" height="2045" loading="lazy" decoding="async" alt="{{plans.two.alt}}" />
+                <span class="plan-zoom" aria-hidden="true"><svg class="i"><use href="#i-zoom" /></svg></span>
+              </a>
+{{/visuals}}
+              <div class="plan-body">
+                <p class="tag">{{plans.two.tag}}</p>
+                <h4>{{plans.two.title}}</h4>
+                <p class="plan-text">{{plans.two.text}}</p>
+                <div class="plan-cols">
+                  <div>
+                    <h5>{{plans.rooms}}</h5>
+                    <dl class="rooms">
+                      <div><dt>{{rooms.living}}</dt><dd>{{@area:29.72}}</dd></div>
+                      <div><dt>{{rooms.bed1}}</dt><dd>{{@area:11.52}}</dd></div>
+                      <div><dt>{{rooms.bed2}}</dt><dd>{{@area:11.19}}</dd></div>
+                      <div><dt>{{rooms.bath}}</dt><dd>{{@area:5.19}}</dd></div>
+                      <div><dt>{{rooms.wc}}</dt><dd>{{@area:2.5}}</dd></div>
+                      <div class="rooms-sum"><dt>{{rooms.inside}}</dt><dd>{{@area:60.12}}</dd></div>
+                      <div><dt>{{rooms.terrace}}</dt><dd>{{@area:11.72}} – {{@area:12.2}}</dd></div>
+                      <div><dt>{{rooms.loggia}}</dt><dd>{{@area:2}}</dd></div>
+                      <div><dt>{{rooms.roof}}</dt><dd>{{@area:89.47}}</dd></div>
+                    </dl>
+                  </div>
+                  <div>
+                    <h5>{{plans.price}}</h5>
+                    <table class="prices">
+                      <tbody>
+                        <tr><th scope="row">{{apts.floor0}}</th><td>{{@price:two.0}}</td></tr>
+                        <tr><th scope="row">{{apts.floor1}}</th><td>{{@price:two.1}}</td></tr>
+                        <tr><th scope="row">{{apts.floor2}} <small>{{plans.roofExtra}}</small></th><td>{{@price:two.2}}</td></tr>
+                        <tr class="prices-extra"><th scope="row">{{plans.parking}}</th><td>{{@price:parking}}</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="plan{{#visuals}} plan--pic{{/visuals}}" data-reveal>
+{{#visuals}}
+              <a class="plan-pic" href="{{@root}}vizualizacie/podorys-1-spalna-1200.webp" target="_blank" rel="noopener" aria-label="{{viz.open}}: {{plans.one.title}}">
+                <img src="/vizualizacie/podorys-1-spalna-600.webp" srcset="/vizualizacie/podorys-1-spalna-600.webp 600w, /vizualizacie/podorys-1-spalna-1200.webp 1200w" sizes="(min-width: 901px) 352px, 80vw" width="1200" height="1771" loading="lazy" decoding="async" alt="{{plans.one.alt}}" />
+                <span class="plan-zoom" aria-hidden="true"><svg class="i"><use href="#i-zoom" /></svg></span>
+              </a>
+{{/visuals}}
+              <div class="plan-body">
+                <p class="tag">{{plans.one.tag}}</p>
+                <h4>{{plans.one.title}}</h4>
+                <p class="plan-text">{{plans.one.text}}</p>
+                <div class="plan-cols">
+                  <div>
+                    <h5>{{plans.rooms}}</h5>
+                    <dl class="rooms">
+                      <div><dt>{{rooms.living}}</dt><dd>{{@area:21.15}}</dd></div>
+                      <div><dt>{{rooms.bed}}</dt><dd>{{@area:11.19}}</dd></div>
+                      <div><dt>{{rooms.bath}}</dt><dd>{{@area:5.19}}</dd></div>
+                      <div class="rooms-sum"><dt>{{rooms.inside}}</dt><dd>{{@area:37.53}}</dd></div>
+                      <div><dt>{{rooms.terrace}}</dt><dd>{{@area:11.82}} – {{@area:12.2}}</dd></div>
+                      <div><dt>{{rooms.roof}}</dt><dd>{{@area:51.76}}</dd></div>
+                    </dl>
+                  </div>
+                  <div>
+                    <h5>{{plans.price}}</h5>
+                    <table class="prices">
+                      <tbody>
+                        <tr><th scope="row">{{apts.floor0}}</th><td>{{@price:one.0}}</td></tr>
+                        <tr><th scope="row">{{apts.floor1}}</th><td>{{@price:one.1}}</td></tr>
+                        <tr><th scope="row">{{apts.floor2}} <small>{{plans.roofExtra}}</small></th><td>{{@price:one.2}}</td></tr>
+                        <tr class="prices-extra"><th scope="row">{{plans.parking}}</th><td>{{@price:parking}}</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <p class="fine plans-note" data-reveal>{{plans.note}}</p>
           </div>
         </div>
       </section>

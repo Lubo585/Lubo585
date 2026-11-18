@@ -6,7 +6,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { viteSingleFile } from 'vite-plugin-singlefile'
-import { LANGS, checkDicts, contactEmail, isLang, isOptionalVisual, renderPage, siteBase, visualFiles, type Dicts } from './src/site/pages.ts'
+import { LANGS, checkDicts, contactEmail, isLang, isOptionalVisual, priceTable, renderPage, siteBase, visualFiles, type Dicts } from './src/site/pages.ts'
 
 const root = fileURLToPath(new URL('.', import.meta.url))
 
@@ -24,12 +24,15 @@ function sitePages(siteUrl: string | undefined, email: string | undefined): Plug
   const visualsDir = resolve(root, 'web/public/vizualizacie')
   const templateFile = resolve(root, 'web/site.template.html')
   const dictFile = (code: string) => resolve(root, `web/i18n/${code}.json`)
-  const sources = [templateFile, ...LANGS.map((l) => dictFile(l.code))]
+  // Cenník stránky: ceny apartmánov podľa typu a podlažia a cena parkovacieho miesta.
+  const pricesFile = resolve(root, 'web/prices.json')
+  const sources = [templateFile, pricesFile, ...LANGS.map((l) => dictFile(l.code))]
   const load = () => {
     const template = readFileSync(templateFile, 'utf8')
     const dicts = Object.fromEntries(LANGS.map((l) => [l.code, JSON.parse(readFileSync(dictFile(l.code), 'utf8'))])) as Dicts
     const problems = checkDicts(template, dicts)
     if (problems.length) throw new Error(`Slovníky prezentačnej stránky nie sú úplné:\n  ${problems.join('\n  ')}`)
+    const prices = priceTable(JSON.parse(readFileSync(pricesFile, 'utf8')))
     const here = (name: string) => existsSync(resolve(visualsDir, name))
     const wanted = visualFiles(template).filter((name) => !isOptionalVisual(name))
     const missing = wanted.filter((name) => !here(name))
@@ -40,7 +43,7 @@ function sitePages(siteUrl: string | undefined, email: string | undefined): Plug
     const visuals = wanted.length > 0 && missing.length === 0
     // Vizualizácia domov v leteckom zábere je voliteľná – bez nej blok Poloha ukáže zábery pozemku.
     const optional = visualFiles(template).filter(isOptionalVisual)
-    return { template, dicts, visuals, montage: visuals && optional.length > 0 && optional.every(here) }
+    return { template, dicts, prices, visuals, montage: visuals && optional.length > 0 && optional.every(here) }
   }
   const pages: Plugin = {
     name: 'jadran-hills:site-pages',
@@ -61,8 +64,8 @@ function sitePages(siteUrl: string | undefined, email: string | undefined): Plug
         const lang = /<html[^>]*\bdata-site-page="([a-z]+)"/.exec(html)?.[1]
         if (!lang) return html
         if (!isLang(lang)) throw new Error(`Neznámy jazyk stránky: ${lang}`)
-        const { template, dicts, visuals, montage } = load()
-        return renderPage(template, lang, dicts, { siteUrl, email, visuals, montage })
+        const { template, dicts, prices, visuals, montage } = load()
+        return renderPage(template, lang, dicts, { siteUrl, email, visuals, montage, prices })
       },
     },
   }
