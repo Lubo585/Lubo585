@@ -4,12 +4,26 @@ import { isSold, listPrice, sellableArea } from '../lib/calc'
 import { eur, eurShort, num, todayIso, uid } from '../lib/format'
 import { hosted } from '../lib/platform'
 import { exportCsv } from '../lib/export'
+import { publicPriceGaps, type PriceGap } from '../lib/publicPrices'
 import { useStore } from '../store'
 import type { Unit, UnitStatus } from '../types'
 import { Badge, Button, Card, Check, Field, IconButton, Note, NumInput, PageHead, Select, Stat, TextInput } from '../ui/kit'
 import { floorLabel, UNIT_STATUS, UNIT_STATUS_ORDER } from '../ui/labels'
+import webPrices from '../../web/prices.json'
 
 const AREA_LABEL = { interior: 'Interiér', coveredTerrace: 'Krytá terasa', loggia: 'Lodžia', roofTerrace: 'Strešná terasa', garden: 'Záhrada' } as const
+
+/** Verejná stránka patrí len k webovej verzii CRM; jej ceny sú zapísané v súbore web/prices.json. */
+const WITH_PUBLIC_SITE = import.meta.env.MODE === 'web'
+
+/** Jeden rozdiel medzi cenníkom a webom slovami. */
+function gapText(g: PriceGap): string {
+  const crm = g.crmMin === g.crmMax ? eur(g.crmMin) : `${eur(g.crmMin)} až ${eur(g.crmMax)}`
+  const web = g.web === null ? 'cena chýba' : eur(g.web)
+  if (g.what === 'parking') return `Parkovacie miesto: v cenníku ${crm}, na webe ${web}`
+  const type = g.what === 'two' ? 'Apartmán s dvoma spálňami' : 'Apartmán s jednou spálňou'
+  return `${type}, ${floorLabel(g.floor ?? 0).toLowerCase()}: v cenníku ${crm}, na webe ${web}`
+}
 
 export default function Units() {
   const { data, r, patch, add, remove, setSettings } = useStore()
@@ -21,6 +35,8 @@ export default function Units() {
   const maxFloor = Math.max(0, ...data.units.map((u) => u.floor))
   /** Parkovanie má vlastnú cenu a kupuje sa k bytu zvlášť – cenník ho ukazuje v samostatných stĺpcoch. */
   const extraParking = s.pricing.parkingPrice > 0
+  /** Web si ceny z CRM nečíta – keď sa rozídu, treba ho aktualizovať a znova nasadiť. */
+  const webGaps = WITH_PUBLIC_SITE ? publicPriceGaps(r.units, s.pricing.parkingPrice, webPrices) : []
   const missingGardens = data.units.some((u) => u.floor === 0) && data.units.filter((u) => u.floor === 0).every((u) => u.garden === 0)
 
   const setStatusOf = (u: Unit, st: UnitStatus) => {
@@ -60,6 +76,19 @@ export default function Units() {
           </>
         }
       />
+
+      {webGaps.length > 0 && (
+        <div className="no-print mb-4" data-web-price-gaps>
+          <Note tone="warn" title="Ceny na verejnej stránke sa líšia od tohto cenníka">
+            <ul className="mt-1 list-disc pl-5">
+              {webGaps.map((g) => (
+                <li key={`${g.what}.${g.floor}`}>{gapText(g)}</li>
+              ))}
+            </ul>
+            <p className="mt-1.5">Stránka má ceny zapísané napevno. Kým sa neaktualizuje a znova nenasadí, kupujúci na nej vidí staré ceny.</p>
+          </Note>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <Stat label="Jednotky" value={data.units.length} sub={`${r.revenue.soldCount} predaných alebo rezervovaných`} />

@@ -265,6 +265,9 @@ miesta.
   spálňou pre prízemie, 1. a 2. poschodie; `parking` je parkovacie miesto). Sú to
   cenníkové ceny s DPH z CRM, časť Jednotky. **Web si ich z CRM nečíta sám** – po zmene
   cien v CRM treba súbor upraviť a web znova nasadiť.
+- CRM na rozdiel upozorní: keď sa ceny voľných bytov alebo parkovania v časti Jednotky
+  líšia od `web/prices.json`, nad cenníkom sa ukáže, ktoré ceny web uvádza inak
+  (`src/lib/publicPrices.ts`).
 - Šablóna sa na cenu odvoláva značkou `{{@price:two.0}}` a výmeru zapisuje ako
   `{{@area:29.72}}`; zostavenie ich vypíše podľa jazyka stránky (304 500 €, €304,500,
   304.500 €; 29,72 m², 29.72 m²). Čísla tak nie sú v slovníkoch a nemôžu sa medzi
