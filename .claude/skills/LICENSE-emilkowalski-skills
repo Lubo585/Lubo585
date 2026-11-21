@@ -1,3 +1,16 @@
+Third-party skills: "Skills For Designers and Engineers" by Emil Kowalski
+Source:  https://github.com/emilkowalski/skills
+Commit:  64eb3deb9a5fbfa041faf783e0bc3fd635872e9c
+Copied unmodified.
+The license below covers these folders in this directory:
+  animate, animate-expo, animation-performance, animation-vocabulary,
+  apple-design, ask-emil, ask-sonner, break-ui, choreograph,
+  emil-design-eng, find-animation-opportunities, gestures,
+  improve-animations, learn-taste, mobile-native, pick-ui-library,
+  prototype, remove-animations, review-animations, write-swift
+
+------------------------------------------------------------------------------
+
 MIT License
 
 Copyright (c) 2026 Emil Kowalski
