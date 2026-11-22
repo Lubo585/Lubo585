@@ -202,6 +202,15 @@ describe('pôdorysy a ceny', () => {
     }
   })
 
+  it('pod nadpisom je zoznam toho, čo je v cene apartmánu', () => {
+    for (const { code } of LANGS) {
+      const list = /<div class="plans-inc">([\s\S]*?)<\/div>/.exec(pages[code])?.[1] ?? ''
+      expect(list, code).toContain(`<b>${dicts[code]['plans.inc.title']}</b>`)
+      expect(list.match(/<li>/g), code).toHaveLength(5)
+      for (const key of ['kitchen', 'sofa', 'floor', 'bath', 'wc']) expect(list, `${code}: ${key}`).toContain(`${dicts[code][`plans.inc.${key}`]}</li>`)
+    }
+  })
+
   it('pôdorysy sú len tam, kde sú k dispozícii obrázky; popis a ceny vždy', () => {
     for (const { code } of LANGS) {
       expect(pages[code], code).not.toContain('plan-pic')

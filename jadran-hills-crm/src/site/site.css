@@ -1893,6 +1893,42 @@ html:not(.js) .seg button[aria-selected="true"] {
   line-height: 1.45;
 }
 
+/* Čo je v cene apartmánu: krátky zoznam hneď pod nadpisom. */
+.plans-inc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 20px;
+}
+
+.plans-inc b {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.plans-inc ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.plans-inc li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  background: var(--bg-2);
+  padding: 7px 14px 7px 11px;
+  font-size: 14.5px;
+}
+
+.plans-inc .i {
+  color: #248a3d;
+  font-size: 15px;
+  stroke-width: 2.4;
+}
+
 .plan {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

@@ -59,6 +59,12 @@ export function sellableArea(u: Unit, s: Settings): number {
   )
 }
 
+/** Základná cena za m² predajnej plochy pre daný byt: vlastná pre jeho typ (počet spální), inak spoločná. */
+export function basePerM2For(u: Unit, s: Settings): number {
+  const own = s.pricing.baseByBedrooms?.[u.bedrooms]
+  return own !== undefined && own > 0 ? own : s.pricing.basePerM2
+}
+
 /**
  * Cena samotného bytu podľa cenníka, bez parkovania (v cenníkovom vyjadrení – spravidla
  * s DPH). Pri ručnom režime je to cena zadaná pri byte.
@@ -70,7 +76,7 @@ export function apartmentPrice(u: Unit, s: Settings): number {
     ? (p.floorAdjPct[Math.min(u.floor, p.floorAdjPct.length - 1)] ?? 0)
     : 0
   const buildingAdj = p.buildingAdjPct[u.buildingId] ?? 0
-  const raw = sellableArea(u, s) * p.basePerM2 * (1 + floorAdj / 100) * (1 + buildingAdj / 100)
+  const raw = sellableArea(u, s) * basePerM2For(u, s) * (1 + floorAdj / 100) * (1 + buildingAdj / 100)
   const r = p.roundTo > 0 ? p.roundTo : 1
   return Math.round(raw / r) * r
 }

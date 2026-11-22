@@ -16,6 +16,9 @@ const AREA_LABEL = { interior: 'Interiér', coveredTerrace: 'Krytá terasa', log
 /** Verejná stránka patrí len k webovej verzii CRM; jej ceny sú zapísané v súbore web/prices.json. */
 const WITH_PUBLIC_SITE = import.meta.env.MODE === 'web'
 
+/** Typ bytu podľa počtu spální tak, ako sa o ňom hovorí: dve spálne a obývačka sú 3-izbový byt. */
+const roomsLabel = (bedrooms: number): string => `${bedrooms + 1}-izbový (${bedrooms} ${bedrooms === 1 ? 'spálňa' : bedrooms < 5 ? 'spálne' : 'spální'})`
+
 /** Jeden rozdiel medzi cenníkom a webom slovami. */
 function gapText(g: PriceGap): string {
   const crm = g.crmMin === g.crmMax ? eur(g.crmMin) : `${eur(g.crmMin)} až ${eur(g.crmMax)}`
@@ -37,6 +40,8 @@ export default function Units() {
   const extraParking = s.pricing.parkingPrice > 0
   /** Web si ceny z CRM nečíta – keď sa rozídu, treba ho aktualizovať a znova nasadiť. */
   const webGaps = WITH_PUBLIC_SITE ? publicPriceGaps(r.units, s.pricing.parkingPrice, webPrices) : []
+  /** Typy bytov podľa počtu spální – každý môže mať vlastnú základnú cenu za m². */
+  const bedroomTypes = [...new Set(data.units.map((u) => u.bedrooms))].sort((a, b) => b - a)
   const missingGardens = data.units.some((u) => u.floor === 0) && data.units.filter((u) => u.floor === 0).every((u) => u.garden === 0)
 
   const setStatusOf = (u: Unit, st: UnitStatus) => {
@@ -103,11 +108,21 @@ export default function Units() {
       </div>
 
       <div className="no-print mt-4">
-        <Card title="Nastavenie cenníka" hint="Cena bytu = predajná plocha × základná cena × (1 + príplatok podlažia) × (1 + príplatok domu). Parkovacie miesto sa kupuje k bytu zvlášť.">
+        <Card title="Nastavenie cenníka" hint="Cena bytu = predajná plocha × základná cena podľa typu × (1 + príplatok podlažia) × (1 + príplatok domu). Parkovacie miesto sa kupuje k bytu zvlášť.">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Field label="Základná cena">
+            <Field label="Základná cena" hint={bedroomTypes.length > 1 ? 'Platí pre typ bez vlastnej ceny' : undefined}>
               <NumInput value={s.pricing.basePerM2} onChange={(v) => setSettings((x) => ({ ...x, pricing: { ...x.pricing, basePerM2: v } }))} suffix="€/m²" />
             </Field>
+            {bedroomTypes.length > 1 &&
+              bedroomTypes.map((b) => (
+                <Field key={`type-${b}`} label={`Základná cena – ${roomsLabel(b)}`} hint="0 = platí základná cena">
+                  <NumInput
+                    value={s.pricing.baseByBedrooms?.[b] ?? 0}
+                    onChange={(v) => setSettings((x) => ({ ...x, pricing: { ...x.pricing, baseByBedrooms: { ...x.pricing.baseByBedrooms, [b]: v } } }))}
+                    suffix="€/m²"
+                  />
+                </Field>
+              ))}
             {Array.from({ length: maxFloor + 1 }, (_, f) => (
               <Field key={f} label={`Príplatok – ${floorLabel(f).toLowerCase()}`}>
                 <NumInput

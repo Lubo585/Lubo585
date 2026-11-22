@@ -265,6 +265,9 @@ miesta.
   spálňou pre prízemie, 1. a 2. poschodie; `parking` je parkovacie miesto). Sú to
   cenníkové ceny s DPH z CRM, časť Jednotky. **Web si ich z CRM nečíta sám** – po zmene
   cien v CRM treba súbor upraviť a web znova nasadiť.
+- V CRM môže mať každý typ bytu vlastnú základnú cenu za m² predajnej plochy (Jednotky →
+  Nastavenie cenníka, `pricing.baseByBedrooms`); kde ju typ nemá, platí spoločná.
+- Pod nadpisom bloku je zoznam toho, čo je v cene apartmánu (`plans.inc.*`).
 - CRM na rozdiel upozorní: keď sa ceny voľných bytov alebo parkovania v časti Jednotky
   líšia od `web/prices.json`, nad cenníkom sa ukáže, ktoré ceny web uvádza inak
   (`src/lib/publicPrices.ts`).

@@ -322,6 +322,8 @@ export interface Settings {
   areaCoef: { coveredTerrace: number; loggia: number; roofTerrace: number; garden: number }
   pricing: {
     basePerM2: number // € za m² predajnej plochy (v cenníkovom vyjadrení)
+    /** Vlastná základná cena podľa počtu spální (kľúč = počet spální). Kde chýba alebo je 0, platí basePerM2. */
+    baseByBedrooms?: Record<number, number>
     floorAdjPct: number[] // príplatok podľa podlažia (index = podlažie)
     buildingAdjPct: Record<ID, number>
     parkingPrice: number // cena parkovacieho miesta, kupuje sa k bytu zvlášť (0 = v cene bytu)

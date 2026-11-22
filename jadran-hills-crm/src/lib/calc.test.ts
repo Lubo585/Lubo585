@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEMO_PARAMS } from '../data/demo'
 import { createProject } from '../data/templates'
-import { apartmentPrice, boqTotals, breakevenPriceDelta, compute, irrAnnual, listPrice, minEquity, parkingTotal, sellableArea, NO_ADJ } from './calc'
+import { apartmentPrice, basePerM2For, boqTotals, breakevenPriceDelta, compute, irrAnnual, listPrice, minEquity, parkingTotal, sellableArea, NO_ADJ } from './calc'
 
 const TODAY = '2026-11-15'
 const base = () => createProject({ ...DEMO_PARAMS, startMonth: '2026-11' }, TODAY)
@@ -61,6 +61,33 @@ describe('jednotky a ceny', () => {
     expect(listPrice({ ...u, parking: 2 }, d.settings)).toBe(apartmentPrice(u, d.settings) + 20_000)
     expect(parkingTotal({ ...u, parking: 0 }, d.settings)).toBe(0)
     expect(listPrice({ ...u, parking: 0 }, d.settings)).toBe(apartmentPrice(u, d.settings))
+  })
+
+  it('typ bytu môže mať vlastnú základnú cenu za m²; kde ju nemá, platí spoločná', () => {
+    const d = base()
+    d.settings.pricing = { ...d.settings.pricing, basePerM2: 4500, floorAdjPct: [0, 2, 4], roundTo: 500, baseByBedrooms: { 1: 7500, 2: 7000 } }
+    d.settings.areaCoef = { coveredTerrace: 0.5, loggia: 0.75, roofTerrace: 0.25, garden: 0.1 }
+    const two = { ...d.units[0], bedrooms: 2, floor: 0, interior: 60.12, coveredTerrace: 12.2, loggia: 2, roofTerrace: 0, garden: 0 }
+    const one = { ...d.units[0], bedrooms: 1, floor: 1, interior: 37.53, coveredTerrace: 11.82, loggia: 0, roofTerrace: 0, garden: 0 }
+    const three = { ...two, bedrooms: 3 }
+    expect(basePerM2For(two, d.settings)).toBe(7000)
+    expect(basePerM2For(one, d.settings)).toBe(7500)
+    expect(basePerM2For(three, d.settings)).toBe(4500)
+    // 67,72 m² × 7 000 = 474 040 → 474 000;  43,44 m² × 7 500 × 1,02 = 332 316 → 332 500
+    expect(apartmentPrice(two, d.settings)).toBe(474_000)
+    expect(apartmentPrice(one, d.settings)).toBe(332_500)
+    expect(apartmentPrice(three, d.settings)).toBe(304_500)
+    // nula vlastnú cenu vypína a ručne zadaná cena má stále prednosť
+    d.settings.pricing.baseByBedrooms = { 1: 0, 2: 7000 }
+    expect(basePerM2For(one, d.settings)).toBe(4500)
+    expect(apartmentPrice({ ...two, priceMode: 'manual', manualPrice: 400_000 }, d.settings)).toBe(400_000)
+  })
+
+  it('bez vlastných cien podľa typu sa cenník nemení', () => {
+    const d = base()
+    const before = run(d).units.map((u) => u.apartment)
+    d.settings.pricing = { ...d.settings.pricing, baseByBedrooms: {} }
+    expect(run(d).units.map((u) => u.apartment)).toEqual(before)
   })
 
   it('cena parkovania sa nezaokrúhľuje spolu s cenou bytu', () => {

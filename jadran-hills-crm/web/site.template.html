@@ -515,6 +515,16 @@
             <header class="plans-head" data-reveal>
               <h3>{{plans.title}}</h3>
               <p>{{plans.lead}}</p>
+              <div class="plans-inc">
+                <b>{{plans.inc.title}}</b>
+                <ul>
+                  <li><svg class="i" aria-hidden="true"><use href="#i-check" /></svg>{{plans.inc.kitchen}}</li>
+                  <li><svg class="i" aria-hidden="true"><use href="#i-check" /></svg>{{plans.inc.sofa}}</li>
+                  <li><svg class="i" aria-hidden="true"><use href="#i-check" /></svg>{{plans.inc.floor}}</li>
+                  <li><svg class="i" aria-hidden="true"><use href="#i-check" /></svg>{{plans.inc.bath}}</li>
+                  <li><svg class="i" aria-hidden="true"><use href="#i-check" /></svg>{{plans.inc.wc}}</li>
+                </ul>
+              </div>
             </header>
 
             <article class="plan{{#visuals}} plan--pic{{/visuals}}" data-reveal>
