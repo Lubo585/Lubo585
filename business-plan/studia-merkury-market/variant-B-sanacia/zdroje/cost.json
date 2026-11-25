@@ -1,0 +1,98 @@
+{
+ "so": [
+  [
+   "SO 00",
+   "Príprava územia a asanácie",
+   "Przygotowanie terenu i rozbiórki",
+   238540
+  ],
+  [
+   "SO 01a",
+   "Sanácia pôvodnej haly (1667 m²)",
+   "Modernizacja istniejącej hali (1667 m²)",
+   581791
+  ],
+  [
+   "SO 01b",
+   "Prístavba haly (1213 m²)",
+   "Dobudowa hali (1213 m²)",
+   762880
+  ],
+  [
+   "SO 02",
+   "Severný blok – 4 NP (1300 m² HPP)",
+   "Blok północny – 4 kondygnacje (1300 m² PC)",
+   608000
+  ],
+  [
+   "SO 03",
+   "Technické zariadenia haly (2880 m²)",
+   "Instalacje hali (2880 m²)",
+   636480
+  ],
+  [
+   "SO 04",
+   "Vonkajšie objekty, doprava a siete",
+   "Zagospodarowanie terenu, drogi i sieci",
+   856600.0
+  ]
+ ],
+ "zrn": 3684291.0,
+ "pct": [
+  [
+   "VRN – zariadenie staveniska, koordinácia",
+   "Koszty ogólne budowy – zaplecze, koordynacja",
+   0.03,
+   110528.73
+  ],
+  [
+   "Projekt, inžiniering, autorský a stavebný dozor",
+   "Projekt, obsługa inwestycji, nadzory",
+   0.06,
+   221057.46
+  ],
+  [
+   "Rezerva na nepredvídané práce",
+   "Rezerwa na roboty nieprzewidziane",
+   0.08,
+   294743.28
+  ]
+ ],
+ "total": 4310620.47,
+ "vat": 991442.7080999999,
+ "gross": 5302063.178099999,
+ "per_m2_op": 1344.9673853354134,
+ "per_m2_gfa": 1031.2489162679426,
+ "opt": [
+  [
+   "Stabilné hasiace zariadenie (sprinklery) – len ak ho vyžiada požiarny projekt",
+   "Instalacja tryskaczowa – tylko jeśli wymagana przez projekt ppoż.",
+   249990
+  ],
+  [
+   "Fotovoltika na streche 100 kWp",
+   "Fotowoltaika na dachu 100 kWp",
+   72000
+  ],
+  [
+   "Asanácia administratívnej budovy + 20 parkovacích miest navyše",
+   "Rozbiórka budynku administracyjnego + 20 dodatkowych miejsc",
+   135000
+  ],
+  [
+   "Druhý (severný) výjazd na Levočskú – rampa, súhlas správcu cesty",
+   "Drugi (północny) wyjazd na ul. Levočską – rampa, zgoda zarządcy",
+   60000
+  ]
+ ],
+ "cmp": {
+  "new_demo": 378960.19999999995,
+  "new_shell": 1048409.694971146,
+  "refurb": 581791,
+  "nb_new": 455000,
+  "nb_ref": 608000,
+  "delta_zrn": 692578.8949711458,
+  "delta_total": 810317.3071162405,
+  "new_total": 5120937.77711624
+ }
+}
