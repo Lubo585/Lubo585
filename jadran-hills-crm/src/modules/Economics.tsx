@@ -703,6 +703,11 @@ function Strategies() {
             <Row k={`Hodnota pri výnosovej miere ${pct(a.capRatePct)}`} v={eur(rent.value)} />
             <Row k="Hodnota mínus náklady" v={eur(rent.valueGain)} tone={rent.valueGain < 0 ? 'crit' : undefined} />
           </div>
+          {rent.entered && (
+            <p className="mb-0 mt-3 text-[12.5px] text-muted">
+              Tržby sú zadané priamo ako príjem za sezónu. Podľa cien za noc a počtu nocí by vyšli {eur(rent.revenueByNights)} ročne.
+            </p>
+          )}
         </Card>
 
         <Card title="C. Predať pozemok s povolením" hint="Bez výstavby">
@@ -720,6 +725,9 @@ function Strategies() {
 
       <Card title="Predpoklady prenájmu" hint="Upravte podľa vlastných údajov – východiskové hodnoty sú orientačné.">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label="Príjem z prenájmu za sezónu" hint="Zadaný priamo za všetky byty; 0 = výpočet z cien za noc a počtu nocí.">
+            <NumInput value={a.seasonIncome ?? 0} min={0} onChange={(v) => upd({ seasonIncome: v })} suffix="€" />
+          </Field>
           <Field label="Cena za noc – 1 spálňa"><NumInput value={a.adr1} onChange={(v) => upd({ adr1: v })} suffix="€" /></Field>
           <Field label="Cena za noc – 2 spálne"><NumInput value={a.adr2} onChange={(v) => upd({ adr2: v })} suffix="€" /></Field>
           <Field label="Cena za noc – so strešnou terasou"><NumInput value={a.adr2roof} onChange={(v) => upd({ adr2roof: v })} suffix="€" /></Field>

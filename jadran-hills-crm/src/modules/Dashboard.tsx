@@ -1,6 +1,6 @@
 import { ArrowRight, TriangleAlert } from 'lucide-react'
 import { useMemo } from 'react'
-import { breakeven, isSold, sellableArea } from '../lib/calc'
+import { breakeven, isSold, rentStrategy, salesVat, sellableArea } from '../lib/calc'
 import { addYears, daysUntil, eur, eurShort, fmtDate, monthLabel, monthShort, num, pct } from '../lib/format'
 import { coverOf, useMediaVersion } from '../lib/media'
 import { useStore } from '../store'
@@ -49,6 +49,9 @@ export default function Dashboard() {
   const cover = coverOf(data.media)
   const area = data.units.reduce((a, u) => a + sellableArea(u, s), 0)
   const houses = data.buildings.length
+  /** DPH v predajných cenách a tržby z prenájmu za sezónu – dva údaje pre predaj po dvoch rokoch užívania. */
+  const vat = salesVat(r.revenue, s)
+  const rent = useMemo(() => rentStrategy(data, r), [data, r])
 
   return (
     <>
@@ -112,6 +115,35 @@ export default function Dashboard() {
           tone={r.kpi.irrEquity !== null && r.kpi.irrEquity < 0 ? 'crit' : 'neutral'}
         />
       </div>
+
+      {data.units.length > 0 && (
+        <div className="mt-5 grid gap-5 lg:grid-cols-2" data-vat-rent>
+          <section className="rounded-xl border border-line bg-surface px-5 py-5 shadow-[var(--shadow)] sm:px-7 sm:py-6" data-big="vat">
+            <div className="text-[12.5px] font-semibold uppercase tracking-[0.08em] text-muted">DPH z predaja</div>
+            <div className="mt-2 text-[40px] font-bold leading-none tracking-[-0.04em] sm:text-[52px]">
+              <Num value={vat} format={eur} />
+            </div>
+            <p className="m-0 mt-3 text-[15.5px] font-semibold leading-snug">Pri predaji po dvoch rokoch od začatia užívania stavby sa DPH neplatí.</p>
+            <p className="m-0 mt-2 text-[12.5px] leading-relaxed text-muted">
+              {num(s.vatPct, 0)} % {s.pricesIncludeVat ? 'v cenníkových cenách' : 'k cenníkovým cenám'} všetkých jednotiek. Pri predaji oslobodenom od DPH platí kupujúci 3 % daň z
+              prevodu nehnuteľností a predávajúci opravuje DPH odpočítanú zo stavby – postup potvrďte s daňovým poradcom.
+            </p>
+          </section>
+          <section className="rounded-xl border border-line bg-surface px-5 py-5 shadow-[var(--shadow)] sm:px-7 sm:py-6" data-big="rent">
+            <div className="text-[12.5px] font-semibold uppercase tracking-[0.08em] text-muted">Príjem z prenájmu za sezónu</div>
+            <div className="mt-2 text-[40px] font-bold leading-none tracking-[-0.04em] sm:text-[52px]">
+              <Num value={rent.revenue} format={eur} />
+            </div>
+            <p className="m-0 mt-3 text-[15.5px] font-semibold leading-snug">
+              {data.units.length} apartmánov, priemerne {eur(rent.revenue / data.units.length)} na apartmán.
+            </p>
+            <p className="m-0 mt-2 text-[12.5px] leading-relaxed text-muted">
+              {rent.entered ? 'Zadaný predpoklad' : `Podľa cien za noc a ${num(s.rent.nights, 0)} obsadených nocí v roku`}; za dve sezóny {eur(rent.revenue * 2)}. Predpoklady upravíte v časti{' '}
+              <a href="#ekonomika">Ekonomika → Stratégie</a>.
+            </p>
+          </section>
+        </div>
+      )}
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <Card title="Peňažné toky projektu" hint="Kumulatívny tok bez financovania, viazané vlastné zdroje a čerpaný úver">
@@ -255,16 +287,20 @@ export default function Dashboard() {
         </Card>
 
         <Card title="Najväčšie riziká" action={<a href="#rizika" className="text-[13px]">Register rizík</a>}>
-          <ul className="m-0 grid list-none gap-2.5 p-0 text-[13.5px]">
-            {risks.map((x) => (
-              <li key={x.id} className="flex items-start justify-between gap-3">
-                <span className="min-w-0">{x.title}</span>
-                <Badge tone={riskTone(x.probability * x.impact)} title="Pravdepodobnosť × dopad">
-                  <TriangleAlert size={12} aria-hidden /> {x.probability * x.impact}
-                </Badge>
-              </li>
-            ))}
-          </ul>
+          {risks.length === 0 ? (
+            <p className="m-0 text-[13px] text-muted">Žiadne otvorené riziká.</p>
+          ) : (
+            <ul className="m-0 grid list-none gap-2.5 p-0 text-[13.5px]">
+              {risks.map((x) => (
+                <li key={x.id} className="flex items-start justify-between gap-3">
+                  <span className="min-w-0">{x.title}</span>
+                  <Badge tone={riskTone(x.probability * x.impact)} title="Pravdepodobnosť × dopad">
+                    <TriangleAlert size={12} aria-hidden /> {x.probability * x.impact}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         <Card title="Obchod" action={<a href="#klienti" className="text-[13px]">Klienti a obchod</a>}>

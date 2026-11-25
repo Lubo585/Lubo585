@@ -312,6 +312,8 @@ export interface RentAssumptions {
   feesPct: number // provízie platforiem + správa (% z tržieb)
   costPerUnitYear: number // energie, údržba, poistenie, pauš. daň na jednotku / rok
   capRatePct: number // výnosová miera pre ocenenie
+  /** Tržby z prenájmu za sezónu zadané priamo; nula alebo chýbajúci údaj = výpočet z cien za noc a počtu nocí. */
+  seasonIncome?: number
 }
 
 /**

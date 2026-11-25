@@ -16,7 +16,7 @@ za ktorým je táto aplikácia s vlastným prihlásením (pozri časť Verejný 
 
 | Modul | Čo robí |
 |---|---|
-| Prehľad | Hlavné ukazovatele, peňažné toky, body zvratu, míľniky, najbližšie úlohy a najväčšie riziká |
+| Prehľad | Hlavné ukazovatele, DPH z predaja a príjem z prenájmu za sezónu, peňažné toky, body zvratu, míľniky, najbližšie úlohy a najväčšie riziká |
 | Karta projektu | Základné údaje, pozemky s kúpnou cenou, domy a etapizácia, technické parametre so zdrojom |
 | Galéria | Pohľady, pôdorysy, rezy, situácia a fotografie; titulný obrázok pre prehľad a uvítanie, prehliadanie na celej obrazovke, nahrávanie |
 | Ekonomika | Výsledovka, rozpočet nákladov (plán / zazmluvnené / uhradené), mesačný cash-flow, financovanie, scenáre a citlivosť, porovnanie stratégií |
@@ -52,6 +52,20 @@ schodisko so spoločnými priestormi (`settings.construction`):
   nahradené práce stáli podľa položiek výkazu.
 
 Sadzby a ostatné nákladové údaje sú len v dátach projektu, nie v repozitári.
+
+### DPH z predaja a príjem z prenájmu
+
+Prehľad ukazuje veľkým dva údaje pre rozhodovanie medzi predajom hneď a predajom po
+období prenájmu:
+
+- **DPH z predaja** – daň obsiahnutá v cenníkových cenách (`salesVat` v
+  `src/lib/calc.ts`). Podľa chorvátskeho zákona o DPH je dodanie stavby oslobodené, ak
+  od začatia jej užívania uplynuli viac než dva roky; kupujúci vtedy platí daň z prevodu
+  nehnuteľností a predávajúci opravuje odpočítanú daň. Aplikácia to len pripomína –
+  postup treba potvrdiť s daňovým poradcom.
+- **Príjem z prenájmu za sezónu** – buď vypočítaný z cien za noc a počtu obsadených
+  nocí, alebo zadaný priamo (Ekonomika → Stratégie → Predpoklady prenájmu,
+  `settings.rent.seasonIncome`). Zadaný údaj použije aj porovnanie stratégií.
 
 ## Spustenie
 

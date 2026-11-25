@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEMO_PARAMS } from '../data/demo'
 import { createProject } from '../data/templates'
-import { apartmentPrice, basePerM2For, boqTotals, breakevenPriceDelta, compute, constructionBudget, irrAnnual, listPrice, minEquity, parkingTotal, sellableArea, NO_ADJ, RATES_SECTION } from './calc'
+import { apartmentPrice, basePerM2For, boqTotals, breakevenPriceDelta, compute, constructionBudget, irrAnnual, listPrice, minEquity, parkingTotal, rentStrategy, salesVat, sellableArea, NO_ADJ, RATES_SECTION } from './calc'
 
 const TODAY = '2026-11-15'
 const base = () => createProject({ ...DEMO_PARAMS, startMonth: '2026-11' }, TODAY)
@@ -335,6 +335,61 @@ describe('model projektu', () => {
     expect(b.costs.total).toBeCloseTo(a.costs.total, 2)
     const firstHalf = (r: typeof a) => r.cash.outByGroup.build.slice(0, 12).reduce((x, y) => x + y, 0)
     expect(firstHalf(b)).toBeLessThan(firstHalf(a))
+  })
+})
+
+describe('DPH z predaja a prenájom', () => {
+  it('DPH je rozdiel tržieb s daňou a bez dane', () => {
+    const d = base()
+    const r = run(d)
+    expect(d.settings.pricesIncludeVat).toBe(true)
+    expect(salesVat(r.revenue, d.settings)).toBeCloseTo(r.revenue.gross - r.revenue.net, 6)
+    expect(salesVat(r.revenue, d.settings)).toBeCloseTo((r.revenue.net * d.settings.vatPct) / 100, 4)
+  })
+
+  it('pri cenách bez dane sa DPH k tržbám pripočíta', () => {
+    const d = base()
+    d.settings.pricesIncludeVat = false
+    const r = run(d)
+    expect(r.revenue.net).toBeCloseTo(r.revenue.gross, 6)
+    expect(salesVat(r.revenue, d.settings)).toBeCloseTo((r.revenue.gross * d.settings.vatPct) / 100, 4)
+  })
+
+  it('bez zadaného príjmu sa prenájom počíta z cien za noc a počtu nocí', () => {
+    const d = base()
+    const a = d.settings.rent
+    const rent = rentStrategy(d, run(d))
+    const byNights = d.units.reduce((sum, u) => sum + (u.bedrooms >= 2 ? (u.roofTerrace > 0 ? a.adr2roof : a.adr2) : u.roofTerrace > 0 ? (a.adr1 + a.adr2) / 2 : a.adr1) * a.nights, 0)
+    expect(rent.entered).toBe(false)
+    expect(rent.revenue).toBeCloseTo(byNights, 6)
+    expect(rent.revenueByNights).toBeCloseTo(byNights, 6)
+  })
+
+  it('zadaný príjem za sezónu nahradí výpočet a prejde do nákladov, výnosu aj hodnoty', () => {
+    const d = base()
+    const plain = rentStrategy(d, run(d))
+    d.settings.rent = { ...d.settings.rent, seasonIncome: 500_000 }
+    const a = d.settings.rent
+    const r = run(d)
+    const rent = rentStrategy(d, r)
+    expect(rent.entered).toBe(true)
+    expect(rent.revenue).toBe(500_000)
+    expect(rent.revenueByNights).toBeCloseTo(plain.revenue, 6)
+    expect(rent.costs).toBeCloseTo((500_000 * a.feesPct) / 100 + a.costPerUnitYear * d.units.length, 6)
+    expect(rent.noi).toBeCloseTo(rent.revenue - rent.costs, 6)
+    expect(rent.value).toBeCloseTo(rent.noi / (a.capRatePct / 100), 4)
+    // predaj a jeho ekonomika sa prenájmom nemenia
+    expect(r.kpi.profit).toBeCloseTo(run(base()).kpi.profit, 6)
+  })
+
+  it('nula alebo chybný údaj znamená výpočet z cien za noc', () => {
+    for (const bad of [0, -100, Number.NaN, undefined]) {
+      const d = base()
+      d.settings.rent = { ...d.settings.rent, seasonIncome: bad as never }
+      const rent = rentStrategy(d, run(d))
+      expect(rent.entered).toBe(false)
+      expect(rent.revenue).toBeCloseTo(rent.revenueByNights, 6)
+    }
   })
 })
 

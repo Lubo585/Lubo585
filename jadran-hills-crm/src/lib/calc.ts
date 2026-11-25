@@ -107,6 +107,11 @@ export function netOfVat(gross: number, s: Settings): number {
   return s.pricesIncludeVat ? gross / (1 + s.vatPct / 100) : gross
 }
 
+/** DPH pripadajúca na tržby z predaja: obsiahnutá v cenách, alebo pripočítaná k cenám bez dane. */
+export function salesVat(revenue: { gross: number; net: number }, s: Settings): number {
+  return s.pricesIncludeVat ? revenue.gross - revenue.net : (revenue.net * s.vatPct) / 100
+}
+
 // ───────────────────────── Harmonogram ─────────────────────────
 
 /** Predĺženie výstavby: stavebné fázy sa natiahnu, dokončovacie posunú. */
@@ -868,6 +873,10 @@ export function sensitivity(
 
 export interface RentResult {
   revenue: number // ročné tržby z prenájmu
+  /** Tržby podľa cien za noc a počtu nocí – na porovnanie, keď je príjem za sezónu zadaný priamo. */
+  revenueByNights: number
+  /** Tržby sú zadané priamo ako príjem za sezónu, nie vypočítané z cien za noc. */
+  entered: boolean
   costs: number
   noi: number // čistý prevádzkový výnos
   yieldOnCost: number // % NOI / celkové náklady projektu
@@ -877,16 +886,20 @@ export interface RentResult {
 
 export function rentStrategy(data: ProjectData, r: Results): RentResult {
   const a = data.settings.rent
-  let revenue = 0
+  let revenueByNights = 0
   for (const u of data.units) {
     const adr = u.bedrooms >= 2 ? (u.roofTerrace > 0 ? a.adr2roof : a.adr2) : u.roofTerrace > 0 ? (a.adr1 + a.adr2) / 2 : a.adr1
-    revenue += adr * a.nights
+    revenueByNights += adr * a.nights
   }
+  const entered = nonNeg(a.seasonIncome) > 0
+  const revenue = entered ? nonNeg(a.seasonIncome) : revenueByNights
   const costs = (revenue * a.feesPct) / 100 + a.costPerUnitYear * data.units.length
   const noi = revenue - costs
   const value = a.capRatePct > 0 ? noi / (a.capRatePct / 100) : 0
   return {
     revenue,
+    revenueByNights,
+    entered,
     costs,
     noi,
     yieldOnCost: r.kpi.totalCost > 0 ? (noi / r.kpi.totalCost) * 100 : 0,
