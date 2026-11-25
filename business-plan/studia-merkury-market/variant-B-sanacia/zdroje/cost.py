@@ -5,7 +5,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 HERE = os.path.dirname(os.path.abspath(__file__)); A = json.load(open(os.path.join(HERE, "layout.json")))["AREAS"]
 OLD, EXT, HALL, NB, NBF = 1667, 1213, 2880, 325, 1300
-ROADS = round(A["roads"] + A["south_road"]); STALLS = round(A["stalls_area"]); SIDE = round(A["sidewalks"]); GARDEN = round(A["garden"]); CANOPY = round(A["garden_canopy"]); YARD = round(A["yard"]); GREEN = round(A["green"], -1)
+ROADS = round(A["roads"] + A["south_road"]); STALLS = round(A["stalls_area"]); SIDE = round(A["sidewalks"]); GARDEN = round(A["garden"]); CANOPY = round(A["garden_canopy"]); YARD = round(A["yard"]); VYD = round(A["vydaj"]); VYDR = round(A["vydaj_roof"]); GREEN = round(A["green"], -1)
 # (code, SK, PL, unit, qty, unit price)
 SO = [
  ("SO 00", "Príprava územia a asanácie", "Przygotowanie terenu i rozbiórki", [
@@ -58,14 +58,17 @@ SO = [
   ("Meranie a regulácia", "Automatyka (BMS)", "m²", HALL, 8)]),
  ("SO 04", "Vonkajšie objekty, doprava a siete", "Zagospodarowanie terenu, drogi i sieci", [
   ("Komunikácie pre ťažkú dopravu – asfalt (okruh, hlavná ulička, južná cesta)", "Drogi dla ruchu ciężkiego – asfalt (pętla, aleja główna, droga płd.)", "m²", ROADS, 92),
-  ("Parkovacie státia – zámková dlažba 80 mm vr. podkladu", "Miejsca postojowe – kostka 80 mm z podbudową", "m²", STALLS, 64),
+  ("Parkovacie státia vr. zadného parkoviska – zámková dlažba 80 mm", "Miejsca postojowe z parkingiem tylnym – kostka 80 mm", "m²", STALLS, 64),
   ("Chodníky a plochy pre peších", "Chodniki i ciągi piesze", "m²", SIDE, 52),
   ("Obrubníky, vodorovné a zvislé dopravné značenie", "Krawężniki, oznakowanie poziome i pionowe", "kpl", 1, 22000),
   ("Vonkajšia zóna – spevnená plocha", "Ogród zewnętrzny – nawierzchnia", "m²", GARDEN, 58),
   ("Vonkajšia zóna – oceľový prístrešok s polykarbonátom", "Ogród zewnętrzny – wiata stalowa z poliwęglanem", "m²", CANOPY, 240),
-  ("Vonkajšia zóna – oplotenie 2,4 m a brány", "Ogród zewnętrzny – ogrodzenie 2,4 m i bramy", "kpl", 1, 11200),
+  ("Vonkajšia zóna – oplotenie 2,4 m a brány", "Ogród zewnętrzny – ogrodzenie 2,4 m i bramy", "kpl", 1, 9000),
+  ("Výdaj tovaru pri hale – oceľový prístrešok vr. presahu nad výdajné státia", "Wydawanie towaru przy hali – wiata stalowa z okapem nad stanowiskami", "m²", VYDR, 240),
+  ("Výdaj tovaru – spevnená plocha krytého dvora", "Wydawanie towaru – nawierzchnia zadaszonego placu", "m²", VYD, 62),
+  ("Výdaj tovaru – brána 4 × 4 m v severnej stene haly, oplotenie a brána dvora", "Wydawanie towaru – brama 4 × 4 m w północnej ścianie hali, ogrodzenie i brama placu", "kpl", 1, 14000),
   ("Sklad stavebnín – spevnená plocha pre ťažkú manipuláciu", "Skład mat. budowlanych – nawierzchnia ciężka", "m²", YARD, 62),
-  ("Sklad stavebnín – oplotenie a posuvná brána 6 m", "Skład mat. budowlanych – ogrodzenie i brama przesuwna 6 m", "kpl", 1, 17700),
+  ("Sklad stavebnín – oplotenie a posuvná brána 6 m", "Skład mat. budowlanych – ogrodzenie i brama przesuwna 6 m", "kpl", 1, 15500),
   ("Prístrešok príjmu tovaru pri severnom bloku", "Zadaszenie strefy przyjęcia towaru", "m²", 63, 260),
   ("Dažďová kanalizácia, ORL, retenčná nádrž 120 m³", "Kanalizacja deszczowa, separator, zbiornik retencyjny 120 m³", "kpl", 1, 118000),
   ("Splašková kanalizácia a vodovod – úprava prípojok", "Kanalizacja sanitarna i wodociąg – przyłącza", "kpl", 1, 18000),
@@ -90,7 +93,8 @@ def compute():
     new_demo = (OLD + 29) * 6.3 * 24 + NB * 14.5 * 26; new_shell = (OLD) * (sum(q * p for *_, q, p in SO[2][3]) / EXT); refurb = so[1][3]
     nb_new = 2 * NB * 700; nb_ref = so[3][3]
     delta_zrn = (new_demo + new_shell + nb_new) - (refurb + nb_ref)
-    return dict(so=so, zrn=zrn, pct=pc, total=total, vat=total * VAT, gross=total * (1 + VAT), per_m2_op=total / (HALL + NB), per_m2_gfa=total / (HALL + NBF), opt=[(sk, pl, q * p) for sk, pl, u, q, p in OPT],
+    it4 = SO[5][3]; grp = lambda key: sum(q * p for sk_, _, _, q, p in it4 if sk_.startswith(key))
+    return dict(n_items=sum(len(x[3]) for x in SO), garden_cost=grp('Vonkajšia zóna'), vydaj_cost=grp('Výdaj tovaru'), yard_cost=grp('Sklad stavebnín'), roads_m2=ROADS, so=so, zrn=zrn, pct=pc, total=total, vat=total * VAT, gross=total * (1 + VAT), per_m2_op=total / (HALL + NB), per_m2_gfa=total / (HALL + NBF), opt=[(sk, pl, q * p) for sk, pl, u, q, p in OPT],
                 cmp=dict(new_demo=new_demo, new_shell=new_shell, refurb=refurb, nb_new=nb_new, nb_ref=nb_ref, delta_zrn=delta_zrn, delta_total=delta_zrn * (1 + sum(r for *_, r in PCT)), new_total=total + delta_zrn * (1 + sum(r for *_, r in PCT))))
 NAVY = "010222"; ORANGE = "FF4000"; LIGHT = "F3F4F6"
 def build(path):
@@ -153,7 +157,7 @@ def build(path):
     rows = [("Zastavaná plocha haly po dostavbe (m²)", "Powierzchnia zabudowy hali po rozbudowie (m²)", HALL, "#,##0"), ("– z toho sanácia pôvodnej haly / prístavba (m²)", "– w tym modernizacja / dobudowa (m²)", f"{OLD} / {EXT}", None),
             ("Prevádzková plocha 1. NP: hala + príjem tovaru (m²)  *", "Powierzchnia operacyjna parteru: hala + przyjęcie towaru (m²)  *", HALL + NB, "#,##0"), ("Hrubá podlažná plocha vr. 4 NP severného bloku (m²)", "Powierzchnia całkowita z 4 kond. bloku płn. (m²)", HALL + NBF, "#,##0"),
             ("Investičné náklady na m² prevádzkovej plochy (€/m²)", "Koszt na m² powierzchni operacyjnej (€/m²)", f"=E{tr}/E{kr + 3}", EUR), ("Investičné náklady na m² hrubej podlažnej plochy (€/m²)", "Koszt na m² powierzchni całkowitej (€/m²)", f"=E{tr}/E{kr + 4}", EUR),
-            ("Parkovacie miesta (zákazníci + ZŤP + zamestnanci)", "Miejsca postojowe (klienci + niepełnospr. + pracownicy)", "64 + 4 + 16 = 84", None), ("Zastavanosť / zeleň (limit ÚPN: ≤ 50 % / ≥ 20 %)", "Zabudowa / zieleń (limit planu: ≤ 50 % / ≥ 20 %)", f"{100 * A['built'] / A['parcel']:.1f} % / {100 * A['green'] / A['parcel']:.1f} %", None)]
+            ("Parkovacie miesta (zákazníci + ZŤP + zamestnanci)", "Miejsca postojowe (klienci + niepełnospr. + pracownicy)", f"{A['parking']['cust']} + {A['parking']['dis']} + {A['parking']['staff']} = {A['parking_total']}", None), ("Zastavanosť / zeleň (limit ÚPN: ≤ 50 % / ≥ 20 %)", "Zabudowa / zieleń (limit planu: ≤ 50 % / ≥ 20 %)", f"{100 * A['built'] / A['parcel']:.1f} % / {100 * A['green'] / A['parcel']:.1f} %", None)]
     for k, (sk, pl, v, fmt) in enumerate(rows):
         rr = kr + 1 + k; ws.cell(rr, 2, sk).font = nf; ws.cell(rr, 3, pl).font = nf; c = ws.cell(rr, 5, v); c.font = bf; c.alignment = Alignment(horizontal="right")
         if fmt: c.number_format = fmt

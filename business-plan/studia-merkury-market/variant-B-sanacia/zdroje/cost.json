@@ -1,4 +1,9 @@
 {
+ "n_items": 67,
+ "garden_cost": 53538,
+ "vydaj_cost": 87676,
+ "yard_cost": 37076,
+ "roads_m2": 2579,
  "so": [
   [
    "SO 00",
@@ -34,35 +39,35 @@
    "SO 04",
    "Vonkajšie objekty, doprava a siete",
    "Zagospodarowanie terenu, drogi i sieci",
-   856600.0
+   933754.0
   ]
  ],
- "zrn": 3684291.0,
+ "zrn": 3761445.0,
  "pct": [
   [
    "VRN – zariadenie staveniska, koordinácia",
    "Koszty ogólne budowy – zaplecze, koordynacja",
    0.03,
-   110528.73
+   112843.34999999999
   ],
   [
    "Projekt, inžiniering, autorský a stavebný dozor",
    "Projekt, obsługa inwestycji, nadzory",
    0.06,
-   221057.46
+   225686.69999999998
   ],
   [
    "Rezerva na nepredvídané práce",
    "Rezerwa na roboty nieprzewidziane",
    0.08,
-   294743.28
+   300915.60000000003
   ]
  ],
- "total": 4310620.47,
- "vat": 991442.7080999999,
- "gross": 5302063.178099999,
- "per_m2_op": 1344.9673853354134,
- "per_m2_gfa": 1031.2489162679426,
+ "total": 4400890.65,
+ "vat": 1012204.8495000001,
+ "gross": 5413095.4995,
+ "per_m2_op": 1373.1328081123247,
+ "per_m2_gfa": 1052.8446531100478,
  "opt": [
   [
    "Stabilné hasiace zariadenie (sprinklery) – len ak ho vyžiada požiarny projekt",
@@ -93,6 +98,6 @@
   "nb_ref": 608000,
   "delta_zrn": 692578.8949711458,
   "delta_total": 810317.3071162405,
-  "new_total": 5120937.77711624
+  "new_total": 5211207.957116241
  }
 }

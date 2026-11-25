@@ -143,8 +143,13 @@ for i, s in enumerate(S["STALLS"]): rect(f"st{i}", s[:4], M_BLUE if s[4] == "dis
 for i, s in enumerate(S["SIDEWALKS"]): rect(f"sw{i}", s, M_SIDE, 0.10, 0.12)
 rect("crossing", S["CROSSING"], M_ASPH, 0.045, 0.08)
 for i in range(5): rect(f"zeb{i}", (S["CROSSING"][0] + 0.3 + i, S["CROSSING"][1], 0.5, 5), M_LINE, 0.13)
-flat("islandkerb", S["ISLAND"], M_KERB, 0.04, 0.12); 
-flat("island", S["ISLAND_IN"], M_GRASS2, 0.2)
+flat("islandkerb", S["ISL_GREEN"], M_KERB, 0.04, 0.12); rect("islpark", S["ISL_BOX"], M_PAVER, 0.045, 0.08)
+for i, q in enumerate(S["ANGLED"]):
+    P_ = q["poly"]
+    for (a_, b_) in ((P_[1], P_[2]), (P_[0], P_[3])):
+        dx, dy = b_[0] - a_[0], b_[1] - a_[1]; l_ = math.hypot(dx, dy); nx, ny = -dy / l_ * 0.05, dx / l_ * 0.05
+        flat(f"al{i}{a_[0]}", [(a_[0] + nx, a_[1] + ny), (b_[0] + nx, b_[1] + ny), (b_[0] - nx, b_[1] - ny), (a_[0] - nx, a_[1] - ny)], M_LINE, 0.13); 
+flat("island", S["ISL_GREEN_IN"], M_GRASS2, 0.2)
 # stall lines
 for i, s in enumerate(S["STALLS"]):
     x, y, w, h, k = s
@@ -152,14 +157,14 @@ for i, s in enumerate(S["STALLS"]):
     else: flat(f"l{i}", [(x - 0.05, y), (x + 0.05, y), (x + 0.05, y + h), (x - 0.05, y + h)], M_LINE, 0.13); flat(f"l{i}b", [(x + w - 0.05, y), (x + w + 0.05, y), (x + w + 0.05, y + h), (x + w - 0.05, y + h)], M_LINE, 0.13)
 # lay-bys
 rect("pickup", S["PICKUP"], noise_mat("pick", srgb("b59a3a"), srgb("d6bb5a"), 40, 5, 0.85, 0.08), 0.125)
-for i in range(4): rect(f"pk{i}", (S["PICKUP"][0] + 1 + i * 7.6, S["PICKUP"][1], 0.12, 3.5), M_LINE, 0.135)
+for i in range(4): rect(f"pk{i}", (S["PICKUP"][0], S["PICKUP"][1] + 0.3 + i * 7.7, 3.5, 0.12), M_LINE, 0.135)
 lk = S["LKW_CANOPY"]; rect("lkwbay", lk, noise_mat("lkwb", srgb("5a4a48"), srgb("75605c"), 40, 5, 0.85, 0.08), 0.125)
 for (a, b) in [((lk[0], lk[1] + lk[3]), (lk[0] + lk[2], lk[1] + lk[3]))]: flat("lkwl", [(a[0], a[1] - 0.06), (b[0], b[1] - 0.06), (b[0], b[1] + 0.06), (a[0], a[1] + 0.06)], M_YELLOW, 0.135)
 # direction arrows on the ring
 def arrow(x, y, rot):
     pts = [(-0.25, -1.6), (0.25, -1.6), (0.25, 0.4), (0.75, 0.4), (0, 1.6), (-0.75, 0.4), (-0.25, 0.4)]; c, s_ = math.cos(rot), math.sin(rot)
     flat(f"arr{x}{y}", [(x + px * c - py * s_, y + px * s_ + py * c) for px, py in pts], M_LINE, 0.13)
-for x in (33, 45): arrow(x, 103.2, math.pi / 2); arrow(x, 89.3, -math.pi / 2)
+for x in (33, 45): arrow(x, 109.0, math.pi / 2); arrow(x, 93.3, -math.pi / 2)
 for y in (-2, 30, 60): arrow(57.3, y, 0); arrow(53.7, y + 6, math.pi)
 # ---------------- buildings ----------------
 B = COLL_B; T = 0.25
@@ -217,19 +222,27 @@ for fl in range(3):
 gx, gy, gw, gh = S["GARDEN"]; rect("gardenfloor", S["GARDEN"], M_PAVER, 0.06, 0.1)
 cx, cy, cw, ch = S["GARDEN_CANOPY"]; box("gcanopy", cx, cy, 4.6, cw, ch, 0.25, pbr("polycarb", srgb("e8eef2"), 0.3, alpha=0.75, trans=0.3), B); box("gcanopyfr", cx, cy + ch - 0.2, 4.4, cw, 0.2, 0.45, M_BLACK, B)
 for i in range(5): cyl(f"gc{i}", 0.09, 0.09, 4.6, M_STEEL, cx + 0.4 + i * (cw - 0.8) / 4, cy + ch - 0.3, 0, 10, B)
-fence(gx, gy + gh, gx + gw, gy + gh, 2.4); fence(gx + gw, gy, gx + gw, gy + gh, 2.4); fence(gx, gy + ch, gx, gy + gh, 2.4)
-plane_sign("zahrada", img_mat("zahrada", os.path.join(TEX, "zahrada.png"), alpha=False), 9, 1.4, gx + gw + 0.06, gy + 9, 3.3, math.pi / 2, B)
+fence(gx, gy + gh, gx + gw, gy + gh, 2.4); fence(gx + gw, gy, gx + gw, gy + gh, 2.4); fence(gx, 77, gx, gy + gh, 2.4)
+plane_sign("zahrada", img_mat("zahrada", os.path.join(TEX, "zahrada.png"), alpha=False), 9, 1.4, gx + gw / 2, gy + gh + 0.08, 3.3, math.pi, B); box("zahpost1", gx + 2.2, gy + gh, 0, 0.1, 0.1, 4.0, M_STEEL); box("zahpost2", gx + gw - 2.3, gy + gh, 0, 0.1, 0.1, 4.0, M_STEEL)
 PLANT = [noise_mat("plantA", srgb("2f7a2a"), srgb("58a84a"), 30, 5, 0.9, 0.5), noise_mat("plantB", srgb("b03a5a"), srgb("e0708a"), 30, 5, 0.9, 0.5), noise_mat("plantC", srgb("d8a020"), srgb("f0d060"), 30, 5, 0.9, 0.5)]; M_WOOD = pbr("wood", srgb("c98c4a"), 0.8); M_SACK = pbr("sack", srgb("d8cfc0"), 0.9); M_BRICK = noise_mat("brick", srgb("9a4a32"), srgb("b8644a"), 30, 4, 0.9, 0.3)
-for r in range(4):
-    for c in range(5):
-        px, py = gx + 2 + c * 4.3, gy + 9.5 + r * 2.3
+for r in range(6):
+    for c in range(3):
+        px, py = gx + 0.9 + c * 4.2, gy + 9.5 + r * 2.3
         box(f"gt{r}{c}", px, py, 0.1, 3.4, 1.2, 0.75, M_GREY); box(f"gp{r}{c}", px + 0.1, py + 0.1, 0.85, 3.2, 1.0, 0.45, PLANT[(r + c) % 3])
-for c in range(4): box(f"grack{c}", gx + 2 + c * 5.4, gy + 1.5, 0.1, 4.2, 1.2, 3.2, M_RACK); box(f"gsack{c}", gx + 2.2 + c * 5.4, gy + 3.6, 0.1, 3.6, 1.2, 1.3, [M_SACK, M_WOOD, M_BRICK, M_SACK][c])
+for c in range(2): box(f"grack{c}", gx + 1.5 + c * 6.0, gy + 1.5, 0.1, 4.2, 1.2, 3.2, M_RACK); box(f"gsack{c}", gx + 1.7 + c * 6.0, gy + 3.6, 0.1, 3.6, 1.2, 1.3, [M_SACK, M_WOOD, M_BRICK, M_SACK][c])
+# ---------------- pick-up court attached to the hall ----------------
+vx, vy, vw, vh = S["VYDAJ"]; rx, ry, rw, rh = S["VYDAJ_ROOF"]; rect("vydajfloor", S["VYDAJ"], noise_mat("vydf", srgb("9a9c9f"), srgb("b4b6b9"), 40, 5, 0.8, 0.08), 0.06, 0.1)
+box("vydajroof", rx - 0.2, ry, 5.0, rw + 0.7, rh + 0.3, 0.3, M_ROOF, B); box("vydajfasE", rx + rw + 0.4, ry, 4.5, 0.12, rh + 0.3, 1.0, M_BLACK, B); box("vydajfasN", rx - 0.2, ry + rh + 0.2, 4.5, rw + 0.7, 0.12, 1.0, M_BLACK, B)
+for i in range(4): cyl(f"vc{i}", 0.11, 0.11, 5.0, M_STEEL, vx + vw + 0.15, vy + 0.5 + i * (vh - 0.8) / 3, 0, 10, B); cyl(f"vcw{i}", 0.11, 0.11, 5.0, M_STEEL, vx + 0.3, vy + 0.5 + i * (vh - 0.8) / 3, 0, 10, B)
+M_VYD = img_mat("vydaj", os.path.join(TEX, "vydaj.png"), alpha=False); plane_sign("vydajE", M_VYD, 10, 0.9, rx + rw + 0.48, vy + vh / 2, 5.0, math.pi / 2, B); plane_sign("vydajN", M_VYD, 7.5, 0.7, rx + rw / 2, ry + rh + 0.28, 5.0, math.pi, B)
+box("vydajgate", vx + 1.5, vy - 0.08, 0.1, 4, 0.12, 4.0, M_GATE, B); fence(vx, vy + vh, vx + vw, vy + vh, 2.4)
+for i in range(6): box(f"vpal{i}", vx + 0.8 + (i % 2) * 2.6, vy + 6 + (i // 2) * 5.2, 0.1, 1.2, 1.0, 0.9 + (i % 3) * 0.3, [M_SACK, M_WOOD, M_BRICK][i % 3])
+box("vfork", vx + 5.4, vy + 9, 0.1, 1.2, 2.4, 1.5, M_YELLOW); box("vforkm", vx + 5.6, vy + 8.9, 0.1, 0.8, 0.15, 2.4, M_DARK)
 # ---------------- building-materials yard ----------------
 yx, yy, yw, yh = S["YARD"]; rect("yardfloor", S["YARD"], M_GRAVEL, 0.05)
 fence(yx, yy, yx + 13, yy); fence(yx + 19, yy, yx + yw, yy); fence(yx + yw, yy, yx + yw, yy + yh); fence(yx, yy + yh, yx + yw, yy + yh); fence(yx, yy, yx, yy + yh)
 plane_sign("stav", img_mat("stavebniny_s", os.path.join(TEX, "stavebniny.png"), alpha=False), 10, 1.55, yx + 28, yy - 0.05, 3.2, 0, B); box("stavpost1", yx + 23.2, yy - 0.02, 0, 0.12, 0.12, 4.0, M_STEEL); box("stavpost2", yx + 32.7, yy - 0.02, 0, 0.12, 0.12, 4.0, M_STEEL)
-for i in range(14): box(f"ys{i}", yx + 1.5 + (i % 7) * 5.6, yy + 2.6 + (i // 7) * 5.2, 0.05, 4.2, 2.4, 1.2 + (i % 3) * 0.6, [M_BRICK, M_SACK, M_WOOD, M_GREY][i % 4])
+for i in range(14): box(f"ys{i}", yx + 1.5 + (i % 7) * 5.6, yy + 1.5 + (i // 7) * 3.6, 0.05, 4.2, 2.2, 1.2 + (i % 3) * 0.6, [M_BRICK, M_SACK, M_WOOD, M_GREY][i % 4])
 box("forklift", yx + 15, yy + 0.8, 0.05, 1.2, 2.4, 1.5, M_YELLOW); box("forkmast", yx + 15.2, yy + 0.7, 0.05, 0.8, 0.15, 2.4, M_DARK)
 # ---------------- pylon (existing textured prism) ----------------
 PX, PY = S["PYLON"]
@@ -265,8 +278,10 @@ def car(x, y, rot, col, trailer=False):
 for s in S["STALLS"]:
     x, y, w, h, k = s
     if random.random() < (0.5 if k != "staff" else 0.6): car(x + w / 2, y + h / 2, (math.pi / 2 if w > h else 0) + (math.pi if random.random() < 0.5 else 0) + (random.random() - 0.5) * 0.04, random.choice(car_cols))
+for q in S["ANGLED"]:
+    if random.random() < 0.55: car(q["c"][0], q["c"][1], q["rot"] + (math.pi if random.random() < 0.3 else 0), random.choice(car_cols))
 car(55.6, 12, 0, "b5262a"); car(53.9, 44, math.pi, "dedede"); car(36, -11, math.pi / 2, "2c4e9a"); car(14, -28.6, -math.pi / 2, "8a8f94")
-car(41, 107, math.pi / 2, "2b2b2b", trailer=True); car(31.5, 107, math.pi / 2, "f2f2f2")
+car(50.25, 81.5, math.pi, "2b2b2b", trailer=True); car(50.25, 68.5, math.pi, "f2f2f2")
 def truck(x, y, rot):
     grp = [box("tcab", -1.25, -2.05, 0.8, 2.5, 2.3, 3.2, pbr("cabred", srgb("c62828"), 0.3, 0.5, coat=1.0), bevel=0.1), box("tcabg", -1.1, -2.1, 2.2, 2.2, 0.1, 1.2, M_GLASS), box("trail", -1.27, -0.5, 1.0, 2.55, 13.6, 2.8, M_WHITE, bevel=0.05)]
     grp.append(plane_sign("tlogo1", M_LOGO, 10, 1.67, 1.29, 6.3, 2.4, math.pi / 2)); grp.append(plane_sign("tlogo2", M_LOGO, 10, 1.67, -1.29, 6.3, 2.4, -math.pi / 2))
@@ -274,22 +289,22 @@ def truck(x, y, rot):
         w = cyl("tw", 0.5, 0.5, 0.35, M_DARK, 0, 0, 0, 14); w.location = ((1.1 if i % 2 else -1.1), [-0.8, -0.8, 9.5, 9.5, 11.2, 11.2][i], 0.5); w.rotation_euler = (0, math.pi / 2, 0); grp.append(w)
     e = bpy.data.objects.new("truck", None); COLL_E.objects.link(e); e.location = (x, y, 0.05); e.rotation_euler = (0, 0, rot)
     for o in grp: o.parent = e
-truck(44.5, 85.5, math.pi / 2)
+truck(44.5, 89.5, math.pi / 2)
 box("pal1", 24, 80, 0.05, 1.2, 1.0, 1.1, M_SACK); box("pal2", 21.5, 80.5, 0.05, 1.2, 1.0, 0.9, M_WOOD); box("fork2", 26, 81.5, 0.05, 1.2, 2.4, 1.5, M_YELLOW)
 def tree(x, y, s=1.0):
     cyl(f"trunk{x}_{y}", 0.14 * s, 0.3 * s, 3.2 * s, M_BROWN, x, y, 0, 10)
     for k in range(5):
         r = (1.4 + random.random() * 0.9) * s; ang = random.random() * 6.28; rr = random.random() * 1.3 * s
         sp = sphere(f"can{x}_{y}_{k}", r, random.choice(LEAF), x + math.cos(ang) * rr, y + math.sin(ang) * rr, (3.4 + random.random() * 2.4) * s, 2, lumpy=0.45 * s); sp.scale = (1, 1, 0.85)
-for (x, y) in [(-2.5, 24), (0.5, 80), (4, 92), (8, 104), (12, 116), (33, 96.2), (41, 96.2), (48, 96.2), (67, 20), (67.5, 36), (67, 52), (66.5, 68), (66, 84), (65.5, 100), (64, 114), (24, -22.5), (33, -22), (10, -35), (-3, -33), (62, -13), (48.5, 1)]: tree(x, y, 0.75 + random.random() * 0.35)
+for (x, y) in [(-2.5, 24), (0.5, 80), (4, 92), (8, 104), (15.5, 119), (24.6, 100.25), (67, 20), (67.5, 36), (67, 52), (66.5, 68), (66, 84), (65.5, 100), (64, 114), (24, -22.5), (33, -22), (10, -35), (-3, -33), (62, -13), (48.5, 1)]: tree(x, y, 0.75 + random.random() * 0.35)
 def lamp(x, y):
     cyl(f"lp{x}_{y}", 0.08, 0.12, 9, M_GREY, x, y, 0, 10); box(f"lh{x}_{y}", x - 0.6, y - 0.2, 9, 1.2, 0.4, 0.2, M_DARK)
-for (x, y) in [(51.5, 0), (51.5, 30), (51.5, 60), (64.5, 15), (64.5, 45), (64.5, 75), (64.5, 104), (20, -11), (25, 96.2), (15, 86)]: lamp(x, y)
+for (x, y) in [(51.5, 0), (51.5, 30), (51.5, 60), (64.5, 15), (64.5, 45), (64.5, 75), (64.5, 104), (20, -11), (39.5, 100.25), (12, 91)]: lamp(x, y)
 def person(x, y, col, rot):
     grp = [cyl("pb", 0.22, 0.22, 0.75, pbr(f"cl{col}", srgb(col), 0.8), 0, 0, 0.6, 12), sphere("ph", 0.14, M_SKIN, 0, 0, 1.62, 2), cyl("pl1", 0.09, 0.09, 0.8, M_DARK, -0.11, 0, 0, 8), cyl("pl2", 0.09, 0.09, 0.8, M_DARK, 0.11, 0, 0, 8)]
     e = bpy.data.objects.new("person", None); COLL_E.objects.link(e); e.location = (x, y, 0.1); e.rotation_euler = (0, 0, rot)
     for o in grp: o.parent = e
-for (x, y, c) in [(33, -2, "d84a3a"), (35.5, -1.2, "2c5aa0"), (33.5, -6, "f2f2f2"), (46, 8, "3d7a3d"), (46, 28, "e6b800"), (40, -1.8, "444444"), (37, 104.5, "d84a3a"), (51.5, 70, "2c5aa0"), (45, 72, "f2f2f2"), (36, 76, "3d7a3d")]: person(x, y, c, random.random() * 6.28)
+for (x, y, c) in [(33, -2, "d84a3a"), (35.5, -1.2, "2c5aa0"), (33.5, -6, "f2f2f2"), (46, 8, "3d7a3d"), (46, 28, "e6b800"), (40, -1.8, "444444"), (46.5, 79, "d84a3a"), (47.2, 70, "2c5aa0"), (44, 72, "f2f2f2"), (34, 78, "3d7a3d")]: person(x, y, c, random.random() * 6.28)
 # ---------------- world / light ----------------
 world = bpy.data.worlds.new("World"); scene.world = world; world.use_nodes = True; wn = world.node_tree
 SUN_AZ = 215 + 8.84 if VIEW not in ("rear", "aerial_ne") else 150
@@ -299,7 +314,7 @@ sun = bpy.data.lights.new("sun", 'SUN'); sun.energy = 3.6; sun.angle = math.radi
 so = bpy.data.objects.new("sun", sun); scene.collection.objects.link(so); so.rotation_euler = (math.radians(90 - 44), 0, math.radians(SUN_AZ + 180))
 # ---------------- camera ----------------
 views = {"aerial_sw": ((-54, -68, 80), (28, 38, 0), 44), "aerial_se": ((108, -66, 76), (30, 36, 0), 42), "aerial_ne": ((100, 160, 82), (30, 66, 0), 42), "top": ((30, 44, 250), (30, 44.01, 0), 42),
-         "entrance": ((49.5, -21.5, 2.7), (32.5, 2, 4.6), 60), "rear": ((63.5, 117.5, 9.5), (30, 90, 1.5), 62), "road": ((-29, -4, 6.0), (3, 44, 5.5), 58), "east": ((72, 44, 6), (40, 30, 3), 62)}
+         "entrance": ((49.5, -21.5, 2.7), (32.5, 2, 4.6), 60), "rear": ((64, 121.5, 11), (31, 92, 1.5), 62), "vydaj": ((65.5, 99, 6.5), (46, 76, 2.5), 60), "road": ((-29, -4, 6.0), (3, 44, 5.5), 58), "east": ((72, 44, 6), (40, 30, 3), 62)}
 pos, look, fov = views.get(VIEW, views["aerial_sw"])
 cam = bpy.data.cameras.new("cam"); cam.sensor_fit = 'VERTICAL'; cam.sensor_height = 24; cam.lens = 12 / math.tan(math.radians(fov) / 2); cam.clip_end = 2000
 co = bpy.data.objects.new("cam", cam); scene.collection.objects.link(co); co.location = pos
