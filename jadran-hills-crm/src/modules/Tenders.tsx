@@ -14,6 +14,9 @@ export default function Tenders() {
   const [tab, setTab] = useState<'tenders' | 'contacts'>('tenders')
   const totalOf = new Map(r.boq.sections.map((s) => [s.section.id, s.total]))
   const budgetOf = (t: Tender) => t.sectionIds.reduce((a, id) => a + (totalOf.get(id) ?? 0), 0)
+  /** Oddiely, ktoré sú v rozpočte cieľovou sadzbou na m², nie súčtom položiek. */
+  const byRates = new Set(r.boq.sections.filter((s) => s.byRates).map((s) => s.section.id))
+  const budgetHint = (t: Tender) => `Rozpočet ${t.sectionIds.some((id) => byRates.has(id)) ? 'podľa sadzieb na m²' : 'podľa výkazu výmer'} ${eur(budgetOf(t))}`
 
   const winners = data.tenders.map((t) => ({ t, bid: t.bids.find((b) => b.id === t.winnerBidId) })).filter((x) => x.bid)
   const awarded = winners.reduce((a, x) => a + (x.bid?.amount ?? 0), 0)
@@ -69,7 +72,7 @@ export default function Tenders() {
             const budget = budgetOf(t)
             const best = t.bids.length ? Math.min(...t.bids.map((b) => b.amount).filter((v) => v > 0)) : 0
             return (
-              <Card key={t.id} title={t.name} hint={`Rozpočet podľa výkazu výmer ${eur(budget)}`} action={<Badge tone={t.status === 'contract' ? 'good' : 'accent'}>{TENDER_STATUS[t.status]}</Badge>} pad={false}>
+              <Card key={t.id} title={t.name} hint={budgetHint(t)} action={<Badge tone={t.status === 'contract' ? 'good' : 'accent'}>{TENDER_STATUS[t.status]}</Badge>} pad={false}>
                 <div className="grid gap-3 px-4 pb-4 sm:grid-cols-2 sm:px-5 lg:grid-cols-4">
                   <Field label="Názov balíka"><TextInput value={t.name} onChange={(v) => patch('tenders', t.id, { name: v })} /></Field>
                   <Field label="Stav">

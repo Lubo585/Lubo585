@@ -151,7 +151,7 @@ export default function Dashboard() {
               <div className="text-muted">Stavebné náklady</div>
               <div className="text-[18px] font-semibold">
                 {be.build === null ? '—' : `${be.build >= 0 ? '+' : ''}${pct(be.build)}`}
-                {be.build !== null && <span className="ml-2 text-[13px] font-normal text-ink-2">oproti výkazu výmer {eurShort(r.costs.construction)}</span>}
+                {be.build !== null && <span className="ml-2 text-[13px] font-normal text-ink-2">oproti {r.boq.rates ? 'rozpočtu stavby' : 'výkazu výmer'} {eurShort(r.costs.construction)}</span>}
               </div>
             </li>
           </ul>

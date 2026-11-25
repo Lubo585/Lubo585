@@ -20,7 +20,7 @@ za ktorým je táto aplikácia s vlastným prihlásením (pozri časť Verejný 
 | Karta projektu | Základné údaje, pozemky s kúpnou cenou, domy a etapizácia, technické parametre so zdrojom |
 | Galéria | Pohľady, pôdorysy, rezy, situácia a fotografie; titulný obrázok pre prehľad a uvítanie, prehliadanie na celej obrazovke, nahrávanie |
 | Ekonomika | Výsledovka, rozpočet nákladov (plán / zazmluvnené / uhradené), mesačný cash-flow, financovanie, scenáre a citlivosť, porovnanie stratégií |
-| Výkaz výmer | Položkový rozpočet stavby po oddieloch s označením pôvodu množstva (projekt / výpočet / odhad), hromadná úprava cien, export |
+| Výkaz výmer | Položkový rozpočet stavby po oddieloch s označením pôvodu množstva (projekt / výpočet / odhad), hromadná úprava cien, export; domy možno počítať aj cieľovými sadzbami na m² |
 | Jednotky a cenník | Byty s plochami, automatický cenník podľa predajnej plochy, stav predaja |
 | Klienti a obchod | Záujemcovia podľa fázy obchodu, história komunikácie, splátkové kalendáre |
 | Harmonogram | Fázy výstavby v časovom pláne, sezónne obmedzenie prác, etapizácia domov |
@@ -32,6 +32,26 @@ za ktorým je táto aplikácia s vlastným prihlásením (pozri časť Verejný 
 Všetky čísla sa prepočítavajú z jedného modelu (`src/lib/calc.ts`): zmena ceny vo
 výkaze výmer, posun fázy v harmonograme alebo rezervácia bytu sa okamžite prejaví
 v rozpočte, cash-flow aj ukazovateľoch.
+
+### Rozpočet stavby: položky alebo sadzby na m²
+
+Stavba domov sa štandardne počíta súčtom položiek výkazu výmer. Kým nie sú ponuky
+zhotoviteľov, možno ju v module Výkaz výmer (karta Rozpočet stavby) prepnúť na
+**cieľové sadzby na m²** – zvlášť pre interiér bytov, pre terasy a lodžie a pre
+schodisko so spoločnými priestormi (`settings.construction`):
+
+- Plochy bytov a terás sa berú z jednotiek, plocha spoločných priestorov v jednom dome
+  sa zadáva v karte.
+- Výkaz výmer ostáva zachovaný. Suma podľa sadzieb sa medzi oddiely domu rozloží v pomere
+  ich položkových súm, takže tendrové balíky aj priebeh nákladov v čase platia ďalej;
+  pri každom oddiele je vidieť sumu položiek aj sumu v rozpočte.
+- Oddiel, ktorý sadzby nezahŕňajú (napríklad bazén), sa označí „Počítať z položiek aj
+  pri sadzbách". Areálové oddiely (cesta, parkovanie, prípojky, oplotenie, zeleň) sa
+  počítajú z položiek vždy.
+- Karta ukazuje celý rozpočet stavby na jednom mieste a porovnanie so sumou, ktorú by
+  nahradené práce stáli podľa položiek výkazu.
+
+Sadzby a ostatné nákladové údaje sú len v dátach projektu, nie v repozitári.
 
 ## Spustenie
 

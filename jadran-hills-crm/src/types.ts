@@ -314,6 +314,21 @@ export interface RentAssumptions {
   capRatePct: number // výnosová miera pre ocenenie
 }
 
+/**
+ * Rozpočet stavby domov. Buď sa počíta z položiek výkazu výmer, alebo zo sadzieb na m²
+ * (cieľová cena stavby, kým nie sú ponuky zhotoviteľov). Pri sadzbách ostáva výkaz výmer
+ * zachovaný: určuje, ako sa suma rozloží medzi oddiely a v čase.
+ */
+export interface ConstructionBudget {
+  mode: 'boq' | 'rates'
+  interiorPerM2: number // € na m² vnútornej plochy bytov
+  terracePerM2: number // € na m² krytých terás, lodžií a strešných terás
+  commonPerM2: number // € na m² schodiska a spoločných priestorov
+  commonAreaPerBuilding: number // m² schodiska a spoločných priestorov v jednom dome
+  /** Oddiely výkazu pre dom, ktoré sa aj pri sadzbách počítajú z položiek (napr. bazén). */
+  detailedSections: ID[]
+}
+
 export interface Settings {
   startMonth: string // YYYY-MM = mesiac 0 modelu
   vatPct: number
@@ -342,6 +357,8 @@ export interface Settings {
     interestPct: number // p. a.
     feePct: number // poplatok za poskytnutie z rámca
   }
+  /** Ako sa počíta stavba domov; ak chýba, platí výkaz výmer. */
+  construction?: ConstructionBudget
   rent: RentAssumptions
   landExitPerM2: number // alternatíva: predaj pozemku s povolením (€/m²)
   scenarios: Scenario[]

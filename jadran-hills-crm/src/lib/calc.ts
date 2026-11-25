@@ -4,6 +4,7 @@
 import type {
   BoqSection,
   Building,
+  ConstructionBudget,
   CostGroupId,
   CostItem,
   Phase,
@@ -227,10 +228,27 @@ export function irrAnnual(flows: number[]): number | null {
 
 export interface BoqSectionTotal {
   section: BoqSection
-  perUnit: number // suma oddielu pri množstve 1× (1 dom alebo areál)
+  perUnit: number // suma oddielu pri množstve 1× (1 dom alebo areál) tak, ako vstupuje do rozpočtu
   multiplier: number
   total: number
   items: number
+  /** Suma oddielu podľa jeho položiek (1×). Od perUnit sa líši, keď sa domy počítajú sadzbami na m². */
+  itemized: number
+  /** Oddiel je v rozpočte nahradený sadzbami na m²; jeho suma je podielom z nich. */
+  byRates: boolean
+}
+
+/** Stavba domov podľa sadzieb na m² – plochy a sumy za všetky domy spolu. */
+export interface RatesSummary {
+  interiorArea: number
+  terraceArea: number
+  commonArea: number
+  interior: number
+  terrace: number
+  common: number
+  total: number
+  /** Koľko by tie isté práce stáli podľa položiek výkazu výmer. */
+  itemized: number
 }
 
 export interface BoqTotals {
@@ -239,7 +257,31 @@ export interface BoqTotals {
   buildings: number
   site: number
   total: number
+  /** Vyplnené, keď sa domy počítajú sadzbami na m². */
+  rates: RatesSummary | null
 }
+
+const NO_RATES: ConstructionBudget = { mode: 'boq', interiorPerM2: 0, terracePerM2: 0, commonPerM2: 0, commonAreaPerBuilding: 0, detailedSections: [] }
+
+/** Nezáporné číslo; chýbajúci alebo chybný údaj sa berie ako nula. */
+const nonNeg = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? Math.max(0, v) : 0)
+
+/** Rozpočet stavby domov v jednotnom tvare; bez nastavenia platí výkaz výmer. Neúplné nastavenie sa doplní. */
+export function constructionBudget(s: Settings): ConstructionBudget {
+  const c = s.construction
+  if (!c) return NO_RATES
+  return {
+    mode: c.mode === 'rates' ? 'rates' : 'boq',
+    interiorPerM2: nonNeg(c.interiorPerM2),
+    terracePerM2: nonNeg(c.terracePerM2),
+    commonPerM2: nonNeg(c.commonPerM2),
+    commonAreaPerBuilding: nonNeg(c.commonAreaPerBuilding),
+    detailedSections: Array.isArray(c.detailedSections) ? c.detailedSections : [],
+  }
+}
+
+/** Označenie riadku, ktorý nesie stavbu domov podľa sadzieb, keď výkaz nemá oddiely pre dom. */
+export const RATES_SECTION = 'rates'
 
 export function boqTotals(data: ProjectData, constructionDeltaPct = 0): BoqTotals {
   const nB = Math.max(1, data.buildings.length)
@@ -251,14 +293,42 @@ export function boqTotals(data: ProjectData, constructionDeltaPct = 0): BoqTotal
     cur.items += 1
     bySection.set(it.sectionId, cur)
   }
+  // Domy podľa sadzieb na m²: plochy z jednotiek, spoločné priestory z nastavenia. Suma nahrádza
+  // oddiely výkazu pre dom (okrem tých, čo sa majú počítať z položiek) a rozloží sa medzi ne
+  // v pomere ich položkových súm – tak ostáva zachované členenie na tendre aj priebeh v čase.
+  const c = constructionBudget(data.settings)
+  const byRatesMode = c.mode === 'rates'
+  const keep = new Set(c.detailedSections)
+  const replaced = (section: BoqSection): boolean => byRatesMode && section.scope === 'building' && !keep.has(section.id)
+  const interiorArea = sum(data.units.map((u) => u.interior))
+  const terraceArea = sum(data.units.map((u) => u.coveredTerrace + u.loggia + u.roofTerrace))
+  const commonArea = c.commonAreaPerBuilding * nB
+  const interior = interiorArea * c.interiorPerM2 * k
+  const terrace = terraceArea * c.terracePerM2 * k
+  const common = commonArea * c.commonPerM2 * k
+  const target = interior + terrace + common // všetky domy
+  const itemizedReplaced = sum(data.boqSections.filter(replaced).map((section) => bySection.get(section.id)?.amount ?? 0)) * k // 1 dom
+  const share = itemizedReplaced > 0 ? target / nB / itemizedReplaced : 0
+
   const sections: BoqSectionTotal[] = data.boqSections.map((section) => {
     const s = bySection.get(section.id) ?? { amount: 0, items: 0 }
     const multiplier = section.scope === 'building' ? nB : 1
-    return { section, perUnit: s.amount * k, multiplier, total: s.amount * k * multiplier, items: s.items }
+    const byRates = replaced(section)
+    const itemized = s.amount * k
+    const perUnit = byRates ? itemized * share : itemized
+    return { section, perUnit, multiplier, total: perUnit * multiplier, items: s.items, itemized, byRates }
   })
+  // Sadzby bez oddielov, medzi ktoré by sa suma rozložila: ide do jedného riadku cez celú výstavbu.
+  if (byRatesMode && itemizedReplaced <= 0 && target > 0) {
+    const section: BoqSection = { id: RATES_SECTION, code: '–', name: 'Stavba domov podľa sadzieb na m²', scope: 'building', phaseId: null }
+    sections.push({ section, perUnit: target / nB, multiplier: nB, total: target, items: 0, itemized: 0, byRates: true })
+  }
   const perBuilding = sum(sections.filter((s) => s.section.scope === 'building').map((s) => s.perUnit))
   const site = sum(sections.filter((s) => s.section.scope === 'site').map((s) => s.total))
-  return { sections, perBuilding, buildings: perBuilding * nB, site, total: perBuilding * nB + site }
+  const rates: RatesSummary | null = byRatesMode
+    ? { interiorArea, terraceArea, commonArea, interior, terrace, common, total: target, itemized: itemizedReplaced * nB }
+    : null
+  return { sections, perBuilding, buildings: perBuilding * nB, site, total: perBuilding * nB + site, rates }
 }
 
 // ───────────────────────── Hlavný výpočet ─────────────────────────

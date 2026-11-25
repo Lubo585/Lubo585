@@ -244,8 +244,8 @@ function costTemplate(p: ProjectParams, landTotal: number): CostItem[] {
     item({ group: 'prep', name: 'Pripojovacie poplatky – voda a kanalizácia', calc: { kind: 'qty', qty: nB, unit: 'dom', unitPrice: 3500 }, timing: { mode: 'phase', phaseId: phaseId('fees') }, note: '' }),
     item({ group: 'prep', name: 'Správne poplatky a ohlásenia', calc: { kind: 'fixed', amount: 2500 }, timing: { mode: 'phase', phaseId: phaseId('fees') }, note: '' }),
 
-    item({ group: 'build', name: 'Stavebné práce – domy (podľa výkazu výmer)', calc: { kind: 'boq', scope: 'building' }, timing: { mode: 'construction' }, note: 'Súčet oddielov výkazu výmer × počet domov.' }),
-    item({ group: 'build', name: 'Stavebné práce – areál (podľa výkazu výmer)', calc: { kind: 'boq', scope: 'site' }, timing: { mode: 'construction' }, note: '' }),
+    item({ group: 'build', name: 'Stavebné práce – domy', calc: { kind: 'boq', scope: 'building' }, timing: { mode: 'construction' }, note: 'Podľa modulu Výkaz výmer: súčet oddielov × počet domov, alebo sadzby na m².' }),
+    item({ group: 'build', name: 'Stavebné práce – areál', calc: { kind: 'boq', scope: 'site' }, timing: { mode: 'construction' }, note: 'Podľa modulu Výkaz výmer – areálové oddiely.' }),
     item({ group: 'build', name: 'Stavebná rezerva', calc: { kind: 'pct', base: 'construction', pct: r.contingencyPct }, timing: { mode: 'construction' }, note: 'Rezerva na nepredvídané práce a spresnenie množstiev.' }),
 
     item({ group: 'soft', name: 'Stavebný dozor (stručni nadzor)', calc: { kind: 'pct', base: 'construction', pct: 1.8 }, timing: { mode: 'construction' }, note: '' }),

@@ -1,10 +1,11 @@
 import { ChevronDown, ChevronRight, Download, Plus, Printer, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { constructionBudget, RATES_SECTION } from '../lib/calc'
 import { eur, eurShort, num, pct, uid } from '../lib/format'
 import { hosted } from '../lib/platform'
 import { exportCsv } from '../lib/export'
 import { useStore } from '../store'
-import type { BoqSource, ID } from '../types'
+import type { BoqSource, ConstructionBudget, ID } from '../types'
 import { BarList } from '../ui/charts'
 import { cx } from '../ui/cx'
 import { Badge, Button, Card, Check, Field, IconButton, Note, NumInput, PageHead, Select, Stat, TextInput } from '../ui/kit'
@@ -16,13 +17,21 @@ const SOURCE: Record<BoqSource, { label: string; long: string; tone: 'good' | 'a
 }
 
 export default function Boq() {
-  const { data, r, set, patch, add, remove } = useStore()
+  const { data, r, set, patch, add, remove, setSettings } = useStore()
   const [open, setOpen] = useState<Set<ID>>(() => new Set(data.boqSections.slice(0, 1).map((s) => s.id)))
   const [onlyEstimates, setOnlyEstimates] = useState(false)
   const [adjust, setAdjust] = useState(0)
   const [adjustScope, setAdjustScope] = useState('all')
   const nB = Math.max(1, data.buildings.length)
   const gfa = r.kpi.gfa
+  /** Domy sa počítajú buď z položiek výkazu, alebo cieľovými sadzbami na m². */
+  const budget = constructionBudget(data.settings)
+  const rates = r.boq.rates
+  const setBudget = (change: Partial<ConstructionBudget>) => setSettings((x) => ({ ...x, construction: { ...constructionBudget(x), ...change } }))
+  /** Čo by stavba stála podľa položiek výkazu – pri sadzbách sa líši od rozpočtu. */
+  const itemizedTotal = r.boq.sections.reduce((a, st) => a + st.itemized * st.multiplier, 0)
+  /** Oddiely, ktoré idú do rozpočtu súčtom položiek aj pri sadzbách (bazén, areál). */
+  const itemizedSections = r.boq.sections.filter((st) => !st.byRates && st.total > 0)
 
   const toggle = (id: ID) =>
     setOpen((o) => {
@@ -55,7 +64,7 @@ export default function Boq() {
     exportCsv('vykaz-vymer.csv', [
       ['Kód', 'Oddiel / položka', 'MJ', 'Množstvo', 'Jedn. cena €', 'Spolu 1× €', 'Násobok', 'Spolu projekt €', 'Pôvod množstva', 'Poznámka'],
       ...r.boq.sections.flatMap((st) => [
-        [st.section.code, st.section.name.toUpperCase(), '', '', '', st.perUnit, st.multiplier, st.total, '', st.section.scope === 'building' ? 'na 1 dom' : 'areál'],
+        [st.section.code, st.section.name.toUpperCase(), '', '', '', st.perUnit, st.multiplier, st.total, '', `${st.section.scope === 'building' ? 'na 1 dom' : 'areál'}${st.byRates ? `; v rozpočte podľa sadzieb na m², položky spolu ${Math.round(st.itemized)} €` : ''}`],
         ...data.boq
           .filter((i) => i.sectionId === st.section.id)
           .map((i) => [i.code, i.name, i.unit, i.qty, i.unitPrice, i.qty * i.unitPrice, st.multiplier, i.qty * i.unitPrice * st.multiplier, SOURCE[i.source].label, i.note]),
@@ -71,7 +80,13 @@ export default function Boq() {
     setOpen((o) => new Set(o).add(id))
   }
 
-  const removeSection = (id: ID) => set((d) => ({ ...d, boqSections: d.boqSections.filter((s) => s.id !== id), boq: d.boq.filter((i) => i.sectionId !== id) }))
+  const removeSection = (id: ID) =>
+    set((d) => {
+      const c = d.settings.construction
+      // Zrušený oddiel nemá ostať v zozname oddielov počítaných z položiek.
+      const settings = c?.detailedSections.includes(id) ? { ...d.settings, construction: { ...c, detailedSections: c.detailedSections.filter((x) => x !== id) } } : d.settings
+      return { ...d, settings, boqSections: d.boqSections.filter((s) => s.id !== id), boq: d.boq.filter((i) => i.sectionId !== id) }
+    })
 
   return (
     <>
@@ -92,8 +107,105 @@ export default function Boq() {
         <Stat label="Jeden dom" value={eurShort(r.boq.perBuilding)} sub={gfa > 0 ? `${eur(r.boq.perBuilding / (gfa / nB))}/m² hrubej plochy` : undefined} />
         <Stat label={`Domy spolu (× ${nB})`} value={eurShort(r.boq.buildings)} />
         <Stat label="Areál" value={eurShort(r.boq.site)} />
-        <Stat label="Výkaz výmer spolu" value={eurShort(r.boq.total)} sub="bez DPH a bez rezervy" />
+        <Stat label={rates ? 'Stavba spolu' : 'Výkaz výmer spolu'} value={eurShort(r.boq.total)} sub={rates ? 'domy sadzbami na m², bez DPH a rezervy' : 'bez DPH a bez rezervy'} />
         <Stat label="Stavba vrátane rezervy" value={gfa > 0 ? `${eur(r.kpi.constructionPerM2Gfa)}/m²` : '—'} sub="na m² hrubej podlažnej plochy" />
+      </div>
+
+      <div className="mt-4" data-construction-budget>
+        <Card title="Rozpočet stavby" hint="Kým nie sú ponuky zhotoviteľov, možno domy počítať cieľovou cenou za m². Výkaz výmer ostáva zachovaný – určuje, ako sa suma rozloží medzi oddiely a v čase.">
+          <div className="no-print grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <Field label="Stavba domov sa počíta">
+              <Select
+                value={budget.mode}
+                onChange={(v) => setBudget({ mode: v === 'rates' ? 'rates' : 'boq' })}
+                options={[{ value: 'boq', label: 'Z položiek výkazu výmer' }, { value: 'rates', label: 'Sadzbami na m²' }]}
+              />
+            </Field>
+            {rates && (
+              <>
+                <Field label="Interiér bytov">
+                  <NumInput value={budget.interiorPerM2} onChange={(v) => setBudget({ interiorPerM2: v })} suffix="€/m²" />
+                </Field>
+                <Field label="Terasy a lodžie">
+                  <NumInput value={budget.terracePerM2} onChange={(v) => setBudget({ terracePerM2: v })} suffix="€/m²" />
+                </Field>
+                <Field label="Schodisko a spoločné priestory">
+                  <NumInput value={budget.commonPerM2} onChange={(v) => setBudget({ commonPerM2: v })} suffix="€/m²" />
+                </Field>
+                <Field label="Spoločné priestory v dome" hint="Plocha v jednom dome">
+                  <NumInput decimals={2} value={budget.commonAreaPerBuilding} onChange={(v) => setBudget({ commonAreaPerBuilding: v })} suffix="m²" />
+                </Field>
+              </>
+            )}
+          </div>
+          {rates && (
+            <>
+              <div className="tbl-wrap mt-4 rounded-lg border border-line">
+                <table className="tbl">
+                  <thead>
+                    <tr>
+                      <th>Časť stavby</th>
+                      <th className="num">Rozsah</th>
+                      <th className="num">Jednotková cena</th>
+                      <th className="num">Spolu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Interiér bytov</td>
+                      <td className="num">{num(rates.interiorArea, 2)} m²</td>
+                      <td className="num">{eur(budget.interiorPerM2)}/m²</td>
+                      <td className="num font-medium">{eur(rates.interior)}</td>
+                    </tr>
+                    <tr>
+                      <td>Kryté terasy, lodžie a strešné terasy</td>
+                      <td className="num">{num(rates.terraceArea, 2)} m²</td>
+                      <td className="num">{eur(budget.terracePerM2)}/m²</td>
+                      <td className="num font-medium">{eur(rates.terrace)}</td>
+                    </tr>
+                    <tr>
+                      <td>Schodiská a spoločné priestory</td>
+                      <td className="num">{num(rates.commonArea, 2)} m²</td>
+                      <td className="num">{eur(budget.commonPerM2)}/m²</td>
+                      <td className="num font-medium">{eur(rates.common)}</td>
+                    </tr>
+                    <tr className="total">
+                      <td colSpan={3}>Domy podľa sadzieb spolu</td>
+                      <td className="num">{eur(rates.total)}</td>
+                    </tr>
+                    {itemizedSections.map((st) => (
+                      <tr key={st.section.id}>
+                        <td>
+                          {st.section.code} {st.section.name} <span className="text-muted">– z položiek</span>
+                        </td>
+                        <td className="num">{st.section.scope === 'building' ? `× ${nB} domy` : 'areál'}</td>
+                        <td className="num">{st.section.scope === 'building' ? `${eur(st.perUnit)}/dom` : ''}</td>
+                        <td className="num font-medium">{eur(st.total)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colSpan={3}>Stavba spolu</td>
+                      <td className="num">{eur(r.boq.total)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              {rates.total <= 0 && (
+                <p className="mt-3 rounded-lg bg-warn-soft px-3.5 py-2.5 text-[13px] text-warn-ink">
+                  Sadzby zatiaľ nie sú zadané – domy sú v rozpočte s nulovou sumou. Doplňte sadzby na m² a plochu spoločných priestorov.
+                </p>
+              )}
+              <p className="mt-3 text-[13px] leading-relaxed text-ink-2">
+                {rates.itemized > 0
+                  ? `Podľa položiek výkazu výmer by práce nahradené sadzbami stáli ${eur(rates.itemized)} – sadzby sú ${pct((rates.total / rates.itemized) * 100, 0)} tejto sumy. `
+                  : ''}
+                Oddiely „z položiek“ a celý areál sa počítajú podrobne z výkazu nižšie; pri každom oddiele domu možno zvoliť, či ho sadzby zahŕňajú. Sumy sú bez DPH a bez stavebnej rezervy.
+              </p>
+            </>
+          )}
+        </Card>
       </div>
 
       <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -106,7 +218,7 @@ export default function Boq() {
                   <span className="text-ink-2">{SOURCE[x.src].long}</span>
                 </span>
                 <span className="tabular-nums">
-                  <span className="font-semibold">{x.count}</span> položiek · {eurShort(x.value)} ({pct(r.boq.total > 0 ? (x.value / r.boq.total) * 100 : 0, 0)})
+                  <span className="font-semibold">{x.count}</span> položiek · {eurShort(x.value)} ({pct(itemizedTotal > 0 ? (x.value / itemizedTotal) * 100 : 0, 0)})
                 </span>
               </li>
             ))}
@@ -150,7 +262,24 @@ export default function Boq() {
       <div className="mt-4 grid gap-3">
         {r.boq.sections.map((st) => {
           const sec = st.section
+          if (sec.id === RATES_SECTION) {
+            return (
+              <section key={sec.id} className="card rounded-xl border border-line bg-surface shadow-[var(--shadow)]">
+                <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-5">
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="min-w-0 truncate text-[14.5px] font-semibold">{sec.name}</span>
+                    <Badge tone="accent">× {nB} domy</Badge>
+                  </span>
+                  <div className="flex items-baseline gap-4 text-[13.5px] tabular-nums">
+                    <span className="text-ink-2">{eur(st.perUnit)} / dom</span>
+                    <span className="text-[15px] font-semibold">{eur(st.total)}</span>
+                  </div>
+                </header>
+              </section>
+            )
+          }
           const isOpen = open.has(sec.id)
+          const detailed = budget.detailedSections.includes(sec.id)
           const items = data.boq.filter((i) => i.sectionId === sec.id && (!onlyEstimates || i.source === 'O'))
           if (onlyEstimates && items.length === 0) return null
           return (
@@ -161,8 +290,11 @@ export default function Boq() {
                   <span className="shrink-0 font-semibold tabular-nums text-muted">{sec.code}</span>
                   <span className="min-w-0 truncate text-[14.5px] font-semibold">{sec.name}</span>
                   <Badge tone={sec.scope === 'building' ? 'accent' : 'neutral'}>{sec.scope === 'building' ? `× ${nB} domy` : 'areál'}</Badge>
+                  {st.byRates && <Badge tone="warn">podľa sadzieb</Badge>}
+                  {rates && sec.scope === 'building' && !st.byRates && <Badge tone="good">z položiek</Badge>}
                 </button>
                 <div className="flex items-baseline gap-4 text-[13.5px] tabular-nums">
+                  {st.byRates && <span className="text-muted">položky {eur(st.itemized)}</span>}
                   {sec.scope === 'building' && <span className="text-ink-2">{eur(st.perUnit)} / dom</span>}
                   <span className="text-[15px] font-semibold">{eur(st.total)}</span>
                 </div>
@@ -182,6 +314,13 @@ export default function Boq() {
                         options={[{ value: '', label: 'Celá výstavba (rovnomerne)' }, ...data.phases.filter((p) => p.group === 'build').map((p) => ({ value: p.id, label: p.name }))]}
                       />
                     </Field>
+                    {rates && sec.scope === 'building' && (
+                      <Check
+                        checked={detailed}
+                        onChange={(v) => setBudget({ detailedSections: v ? [...budget.detailedSections, sec.id] : budget.detailedSections.filter((x) => x !== sec.id) })}
+                        label="Počítať z položiek aj pri sadzbách"
+                      />
+                    )}
                     <div className="ml-auto flex gap-2">
                       <Button size="sm" icon={<Plus size={15} />} onClick={() => add('boq', { id: uid('boq'), sectionId: sec.id, code: `${sec.code}.${String(data.boq.filter((i) => i.sectionId === sec.id).length + 1).padStart(2, '0')}`, name: 'Nová položka', unit: 'm²', qty: 0, unitPrice: 0, source: 'O', note: '' })}>
                         Položka
@@ -228,11 +367,19 @@ export default function Boq() {
                       </tbody>
                       <tfoot>
                         <tr>
-                          <td colSpan={5}>Oddiel {sec.code} spolu</td>
-                          <td className="num">{eur(st.perUnit)}</td>
-                          {sec.scope === 'building' && <td className="num">{eur(st.total)}</td>}
+                          <td colSpan={5}>{st.byRates ? `Oddiel ${sec.code} podľa položiek` : `Oddiel ${sec.code} spolu`}</td>
+                          <td className="num">{eur(st.itemized)}</td>
+                          {sec.scope === 'building' && <td className="num">{eur(st.itemized * st.multiplier)}</td>}
                           <td colSpan={3} />
                         </tr>
+                        {st.byRates && (
+                          <tr>
+                            <td colSpan={5}>V rozpočte podľa sadzieb na m²</td>
+                            <td className="num">{eur(st.perUnit)}</td>
+                            <td className="num">{eur(st.total)}</td>
+                            <td colSpan={3} />
+                          </tr>
+                        )}
                       </tfoot>
                     </table>
                   </div>
@@ -249,11 +396,12 @@ export default function Boq() {
 
       <div className="mt-4 rounded-xl border border-line bg-surface-2 px-4 py-3.5 sm:px-5">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <span className="text-[14.5px] font-semibold">Výkaz výmer spolu</span>
+          <span className="text-[14.5px] font-semibold">{rates ? 'Stavba spolu' : 'Výkaz výmer spolu'}</span>
           <span className="text-[20px] font-semibold tabular-nums">{eur(r.boq.total)}</span>
         </div>
         <div className="mt-1 text-[13px] text-ink-2">
           {num(nB, 0)} × {eur(r.boq.perBuilding)} + areál {eur(r.boq.site)} · bez DPH a bez stavebnej rezervy (tá je v rozpočte nákladov)
+          {rates && ` · domy sú počítané sadzbami na m²; podľa položiek výkazu by stavba spolu stála ${eur(itemizedTotal)}`}
         </div>
       </div>
     </>

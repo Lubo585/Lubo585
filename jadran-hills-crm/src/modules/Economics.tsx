@@ -169,9 +169,15 @@ function MonthSelect({ value, onChange, count, startMonth, ariaLabel }: { value:
 }
 
 function CalcEditor({ item, onChange }: { item: CostItem; onChange: (c: CostCalc) => void }) {
+  const { r } = useStore()
   const c = item.calc
   if (c.kind === 'land') return <span className="text-muted">súčet parciel × cena</span>
-  if (c.kind === 'boq') return <span className="text-muted">podľa výkazu výmer</span>
+  if (c.kind === 'boq') {
+    // Domy môžu byť v rozpočte cieľovými sadzbami na m²; z položiek potom ostávajú len vybrané oddiely.
+    const byRates = c.scope === 'building' && r.boq.rates !== null
+    const alsoItems = byRates && r.boq.sections.some((s) => s.section.scope === 'building' && !s.byRates && s.total > 0)
+    return <span className="text-muted">{byRates ? (alsoItems ? 'sadzby na m² a položky výkazu' : 'podľa sadzieb na m²') : 'podľa výkazu výmer'}</span>
+  }
   if (c.kind === 'fixed') return <NumInput cell value={c.amount} onChange={(v) => onChange({ ...c, amount: v })} ariaLabel="Suma" />
   if (c.kind === 'monthly')
     return (

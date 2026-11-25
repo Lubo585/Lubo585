@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEMO_PARAMS } from '../data/demo'
 import { createProject } from '../data/templates'
-import { apartmentPrice, basePerM2For, boqTotals, breakevenPriceDelta, compute, irrAnnual, listPrice, minEquity, parkingTotal, sellableArea, NO_ADJ } from './calc'
+import { apartmentPrice, basePerM2For, boqTotals, breakevenPriceDelta, compute, constructionBudget, irrAnnual, listPrice, minEquity, parkingTotal, sellableArea, NO_ADJ, RATES_SECTION } from './calc'
 
 const TODAY = '2026-11-15'
 const base = () => createProject({ ...DEMO_PARAMS, startMonth: '2026-11' }, TODAY)
@@ -113,6 +113,126 @@ describe('výkaz výmer', () => {
   it('zmena stavebných nákladov sa prenesie lineárne', () => {
     const d = base()
     expect(boqTotals(d, 10).total).toBeCloseTo(boqTotals(d).total * 1.1, 4)
+  })
+})
+
+describe('stavba domov sadzbami na m²', () => {
+  // Ilustračné sadzby – skutočné sú len v dátach projektu.
+  const RATES = { mode: 'rates' as const, interiorPerM2: 1000, terracePerM2: 250, commonPerM2: 900, commonAreaPerBuilding: 50, detailedSections: [] as string[] }
+  const sum = (a: number[]) => a.reduce((x, y) => x + y, 0)
+  const withRates = (change: Partial<typeof RATES> = {}) => {
+    const d = base()
+    d.settings.construction = { ...RATES, ...change }
+    return d
+  }
+
+  it('bez nastavenia aj v režime výkazu sa nič nemení', () => {
+    const d = base()
+    const plain = boqTotals(d)
+    expect(plain.rates).toBeNull()
+    expect(plain.sections.every((s) => !s.byRates && s.itemized === s.perUnit)).toBe(true)
+    d.settings.construction = { ...RATES, mode: 'boq' }
+    const off = boqTotals(d)
+    expect(off.rates).toBeNull()
+    expect(off.total).toBeCloseTo(plain.total, 6)
+  })
+
+  it('domy stoja plocha × sadzba; areál ostáva podľa položiek', () => {
+    const d = withRates()
+    const plain = boqTotals(base())
+    const t = boqTotals(d)
+    const interior = sum(d.units.map((u) => u.interior))
+    const terraces = sum(d.units.map((u) => u.coveredTerrace + u.loggia + u.roofTerrace))
+    const common = RATES.commonAreaPerBuilding * d.buildings.length
+    expect(t.rates).not.toBeNull()
+    expect(t.rates!.interiorArea).toBeCloseTo(interior, 6)
+    expect(t.rates!.terraceArea).toBeCloseTo(terraces, 6)
+    expect(t.rates!.commonArea).toBeCloseTo(common, 6)
+    expect(t.rates!.total).toBeCloseTo(interior * RATES.interiorPerM2 + terraces * RATES.terracePerM2 + common * RATES.commonPerM2, 4)
+    expect(t.buildings).toBeCloseTo(t.rates!.total, 4)
+    expect(t.rates!.itemized).toBeCloseTo(plain.buildings, 4)
+    expect(t.site).toBeCloseTo(plain.site, 6)
+    expect(t.total).toBeCloseTo(t.buildings + t.site, 4)
+  })
+
+  it('suma sa medzi oddiely rozloží v pomere ich položiek – členenie a priebeh v čase ostávajú', () => {
+    const plain = boqTotals(base())
+    const t = boqTotals(withRates())
+    const k = t.buildings / plain.buildings
+    for (const [i, s] of t.sections.entries()) {
+      expect(s.itemized).toBeCloseTo(plain.sections[i].perUnit, 6)
+      if (s.section.scope === 'building') {
+        expect(s.byRates).toBe(true)
+        expect(s.perUnit).toBeCloseTo(plain.sections[i].perUnit * k, 4)
+      } else {
+        expect(s.byRates).toBe(false)
+        expect(s.perUnit).toBeCloseTo(plain.sections[i].perUnit, 6)
+      }
+    }
+  })
+
+  it('oddiel označený na počítanie z položiek (bazén) ide nad rámec sadzieb', () => {
+    const d = withRates()
+    const pool = d.boqSections.find((s) => s.scope === 'building' && /bazén/i.test(s.name))!
+    expect(pool).toBeDefined()
+    d.settings.construction!.detailedSections = [pool.id]
+    const t = boqTotals(d)
+    const poolTotal = t.sections.find((s) => s.section.id === pool.id)!
+    expect(poolTotal.byRates).toBe(false)
+    expect(poolTotal.perUnit).toBeCloseTo(poolTotal.itemized, 6)
+    expect(t.buildings).toBeCloseTo(t.rates!.total + poolTotal.total, 4)
+    // podľa položiek by nahradené oddiely stáli všetko okrem bazéna
+    expect(t.rates!.itemized).toBeCloseTo(boqTotals(base()).buildings - poolTotal.total, 4)
+  })
+
+  it('výkaz bez oddielov pre dom: sadzby nesie jeden riadok cez celú výstavbu', () => {
+    const d = withRates()
+    const building = new Set(d.boqSections.filter((s) => s.scope === 'building').map((s) => s.id))
+    d.boq = d.boq.filter((i) => !building.has(i.sectionId))
+    d.boqSections = d.boqSections.filter((s) => !building.has(s.id))
+    const t = boqTotals(d)
+    const line = t.sections.find((s) => s.section.id === RATES_SECTION)!
+    expect(line.total).toBeCloseTo(t.rates!.total, 4)
+    expect(line.section.phaseId).toBeNull()
+    expect(t.buildings).toBeCloseTo(t.rates!.total, 4)
+  })
+
+  it('model s tým počíta všade: náklady, percentá zo stavby aj mesačné toky', () => {
+    const plain = run(base())
+    const d = withRates()
+    const r = run(d)
+    const boq = boqTotals(d)
+    const line = (name: RegExp) => r.costs.lines.find((l) => name.test(l.item.name))!
+    expect(r.boq.total).toBeCloseTo(boq.total, 4)
+    expect(sum(r.costs.lines.filter((l) => l.item.calc.kind === 'boq').map((l) => l.plan))).toBeCloseTo(boq.total, 2)
+    // percentuálne položky idú zo sumy podľa sadzieb, nie z položiek výkazu
+    const reserve = line(/rezerva/i)
+    expect(reserve.item.calc.kind).toBe('pct')
+    if (reserve.item.calc.kind === 'pct') expect(reserve.plan).toBeCloseTo((boq.total * reserve.item.calc.pct) / 100, 2)
+    expect(sum(r.cash.outflow)).toBeCloseTo(r.costs.total, 2)
+    expect(sum(r.cash.outByGroup.build)).toBeCloseTo(sum(r.costs.lines.filter((l) => l.item.group === 'build').map((l) => l.plan)), 2)
+    // lacnejšia stavba = nižšie náklady a vyšší zisk
+    expect(boq.total).toBeLessThan(plain.boq.total)
+    expect(r.costs.total).toBeLessThan(plain.costs.total)
+    expect(r.kpi.profit).toBeGreaterThan(plain.kpi.profit)
+  })
+
+  it('neúplné alebo chybné nastavenie rozpočet nepokazí', () => {
+    const d = base()
+    // dáta zapísané mimo aplikácie: chýba zoznam oddielov, sadzba je záporná a jedna nie je číslo
+    d.settings.construction = { mode: 'rates', interiorPerM2: 1000, terracePerM2: -5, commonPerM2: Number.NaN } as never
+    const t = boqTotals(d)
+    const interior = sum(d.units.map((u) => u.interior))
+    expect(constructionBudget(d.settings)).toEqual({ mode: 'rates', interiorPerM2: 1000, terracePerM2: 0, commonPerM2: 0, commonAreaPerBuilding: 0, detailedSections: [] })
+    expect(t.rates!.total).toBeCloseTo(interior * 1000, 4)
+    expect(Number.isFinite(t.total)).toBe(true)
+    expect(Number.isFinite(run(d).kpi.profit)).toBe(true)
+  })
+
+  it('scenár zmeny stavebných nákladov platí aj pre sadzby', () => {
+    const d = withRates()
+    expect(boqTotals(d, 10).total).toBeCloseTo(boqTotals(d).total * 1.1, 4)
+    expect(boqTotals(d, 10).rates!.total).toBeCloseTo(boqTotals(d).rates!.total * 1.1, 4)
   })
 })
 
